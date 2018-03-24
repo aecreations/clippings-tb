@@ -1,0 +1,88 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://global/skin/global.css");
+
+
+#ae-clippings-new {
+  width: 34em;
+}
+
+.ae-clippings-folder {
+  list-style-image: url("chrome://clippings/skin/images/folder.svg");
+}
+
+menu > .menu-iconic-left, menuitem > .menu-iconic-left {
+  display:  -moz-box;
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+menu[open="true"] {
+  list-style-image: url("chrome://clippings/skin/images/folder-open.svg");
+}
+
+.clippings-root {
+  list-style-image: url("chrome://clippings/skin/images/clippings-root.svg");
+}
+
+.clippings-root > .menu-iconic-left {
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+#folder-menu-button {
+  list-style-image: url("chrome://clippings/skin/images/clippings-root.svg");
+  padding-top: 3px;
+  padding-bottom: 1px;
+}
+
+#folder-menu-button .menulist-icon {
+  padding-right: 1px;
+}
+
+#new-folder, #clipping-label, #clipping-label-2 {
+  min-width: 10px;
+  min-height: 16px;
+}
+
+#new-folder {
+  list-style-image: url("chrome://clippings/skin/images/clippingsMgrToolbar.svg");
+  -moz-image-region: rect(0px, 104px, 16px, 88px);
+}
+
+#new-folder image {
+  padding-top: 2px;
+  padding-bottom: 1px;
+}
+
+#clipping-label image {
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+#tb-create-options-grid {
+  display: none;  /* Only visible if running in Thunderbird */
+}
+
+/* Mac-specific */
+#toggle-options {
+  min-width: 10px !important;
+  min-height: 20px !important;
+  margin-right: 0px;
+  margin-left: 0px;
+  width: 25px;
+  height: 20px;
+}
+
+#toggle-options image {
+  padding-top: 5px;
+  padding-bottom: 4px;
+}
+
+/* Mac-specific */
+.expand-options {
+  list-style-image: url("chrome://clippings/skin/mac/images/expand.png");
+}
+

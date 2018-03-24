@@ -1,0 +1,35 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://global/skin/global.css");
+
+
+prefwindow {
+  min-width: 36em;
+}
+
+.ae-caption {
+  margin-left: 0px;
+}
+
+.ae-separator {
+  height: 0px !important;
+  border-top: 1px solid threedshadow;
+  border-bottom: 1px solid threedhighlight;
+  margin-top: 2px;
+  margin-bottom: 0.5em;
+}
+
+.ae-group-box {
+  -moz-box-flex: 1;
+  margin-left: 1.5em;
+}
+
+.indent {
+  margin-left: 2.5em;
+}
+
+#clipmgr-shortcut-key-legend {
+  height: 12em;
+}

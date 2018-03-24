@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://clippings-laf/skin/new.css" type="text/css"?>
+
+<!DOCTYPE window SYSTEM "chrome://clippings/locale/clippings.dtd">
+
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<dialog id="ae-clippings-new-folder" 
+ xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+ title="&newFolder.title;"
+ orient="vertical"
+ buttons="accept,cancel"
+ onload="init()" ondialogaccept="return accept()"
+ ondialogcancel="return cancel()">
+
+  <script type="application/javascript" src="chrome://clippings/content/new.js"/>
+
+  <stringbundle id="ae-clippings-strings" 
+   src="chrome://clippings/locale/clippings.properties"/>
+
+  <label value="&folderName.label;" accesskey="&folderName.accesskey;"
+   control="folder-name"/>
+  <textbox id="folder-name" size="32" onblur="validateFolderName(event)"/>
+
+  <separator class="thin"/>
+
+  <label value="&createAsSubf.label;" accesskey="&createAsSubf.accesskey;"
+   control="folder-menu-button"/>
+  <menulist id="folder-menu-button" class="clippings-root"
+   xmlns:clp="http://clippings.mozdev.org/ns/rdf#"
+   datasources="rdf:null"
+   ref="http://clippings.mozdev.org/rdf/user-clippings-v2"
+   label="&clippingsRoot.label;" width="128" crop="end" flex="1">
+
+    <menupopup id="folder-menu-popup" onpopupshowing="initMenuSeparator(this)">
+      <menuitem id="clippings-root"
+       class="menuitem-iconic clippings-root"
+       label="&clippingsRoot.label;"
+       oncommand="chooseFolder(gClippingsSvc.kRootFolderURI)"/>
+    </menupopup>
+
+    <template id="create-in-template">
+      <rule iscontainer="true" clp:hassubfolders="true">
+        <menupopup>
+	  <menu class="menu-iconic ae-clippings-folder" uri="rdf:*"
+	   label="rdf:http://clippings.mozdev.org/ns/rdf#name">
+	    <menupopup>
+  	      <menuitem label="&chooseAsParent.label;"
+	       oncommand="chooseFolder(this.parentNode.parentNode.id)"/>
+	      <menuseparator/>
+  	    </menupopup>
+	  </menu>
+	</menupopup>
+      </rule>
+      <rule iscontainer="true" clp:hassubfolders="false">
+        <menupopup>
+	  <menuitem class="menuitem-iconic ae-clippings-folder" uri="rdf:*"
+	   label="rdf:http://clippings.mozdev.org/ns/rdf#name"
+ 	   oncommand="chooseFolder(this.id)"/>
+  	</menupopup>
+      </rule>
+    </template>
+  </menulist>
+
+  <separator class="thin"/>
+
+</dialog>

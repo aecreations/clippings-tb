@@ -1,0 +1,40 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://clippings/skin/overlay.css");
+
+
+/* Clipping labels - colorize menuitem label in case icons aren't displayed. */
+menuitem.ae-clippings-clipping[clipLabel="red"] {
+  color: red;
+}
+
+menuitem.ae-clippings-clipping[clipLabel="orange"] {
+  color: orange;
+}
+
+menuitem.ae-clippings-clipping[clipLabel="yellow"] {
+  color: rgb(200, 200, 0);
+}
+
+menuitem.ae-clippings-clipping[clipLabel="green"] {
+  color: green;
+}
+
+menuitem.ae-clippings-clipping[clipLabel="blue"] {
+  color: blue;
+}
+
+menuitem.ae-clippings-clipping[clipLabel="purple"] {
+  color: purple;
+}
+
+menuitem.ae-clippings-clipping[clipLabel="grey"] {
+  color: gray;
+}
+
+/* Bold labels for submenu items for folders. */
+menu.ae-clippings-folder-menu {
+  font-weight: bold
+}
