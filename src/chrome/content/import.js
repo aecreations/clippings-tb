@@ -42,30 +42,34 @@ function init()
 
 function chooseImportFile()
 {
-  var fp = Components.classes["@mozilla.org/filepicker;1"]
+  let fp = Components.classes["@mozilla.org/filepicker;1"]
                      .createInstance(Components.interfaces.nsIFilePicker);
   fp.init(window, gStrBundle.getString("dlgTitleImportClippings"), fp.modeOpen);
   fp.appendFilter(gStrBundle.getString("multiImpFmtFilterDesc"), "*.rdf; *.json");
   fp.appendFilter(gStrBundle.getString("rdfImportFilterDesc"), "*.rdf");
   fp.appendFilter(gStrBundle.getString("wxJSONImportFilterDesc"), "*.json");
 
-  var dlgResult = fp.show();
-  if (dlgResult != fp.returnOK) {
-    return;
-  }
+  let fpShownCallback = {
+    done(aResult)
+    {
+      if (aResult == fp.returnCancel) {
+        return;
+      }
 
-  gImportFile = fp.file.QueryInterface(Components.interfaces.nsIFile);
-  gImportURL = fp.fileURL.QueryInterface(Components.interfaces.nsIURI).spec;  
-  gImportPath = fp.file.QueryInterface(Components.interfaces.nsIFile).path;
+      gImportFile = fp.file.QueryInterface(Components.interfaces.nsIFile);
+      gImportURL = fp.fileURL.QueryInterface(Components.interfaces.nsIURI).spec;  
+      gImportPath = fp.file.QueryInterface(Components.interfaces.nsIFile).path;
+      
+      $("import-file-path").value = gImportPath;
 
-  $("import-file-path").value = gImportPath;
+      let dsURL = aeUtils.getDataSourcePathURL() + aeConstants.CLIPDAT_FILE_NAME;
+      if (gImportURL == dsURL) {
+	aeUtils.alertEx(document.title, aeString.format("%s %S", gStrBundle.getString("errorCannotImportDSFile"), gImportURL));
+      }
+    }
+  };
 
-  // Prevent attempt at importing data source file.
-  var dsURL = aeUtils.getDataSourcePathURL() + aeConstants.CLIPDAT_FILE_NAME;
-  if (gImportURL == dsURL) {
-    aeUtils.alertEx(document.title, aeString.format("%s %S", gStrBundle.getString("errorCannotImportDSFile"), gImportURL));
-    return;
-  }
+  fp.open(fpShownCallback);  
 }
 
 
@@ -112,19 +116,25 @@ function importClippings()
     try {
       gDlgArgs.numImported = gClippingsSvc.importFromFile(gImportURL, false, false, importDSRootCtr);
     }
-    catch (e if e.result == Components.results.NS_ERROR_NOT_INITIALIZED) {
-      aeUtils.alertEx(document.title, gStrBundle.getString('alertImportFailedNoDS'));
-      resetProgress();
-      return false;
-    }
-    catch (e if e.result == Components.results.NS_ERROR_FILE_ACCESS_DENIED) {
-      aeUtils.alertEx(document.title, aeString.format("%s: %S", gStrBundle.getString("errorAccessDenied"), gImportPath));
-      resetProgress();
-      return false;
-    }
     catch (e) {
-      aeUtils.alertEx(document.title, gStrBundle.getFormattedString("alertImportFailed", [gImportPath]));
-      resetProgress();
+      if (e.result === undefined) {
+	aeUtils.alertEx(document.title, gStrBundle.getFormattedString("alertImportFailed", [gImportPath]));
+	resetProgress();
+	return false;
+      }
+      
+      if (e.result == Components.results.NS_ERROR_NOT_INITIALIZED) {
+	aeUtils.alertEx(document.title, gStrBundle.getString('alertImportFailedNoDS'));
+	resetProgress();
+      }
+      else if (e.result == Components.results.NS_ERROR_FILE_ACCESS_DENIED) {
+	aeUtils.alertEx(document.title, aeString.format("%s: %S", gStrBundle.getString("errorAccessDenied"), gImportPath));
+	resetProgress();
+      }
+      else {
+	aeUtils.alertEx(document.title, gStrBundle.getFormattedString("alertImportFailed", [gImportPath]));
+	resetProgress();
+      }
       return false;
     }
 

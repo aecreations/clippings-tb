@@ -193,27 +193,32 @@ window.aecreations.clippings = {
     try {
       this._ds = this.clippingsSvc.getDataSource(dsURL);
     }
-    catch (e if e.result == Components.results.NS_ERROR_OUT_OF_MEMORY) {
-      err = this.strBundle.getString("errorOutOfMemory");
-    }
-    catch (e if e.result == Components.results.NS_ERROR_FILE_ACCESS_DENIED) {
-      err = this.aeString.format("%s: %s",
-			  this.strBundle.getString("errorAccessDenied"),
-			  this.aeConstants.CLIPDAT_FILE_NAME);
-    }
-    catch (e if e.result == Components.results.NS_ERROR_FILE_IS_LOCKED) {
-      err = this.aeString.format("%s: %s",
-			  this.strBundle.getString("errorFileLocked"),
-			  this.aeConstants.CLIPDAT_FILE_NAME);
-    }
-    catch (e if e.result == Components.results.NS_ERROR_FILE_TOO_BIG) {
-      err = this.aeString.format("%s: %s",
-			  this.strBundle.getString("errorFileTooBig"),
-			  this.aeConstants.CLIPDAT_FILE_NAME);
-    }
     catch (e) {
-      // File is corrupt - open Clippings Manager and perform recovery.
-      err = 888;
+      if (e.result === undefined) {
+	err = this.strBundle.getString("errorInit");
+      }
+      else if (e.result == Components.results.NS_ERROR_OUT_OF_MEMORY) {
+	err = this.strBundle.getString("errorOutOfMemory");
+      }
+      else if (e.result == Components.results.NS_ERROR_FILE_ACCESS_DENIED) {
+	err = this.aeString.format("%s: %s",
+			    this.strBundle.getString("errorAccessDenied"),
+			    this.aeConstants.CLIPDAT_FILE_NAME);
+      }
+      else if (e.result == Components.results.NS_ERROR_FILE_IS_LOCKED) {
+	err = this.aeString.format("%s: %s",
+			    this.strBundle.getString("errorFileLocked"),
+			    this.aeConstants.CLIPDAT_FILE_NAME);
+      }
+      else if (e.result == Components.results.NS_ERROR_FILE_TOO_BIG) {
+	err = this.aeString.format("%s: %s",
+			    this.strBundle.getString("errorFileTooBig"),
+			    this.aeConstants.CLIPDAT_FILE_NAME);
+      }
+      else {
+	// File is corrupt - open Clippings Manager and perform recovery.
+	err = 888;
+      }
     }
 
     var errorMenuItem = document.getElementById("ae-clippings-error-menuitem");
@@ -475,56 +480,55 @@ window.aecreations.clippings = {
 
   saveClippings: function () 
   {
-    var title = this.strBundle.getString('appName');
+    var title = this.strBundle.getString("appName");
     try {
       this.clippingsSvc.flushDataSrc(true);
     }
-    catch (e if e.result == Components.results.NS_ERROR_NOT_INITIALIZED) {
-      this.aeUtils.alertEx(title, this.strBundle.getString("errorSaveFailedDSNotInitialized"));
-      return;
-	   }
-    catch (e if e.result == Components.results.NS_ERROR_OUT_OF_MEMORY) {
-      this.aeUtils.alertEx(title, this.strBundle.getString("errorOutOfMemory"));
-      return;
-    }
-    catch (e if e.result == Components.results.NS_ERROR_FILE_ACCESS_DENIED) {
-      let msg = this.aeString.format("%s: %s",
-			      this.strBundle.getString("errorAccessDenied"),
-			      this.aeConstants.CLIPDAT_FILE_NAME);
-      this.aeUtils.alertEx(title, msg);
-      return;
-    }
-    catch (e if e.result == Components.results.NS_ERROR_FILE_IS_LOCKED) {
-      let msg = this.aeString.format("%s: %s",
-			      this.strBundle.getString("errorFileLocked"),
-			      this.aeConstants.CLIPDAT_FILE_NAME);
-      this.aeUtils.alertEx(title, msg);
-      return;
-    }
-    catch (e if e.result == Components.results.NS_ERROR_FILE_TOO_BIG) {
-      let msg = this.aeString.format("%s: %s",
-			      this.strBundle.getString("errorFileTooBig"),
-			      this.aeConstants.CLIPDAT_FILE_NAME);
-      this.aeUtils.alertEx(title, msg);
-      return;
-    }
-    catch (e if e.result == Components.results.NS_ERROR_FILE_READ_ONLY) {
-      let msg = this.aeString.format("%s: %s",
-			      this.strBundle.getString('errorFileReadOnly'),
-			      this.aeConstants.CLIPDAT_FILE_NAME);
-      this.aeUtils.alertEx(title, msg);
-      return;
-    }
-    catch (e if e.result == Components.results.NS_ERROR_FILE_DISK_FULL) {
-      let msg = this.aeString.format("%s: %s",
-			      this.strBundle.getString('errorDiskFull'),
-			      this.aeConstants.CLIPDAT_FILE_NAME);
-      this.aeUtils.alertEx(title, msg);
-      return;
-    }
     catch (e) {
-      this.aeUtils.alertEx(title, this.strBundle.getString("alertSaveFailed"));
-      return;
+      if (e.result === undefined) {
+	this.aeUtils.alertEx(title, this.strBundle.getString("alertSaveFailed"));
+	return;
+      }
+    
+      if (e.result == Components.results.NS_ERROR_NOT_INITIALIZED) {
+	this.aeUtils.alertEx(title, this.strBundle.getString("errorSaveFailedDSNotInitialized"));
+      }
+      else if (e.result == Components.results.NS_ERROR_OUT_OF_MEMORY) {
+	this.aeUtils.alertEx(title, this.strBundle.getString("errorOutOfMemory"));
+      }
+      else if (e.result == Components.results.NS_ERROR_FILE_ACCESS_DENIED) {
+	let msg = this.aeString.format("%s: %s",
+			        this.strBundle.getString("errorAccessDenied"),
+			        this.aeConstants.CLIPDAT_FILE_NAME);
+	this.aeUtils.alertEx(title, msg);
+      }
+      else if (e.result == Components.results.NS_ERROR_FILE_IS_LOCKED) {
+	let msg = this.aeString.format("%s: %s",
+			        this.strBundle.getString("errorFileLocked"),
+			        this.aeConstants.CLIPDAT_FILE_NAME);
+	this.aeUtils.alertEx(title, msg);
+      }
+      else if (e.result == Components.results.NS_ERROR_FILE_TOO_BIG) {
+	let msg = this.aeString.format("%s: %s",
+			        this.strBundle.getString("errorFileTooBig"),
+			        this.aeConstants.CLIPDAT_FILE_NAME);
+	this.aeUtils.alertEx(title, msg);
+      }
+      else if (e.result == Components.results.NS_ERROR_FILE_READ_ONLY) {
+	let msg = this.aeString.format("%s: %s",
+			        this.strBundle.getString('errorFileReadOnly'),
+			        this.aeConstants.CLIPDAT_FILE_NAME);
+	this.aeUtils.alertEx(title, msg);
+      }
+      else if (e.result == Components.results.NS_ERROR_FILE_DISK_FULL) {
+	let msg = this.aeString.format("%s: %s",
+			        this.strBundle.getString('errorDiskFull'),
+			        this.aeConstants.CLIPDAT_FILE_NAME);
+	this.aeUtils.alertEx(title, msg);
+      }
+      else {
+	this.aeUtils.alertEx(title, this.strBundle.getString("alertSaveFailed"));
+      }
     }
   },
 

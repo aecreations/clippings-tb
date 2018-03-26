@@ -98,16 +98,18 @@ aeClippings3._importPackagedClippingsHelper = function ()
   try {
     aePackagedClippings.import(this._clippingsSvc);
   }
-  catch (e if e == aePackagedClippings.E_FLUSH_FAILED) {
-    aeUtils.alertEx(this._strBundle.getString("appName"),
-                    this._strBundle.getString("errorFlushAfterPDSImport"));
-  }
   catch (e) {
-    aeUtils.alertEx(this._strBundle.getString("appName"),
-                    this._strBundle.getString("errorDSImportFailure"));
-    var consoleSvc = Cc["@mozilla.org/consoleservice;1"].getService(Ci.nsIConsoleService);
-    var msg = aeString.format("Packaged Clipping import error: %s", e);
-    consoleSvc.logStringMessage(msg);
+    if (e == aePackagedClippings.E_FLUSH_FAILED) {
+      aeUtils.alertEx(this._strBundle.getString("appName"),
+                      this._strBundle.getString("errorFlushAfterPDSImport"));
+    }
+    else {
+      aeUtils.alertEx(this._strBundle.getString("appName"),
+                      this._strBundle.getString("errorDSImportFailure"));
+      var consoleSvc = Cc["@mozilla.org/consoleservice;1"].getService(Ci.nsIConsoleService);
+      var msg = aeString.format("Packaged Clipping import error: %s", e);
+      consoleSvc.logStringMessage(msg);
+    }
   }
 };
 

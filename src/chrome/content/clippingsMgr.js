@@ -1101,32 +1101,39 @@ function initDataSrc(aRecoveryMode)
   try {
     var ds = gClippingsSvc.getDataSource(dsURL);
   }
-  catch (e if e.result == Components.results.NS_ERROR_OUT_OF_MEMORY) {
-    doAlert(gStrBundle.getString("errorOutOfMemory"));
-    throw e;
-  }
-  catch (e if e.result == Components.results.NS_ERROR_FILE_ACCESS_DENIED) {
-    doAlert(aeString.format("%s: %s", gStrBundle.getString("errorAccessDenied"),
-			  aeConstants.CLIPDAT_FILE_NAME));
-    throw e;
-  }
-  catch (e if e.result == Components.results.NS_ERROR_FILE_IS_LOCKED) {
-    doAlert(aeString.format("%s: %s", gStrBundle.getString("errorFileLocked"),
-			  aeConstants.CLIPDAT_FILE_NAME));
-    throw e;
-  }
-  catch (e if e.result == Components.results.NS_ERROR_FILE_TOO_BIG) {
-    doAlert(aeString.format("%s: %s", gStrBundle.getString("errorFileTooBig"),
-			  aeConstants.CLIPDAT_FILE_NAME));
-    throw e;
-  }
   catch (e) {
-    ds = doRecovery(dsURL, aRecoveryMode);
-    if (! ds) {
-      // Recovery failed
-      throw "Automatic recovery failed";
+    if (e.result === undefined) {
+      doAlert(gStrBundle.getString("errorInit"));
+      return;
     }
-    aeUtils.log("Recovery method code: " + aRecoveryMode.value);
+    
+    if (e.result == Components.results.NS_ERROR_OUT_OF_MEMORY) {
+      doAlert(gStrBundle.getString("errorOutOfMemory"));
+      throw e;
+    }
+    else if (e.result == Components.results.NS_ERROR_FILE_ACCESS_DENIED) {
+      doAlert(aeString.format("%s: %s", gStrBundle.getString("errorAccessDenied"),
+	  		      aeConstants.CLIPDAT_FILE_NAME));
+      throw e;
+    }
+    else if (e.result == Components.results.NS_ERROR_FILE_IS_LOCKED) {
+      doAlert(aeString.format("%s: %s", gStrBundle.getString("errorFileLocked"),
+	  		      aeConstants.CLIPDAT_FILE_NAME));
+      throw e;
+    }
+    else if (e.result == Components.results.NS_ERROR_FILE_TOO_BIG) {
+      doAlert(aeString.format("%s: %s", gStrBundle.getString("errorFileTooBig"),
+			      aeConstants.CLIPDAT_FILE_NAME));
+      throw e;
+    }
+    else {
+      ds = doRecovery(dsURL, aRecoveryMode);
+      if (! ds) {
+	// Recovery failed
+	throw "Automatic recovery failed";
+      }
+      aeUtils.log("Recovery method code: " + aRecoveryMode.value);
+    }
   }
 
   rv = gDataSource;
@@ -1226,39 +1233,47 @@ function unload()
     try {
       gClippingsSvc.flushDataSrc(doBackup);
     }
-    catch (e if e.result == Components.results.NS_ERROR_NOT_INITIALIZED) {
-      doAlert(gStrBundle.getString("errorSaveFailedDSNotInitialized"));
-    }
-    catch (e if e.result == Components.results.NS_ERROR_OUT_OF_MEMORY) {
-      doAlert(gStrBundle.getString("errorOutOfMemory"));
-    }
-    catch (e if e.result == Components.results.NS_ERROR_FILE_ACCESS_DENIED) {
-      doAlert(aeString.format("%s: %s", gStrBundle.getString("errorAccessDenied"),
-			    aeConstants.CLIPDAT_FILE_NAME));
-    }
-    catch (e if e.result == Components.results.NS_ERROR_FILE_IS_LOCKED) {
-      doAlert(aeString.format("%s: %s", gStrBundle.getString("errorFileLocked"),
-			    aeConstants.CLIPDAT_FILE_NAME));
-    }
-    catch (e if e.result == Components.results.NS_ERROR_FILE_TOO_BIG) {
-      doAlert(aeString.format("%s: %s", gStrBundle.getString("errorFileTooBig"),
-			    aeConstants.CLIPDAT_FILE_NAME));
-    }
-    catch (e if e.result == Components.results.NS_ERROR_FILE_READ_ONLY) {
-      doAlert(aeString.format("%s: %s", gStrBundle.getString('errorFileReadOnly'),
-			    aeConstants.CLIPDAT_FILE_NAME));
-    }
-    catch (e if e.result == Components.results.NS_ERROR_FILE_DISK_FULL) {
-      doAlert(aeString.format("%s: %s", gStrBundle.getString("errorDiskFull"),
-			    aeConstants.CLIPDAT_FILE_NAME));
-    }
     catch (e) {
-      // Save failed for unknown reason - give the user the chance to try again
-      var consoleSvc = Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService);
-      var msg = aeString.format("Error from Clippings Manager: Error saving data source file - data source flush failed!\n\n%s", e);
-      consoleSvc.logStringMessage(msg);
+      if (e.result === undefined) {
+	doAlert(gStrBundle.getString("alertSaveFailed"));
+	return;
+      }
+      
+      if (e.result == Components.results.NS_ERROR_NOT_INITIALIZED) {
+	doAlert(gStrBundle.getString("errorSaveFailedDSNotInitialized"));
+      }
+      else if (e.result == Components.results.NS_ERROR_OUT_OF_MEMORY) {
+	doAlert(gStrBundle.getString("errorOutOfMemory"));
+      }
+      else if (e.result == Components.results.NS_ERROR_FILE_ACCESS_DENIED) {
+	doAlert(aeString.format("%s: %s", gStrBundle.getString("errorAccessDenied"),
+		 	        aeConstants.CLIPDAT_FILE_NAME));
+      }
+      else if (e.result == Components.results.NS_ERROR_FILE_IS_LOCKED) {
+	doAlert(aeString.format("%s: %s", gStrBundle.getString("errorFileLocked"),
+			        aeConstants.CLIPDAT_FILE_NAME));
+      }
+      else if (e.result == Components.results.NS_ERROR_FILE_TOO_BIG) {
+	doAlert(aeString.format("%s: %s", gStrBundle.getString("errorFileTooBig"),
 
-      retrySave = doConfirm(gStrBundle.getString("retrySave"));
+				aeConstants.CLIPDAT_FILE_NAME));
+      }
+      else if (e.result == Components.results.NS_ERROR_FILE_READ_ONLY) {
+	doAlert(aeString.format("%s: %s", gStrBundle.getString('errorFileReadOnly'),
+				aeConstants.CLIPDAT_FILE_NAME));
+      }
+      else if (e.result == Components.results.NS_ERROR_FILE_DISK_FULL) {
+	doAlert(aeString.format("%s: %s", gStrBundle.getString("errorDiskFull"),
+				aeConstants.CLIPDAT_FILE_NAME));
+      }
+      else {
+	// Save failed for unknown reason - give the user the chance to try again
+	var consoleSvc = Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService);
+	var msg = aeString.format("Error from Clippings Manager: Error saving data source file - data source flush failed!\n\n%s", e);
+	consoleSvc.logStringMessage(msg);
+
+	retrySave = doConfirm(gStrBundle.getString("retrySave"));
+      }
     }
   }
   while (retrySave);
@@ -1280,57 +1295,64 @@ function unload()
 
 function doRecovery(aDataSrcURL, aRecoveryMode)
 {
-  doAlert(gStrBundle.getString('recoverFromCorruption'));
+  doAlert(gStrBundle.getString("recoverFromCorruption"));
 
   try {
     var recoveredDataSrc = gClippingsSvc.recoverFromBackup();
     aRecoveryMode.value = doRecovery.RECOVER_FROM_BACKUP;
   }
-  catch (e if e.result == Components.results.NS_ERROR_FILE_NOT_FOUND) {
-    var importFromFile = doConfirm(gStrBundle.getString('msgNoBackupDoImportOption'));
-    try {
-      gClippingsSvc.killDataSrc();
-    }
-    catch (e) {
-      doAlert(gStrBundle.getString('errorCannotDeleteDSFile'));
+  catch (e) {
+    if (e.result === undefined) {
+      doAlert(gStrBundle.getString("errorRecoveryFailed"));
       return false;
     }
-
-    try {
-      recoveredDataSrc = gClippingsSvc.getDataSource(aDataSrcURL);
-    }
-    catch (e) {
-      doAlert(gStrBundle.getString('errorCannotRegenerateDS'));
-      return false;
-    }
-
-    if (importFromFile) {
-      var result;
-      do {
-	result = doImport();
-      } while (result == doImport.ERROR_CANNOT_IMPORT_DS
-	       || result == doImport.ERROR_FILE_IO
-	       || result == doImport.ERROR_FILE_UNREADABLE);
-
-      if (result == doImport.USER_CANCEL) {
-	aRecoveryMode.value = doRecovery.CREATE_BLANK_DS;
+    
+    if (e.result == Components.results.NS_ERROR_FILE_NOT_FOUND) {
+      var importFromFile = doConfirm(gStrBundle.getString("msgNoBackupDoImportOption"));
+      try {
+	gClippingsSvc.killDataSrc();
       }
-      else if (result == doImport.SUCCESS) {
-	aRecoveryMode.value = doRecovery.IMPORT_FROM_DS_FILE;
+      catch (e) {
+	doAlert(gStrBundle.getString("errorCannotDeleteDSFile"));
+	return false;
+      }
+
+      try {
+	recoveredDataSrc = gClippingsSvc.getDataSource(aDataSrcURL);
+      }
+      catch (e) {
+	doAlert(gStrBundle.getString("errorCannotRegenerateDS"));
+	return false;
+      }
+
+      if (importFromFile) {
+	var result;
+	do {
+	  result = doImport();
+	} while (result == doImport.ERROR_CANNOT_IMPORT_DS
+		 || result == doImport.ERROR_FILE_IO
+		 || result == doImport.ERROR_FILE_UNREADABLE);
+
+	if (result == doImport.USER_CANCEL) {
+	  aRecoveryMode.value = doRecovery.CREATE_BLANK_DS;
+	}
+	else if (result == doImport.SUCCESS) {
+	  aRecoveryMode.value = doRecovery.IMPORT_FROM_DS_FILE;
+	}
+	else {
+	  aRecoveryMode.value = doRecovery.FAILSAFE_CREATE_BLANK_DS;
+	}
       }
       else {
-	aRecoveryMode.value = doRecovery.FAILSAFE_CREATE_BLANK_DS;
+	aRecoveryMode.value = doRecovery.CREATE_BLANK_DS;
       }
     }
     else {
-      aRecoveryMode.value = doRecovery.CREATE_BLANK_DS;
+      doAlert(gStrBundle.getString("errorRecoveryFailed"));
+      return false;
     }
   }
-  catch (e) {
-    doAlert(gStrBundle.getString('errorRecoveryFailed'));
-    return false;
-  }
-
+  
   return recoveredDataSrc;
 }
 
@@ -2917,141 +2939,6 @@ function doImport()
   gJustImported = false;
 }
 
-
-// DEPRECATED
-function doImportEx()
-{
-  var fp = Components.classes["@mozilla.org/filepicker;1"]
-                     .createInstance(Components.interfaces.nsIFilePicker);
-  fp.init(window, gStrBundle.getString("dlgTitleImportClippings"), fp.modeOpen);
-  fp.appendFilter(gStrBundle.getString("rdfImportFilterDesc"), "*.rdf");
-  fp.appendFilter(gStrBundle.getString("wxJSONImportFilterDesc"), "*.json");
-
-  var dlgResult = fp.show();
-  if (dlgResult != fp.returnOK) {
-    return doImport.USER_CANCEL;
-  }
-
-  var url = fp.fileURL.QueryInterface(Components.interfaces.nsIURI).spec;  
-  var path = fp.file.QueryInterface(Components.interfaces.nsIFile).path;
-
-  if (url.endsWith(".json")) {
-    window.alert("The selected option is not available right now.");
-    return;
-  }
-  
-  var dsURL = aeUtils.getDataSourcePathURL() + aeConstants.CLIPDAT_FILE_NAME;
-
-  // Prevent attempt at importing data source file.
-  if (url == dsURL) {
-    doAlert(aeString.format("%s %S", gStrBundle.getString("errorCannotImportDSFile"), url));
-    return doImport.ERROR_CANNOT_IMPORT_DS;
-  }
-
-  gStatusBar.label = gStrBundle.getString("importBegin");
-
-  try {
-    var importDSRootCtr = {};
-    var numImported = gClippingsSvc.importFromFile(url, false, false, importDSRootCtr);
-  }
-  catch (e if e.result == Components.results.NS_ERROR_NOT_INITIALIZED) {
-    doAlert(gStrBundle.getString('alertImportFailedNoDS'));
-    gStatusBar.label = "";
-    return doImport.ERROR_UNINITIALIZED_DS;
-  }
-  catch (e if e.result == Components.results.NS_ERROR_OUT_OF_MEMORY) {
-    doAlert(gStrBundle.getString("errorOutOfMemory"));
-    gStatusBar.label = "";
-    return doImport.ERROR_UNEXPECTED;
-  }
-  catch (e if e.result == Components.results.NS_ERROR_FILE_ACCESS_DENIED) {
-    doAlert(aeString.format("%s: %S", gStrBundle.getString("errorAccessDenied"),
-			  path));
-    gStatusBar.label = "";
-    return doImport.ERROR_FILE_IO;
-  }
-  catch (e if e.result == Components.results.NS_ERROR_FILE_IS_LOCKED) {
-    doAlert(aeString.format("%s: %S", gStrBundle.getString("errorFileLocked"),
-			  path));
-    gStatusBar.label = "";
-    return doImport.ERROR_FILE_IO;
-  }
-  catch (e) {
-    aeUtils.log(e);
-
-    var err = gStrBundle.getFormattedString("alertImportFailed", [path]);
-    doAlert(err);
-    gStatusBar.label = "";
-    return doImport.ERROR_FILE_UNREADABLE;
-  }
-
-  importDSRootCtr = importDSRootCtr.value;
-
-  // Handle empty RDF files
-  if (numImported == 0) {
-    let toolsMenu = $("clippings-options");
-    let panel = $("import-empty-alert");
-    $("import-empty-alert-msg").value = gStrBundle.getString("msgNoItems");
-    gStatusBar.label = "";
-    aeUtils.beep();
-    panel.openPopup(toolsMenu, "after_start", 0, 0, false, false);
-    return doImport.SUCCESS;
-  }
-
-  // Handle conflicting shortcut keys
-  var conflictingKeys = false;
-  var importFlag = gClippingsSvc.IMPORT_REPLACE_CURRENT;
-
-  try {
-    conflictingKeys = gClippingsSvc.hasConflictingShortcutKeys(importDSRootCtr);
-  }
-  catch (e) {}
-
-  if (conflictingKeys) {
-    gJustImported = true;
-    var overwriteKeyAsgts = aeUtils.confirmYesNo(gStrBundle.getString("appName"), gStrBundle.getString("shortcutKeyConflict"), true);
-
-    if (! overwriteKeyAsgts) {
-      importFlag = gClippingsSvc.IMPORT_KEEP_CURRENT;
-    }
-
-    gJustImported = false;
-  }
-
-  try {
-    gClippingsSvc.importShortcutKeys(importDSRootCtr, importFlag);
-  }
-  catch (e) {}
-
-  // Append the "empty" clipping to any empty folders that were imported
-  gClippingsSvc.processEmptyFolders();
-
-  var deck = $("entry-properties");
-  if (gClippingsList.getRowCount() > 0) {
-    deck.selectedIndex = 0;
-    gClippingsList.selectedIndex = 0;
-    gClippingsList.tree.click();
-  }
-
-  // Status bar msg is overwritten in listbox.click() call, so redisplay
-  // status of import.
-  gStatusBar.label = aeString.format("%s%s",
-				   gStrBundle.getString("importBegin"),
-				   gStrBundle.getString("importDone"));
-  try {
-    gClippingsSvc.flushDataSrc(true);
-  }
-  catch (e) {
-    // Don't do anything for now - try again when closing Clippings Manager.
-  }
-
-  if (gFindBar.isActivated()) {
-    gFindBar.setSearchResultsUpdateFlag();
-  }
-
-  return doImport.SUCCESS;
-}
-
 // Return values of doImport()
 doImport.USER_CANCEL             = 0;
 doImport.SUCCESS                 = 1;
@@ -3123,32 +3010,31 @@ function backupClippings()
       try {
         gClippingsSvc.exportToFile(fp.fileURL.spec, gClippingsSvc.FILETYPE_RDF_XML, true);
       }
-      catch (e if e.result == Components.results.NS_ERROR_NOT_INITIALIZED) {
-	doAlert(gStrBundle.getString("alertExportFailedNoDS"));
-	return;
-      }
-      catch (e if e.result == Components.results.NS_ERROR_OUT_OF_MEMORY) {
-	doAlert(gStrBundle.getString("errorOutOfMemory"));
-	return;
-      }
-      catch (e if e.result == Components.results.NS_ERROR_FILE_ACCESS_DENIED) {
-	doAlert(gStrBundle.getString("errorAccessDenied"));
-	return;
-      }
-      catch (e if e.result == Components.results.NS_ERROR_FILE_READ_ONLY) {
-	doAlert(gStrBundle.getString("errorFileReadOnly"));
-	return;
-      }
-      catch (e if e.result == Components.results.NS_ERROR_FILE_DISK_FULL) {
-	doAlert(gStrBundle.getString("errorDiskFull"));
-	return;
-      }
       catch (e) {
-        doAlert(gStrBundle.getString("errorBackupFailed"));
-        return;
+	if (e.result === undefined) {
+	  doAlert(gStrBundle.getString("errorBackupFailed"));
+	  return;
+	}
+	
+	if (e.result == Components.results.NS_ERROR_NOT_INITIALIZED) {
+	  doAlert(gStrBundle.getString("alertExportFailedNoDS"));
+	}
+	else if (e.result == Components.results.NS_ERROR_OUT_OF_MEMORY) {
+	  doAlert(gStrBundle.getString("errorOutOfMemory"));
+	}
+	else if (e.result == Components.results.NS_ERROR_FILE_ACCESS_DENIED) {
+	  doAlert(gStrBundle.getString("errorAccessDenied"));
+	}
+	else if (e.result == Components.results.NS_ERROR_FILE_READ_ONLY) {
+	  doAlert(gStrBundle.getString("errorFileReadOnly"));
+	}
+	else if (e.result == Components.results.NS_ERROR_FILE_DISK_FULL) {
+	  doAlert(gStrBundle.getString("errorDiskFull"));
+	}
+	else {
+          doAlert(gStrBundle.getString("errorBackupFailed"));
+	}
       }
-      
-      aeUtils.setPref("clippings.show_wx_notice", false);
     }
   };
 
@@ -3221,29 +3107,38 @@ function restoreBackup(aBackupFileURL)
     var importDSRootCtr = {};
     var numImported = gClippingsSvc.importFromFile(aBackupFileURL, false, true, importDSRootCtr);
   }
-  catch (e if e.result == Components.results.NS_ERROR_NOT_INITIALIZED) {
-    doAlert(gStrBundle.getString('alertImportFailedNoDS'));
-    return;
-  }
-  catch (e if e.result == Components.results.NS_ERROR_OUT_OF_MEMORY) {
-    doAlert(gStrBundle.getString("errorOutOfMemory"));
-    return;
-  }
-  catch (e if e.result == Components.results.NS_ERROR_FILE_ACCESS_DENIED) {
-    doAlert(aeString.format("%s: %S", gStrBundle.getString("errorAccessDenied"),
-			  aBackupFileURL));
-    return;
-  }
-  catch (e if e.result == Components.results.NS_ERROR_FILE_IS_LOCKED) {
-    doAlert(aeString.format("%s: %S", gStrBundle.getString("errorFileLocked"),
-			  aBackupFileURL));
-    return;
-  }
   catch (e) {
-    aeUtils.log(e);
-    var err = gStrBundle.getFormattedString("alertImportFailed", [aBackupFileURL]);
-    doAlert(err);
-    return;
+    if (e.result === undefined) {
+      aeUtils.log(e);
+      var err = gStrBundle.getFormattedString("alertImportFailed", [aBackupFileURL]);
+      doAlert(err);
+      return;
+    }
+    
+    if (e.result == Components.results.NS_ERROR_NOT_INITIALIZED) {
+      doAlert(gStrBundle.getString('alertImportFailedNoDS'));
+      return;
+    }
+    else if (e.result == Components.results.NS_ERROR_OUT_OF_MEMORY) {
+      doAlert(gStrBundle.getString("errorOutOfMemory"));
+      return;
+    }
+    else if (e.result == Components.results.NS_ERROR_FILE_ACCESS_DENIED) {
+      doAlert(aeString.format("%s: %S", gStrBundle.getString("errorAccessDenied"),
+			      aBackupFileURL));
+      return;
+    }
+    else if (e.result == Components.results.NS_ERROR_FILE_IS_LOCKED) {
+      doAlert(aeString.format("%s: %S", gStrBundle.getString("errorFileLocked"),
+			  aBackupFileURL));
+      return;
+    }
+    else {
+      aeUtils.log(e);
+      var err = gStrBundle.getFormattedString("alertImportFailed", [aBackupFileURL]);
+      doAlert(err);
+      return;
+    }
   }
 
   importDSRootCtr = importDSRootCtr.value;

@@ -196,25 +196,30 @@ function exportClippings()
       try {
 	fnExport();
       }
-      catch (e if e.result == Components.results.NS_ERROR_NOT_INITIALIZED) {
-	alertEx(gStrBundle.getString("alertExportFailedNoDS"));
-      }
-      catch (e if e.result == Components.results.NS_ERROR_OUT_OF_MEMORY) {
-	alertEx(gStrBundle.getString("errorOutOfMemory"));
-      }
-      catch (e if e.result == Components.results.NS_ERROR_FILE_ACCESS_DENIED) {
-	alertEx(gStrBundle.getString("errorAccessDenied"));
-      }
-      catch (e if e.result == Components.results.NS_ERROR_FILE_READ_ONLY) {
-	alertEx(gStrBundle.getString("errorFileReadOnly"));
-      }
-      catch (e if e.result == Components.results.NS_ERROR_FILE_DISK_FULL) {
-	alertEx(gStrBundle.getString("errorDiskFull"));
-      }
       catch (e) {
-	alertEx(gStrBundle.getString("alertExportFailed"));
+	if (e.result === undefined) {
+	  alertEx(gStrBundle.getString("alertExportFailed"));
+	}
+	else if (e.result == Components.results.NS_ERROR_NOT_INITIALIZED) {
+	  alertEx(gStrBundle.getString("alertExportFailedNoDS"));
+	}
+	else if (e.result == Components.results.NS_ERROR_OUT_OF_MEMORY) {
+	  alertEx(gStrBundle.getString("errorOutOfMemory"));
+	}
+	else if (e.result == Components.results.NS_ERROR_FILE_ACCESS_DENIED) {
+	  alertEx(gStrBundle.getString("errorAccessDenied"));
+	}
+	else if (e.result == Components.results.NS_ERROR_FILE_READ_ONLY) {
+	  alertEx(gStrBundle.getString("errorFileReadOnly"));
+	}
+	else if (e.result == Components.results.NS_ERROR_FILE_DISK_FULL) {
+	  alertEx(gStrBundle.getString("errorDiskFull"));
+	}
+	else {
+	  alertEx(gStrBundle.getString("alertExportFailed"));
+	}
       }
-
+      
       alertEx(gStrBundle.getFormattedString("exportSuccess", [path]));
       window.close();
     }

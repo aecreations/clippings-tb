@@ -169,50 +169,51 @@ function outputShortcutList(aOutputMode)
     try {
       clippingsSvc.writeFile(tempFileURL, data);
     }
-    catch (e if e.result == Components.results.NS_ERROR_OUT_OF_MEMORY) {
-      aeUtils.alertEx(title, gStrBundle.getString("errorOutOfMemory"));
-      return;
-    }
-    catch (e if e.result == Components.results.NS_ERROR_FILE_ACCESS_DENIED) {
-      let msg = aeString.format("%s: %s",
-			        gStrBundle.getString("errorAccessDenied"),
-			        aeConstants.SHORTCUT_HELP_PRINT_FILENAME);
-      aeUtils.alertEx(title, msg);
-      return;
-    }
-    catch (e if e.result == Components.results.NS_ERROR_FILE_IS_LOCKED) {
-      let msg = aeString.format("%s: %s",
-			        gStrBundle.getString("errorFileLocked"),
-			        aeConstants.SHORTCUT_HELP_PRINT_FILENAME);
-      aeUtils.alertEx(title, msg);
-      return;
-    }
-    catch (e if e.result == Components.results.NS_ERROR_FILE_TOO_BIG) {
-      let msg = aeString.format("%s: %s",
-			        gStrBundle.getString("errorFileTooBig"),
-			        aeConstants.SHORTCUT_HELP_PRINT_FILENAME);
-      aeUtils.alertEx(title, msg);
-      return;
-    }
-    catch (e if e.result == Components.results.NS_ERROR_FILE_READ_ONLY) {
-      let msg = aeString.format("%s: %s",
-			        gStrBundle.getString("errorFileReadOnly"),
-			        aeConstants.SHORTCUT_HELP_PRINT_FILENAME);
-      aeUtils.alertEx(title, msg);
-      return;
-    }
-    catch (e if e.result == Components.results.NS_ERROR_FILE_DISK_FULL) {
-      let msg = aeString.format("%s: %s",
-			        gStrBundle.getString("errorDiskFull"),
-			        aeConstants.SHORTCUT_HELP_PRINT_FILENAME);
-      aeUtils.alertEx(title, msg);
-      return;
-    }
     catch (e) {
-      aeUtils.alertEx(title, gStrBundle.getString("errorSaveFailed"));
+      if (e.result === undefined) {
+	aeUtils.alertEx(title, gStrBundle.getString("errorSaveFailed"));
+	return;
+      }
+
+      if (e.result == Components.results.NS_ERROR_OUT_OF_MEMORY) {
+	aeUtils.alertEx(title, gStrBundle.getString("errorOutOfMemory"));
+      }
+      else if (e.result == Components.results.NS_ERROR_FILE_ACCESS_DENIED) {
+	let msg = aeString.format("%s: %s",
+			          gStrBundle.getString("errorAccessDenied"),
+			          aeConstants.SHORTCUT_HELP_PRINT_FILENAME);
+	aeUtils.alertEx(title, msg);
+      }
+      else if (e.result == Components.results.NS_ERROR_FILE_IS_LOCKED) {
+	let msg = aeString.format("%s: %s",
+			          gStrBundle.getString("errorFileLocked"),
+			          aeConstants.SHORTCUT_HELP_PRINT_FILENAME);
+	aeUtils.alertEx(title, msg);
+      }
+      else if (e.result == Components.results.NS_ERROR_FILE_TOO_BIG) {
+	let msg = aeString.format("%s: %s",
+			          gStrBundle.getString("errorFileTooBig"),
+			          aeConstants.SHORTCUT_HELP_PRINT_FILENAME);
+	aeUtils.alertEx(title, msg);
+      }
+      else if (e.result == Components.results.NS_ERROR_FILE_READ_ONLY) {
+	let msg = aeString.format("%s: %s",
+			          gStrBundle.getString("errorFileReadOnly"),
+			          aeConstants.SHORTCUT_HELP_PRINT_FILENAME);
+	aeUtils.alertEx(title, msg);
+      }
+      else if (e.result == Components.results.NS_ERROR_FILE_DISK_FULL) {
+	let msg = aeString.format("%s: %s",
+			          gStrBundle.getString("errorDiskFull"),
+			          aeConstants.SHORTCUT_HELP_PRINT_FILENAME);
+	aeUtils.alertEx(title, msg);
+      }
+      else {
+	aeUtils.alertEx(title, gStrBundle.getString("errorSaveFailed"));
+      }
       return;
     }
-
+    
     // Open the temp file and automatically print it.
     if (gDlgArgs.printToExtBrowser) {
       // If on Thunderbird, open the generated HTML document in the default
@@ -249,42 +250,49 @@ function outputShortcutList(aOutputMode)
 	try {
 	  clippingsSvc.writeFile(url, data);
 	}
-        catch (e if e.result == Components.results.NS_ERROR_OUT_OF_MEMORY) {
-          aeUtils.alertEx(title, gStrBundle.getString("errorOutOfMemory"));
-        }
-        catch (e if e.result == Components.results.NS_ERROR_FILE_ACCESS_DENIED) {
-          let msg = aeString.format("%s: %s",
-                                    gStrBundle.getString("errorAccessDenied"),
-                                    aeConstants.SHORTCUT_HELP_PRINT_FILENAME);
-          aeUtils.alertEx(title, msg);
-        }
-        catch (e if e.result == Components.results.NS_ERROR_FILE_IS_LOCKED) {
-          let msg = aeString.format("%s: %s",
-                                    gStrBundle.getString("errorFileLocked"),
-                                    aeConstants.SHORTCUT_HELP_PRINT_FILENAME);
-          aeUtils.alertEx(title, msg);
-        }
-        catch (e if e.result == Components.results.NS_ERROR_FILE_TOO_BIG) {
-          let msg = aeString.format("%s: %s",
-                                    gStrBundle.getString("errorFileTooBig"),
-                                    aeConstants.SHORTCUT_HELP_PRINT_FILENAME);
-          aeUtils.alertEx(title, msg);
-        }
-        catch (e if e.result == Components.results.NS_ERROR_FILE_READ_ONLY) {
-          let msg = aeString.format("%s: %s",
-                                    gStrBundle.getString("errorFileReadOnly"),
-                                    aeConstants.SHORTCUT_HELP_PRINT_FILENAME);
-          aeUtils.alertEx(title, msg);
-        }
-        catch (e if e.result == Components.results.NS_ERROR_FILE_DISK_FULL) {
-          let msg = aeString.format("%s: %s",
-                                    gStrBundle.getString("errorDiskFull"),
-                                    aeConstants.SHORTCUT_HELP_PRINT_FILENAME);
-          aeUtils.alertEx(title, msg);
-        }
-        catch (e) {
-          aeUtils.alertEx(title, gStrBundle.getString("errorSaveFailed"));
-        }
+	catch (e) {
+	  if (e.result === undefined) {
+	    aeUtils.alertEx(title, gStrBundle.getString("errorSaveFailed"));
+	    return;
+	  }
+	  
+          if (e.result == Components.results.NS_ERROR_OUT_OF_MEMORY) {
+            aeUtils.alertEx(title, gStrBundle.getString("errorOutOfMemory"));
+          }
+          else if (e.result == Components.results.NS_ERROR_FILE_ACCESS_DENIED) {
+            let msg = aeString.format("%s: %s",
+                                      gStrBundle.getString("errorAccessDenied"),
+                                      aeConstants.SHORTCUT_HELP_PRINT_FILENAME);
+            aeUtils.alertEx(title, msg);
+          }
+          else if (e.result == Components.results.NS_ERROR_FILE_IS_LOCKED) {
+            let msg = aeString.format("%s: %s",
+                                      gStrBundle.getString("errorFileLocked"),
+                                      aeConstants.SHORTCUT_HELP_PRINT_FILENAME);
+            aeUtils.alertEx(title, msg);
+          }
+          else if (e.result == Components.results.NS_ERROR_FILE_TOO_BIG) {
+            let msg = aeString.format("%s: %s",
+                                      gStrBundle.getString("errorFileTooBig"),
+                                      aeConstants.SHORTCUT_HELP_PRINT_FILENAME);
+            aeUtils.alertEx(title, msg);
+          }
+          else if (e.result == Components.results.NS_ERROR_FILE_READ_ONLY) {
+            let msg = aeString.format("%s: %s",
+                                      gStrBundle.getString("errorFileReadOnly"),
+                                      aeConstants.SHORTCUT_HELP_PRINT_FILENAME);
+            aeUtils.alertEx(title, msg);
+          }
+          else if (e.result == Components.results.NS_ERROR_FILE_DISK_FULL) {
+            let msg = aeString.format("%s: %s",
+                                      gStrBundle.getString("errorDiskFull"),
+                                      aeConstants.SHORTCUT_HELP_PRINT_FILENAME);
+            aeUtils.alertEx(title, msg);
+          }
+	  else {
+            aeUtils.alertEx(title, gStrBundle.getString("errorSaveFailed"));
+          }
+	}
       }
     };
 
