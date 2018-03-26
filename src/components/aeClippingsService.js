@@ -241,7 +241,7 @@ aeClippingsService.prototype._createNewClippingHelper = function (aParentFolderU
   }
 
   var name = this._sanitize(aName);
-  var text = this._sanitize(aText);
+  var text = this._sanitize(aText || "");
   var srcURL = this._sanitize(aSourceURL || "");
 
   var predName = this._rdfSvc.GetResource(this._PREDNAME_RESOURCE_URI);
@@ -1477,13 +1477,21 @@ aeClippingsService.prototype.setText = function (aURI, aText)
     throw Components.Exception("aeClippingsService.setText(): URI argument is not a clipping resource", Components.results.NS_ERROR_INVALID_ARG);
   }
 
-  var text = this._sanitize(aText);
+  var text = this._sanitize(aText || "");
   var subjText = this._rdfSvc.GetResource(aURI);
   var predText = this._rdfSvc.GetResource(this._PREDTEXT_RESOURCE_URI);
   var targOldText;
   targOldText = this._dataSrc.GetTarget(subjText, predText, true);
   var targNewText = this._rdfSvc.GetLiteral(text);
-  this._dataSrc.Change(subjText, predText, targOldText, targNewText); 
+
+  if (targOldText) {
+    this._dataSrc.Change(subjText, predText, targOldText, targNewText);
+  }
+  else {
+    // Clipping RDF node was missing the "text" predicate; reason unknown
+    // (see issue #189)
+    this._dataSrc.Assert(subjText, predText, targNewText, true);
+  }
 };
 
 
