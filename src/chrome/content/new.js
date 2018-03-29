@@ -119,14 +119,6 @@ function init()
 
     $("shortcut-key-hint").setAttribute("tooltiptext", hint);
 
-    let saveSrcURLElt = $("save-source-url");
-    saveSrcURLElt.checked = gDlgArgs.saveSrcURL;
-
-    if (! gDlgArgs.srcURL) {
-      saveSrcURLElt.disabled = true;
-      saveSrcURLElt.checked = false;
-    }
-
     // Thunderbird-specific options
     if (aeUtils.getHostAppID() == aeConstants.HOSTAPP_TB_GUID) {
       $("tb-create-options-grid").style.display = "-moz-grid";
@@ -135,9 +127,6 @@ function init()
       if (gDlgArgs.text.search(/^>/gm) == -1) {
 	gCreateAsUnquoted.disabled = true;
       }
-
-      // This checkbox option isn't applicable to Thunderbird, so hide it.
-      $("save-source-url").hidden = true;
     }
     
     gClippingName.value = gDlgArgs.name;

@@ -18,10 +18,6 @@
        name="extensions.aecreations.clippings.html_paste"/>
       <preference id="html-auto-line-break-pref" type="bool"
        name="extensions.aecreations.clippings.html_auto_line_break"/>
-      <preference id="tab-modal-placeholder-prmt-pref" type="bool"
-       name="extensions.aecreations.clippings.tab_modal_placeholder_prompt"/>
-      <preference id="always-save-src-url-pref" type="bool"
-       name="extensions.aecreations.clippings.always_save_source_url"/>
       <preference id="check-spelling-pref" type="bool"
        name="extensions.aecreations.clippings.check_spelling"/>
       <preference id="enable-shortcut-key-pref" type="bool"
@@ -57,19 +53,12 @@
       <checkbox id="enable-shortcut-key" preference="enable-shortcut-key-pref"
        oncommand="showChangedPrefMsg()"/>
 
-      <!-- Firefox only -->
-      <checkbox id="tab-modal-prmt" preference="tab-modal-placeholder-prmt-pref"
-       label="&tabModalPrompt.label;" accesskey="&tabModalPrompt.accesskey;"/>
     </groupbox>
     <separator class="thin"/>
 
     <groupbox>
       <caption label="&generalOptions.caption;"/>
 
-      <!-- Firefox only -->
-      <checkbox id="always-save-src-url"
-       preference="always-save-src-url-pref"
-       label="&alwaysSaveSrcUrl.label;" accesskey="&alwaysSaveSrcUrl.accesskey;"/>
       <hbox flex="1">
         <checkbox id="check-spelling" flex="1"
          preference="check-spelling-pref"

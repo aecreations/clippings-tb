@@ -1067,15 +1067,6 @@ function init()
     treeElt.setAttribute("treelines", "true");
   }
 
-  // Clippings/wx migration notification - for Firefox only.
-  if (aeUtils.getHostAppID() == aeConstants.HOSTAPP_FX_GUID
-      && aeUtils.getPref("clippings.show_wx_notice", true)) {
-    let params = getParamsMap(window.location.search);
-    if (params["hideWxNotice"] === undefined) {
-      $("clippings-wx-notification").hidden = false;
-    }
-  }
-  
   // First-run help
   if (aeUtils.getPref("clippings.clipmgr.first_run", true)) {
     window.setTimeout(function () { showHelp(); }, 1000);

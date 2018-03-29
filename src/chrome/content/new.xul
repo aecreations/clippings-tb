@@ -113,10 +113,6 @@
 
     <hbox flex="1">
       <vbox flex="1">
-        <!-- Firefox only -->
-        <checkbox id="save-source-url" label="&saveSourceURL.label;"
-         accesskey="&saveSourceURL.accesskey;"/>
-
         <!-- Thunderbird only -->
         <grid id="tb-create-options-grid">
           <columns>

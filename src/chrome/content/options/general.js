@@ -38,15 +38,8 @@ function initPrefPaneGeneral()
 
   if (aeUtils.getHostAppID() == aeConstants.HOSTAPP_TB_GUID) {    
     $("paste-html-formatted-clipping").value = gStrBundle.getString("htmlPasteOptionsTB");
-    $("tab-modal-prmt").hidden = true;
-    $("always-save-src-url").hidden = true;
   }
 
-  if (aeUtils.getHostAppID() == aeConstants.HOSTAPP_FX_GUID
-      && aeUtils.isElectrolysisEnabled()) {
-    $("tab-modal-prmt").hidden = true;
-  }
-  
   var shortcutKeyStr = gStrBundle.getFormattedString("shortcutMode", [shortcutKeyPrefix]);
   $("enable-shortcut-key").label = shortcutKeyStr;
   $("enable-shortcut-key").accessKey = gStrBundle.getString("shortcutModeAccessKey");
