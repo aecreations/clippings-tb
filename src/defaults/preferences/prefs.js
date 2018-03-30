@@ -2,7 +2,6 @@ pref("extensions.aecreations.clippings.entries.add_silently", false);
 pref("extensions.aecreations.clippings.backup.maxfiles", 10);
 pref("extensions.aecreations.clippings.first_run", true);
 pref("extensions.aecreations.clippings.v3.first_run", true);
-pref("extensions.aecreations.clippings.show_wx_notice", true);
 pref("extensions.aecreations.clippings.migrate_common_ds_pref", true);
 pref("extensions.aecreations.clippings.export.html.title", "Clippings");
 pref("extensions.aecreations.clippings.datasource.location", "");
@@ -24,9 +23,7 @@ pref("extensions.aecreations.clippings.html_auto_line_break", true);
 pref("extensions.aecreations.clippings.check_spelling", true);
 pref("extensions.aecreations.clippings.enable_keyboard_paste", true);
 pref("extensions.aecreations.clippings.beep_on_error", true);
-pref("extensions.aecreations.clippings.tab_modal_placeholder_prompt", false);
 pref("extensions.aecreations.clippings.migrated_prefs", false);
-pref("extensions.aecreations.clippings.always_save_source_url", false);
 pref("extensions.aecreations.clippings.paste_shortcut_mode", 1);
 pref("extensions.{91aa5abe-9de4-4347-b7b5-322c38dd9271}.description", "chrome://clippings/locale/clippings.properties");
 
