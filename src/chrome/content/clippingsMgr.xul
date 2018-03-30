@@ -27,8 +27,8 @@
   <script type="application/javascript">
   <![CDATA[
 
-    Components.utils.import("resource://clippings/modules/aeUtils.js");
-    Components.utils.import("resource://clippings/modules/aeString.js");
+    ChromeUtils.import("resource://clippings/modules/aeUtils.js");
+    ChromeUtils.import("resource://clippings/modules/aeString.js");
 
     function window_unload(aEvent)
     {

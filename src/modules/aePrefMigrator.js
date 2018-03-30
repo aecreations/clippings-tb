@@ -8,8 +8,8 @@
 //    "extensions.aecreations" branch.
 //
 
-Components.utils.import("resource://gre/modules/Services.jsm");
-Components.utils.import("resource://clippings/modules/aeUtils.js");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://clippings/modules/aeUtils.js");
 
 
 const EXPORTED_SYMBOLS = ["aePrefMigrator"];

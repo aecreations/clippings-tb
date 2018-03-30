@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-Components.utils.import("resource://clippings/modules/aeConstants.js");
-Components.utils.import("resource://clippings/modules/aeUtils.js");
-Components.utils.import("resource://clippings/modules/aeString.js");
-Components.utils.import("resource://clippings/modules/aeCreateClippingHelper.js");
-Components.utils.import("resource://clippings/modules/aeInsertTextIntoTextbox.js");
-Components.utils.import("resource://clippings/modules/aeClippingLabelPicker.js");
+ChromeUtils.import("resource://clippings/modules/aeConstants.js");
+ChromeUtils.import("resource://clippings/modules/aeUtils.js");
+ChromeUtils.import("resource://clippings/modules/aeString.js");
+ChromeUtils.import("resource://clippings/modules/aeCreateClippingHelper.js");
+ChromeUtils.import("resource://clippings/modules/aeInsertTextIntoTextbox.js");
+ChromeUtils.import("resource://clippings/modules/aeClippingLabelPicker.js");
 
 
 const WINDOWSTATE_MAXIMIZE  = 1;

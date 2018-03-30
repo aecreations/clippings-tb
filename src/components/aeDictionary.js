@@ -9,7 +9,7 @@
  *  $Id: aeDictionary.js,v 1.3 2012/11/02 05:27:23 ateng Exp $
  */
 
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 
 /*

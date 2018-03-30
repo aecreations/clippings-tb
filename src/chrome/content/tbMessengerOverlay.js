@@ -381,18 +381,18 @@ window.aecreations.clippings = {
 };
 
 
-Components.utils.import("resource://clippings/modules/aeConstants.js",
-			window.aecreations.clippings);
-Components.utils.import("resource://clippings/modules/aeString.js",
-                        window.aecreations.clippings);
-Components.utils.import("resource://clippings/modules/aeUtils.js",
-                        window.aecreations.clippings);
-Components.utils.import("resource://clippings/modules/aeCreateClippingHelper.js",
-			window.aecreations.clippings);
-Components.utils.import("resource://clippings/modules/aeClippings3.js",
-                        window.aecreations.clippings);
-Components.utils.import("resource://clippings/modules/aePrefMigrator.js",
-			window.aecreations.clippings);
+ChromeUtils.import("resource://clippings/modules/aeConstants.js",
+		   window.aecreations.clippings);
+ChromeUtils.import("resource://clippings/modules/aeString.js",
+                   window.aecreations.clippings);
+ChromeUtils.import("resource://clippings/modules/aeUtils.js",
+                   window.aecreations.clippings);
+ChromeUtils.import("resource://clippings/modules/aeCreateClippingHelper.js",
+		   window.aecreations.clippings);
+ChromeUtils.import("resource://clippings/modules/aeClippings3.js",
+                   window.aecreations.clippings);
+ChromeUtils.import("resource://clippings/modules/aePrefMigrator.js",
+		   window.aecreations.clippings);
 
 //
 // Event handler initialization
