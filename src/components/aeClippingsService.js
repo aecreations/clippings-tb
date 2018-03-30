@@ -54,6 +54,9 @@ aeClippingsService.prototype = {
 
   _CLIPPINGS_HTML_NS: "http://clippings.mozdev.org/ns/html#",
 
+  _JSON_EXPORT_VER: "6.0",
+  _JSON_EXPORT_CREATED_BY: "Clippings for Thunderbird 5.6",
+
   // Private member variables
   _dataSrc: null,
   _rdfSvc:  Components.classes["@mozilla.org/rdf/rdf-service;1"]
@@ -2006,8 +2009,8 @@ aeClippingsService.prototype.exportToFile = function (aFileURL, aFileType, aIncl
   else {
     csvData = [];
     jsonData = {
-      version: "6.0",
-      createdBy: "Clippings 5.5",
+      version: this._JSON_EXPORT_VER,
+      createdBy: this._JSON_EXPORT_CREATED_BY,
       userClippingsRoot: []
     };
   }
