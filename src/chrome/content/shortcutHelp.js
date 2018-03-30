@@ -320,13 +320,7 @@ function generateShortcutKeyHelpContent()
   body.appendChild(pAppInfo);
 
   var pHelp = doc.createElement("p");
-  var helpStr;
-  if (aeUtils.getHostAppID() == aeConstants.HOSTAPP_FX_GUID) {
-    helpStr = gStrBundle.getFormattedString("shortcutInstr", [gStrBundle.getString("pasteIntoFx")]);
-  }
-  else if (aeUtils.getHostAppID() == aeConstants.HOSTAPP_TB_GUID) {
-    helpStr = gStrBundle.getFormattedString("shortcutInstr", [gStrBundle.getString("pasteIntoTb")]);
-  }
+  var helpStr = gStrBundle.getFormattedString("shortcutInstr", [gStrBundle.getString("pasteIntoTb")]);
 
   var txtHelp = doc.createTextNode(helpStr);
   pHelp.appendChild(txtHelp);
