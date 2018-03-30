@@ -46,7 +46,6 @@ function aeCreateClippingFromText(aClippingsSvc, aText, aSourceURL, aShowDialog,
     _log("aeCreateClippingFromText(): clipName: \"" + clipName + "\"; length: " + clipName.length + "; source URL: " + (srcURL || "(nil)"));
 
     var label = aClippingsSvc.LABEL_NONE;
-    var saveSrcURL = (srcURL ? aeUtils.getPref("clippings.always_save_source_url") : false);
 
     if (aShowDialog) {
       var args = {
@@ -55,7 +54,7 @@ function aeCreateClippingFromText(aClippingsSvc, aText, aSourceURL, aShowDialog,
         label: label,
 	key:   null,
         srcURL: srcURL,
-        saveSrcURL: saveSrcURL,
+        saveSrcURL: false,
 	destFolder: null,
 	userCancel: null
       };
@@ -76,7 +75,6 @@ function aeCreateClippingFromText(aClippingsSvc, aText, aSourceURL, aShowDialog,
       }
       clipName = args.name;
       clipText = args.text;
-      saveSrcURL = args.saveSrcURL;
       label = args.label;
       parentFolderURI = args.destFolder;
     }
@@ -85,10 +83,6 @@ function aeCreateClippingFromText(aClippingsSvc, aText, aSourceURL, aShowDialog,
       throw ("createClippingFromText(): Folder does not exist: " + parentFolderURI);
     }
     _log("aeCreateClippingFromText(): Parent folder URI: " + parentFolderURI);
-
-    if (! saveSrcURL) {
-      srcURL = "";
-    }
 
     rv = aClippingsSvc.createNewClipping(parentFolderURI, clipName, clipText, 
                                          srcURL, label, aDontNotify);

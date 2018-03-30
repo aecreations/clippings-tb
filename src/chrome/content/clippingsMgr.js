@@ -699,124 +699,6 @@ var gPlaceholderBar = {
 
 
 //
-// Source URL bar
-//
-
-var gSrcURLBar = {
- _srcURLBarElt: null,
- _srcURLTextbox: null,
- _srcURLDeck: null,
- _editBtns: null,
- _prevSrcURLValue: "",
-
-
- init: function ()
- {
-   this._srcURLBarElt = $("source-url-bar");
-   this._srcURLTextbox = $("clipping-src-url");
-   this._srcURLDeck = $("source-url-deck");
-   this._editBtns = $("clipping-src-url-edit-btns");
- },
-
- show: function () 
- {
-   this._srcURLBarElt.style.display = "-moz-grid";
- },
-
- hide: function ()
- {
-   this._srcURLBarElt.style.display = "none";
- },
-
- isVisible: function ()
- {
-   return !this._srcURLBarElt.collapsed;
- },
-
- keypress: function (aEvent)
- {
-   if (this.isEditing()) {
-     if (aEvent.key == "Enter") {
-       this.acceptEdit();
-     }
-     else if (aEvent.key == "Esc" || aEvent.key == "Escape") {
-       this.cancelEdit();
-     }
-     aEvent.stopPropagation();
-   }
- },
-
- edit: function ()
- {
-   if (gCurrentListItemIndex == -1) {
-     aeUtils.beep();
-     aeUtils.log("Can't edit source URL because there is no clipping selected!");
-     return;
-   }
-
-   this._srcURLDeck.selectedIndex = 1;
-
-   let clippingURI = gClippingsList.getURIAtIndex(gCurrentListItemIndex);
-   let url = gClippingsSvc.getSourceURL(clippingURI);
-   this._srcURLTextbox.value = url;
-
-   this._prevSrcURLValue = this._srcURLTextbox.value;
-
-   if (this._srcURLTextbox.value == "") {
-     this._srcURLTextbox.value = "";
-     this._srcURLTextbox.select();
-   }
-   this._srcURLTextbox.focus();
- },
-
- isEditing: function ()
- {
-   return (this._srcURLDeck.selectedIndex == 1);
- },
-
- isBadURLEntered: function ()
- {
-   // Minimal validation of source URL (but allow an empty value)
-   let srcURL = this._srcURLTextbox.value;
-   return (srcURL.search(/^http/) == -1 && srcURL != "");
- },
-
- acceptEdit: function ()
- {
-   if (this.isBadURLEntered()) {
-     aeUtils.beep();
-     this._srcURLTextbox.select();
-     return;
-   }
-
-   let srcURL = this._srcURLTextbox.value;
-   let clippingURI = gClippingsList.getURIAtIndex(gCurrentListItemIndex);
-   gClippingsSvc.setSourceURL(clippingURI, srcURL);
-
-   let srcURLLink = $("clipping-src-url-link");
-   srcURLLink.value = srcURL;
-
-   try {
-     gClippingsSvc.flushDataSrc(true);
-   }
-   catch (e) {
-     gStatusBar.label = gStrBundle.getString("errorSaveFailed");
-   }
-
-   this._prevSrcURLValue = "";
-   this._srcURLDeck.selectedIndex = 0;
- },
-
- cancelEdit: function ()
- {
-   this._srcURLTextbox.value = this._prevSrcURLValue;
-   this._prevSrcURLValue = "";
-   this._srcURLDeck.selectedIndex = 0;
- },
-};
-
-
-//
 // Options bar (shortcut key and label)
 //
 
@@ -888,7 +770,6 @@ function init()
   var treeElt = $("clippings-list");
   gClippingsList = new RDFTreeWrapper(treeElt);
   gClippingsList.tree.builder.addObserver(treeBuilderObserver);
-  gSrcURLBar.init();
   gOptionsBar.init();
   gFindBar.init();
 
@@ -902,16 +783,8 @@ function init()
   }
 
   gClippingDetailsPaneVisible = aeUtils.getPref("clippings.clipmgr.details_pane", false);
-  if (gClippingDetailsPaneVisible) {
-    // Source URL bar should not be available if on Thunderbird.
-    if (aeUtils.getHostAppID() == aeConstants.HOSTAPP_TB_GUID) {
-      aeUtils.log("Clippings: Thunderbird detected, hiding source URL bar");
-      gSrcURLBar.hide();
-    }
-  }
-  else {
+  if (! gClippingDetailsPaneVisible) {
     gOptionsBar.hide();
-    gSrcURLBar.hide();
   }
 
   // Clipping label picker widgets
@@ -2260,15 +2133,9 @@ function toggleClippingDetails()
 
   if (gClippingDetailsPaneVisible) {
     gOptionsBar.show();
- 
-    // Source URL bar should not be available if on Thunderbird.
-    if (aeUtils.getHostAppID() != aeConstants.HOSTAPP_TB_GUID) {
-      gSrcURLBar.show();
-    }
   }
   else {
     gOptionsBar.hide();
-    gSrcURLBar.hide();
   }
 
   aeUtils.setPref("clippings.clipmgr.details_pane", gClippingDetailsPaneVisible);
@@ -2387,44 +2254,6 @@ function insertIntoClippingText(aInsertedText)
 }
 
 
-function goToSourceURL()
-{
-  var uri = gClippingsList.selectedURI;
-
-  if (! uri) {
-    aeUtils.log("goToURL(): Nothing selected (how did we even get here?)");
-    return;
-  }
-
-  if (! gClippingsSvc.isClipping(uri)) {
-    aeUtils.log("goToURL(): Attempting to fetch URL of a non-clipping!");
-    return;
-  }
-
-  if (gClippingsSvc.hasSourceURL(uri)) {
-    let srcURL = gClippingsSvc.getSourceURL(uri);
-
-    if (! srcURL) {
-      return;
-    }
-
-    if (aeUtils.getHostAppID() == aeConstants.HOSTAPP_FX_GUID) {
-      let wnd = aeUtils.getRecentHostAppWindow();
-      
-      if (wnd) {
-        let newBrwsTab = wnd.gBrowser.loadOneTab(srcURL);
-        wnd.gBrowser.selectedTab = newBrwsTab;
-      }
-      else {
-        wnd = window.open(srcURL);
-      }
-
-      wnd.focus();
-    }
-  }
-}
-
-
 function updateCurrentEntryStatus()
 {
   if (gClippingsList.getRowCount() == 0) {
@@ -2436,20 +2265,6 @@ function updateCurrentEntryStatus()
   var deck = $("entry-properties");
   if (deck.selectedIndex != 0) {
     deck.selectedIndex = 0;
-  }
-
-  // Auto-apply edits to source URL if it was being edited when the user
-  // selected another item in the tree list.
-  if (gSrcURLBar.isEditing()) {
-    aeUtils.log("Clippings Manager: The source URL is being edited; auto-applying changes if URL is valid.");
-
-    // But discard the edit if the source URL isn't valid.
-    if (gSrcURLBar.isBadURLEntered()) {
-      gSrcURLBar.cancelEdit();
-    }
-    else {
-      gSrcURLBar.acceptEdit();
-    }
   }
 }
 
@@ -2466,8 +2281,6 @@ function updateDisplay(aSuppressUpdateSelection)
   var clippingKeyLabel = $("clipping-key-label");
   var shortcutKeyMiniHelp = $("shortcut-key-minihelp");
   var labelPickerLabel = $("clipping-label");
-  var srcURLBar = $("source-url-bar");
-  var srcURLLink = $("clipping-src-url-link");
   var labelPickerBtn;
 
   if (gAltClippingLabelPicker) {
@@ -2494,7 +2307,6 @@ function updateDisplay(aSuppressUpdateSelection)
     clippingName.disabled = false;
     clippingText.style.visibility = "hidden";
     shortcutKeyMiniHelp.style.visibility = "hidden";
-    srcURLBar.style.visibility = "hidden";
       
     clippingKey.selectedIndex = 0;
     clippingKeyLabel.style.visibility = "hidden";
@@ -2513,7 +2325,6 @@ function updateDisplay(aSuppressUpdateSelection)
     clippingName.disabled = true;
     clippingText.style.visibility = "hidden";
     shortcutKeyMiniHelp.style.visibility = "hidden";
-    srcURLBar.style.visibility = "hidden";
 
     clippingKey.selectedIndex = 0;
     clippingKeyLabel.style.visibility = "hidden";
@@ -2530,7 +2341,6 @@ function updateDisplay(aSuppressUpdateSelection)
   else {
     clippingName.disabled = false;
     clippingText.style.visibility = "visible";
-    srcURLBar.style.visibility = "visible";
     clippingKeyLabel.style.visibility = "visible";
     clippingKey.style.visibility = "visible";
     shortcutKeyMiniHelp.style.visibility = "visible";
@@ -2547,29 +2357,6 @@ function updateDisplay(aSuppressUpdateSelection)
 
   if (gClippingsSvc.isClipping(uri)) {
     clippingText.value = gClippingsSvc.getText(uri);
-
-    var debugStr = "The selected clipping";
-    if (gClippingsSvc.hasSourceURL(uri)) {
-      let srcURL = gClippingsSvc.getSourceURL(uri);
-      debugStr += aeString.format("'s source URL is: %S", srcURL);
-
-      let urlText = document.createTextNode("");
-      if (srcURL == "") {
-        srcURLLink.removeAttribute("class");
-        srcURLLink.value = gStrBundle.getString("none");
-      }
-      else {
-        srcURLLink.setAttribute("class", "text-link");
-        srcURLLink.value = srcURL;
-      }
-      srcURLLink.appendChild(urlText);
-    }
-    else {
-      srcURLLink.removeAttribute("class");
-      srcURLLink.value = gStrBundle.getString("none");
-      debugStr += " doesn't have a source URL.";
-      
-    }
 
     if (gClippingsSvc.hasLabel(uri)) {
       let label = gClippingsSvc.getLabel(uri);
@@ -2605,7 +2392,6 @@ function updateDisplay(aSuppressUpdateSelection)
 }
 
 updateDisplay.placeholderBarVisible = null;
-updateDisplay.sourceURLBarVisible = null;
 
 
 function updateLabelMenu()
@@ -3182,10 +2968,6 @@ function initClippingsListPopup()
   clippingLabelCxtMenu.hidden = !gClippingsSvc.isClipping(uri);
   $("clipping-label-cxt-separator").hidden = !gClippingsSvc.isClipping(uri);
 
-  $("go-to-url-cxt").hidden = !(aeUtils.getHostAppID() == aeConstants.HOSTAPP_FX_GUID
-                                && gClippingsSvc.isClipping(uri) 
-                                && gClippingsSvc.hasSourceURL(uri) 
-                                && gClippingsSvc.getSourceURL(uri) != "");
   return true;
 }
 

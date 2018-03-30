@@ -202,7 +202,6 @@
     <command id="cmd_export" oncommand="doExport()"/>
     <command id="cmd_new_from_clipboard" oncommand="pasteClippingAsNew()"/>
     <command id="cmd_reload" oncommand="reload()"/>
-    <command id="cmd_goToSourceURL" oncommand="goToSourceURL()"/>
     <command id="cmd_find" oncommand="toggleFindBar()"/>
     <command id="cmd_datasrc_opts" oncommand="dataSrcOptions()"/>
     <command id="cmd_clipmgr_opts" oncommand="clippingsMgrOptions()"/>
@@ -301,9 +300,6 @@
         </template>
 
       </menu>
-
-      <menuitem id="go-to-url-cxt" label="&goToURL.label;"
-       accesskey="&goToURL.accesskey;" command="cmd_goToSourceURL"/>
 
       <!-- Clipping label picker: for treelist context menu -->
       <menuseparator id="clipping-label-cxt-separator"/>
@@ -599,53 +595,6 @@
              oncommand="insertAutoIncrementPlaceholder()"/>
           </toolbar>
         </toolbox>
-
-        <!-- Source URL  -->
-	<grid id="source-url-bar">
-	  <columns>
-	    <column/>
-	    <column flex="1"/>
-	    <column/>
-	    <column/>
-	  </columns>
-	  <rows>
-	    <row align="center">
-	      <label value="&sourceURL.label;" control="clipping-src-url"/>
-              <deck id="source-url-deck" flex="1">
-                <grid flex="1">
-                  <columns>
-                    <column flex="1"/>
-                    <column/>
-                  </columns>
-                  <rows>
-                    <row align="center">
-                      <label id="clipping-src-url-link" class="text-link"
-                       crop="end" onclick="goToSourceURL()" 
-                       ondblclick="gSrcURLBar.edit()"/>
-                      <button id="edit-url-btn"
-                       label="&editSrcURL.label;" 
-                       accesskey="&editSrcURL.accesskey;"
-                       oncommand="gSrcURLBar.edit()"/>
-                    </row>
-                  </rows>
-                </grid>
-		<hbox flex="1">
-  	          <textbox id="clipping-src-url" flex="1"
-                   placeholder="&none.label;"
-                   onkeypress="gSrcURLBar.keypress(event)"/>
-                  <hbox id="clipping-src-url-edit-btns">
-                    <toolbarbutton id="src-url-edit-ok"
-                     tooltiptext="&okButton.label;"
-                     oncommand="gSrcURLBar.acceptEdit()"/>
-		    <toolbarbutton id="src-url-edit-cancel"
-                     tooltiptext="&cancelButton.label;"
-                     oncommand="gSrcURLBar.cancelEdit()"/>
-                  </hbox>
-                </hbox>
-              </deck>
-	    </row>
-	  </rows>
-        </grid>
 
 	<!-- Shortcut key and label -->
 	<grid id="options-bar">
