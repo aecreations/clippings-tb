@@ -276,11 +276,6 @@ window.aecreations.clippings = {
     let profilePath = this.aeUtils.getUserProfileDir().path;
     let dsPath = this.aeUtils.getPref("clippings.datasource.location", profilePath);
     
-    if (this.aeUtils.PORTABLE_APP_BUILD && dsPath != profilePath) {
-      this.aeUtils.log("Clippings: initClippings():\nResetting data source location on Portable " + this.aeUtils.getHostAppName());
-      this.aeUtils.setPref("clippings.datasource.location", profilePath);
-    }
-
     // Initialize the datasource in the Clippings XPCOM service
     var err = false;
     var dsURL = this.aeUtils.getDataSourcePathURL() + this.aeConstants.CLIPDAT_FILE_NAME;
