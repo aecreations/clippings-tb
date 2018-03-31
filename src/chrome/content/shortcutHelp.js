@@ -6,6 +6,7 @@ ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
 ChromeUtils.import("resource://clippings/modules/aeConstants.js");
 ChromeUtils.import("resource://clippings/modules/aeUtils.js");
 ChromeUtils.import("resource://clippings/modules/aeString.js");
+ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
 
 
 const Cc = Components.classes;
@@ -85,7 +86,7 @@ function insertClipping()
   var selectedItem = shortcutListTreeView.getItemAtIndex(selectedIndex);
   var selectedURI = selectedItem.firstChild.childNodes[1].getAttribute("value");
 
-  var clippingsSvc = Cc["clippings@mozdev.org/clippings;1"].getService(Ci.aeIClippingsService);
+  var clippingsSvc = aeClippingsService.getService();
   var name = clippingsSvc.getName(selectedURI);
   var text = clippingsSvc.getText(selectedURI);
 
@@ -155,7 +156,7 @@ function outputShortcutList(aOutputMode)
   data = doctype + "\n" + header + "\n" + data + "\n" + footer;
 
   // Leverage method aeIClippingsService.writeFile()
-  var clippingsSvc = Cc["clippings@mozdev.org/clippings;1"].getService(Ci.aeIClippingsService);
+  var clippingsSvc = aeClippingsService.getService();
 
   if (aOutputMode == OUTPUT_PRINTER) {
     // Write the HTML data to a temp file.

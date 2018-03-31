@@ -4,6 +4,7 @@
 
 ChromeUtils.import("resource://clippings/modules/aeConstants.js");
 ChromeUtils.import("resource://clippings/modules/aeUtils.js");
+ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
 
 var gStrBundle;
 var gExportFormatList;
@@ -23,7 +24,7 @@ function $(aID) {
 function init() 
 {
   try {
-    gClippingsSvc = Components.classes["clippings@mozdev.org/clippings;1"].getService(Components.interfaces.aeIClippingsService);
+    gClippingsSvc = aeClippingsService.getService();
   }
   catch (e) {
     alertEx(e);

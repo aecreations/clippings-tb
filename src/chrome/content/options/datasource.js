@@ -5,6 +5,7 @@
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://clippings/modules/aeConstants.js");
 ChromeUtils.import("resource://clippings/modules/aeUtils.js");
+ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
 
 
 var gStrBundle;
@@ -43,7 +44,7 @@ function initPrefPaneDataSource()
   initDlg();
 
   try {
-    gClippingsSvc = Cc["clippings@mozdev.org/clippings;1"].getService(Ci.aeIClippingsService);
+    gClippingsSvc = aeClippingsService.getService();
   }
   catch (e) {
     aeUtils.alertEx(document.title, e);

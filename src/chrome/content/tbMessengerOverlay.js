@@ -212,7 +212,7 @@ window.aecreations.clippings = {
     this.strBundle = document.getElementById("ae-clippings-strings");
 
     try {
-      this.clippingsSvc = Components.classes["clippings@mozdev.org/clippings;1"].getService(Components.interfaces.aeIClippingsService);
+      this.clippingsSvc = this.aeClippingsService.getService();
     }
     catch (e) {
       this.alert(e);
@@ -387,6 +387,8 @@ ChromeUtils.import("resource://clippings/modules/aeString.js",
                    window.aecreations.clippings);
 ChromeUtils.import("resource://clippings/modules/aeUtils.js",
                    window.aecreations.clippings);
+ChromeUtils.import("resource://clippings/modules/aeClippingsService.js",
+		   window.aecreations.clippings);
 ChromeUtils.import("resource://clippings/modules/aeCreateClippingHelper.js",
 		   window.aecreations.clippings);
 ChromeUtils.import("resource://clippings/modules/aeClippings3.js",

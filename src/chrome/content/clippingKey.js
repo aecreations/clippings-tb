@@ -4,6 +4,7 @@
 
 ChromeUtils.import("resource://clippings/modules/aeUtils.js");
 ChromeUtils.import("resource://clippings/modules/aeString.js");
+ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;
@@ -17,7 +18,7 @@ function initWnd()
   gDlgArgs = window.arguments[0];
 
   try {
-    gClippingsSvc = Cc["clippings@mozdev.org/clippings;1"].getService(Ci.aeIClippingsService);
+    gClippingsSvc = aeClippingsService.getService();
   }
   catch (e) {
     alert(e);

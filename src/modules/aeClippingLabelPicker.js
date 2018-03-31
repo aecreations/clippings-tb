@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
+
+
 const EXPORTED_SYMBOLS = ["aeClippingLabelPicker"];
 
 const DEBUG = false;
@@ -22,7 +25,7 @@ function ClippingLabelPicker(aMenupopup)
   this._menupopup = aMenupopup;
   this._doc = aMenupopup.ownerDocument;
 
-  this._clippingsSvc = Cc["clippings@mozdev.org/clippings;1"].getService(Ci.aeIClippingsService);
+  this._clippingsSvc = aeClippingsService.getService();
 
   this._selectedLabel = this._clippingsSvc.LABEL_NONE;
   this._selectedItem = this._menupopup.getElementsByClassName("clipping-label-none")[0];

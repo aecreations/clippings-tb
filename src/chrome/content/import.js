@@ -5,6 +5,7 @@
 ChromeUtils.import("resource://clippings/modules/aeConstants.js");
 ChromeUtils.import("resource://clippings/modules/aeUtils.js");
 ChromeUtils.import("resource://gre/modules/osfile.jsm")
+ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
 
 let gDlgArgs, gStrBundle, gClippingsSvc, gImportURL, gImportPath, gImportFile;
 
@@ -25,7 +26,7 @@ function $(aID) {
 function init() 
 {
   try {
-    gClippingsSvc = Components.classes["clippings@mozdev.org/clippings;1"].getService(Components.interfaces.aeIClippingsService);
+    gClippingsSvc = aeClippingsService.getService();
   }
   catch (e) {
     alert(e);

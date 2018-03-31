@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 ChromeUtils.import("resource://clippings/modules/aeUtils.js");
+ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;
@@ -31,7 +32,7 @@ function initDlg()
   gStrBundle = $("ae-clippings-strings");
 
   try {
-    gClippingsSvc = Cc["clippings@mozdev.org/clippings;1"].getService(Ci.aeIClippingsService);
+    gClippingsSvc = aeClippingsService.getService();
   }
   catch (e) {
     alert(e);

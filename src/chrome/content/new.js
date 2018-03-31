@@ -9,6 +9,7 @@
 ChromeUtils.import("resource://clippings/modules/aeConstants.js");
 ChromeUtils.import("resource://clippings/modules/aeString.js");
 ChromeUtils.import("resource://clippings/modules/aeUtils.js");
+ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
 ChromeUtils.import("resource://clippings/modules/aeClippingLabelPicker.js");
 
 
@@ -60,7 +61,7 @@ function $(aID)
 function init()
 {
   try {
-    gClippingsSvc = Components.classes["clippings@mozdev.org/clippings;1"].getService(Components.interfaces.aeIClippingsService);
+    gClippingsSvc = aeClippingsService.getService();
   }
   catch (e) {
     alert(e);

@@ -548,7 +548,7 @@ window.aecreations.clippings = {
     this.aeClippingSubst.init(this.strBundle, navigator.userAgent);
 
     try {
-      this.clippingsSvc = Components.classes["clippings@mozdev.org/clippings;1"].getService(Components.interfaces.aeIClippingsService);
+      this.clippingsSvc = this.aeClippingsService.getService();
     }
     catch (e) {
       this.alert(e);
@@ -796,6 +796,8 @@ ChromeUtils.import("resource://clippings/modules/aeString.js",
                    window.aecreations.clippings);
 ChromeUtils.import("resource://clippings/modules/aeUtils.js",
                    window.aecreations.clippings);
+ChromeUtils.import("resource://clippings/modules/aeClippingsService.js",
+		   window.aecreations.clippings);
 ChromeUtils.import("resource://clippings/modules/aeCreateClippingHelper.js",
 		   window.aecreations.clippings);
 ChromeUtils.import("resource://clippings/modules/aeClippingSubst.js",
