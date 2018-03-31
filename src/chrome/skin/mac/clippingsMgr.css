@@ -406,22 +406,22 @@ toolbarbutton .toolbarbutton-icon {
   margin: 0;
 }
 
-#clippings-wx-notification {
+#notification-bar {
   border-top: 1px solid white;
   border-bottom: 1px solid #fbe738;
   background-color: #fcfc29;
 }
 
-#clippings-wx-notification description {
+#notification-bar description {
   font-weight: bold;
   cursor: pointer;
 }
 
-#clippings-wx-notification description:hover {
+#notification-bar description:hover {
   color: -moz-hyperlinktext;
   text-decoration: underline;
 }
 
-clippings-wx-notification description:active {
+notification-bar description:active {
   color: -moz-activehyperlinktext;
 }

@@ -1297,29 +1297,9 @@ function setStatusBarVisibility()
 }
 
 
-function showClippingsMigrationInfo()
+function closeNotificationBar()
 {
-  let srcURL = aeUtils.getClippings6PageURL();
-  
-  if (aeUtils.getHostAppID() == aeConstants.HOSTAPP_FX_GUID) {
-    let wnd = aeUtils.getRecentHostAppWindow();
-    
-    if (wnd) {
-      let newBrwsTab = wnd.gBrowser.loadOneTab(srcURL);
-      wnd.gBrowser.selectedTab = newBrwsTab;
-    }
-    else {
-        wnd = window.open(srcURL);
-    }
-    
-    wnd.focus();
-  }
-}
-
-
-function closeMigrationNotification()
-{
-  $("clippings-wx-notification").hidden = true;
+  $("notification-bar").hidden = true;
 }
 
 

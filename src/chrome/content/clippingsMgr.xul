@@ -495,19 +495,18 @@
     </toolbar>
   </toolbox>
 
-  <hbox id="clippings-wx-notification" hidden="true">
+  <hbox id="notification-bar" hidden="true">
     <grid flex="1">
       <columns>
 	<column/><column flex="1"/><column/>
       </columns>
       <rows>
 	<row align="center">
-	  <image src="chrome://clippings/skin/images/clippings-wx.png"
+	  <image src="chrome://clippings/skin/images/clippings.png"
            style="margin-left:8px;margin-right:4px"/>
-	  <description
-           onclick="showClippingsMigrationInfo()">&wxComing.desc;</description>
+	  <description id="notification-bar-content"></description>
 	  <button id="dismiss-notification" label="&closeButton.label;"
-           oncommand="closeMigrationNotification()" style="min-width:4em"/>
+           oncommand="closeNotificationBar()" style="min-width:4em"/>
 	</row>
       </rows>
     </grid>
