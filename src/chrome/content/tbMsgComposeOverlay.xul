@@ -55,33 +55,6 @@
         </menu>
         <menuseparator/>
       </menupopup>
-
-      <template id="ae-clippings-template">
-        <rule rdf:type="http://clippings.mozdev.org/ns/rdf#clipping">
-	  <menupopup>
-	    <menuitem class="menuitem-iconic ae-clippings-clipping" uri="rdf:*"
-	     label="rdf:http://clippings.mozdev.org/ns/rdf#name"
-	     clipName="rdf:http://clippings.mozdev.org/ns/rdf#name"
-	     clipText="rdf:http://clippings.mozdev.org/ns/rdf#text"
-             clipLabel="rdf:http://clippings.mozdev.org/ns/rdf#label"
-	     oncommand="window.aecreations.clippings.insertClippingText(this.id,this.getAttribute('clipName'),this.getAttribute('clipText'))"/>
-	  </menupopup>
-	</rule>
-	<rule rdf:type="http://clippings.mozdev.org/ns/rdf#null">
-	  <menupopup>
-	    <menuitem label="&empty.label;" disabled="true"/>
-	  </menupopup>
-	</rule>
-	<rule iscontainer="true">
-	  <menupopup>
-  	    <menu class="menu-iconic ae-clippings-folder-menu" uri="rdf:*"
-	     label="rdf:http://clippings.mozdev.org/ns/rdf#name">
-	      <menupopup />
-	    </menu>
-	  </menupopup>
-	</rule>
-      </template>
-
     </menu>
   </menupopup>
 

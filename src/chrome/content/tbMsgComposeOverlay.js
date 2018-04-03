@@ -1,3 +1,4 @@
+/* -*- mode: C++; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -27,6 +28,7 @@ window.aecreations.clippings = {
   _clippingsListener:     null,
   _isErrMenuItemVisible:  false,
   _ds:                    null,
+  _menu:                  null,
 
 
   // Method handleEvent() effectively makes the Clippings overlay object an
@@ -197,27 +199,29 @@ window.aecreations.clippings = {
       if (e.result === undefined) {
 	err = this.strBundle.getString("errorInit");
       }
-      else if (e.result == Components.results.NS_ERROR_OUT_OF_MEMORY) {
-	err = this.strBundle.getString("errorOutOfMemory");
-      }
-      else if (e.result == Components.results.NS_ERROR_FILE_ACCESS_DENIED) {
-	err = this.aeString.format("%s: %s",
-			    this.strBundle.getString("errorAccessDenied"),
-			    this.aeConstants.CLIPDAT_FILE_NAME);
-      }
-      else if (e.result == Components.results.NS_ERROR_FILE_IS_LOCKED) {
-	err = this.aeString.format("%s: %s",
-			    this.strBundle.getString("errorFileLocked"),
-			    this.aeConstants.CLIPDAT_FILE_NAME);
-      }
-      else if (e.result == Components.results.NS_ERROR_FILE_TOO_BIG) {
-	err = this.aeString.format("%s: %s",
-			    this.strBundle.getString("errorFileTooBig"),
-			    this.aeConstants.CLIPDAT_FILE_NAME);
-      }
       else {
-	// File is corrupt - open Clippings Manager and perform recovery.
-	err = 888;
+	if (e.result == Components.results.NS_ERROR_OUT_OF_MEMORY) {
+	  err = this.strBundle.getString("errorOutOfMemory");
+	}
+	else if (e.result == Components.results.NS_ERROR_FILE_ACCESS_DENIED) {
+	  err = this.aeString.format("%s: %s",
+				     this.strBundle.getString("errorAccessDenied"),
+				     this.aeConstants.CLIPDAT_FILE_NAME);
+	}
+	else if (e.result == Components.results.NS_ERROR_FILE_IS_LOCKED) {
+	  err = this.aeString.format("%s: %s",
+				     this.strBundle.getString("errorFileLocked"),
+				     this.aeConstants.CLIPDAT_FILE_NAME);
+	}
+	else if (e.result == Components.results.NS_ERROR_FILE_TOO_BIG) {
+	  err = this.aeString.format("%s: %s",
+				     this.strBundle.getString("errorFileTooBig"),
+				     this.aeConstants.CLIPDAT_FILE_NAME);
+	}
+	else {
+	  // File is corrupt - open Clippings Manager and perform recovery.
+	  err = 888;
+	}
       }
     }
 
@@ -257,9 +261,16 @@ window.aecreations.clippings = {
       }
     }
 
-    aMenu.database.AddDataSource(this._ds);
-    aMenu.builder.rebuild();
+    this._menu = this.aeClippingsMenu.createInstance(aPopup);
+    this._menu.menuItemCommand = aEvent => {
+      let clippingURI = aEvent.target.getAttribute("data-clipping-uri");
+      let clippingName = this.clippingsSvc.getName(clippingURI);
+      let clippingContent = this.clippingsSvc.getText(clippingURI);
+      this.insertClippingText(clippingURI, clippingName, clippingContent);
+    };
 
+    this._menu.build();
+    
     this.dataSrcInitialized = true;
     this.aeUtils.log("gClippings.initClippingsPopup(): Data source initialization completed.");
   },
@@ -402,10 +413,8 @@ window.aecreations.clippings = {
 
   keyboardInsertClipping: function (aEvent)
   {
-    var clippingsMenu1 = document.getElementById("ae-clippings-menu-1");
-    clippingsMenu1.builder.refresh();
-    clippingsMenu1.builder.rebuild();
-
+    this._menu.rebuild();
+    
     var dlgArgs = {
       SHORTCUT_KEY_HELP: 0,
       ACTION_SHORTCUT_KEY: 1,
@@ -601,6 +610,8 @@ window.aecreations.clippings = {
     }
 
     // First-run initialization after upgrade from 2.x -> 3.0+
+    // This also imports the packaged datasource, if there is one bundled with
+    // the XPI distributable.
     if (this.aeUtils.getPref("clippings.v3.first_run", true) == true) {
       this.aeClippings3.init(this.clippingsSvc, this.strBundle);
       var initFinished = this.aeClippings3.startInit();
@@ -646,7 +657,6 @@ window.aecreations.clippings = {
 
         // Reinitialize Clippings menu so that it points to the correct
         // datasource.
-        menu.database.RemoveDataSource(that._ds);
         that.initClippingsPopup(popup, menu);
       },
 
@@ -719,8 +729,7 @@ window.aecreations.clippings = {
   {
     this.aeUtils.log("gClippings._initCxtMenuItem(): aMenupopup = " + aMenupopup + "; tag name: " + aMenupopup.tagName + "; id = `" + aMenupopup.id + "'");
 
-    aMenupopup.builder.refresh();
-    aMenupopup.builder.rebuild();
+    this._menu.rebuild();
 
     var strBundle = document.getElementById("ae-clippings-strings");
     var ellipsis = this.showDialog ? this.strBundle.getString("ellipsis") : "";
@@ -792,6 +801,8 @@ ChromeUtils.import("resource://clippings/modules/aeString.js",
 ChromeUtils.import("resource://clippings/modules/aeUtils.js",
                    window.aecreations.clippings);
 ChromeUtils.import("resource://clippings/modules/aeClippingsService.js",
+		   window.aecreations.clippings);
+ChromeUtils.import("resource://clippings/modules/aeClippingsMenu.js",
 		   window.aecreations.clippings);
 ChromeUtils.import("resource://clippings/modules/aeCreateClippingHelper.js",
 		   window.aecreations.clippings);
