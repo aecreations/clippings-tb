@@ -9,11 +9,7 @@ COMP_FILES = $(COMPONENTS)/aeIClippingsService.xpt                            \
 $(COMPONENTS)/aeClippingsService.js                                           \
 $(COMPONENTS)/aeIDictionary.xpt $(COMPONENTS)/aeDictionary.js
 MODULES = ./modules
-MODULE_FILES = $(MODULES)/aeClippings3.js $(MODULES)/aeClippingSubst.js       \
-$(MODULES)/aeConstants.js $(MODULES)/aeUtils.js $(MODULES)/aeString.js        \
-$(MODULES)/aeCreateClippingHelper.js $(MODULES)/aePackagedClippings.js        \
-$(MODULES)/aePrefMigrator.js $(MODULES)/aeClippingLabelPicker.js              \
-$(MODULES)/aeInsertTextIntoTextbox.js $(MODULES)/aeClippingsService.js
+MODULE_FILES = $(MODULES)/*.js
 DEFAULTS_PREFS = ./defaults/preferences
 EXCLUDE = \*.html \*~ \*.psp \*.bak
 
