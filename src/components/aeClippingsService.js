@@ -1,3 +1,4 @@
+/* -*- mode: C++; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -1965,6 +1966,18 @@ aeClippingsService.prototype.killDataSrc = function ()
 };
 
 
+aeClippingsService.prototype.exportToJSONString = function ()
+{
+  let rv = "";
+  let jsonData = [];
+  
+  this._exportAsClippingsWxJSON(this._rdfContainer, jsonData, true, true);
+  rv = JSON.stringify(jsonData);
+
+  return rv;
+};
+
+
 aeClippingsService.prototype.exportToFile = function (aFileURL, aFileType, aIncludeSrcURLs)
 {
   // We have to do it this way because we don't want to include unpurged
@@ -2026,7 +2039,7 @@ aeClippingsService.prototype.exportToFile = function (aFileURL, aFileType, aIncl
     format = "CSV";
   }
   else if (aFileType == this.FILETYPE_WX_JSON) {
-    count = this._exportAsClippingsWxJSON(this._rdfContainer, jsonData.userClippingsRoot, aIncludeSrcURLs);
+    count = this._exportAsClippingsWxJSON(this._rdfContainer, jsonData.userClippingsRoot, aIncludeSrcURLs, false);
     format = "Clippings/wx JSON";
   }
   else {
@@ -2091,7 +2104,7 @@ aeClippingsService.prototype._exportAsCSV = function (aFolderCtr, aCSVData)
 };
 
 
-aeClippingsService.prototype._exportAsClippingsWxJSON = function (aFolderCtr, aJSONFolderData, aIncludeSrcURLs)
+aeClippingsService.prototype._exportAsClippingsWxJSON = function (aFolderCtr, aJSONFolderData, aIncludeSrcURLs, aIncludeIDs)
 {
   let rv;
   let count = 0;
@@ -2104,23 +2117,34 @@ aeClippingsService.prototype._exportAsClippingsWxJSON = function (aFolderCtr, aJ
     if (this.isFolder(childURI)) {
       let subfolderCtr = this._getSeqContainerFromFolder(childURI);
       let fldrItems = [];
-      count += this._exportAsClippingsWxJSON(subfolderCtr, fldrItems, aIncludeSrcURLs);
-      aJSONFolderData.push({
+      count += this._exportAsClippingsWxJSON(subfolderCtr, fldrItems, aIncludeSrcURLs, aIncludeIDs);
+
+      let fldr = {
         name: this.getName(childURI),
-        children: fldrItems
-      });
+        children: fldrItems,
+      };
+
+      if (aIncludeIDs) {
+	fldr.uri = childURI;
+      }
+      aJSONFolderData.push(fldr);
 
       count++;
     }
     else if (this.isClipping(childURI)) {
       let srcURL = (aIncludeSrcURLs ? this.getSourceURL(childURI) : "");
-      aJSONFolderData.push({
+      let clipping = {
         name:        this.getName(childURI),
         content:     this.getText(childURI),
         shortcutKey: this.getShortcutKey(childURI),
         sourceURL:   srcURL,
         label:       this.getLabel(childURI)
-      });
+      };
+
+      if (aIncludeIDs) {
+	clipping.uri = childURI;
+      }
+      aJSONFolderData.push(clipping);
 
       count++;
     }
