@@ -224,6 +224,8 @@ interface aeIClippingsService : nsISupports
 
   void refreshDataSrc();
 
+  aestring exportToJSONString();
+  
   void exportToFile(in uri aFileURL, 
 		    in short aFileType, 
 		    in boolean aIncludeSrcURLs);
