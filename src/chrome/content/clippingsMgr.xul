@@ -38,8 +38,10 @@
 
     function window_focus(aEvent) 
     {
-      //aeUtils.log("Clippings Manager window focused!");
+      aeUtils.log("Clippings Manager window focused!  NOTE: Reload has been suppressed.");
+      /***
       reload();
+      ***/
       applyUpdatedClippingsMgrPrefs();
     }
 
