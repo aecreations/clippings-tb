@@ -21,9 +21,19 @@ class ClippingsTree
 {
   constructor(aTreeElt)
   {
-    this._treeElt = aTreeElt;
+    this._tree = aTreeElt;
     this._clippingsSvc = aeClippingsService.getService();
     this._doc = aTreeElt.ownerDocument;
+  }
+
+  get tree()
+  {
+    return this._tree;
+  }
+
+  set tree(aTreeElt)
+  {
+    return (this._tree = aTreeElt);
   }
 
   build()
@@ -36,7 +46,7 @@ class ClippingsTree
     let treechildrenRoot = this._doc.createElement("treechildren");
     this._buildHelper(treechildrenRoot, clippingsJSON);
 
-    this._treeElt.appendChild(treechildrenRoot);
+    this._tree.appendChild(treechildrenRoot);
   }
 
   _buildHelper(aTreechildrenElt, aFolderItems)
@@ -45,10 +55,9 @@ class ClippingsTree
       let item = aFolderItems[i];
       
       if (item.children) {
-        //aeUtils.log("Creating element for folder '" + item.name + "'");
 	let treeitem = this._doc.createElement("treeitem");
 	treeitem.setAttribute("container", "true");
-	treeitem.setAttribute("data-folder-uri", item.uri);
+	treeitem.setAttribute("data-uri", item.uri);
 	
 	let treerow = this._doc.createElement("treerow");
 	let treecell = this._doc.createElement("treecell");
@@ -62,13 +71,16 @@ class ClippingsTree
 	aTreechildrenElt.appendChild(treeitem);
       }
       else {
-        //aeUtils.log("Creating element for clipping '" + item.name + "'");
 	let treeitem = this._doc.createElement("treeitem");
-	treeitem.setAttribute("data-clipping-uri", item.uri);
+	treeitem.setAttribute("data-uri", item.uri);
 	
 	let treerow = this._doc.createElement("treerow");
 	let treecell = this._doc.createElement("treecell");
 	treecell.setAttribute("label", item.name);
+	if (item.label) {
+	  treecell.setAttribute("properties", item.label);
+	}
+	
 	treerow.appendChild(treecell);
 	treeitem.appendChild(treerow);
 	aTreechildrenElt.appendChild(treeitem);
@@ -85,9 +97,108 @@ class ClippingsTree
 
   _removeAll()
   {
-    while (this._treeElt.hasChildNodes()) {
-      let lastChild = this._treeElt.lastChild;
-      this._treeElt.removeChild(lastChild);
+    while (this._tree.hasChildNodes()) {
+      let lastChild = this._tree.lastChild;
+      this._tree.removeChild(lastChild);
     }
+  }
+
+  click()
+  {
+    this._tree.click();
+  }
+
+  focus()
+  {
+    this._tree.focus();
+  }
+
+  get selectedIndex()
+  {
+    return this._tree.currentIndex;
+  }
+
+  set selectedIndex(aIndex)
+  {
+    return (this._tree.view.selection.select(aIndex));
+  }
+
+  get selectedURI()
+  {
+    let rv = "";
+    let idx = this._tree.currentIndex;
+    if (idx != -1) {
+      let treeitem = this._tree.view.getItemAtIndex(idx);
+      if (treeitem) {
+	rv = treeitem.getAttribute("data-uri");
+      }
+    }
+    return rv;
+  }
+
+  set selectedURI(aURI)
+  {
+    let treeitems = this._tree.getElementsByTagName("treeitem");
+    for (let i = 0; i < treeitems.length; i++) {
+      let uri = treeitems[i].getAttribute("data-uri");
+      if (uri == aURI) {
+	let idx = this._tree.view.getIndexOfItem(treeitems[i]);
+	this.selectedIndex = idx;
+	break;
+      }
+    }
+  }
+
+  ensureURIIsVisible(aURI)
+  {
+    let treeitems = this._tree.getElementsByTagName("treeitem");
+    let idx = -1;
+
+    for (let i = 0; i < treeitems.length; i++) {
+      let uri = treeitems[i].getAttribute("data-uri");
+      if (uri == aURI) {
+	idx = this._tree.view.getIndexOfItem(treeitems[i]);
+	break;
+      }
+    }
+
+    if (idx != -1) {
+      this.ensureIndexIsVisible(idx);
+    }
+  }
+
+  ensureIndexIsVisible(aIndex)
+  {
+    this._tree.treeBoxObject.ensureRowIsVisible(aIndex);    
+  }
+
+  getRowCount()
+  {
+    return this._tree.view.rowCount;
+  }
+
+  getURIAtIndex(aIndex)
+  {
+    let rv = "";
+    let treeitem = this._tree.view.getItemAtIndex(aIndex);
+    if (treeitem) {
+      rv = treeitem.getAttribute("data-uri");
+    }
+    return rv;
+  }
+
+  getIndexAtURI(aURI)
+  {
+    let rv = -1;
+    let treeitems = this._tree.getElementsByTagName("treeitem");
+
+    for (let i = 0; i < treeitems.length; i++) {
+      let uri = treeitems[i].getAttribute("data-uri");
+      if (uri == aURI) {
+	rv = this._tree.view.getIndexOfItem(treeitems[i]);
+	break;
+      }
+    }
+    return rv;
   }
 }

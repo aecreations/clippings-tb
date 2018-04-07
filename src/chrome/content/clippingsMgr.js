@@ -159,7 +159,7 @@ function initClippingsListDrag(aEvent)
 { 
   var index = gClippingsList.tree.boxObject.getRowAt(aEvent.clientX, 
 						     aEvent.clientY);
-  var uri = gClippingsList.getURIAtIndex(index);
+  var uri = gClippingsTree.getURIAtIndex(index);
   var pos = gClippingsSvc.ctrIndexOf(uri);
 
   dndStartURI = uri;
@@ -197,7 +197,7 @@ var treeBuilderObserver = {
   {
     updateCurrentClippingData();
 
-    var uri = gClippingsList.getURIAtIndex(idx);
+    var uri = gClippingsTree.getURIAtIndex(idx);
     var newPos = gClippingsSvc.ctrIndexOf(uri);
     // `orient' is 0 (zero) if dragging and dropping into a folder item.
     var destParentURI = orient == 0 ? uri : gClippingsSvc.getParent(uri);
@@ -220,9 +220,9 @@ var treeBuilderObserver = {
 	var newNodeURI = gClippingsSvc.createNewClippingEx(destParentURI, null, name, text, srcURL, gClippingsSvc.LABEL_NONE, newPos, true);
 
 	// Always select the newly-created clipping.
-	gClippingsList.selectedURI = newNodeURI;
-	gClippingsList.ensureURIIsVisible(newNodeURI);
-	gClippingsList.tree.click();
+	gClippingsTree.selectedURI = newNodeURI;
+	gClippingsTree.ensureURIIsVisible(newNodeURI);
+	gClippingsTree.click();
 	
 	var clippingName = $("clipping-name");
 	clippingName.select();
@@ -268,7 +268,7 @@ var treeBuilderObserver = {
 
       if (dndStartPos != newPos) {
 	moveEntry(dndStartURI, srcParent, dndStartPos, newPos, UNDO_STACK);
-	gClippingsList.selectedURI = dndStartURI;
+	gClippingsTree.selectedURI = dndStartURI;
       }
     }
     else {
@@ -367,12 +367,12 @@ var gQuickEdit = {
 
   _update: function () 
   {
-    if (!gClippingsSvc || !gClippingsList || gCurrentListItemIndex == -1) {
+    if (!gClippingsSvc || !gClippingsTree || gCurrentListItemIndex == -1) {
       this.stop();
       return;
     }
 
-    var currentURI = gClippingsList.selectedURI;
+    var currentURI = gClippingsTree.selectedURI;
     if (!currentURI || !gClippingsSvc.exists(currentURI)) {
       this.stop();
       return;
@@ -405,7 +405,7 @@ var gShortcutKey = {
     }
     
     var clippingKey = document.getElementById("clipping-key");
-    var uri = gClippingsList.getURIAtIndex(gCurrentListItemIndex);
+    var uri = gClippingsTree.getURIAtIndex(gCurrentListItemIndex);
     this._oldKey = gClippingsSvc.getShortcutKey(uri);
     this._oldIndex = clippingKey.selectedIndex;
   },
@@ -417,7 +417,7 @@ var gShortcutKey = {
     }
 
     var key = "";
-    var uri = gClippingsList.getURIAtIndex(gCurrentListItemIndex);
+    var uri = gClippingsTree.getURIAtIndex(gCurrentListItemIndex);
     var clippingKey = document.getElementById("clipping-key");
 
     if (clippingKey.selectedIndex == 0) {
@@ -573,7 +573,7 @@ var gFindBar = {
       else {
         this.reset();
         this._findStatusElt.value = "";
-        gClippingsList.selectedIndex = 0;
+        gClippingsTree.selectedIndex = 0;
         updateDisplay();
       }
     }
@@ -594,15 +594,15 @@ var gFindBar = {
     // folders that are currently collapsed. Remember the tree rows that were
     // expanded so that they can be collapsed later (when user cancels search).
     for (let i = 0; i < pathToClipping.length; i++) {
-      var idx = gClippingsList.getIndexAtURI(pathToClipping[i]);
+      var idx = gClippingsTree.getIndexAtURI(pathToClipping[i]);
       if (! gClippingsList.tree.view.isContainerOpen(idx)) {
         gClippingsList.tree.view.toggleOpenState(idx);
         this._expandedTreeRows.unshift(idx);
       }
     }
 
-    gClippingsList.selectedURI = aClippingURI;
-    gClippingsList.ensureURIIsVisible(aClippingURI);
+    gClippingsTree.selectedURI = aClippingURI;
+    gClippingsTree.ensureURIIsVisible(aClippingURI);
     updateDisplay();
   },
 
@@ -838,17 +838,10 @@ function init()
   deck.selectedIndex = numItems == 0 ? 1 : 2;
 
   gClippingsTree.build();
-  /**
-  gClippingsList.tree.builder.rebuild();
-  **/
   if (numItems > 0) {
-    /**
-    gClippingsList.selectedIndex = 0;
-    gClippingsList.tree.click();
-    gClippingsList.tree.focus();
-    **/
-    treeElt.click();
-    treeElt.focus();
+    gClippingsTree.selectedIndex = 0;
+    gClippingsTree.click();
+    gClippingsTree.focus();
     gCurrentListItemIndex = 0;
   }
 
@@ -880,11 +873,9 @@ function init()
     },
 
     dataSrcLocationChanged: function (aDataSrcURL) {
-      gClippingsList.tree.database.RemoveDataSource(gDataSource);
-
       var recoveryMode = {};
       var oldDS = initDataSrc(recoveryMode);
-      gClippingsList.tree.builder.rebuild();
+      gClippingsTree.rebuild();
 
       buildCopyToMenu(gMoveToMnu1, oldDS);
       buildCopyToMenu(gCopyToMnu1, oldDS);
@@ -900,11 +891,12 @@ function init()
   gCopyToMnu1 = $("copy-to-1");
   gMoveToMnu2 = $("move-to-2");
   gCopyToMnu2 = $("copy-to-2");
-
+/**
   buildCopyToMenu(gCopyToMnu1);
   buildCopyToMenu(gMoveToMnu1);
   buildCopyToMenu(gCopyToMnu2);
   buildCopyToMenu(gMoveToMnu2);
+**/
 
   if (aeUtils.getOS() == "Darwin") {
     // On Mac OS X, OS_TARGET is "Darwin"
@@ -1022,12 +1014,12 @@ function initDataSrc(aRecoveryMode)
 
 function detectExternallyCreatedEntry(aNewClippingURI)
 {
-  gClippingsList.selectedURI = aNewClippingURI;
+  gClippingsTree.selectedURI = aNewClippingURI;
 
   // No effect if parent folder of new clipping isn't expanded.
-  gClippingsList.ensureURIIsVisible(aNewClippingURI); 
+  gClippingsTree.ensureURIIsVisible(aNewClippingURI); 
 
-  gClippingsList.tree.click();
+  gClippingsTree.click();
 
   var state = {
     action: ACTION_CREATENEW, 
@@ -1048,9 +1040,9 @@ function detectExternallyCreatedEntry(aNewClippingURI)
 
 function detectExternallyCreatedFolder(aNewFolderURI)
 {
-  gClippingsList.selectedURI = aNewFolderURI;
-  gClippingsList.ensureURIIsVisible(aNewFolderURI);
-  gClippingsList.tree.click();
+  gClippingsTree.selectedURI = aNewFolderURI;
+  gClippingsTree.ensureURIIsVisible(aNewFolderURI);
+  gClippingsTree.click();
 
   var state = {
     action: ACTION_CREATENEWFOLDER,
@@ -1094,9 +1086,10 @@ function buildCopyToMenu(aMenu, aOldDataSrc)
 // This is called in Clippings Manager window's unload event handler
 function unload()
 {
+  /**
   gClippingsList.tree.builder.removeObserver(treeBuilderObserver);
   treeBuilderObserver = null;
-
+  **/
   gClippingLabelPicker.removeListener(gClippingLabelPickerListener);
 
   gClippingsSvc.purgeDetachedItems();
@@ -1342,7 +1335,7 @@ function newFolder()
   updateCurrentClippingData();
 
   var parentFolderURI, pos;
-  var selectedURI = gClippingsList.selectedURI;
+  var selectedURI = gClippingsTree.selectedURI;
 
   if (! selectedURI) {
     parentFolderURI = gClippingsSvc.kRootFolderURI;
@@ -1361,9 +1354,9 @@ function newFolderHelper(aParentFolderURI, aFolderName, aURI, aPos, aDestUndoSta
 {
   var newNodeURI = gClippingsSvc.createNewFolderEx(aParentFolderURI, aURI, aFolderName, aPos, false, gClippingsSvc.ORIGIN_CLIPPINGS_MGR);
 
-  gClippingsList.selectedURI = newNodeURI;
-  gClippingsList.ensureURIIsVisible(newNodeURI);
-  gClippingsList.tree.click();
+  gClippingsTree.selectedURI = newNodeURI;
+  gClippingsTree.ensureURIIsVisible(newNodeURI);
+  gClippingsTree.click();
 
   var deck = $("entry-properties");
   if (deck.selectedIndex != 0) {
@@ -1409,7 +1402,7 @@ function newClipping()
   updateCurrentClippingData();
 
   var parentFolderURI, pos;
-  var selectedURI = gClippingsList.selectedURI;
+  var selectedURI = gClippingsTree.selectedURI;
 
   if (! selectedURI) {
     parentFolderURI = gClippingsSvc.kRootFolderURI;
@@ -1444,9 +1437,9 @@ function newClippingHelperEx(aParentFolder, aName, aText, aURI, aPos, aShortcutK
     gClippingsSvc.setShortcutKey(newNodeURI, aShortcutKey);
   }
 
-  gClippingsList.selectedURI = newNodeURI;
-  gClippingsList.ensureURIIsVisible(newNodeURI);
-  gClippingsList.tree.click();
+  gClippingsTree.selectedURI = newNodeURI;
+  gClippingsTree.ensureURIIsVisible(newNodeURI);
+  gClippingsTree.click();
 
   var deck = $("entry-properties");
   if (deck.selectedIndex != 0) {
@@ -1492,7 +1485,7 @@ function pasteClippingAsNew()
   }
 
   var parentFolderURI;
-  var selectedURI = gClippingsList.selectedURI;
+  var selectedURI = gClippingsTree.selectedURI;
   if (! selectedURI) {
     parentFolderURI = gClippingsSvc.kRootFolderURI;
   }
@@ -1514,9 +1507,9 @@ function pasteClippingAsNew()
     return;
   }
 
-  gClippingsList.selectedURI = newNodeURI;
-  gClippingsList.ensureURIIsVisible(newNodeURI);
-  gClippingsList.tree.click();
+  gClippingsTree.selectedURI = newNodeURI;
+  gClippingsTree.ensureURIIsVisible(newNodeURI);
+  gClippingsTree.click();
 
   var deck = $("entry-properties");
   if (deck.selectedIndex != 0) {
@@ -1557,7 +1550,7 @@ function copyToFolderEx(aDestFolderURI)
   updateCurrentClippingData();
 
   var destFolderURI = aDestFolderURI;
-  var itemURI = gClippingsList.selectedURI;
+  var itemURI = gClippingsTree.selectedURI;
   var parentFolderURI = gClippingsSvc.getParent(itemURI);
 
   // Prevent infinite recursion due to copying a folder into its own subfolder.
@@ -1579,7 +1572,7 @@ function copyToFolderEx(aDestFolderURI)
 
 function copyToFolderHelper(aItemURI, aSrcFolderURI, aDestFolderURI, aDestItemURI, aDestPos, aDestUndoStack, aSelectCopiedItem)
 {
-  var prevIndex = gClippingsList.selectedIndex;
+  var prevIndex = gClippingsTree.selectedIndex;
   var newURI = gClippingsSvc.copyTo(aItemURI, aDestFolderURI, aDestItemURI,
 				    aDestPos, false,
 				    gClippingsSvc.ORIGIN_CLIPPINGS_MGR);
@@ -1612,18 +1605,18 @@ function copyToFolderHelper(aItemURI, aSrcFolderURI, aDestFolderURI, aDestItemUR
   }
 
   if (aSelectCopiedItem) {
-    gClippingsList.selectedURI = newURI;
-    gClippingsList.ensureURIIsVisible(newURI);
+    gClippingsTree.selectedURI = newURI;
+    gClippingsTree.ensureURIIsVisible(newURI);
   }
   else {
-    var numRows = gClippingsList.getRowCount();
+    var numRows = gClippingsTree.getRowCount();
     if (prevIndex == numRows) {  // Copied item was last list item.
-      gClippingsList.selectedIndex = numRows - 1;
-      gClippingsList.ensureIndexIsVisible(numRows - 1);
+      gClippingsTree.selectedIndex = numRows - 1;
+      gClippingsTree.ensureIndexIsVisible(numRows - 1);
     }
     else {
-      gClippingsList.selectedIndex = prevIndex;
-      gClippingsList.ensureIndexIsVisible(prevIndex);
+      gClippingsTree.selectedIndex = prevIndex;
+      gClippingsTree.ensureIndexIsVisible(prevIndex);
     }
   }
 
@@ -1651,7 +1644,7 @@ function moveToFolderEx(aDestFolderURI)
   updateCurrentClippingData();
 
   var destFolderURI = aDestFolderURI;
-  var itemURI = gClippingsList.selectedURI;
+  var itemURI = gClippingsTree.selectedURI;
 
   if (gClippingsSvc.isFolder(itemURI) && itemURI == destFolderURI) {
     aeUtils.beep();
@@ -1687,7 +1680,7 @@ function moveToFolderEx(aDestFolderURI)
 function moveToFolderHelper(aItemURI, aSrcFolderURI, aDestFolderURI, aDestItemURI, aDestPos, aDestUndoStack, aSelectMovedItem)
 {
   var pos = gClippingsSvc.indexOf(aItemURI);
-  var prevIndex = gClippingsList.selectedIndex;
+  var prevIndex = gClippingsTree.selectedIndex;
   var newURI = gClippingsSvc.copyTo(aItemURI, aDestFolderURI, aDestItemURI,
 				    aDestPos, true,
 				    gClippingsSvc.ORIGIN_CLIPPINGS_MGR);
@@ -1723,18 +1716,18 @@ function moveToFolderHelper(aItemURI, aSrcFolderURI, aDestFolderURI, aDestItemUR
   if (aSelectMovedItem) {
     // The following will not work if the parent of the item to select is
     // not expanded.
-    gClippingsList.selectedURI = newURI;
-    gClippingsList.ensureURIIsVisible(newURI);
+    gClippingsTree.selectedURI = newURI;
+    gClippingsTree.ensureURIIsVisible(newURI);
   }
   else {
-    var numRows = gClippingsList.getRowCount();
+    var numRows = gClippingsTree.getRowCount();
     if (prevIndex == numRows) {  // Moved item was last list item.
-      gClippingsList.selectedIndex = numRows - 1;
-      gClippingsList.ensureIndexIsVisible(numRows - 1);
+      gClippingsTree.selectedIndex = numRows - 1;
+      gClippingsTree.ensureIndexIsVisible(numRows - 1);
     }
     else {
-      gClippingsList.selectedIndex = prevIndex;
-      gClippingsList.ensureIndexIsVisible(prevIndex);
+      gClippingsTree.selectedIndex = prevIndex;
+      gClippingsTree.ensureIndexIsVisible(prevIndex);
     }
   }
 
@@ -1842,6 +1835,8 @@ function reload()
   // otherwise Clipping Manager's reload event handler will be invoked again
   // when the window or dialog box is closed!
 
+  aeUtils.log(">> clippingsMgr.js: reload()");
+  
   if (gJustMigrated) {
     // Not necessary to reload if Migration Wizard has just completed.
     // Also, clear the `dirty' flag because it was ignored when datasource was
@@ -1868,14 +1863,14 @@ function reload()
     gIsClippingsDirty = false;
   }
 
-  if (! gClippingsList) {
+  if (! gClippingsTree) {
     // Handle case where reload() invoked when Clippings Manager was just
     // opened.
     return;
   }
   
   // currIndex == -1 if nothing was selected
-  var currIndex = gClippingsList.selectedIndex;
+  var currIndex = gClippingsTree.selectedIndex;
   currIndex = currIndex == -1 ? 0 : currIndex;
 
   try {
@@ -1888,23 +1883,23 @@ function reload()
     return;
   }
 
-  gClippingsList.tree.builder.rebuild();
+  gClippingsTree.rebuild();
   updateItemCount();
 
   // Selection on tree list disappears after rebuild.  Restore it.
-  var numRows = gClippingsList.getRowCount();
+  var numRows = gClippingsTree.getRowCount();
   if (numRows == 0) {
     $("entry-properties").selectedIndex = 1;
     gCurrentListItemIndex = -1;
   }
   else if (currIndex == numRows) {  // Deleted item was last list item
-    gClippingsList.selectedIndex = numRows - 1;
-    gClippingsList.ensureIndexIsVisible(numRows - 1);
+    gClippingsTree.selectedIndex = numRows - 1;
+    gClippingsTree.ensureIndexIsVisible(numRows - 1);
     updateDisplay();
   }
   else {
-    gClippingsList.selectedIndex = currIndex;
-    gClippingsList.ensureIndexIsVisible(currIndex);
+    gClippingsTree.selectedIndex = currIndex;
+    gClippingsTree.ensureIndexIsVisible(currIndex);
     updateDisplay();
   }
 }
@@ -1912,13 +1907,13 @@ function reload()
 
 function insertClipping()
 {
-  if (gClippingsList.getRowCount() == 0) {
+  if (gClippingsTree.getRowCount() == 0) {
     return;
   }
 
   updateCurrentClippingData();
 
-  var uri = gClippingsList.selectedURI;
+  var uri = gClippingsTree.selectedURI;
   if (! uri) {
     return;
   }
@@ -1949,7 +1944,7 @@ function deleteClipping(aDelKeyPressed)
     }
   }
 
-  if (gClippingsList.getRowCount() == 0) {
+  if (gClippingsTree.getRowCount() == 0) {
     aeUtils.beep();
     gStatusBar.label = gStrBundle.getString("msgNothingToDelete");
     return;
@@ -1957,7 +1952,7 @@ function deleteClipping(aDelKeyPressed)
 
   updateCurrentClippingData();
 
-  var uri = gClippingsList.selectedURI;
+  var uri = gClippingsTree.selectedURI;
   if (! uri) {
     return;
   }
@@ -1978,7 +1973,7 @@ function deleteClipping(aDelKeyPressed)
 function deleteClippingHelper(aURI, aDestUndoStack)
   // NOTE - This deletes both clippings and folders
 {
-  var deletedItemIndex = gClippingsList.selectedIndex;
+  var deletedItemIndex = gClippingsTree.selectedIndex;
   var state;
   var pos = gClippingsSvc.indexOf(aURI);
 
@@ -2052,23 +2047,23 @@ function deleteClippingHelper(aURI, aDestUndoStack)
 
   gIsClippingsDirty = true;
   removeFolderMenuSeparator();
-  gClippingsList.tree.builder.rebuild();
+  gClippingsTree.rebuild();
 
   updateItemCount();
 
-  var numRows = gClippingsList.getRowCount();
+  var numRows = gClippingsTree.getRowCount();
   if (numRows == 0) {
     $("entry-properties").selectedIndex = 1;
     gCurrentListItemIndex = -1;
   }
   else if (deletedItemIndex == numRows) {  // Deleted item was last list item
-    gClippingsList.selectedIndex = numRows - 1;
-    gClippingsList.ensureIndexIsVisible(numRows - 1);
+    gClippingsTree.selectedIndex = numRows - 1;
+    gClippingsTree.ensureIndexIsVisible(numRows - 1);
     updateDisplay();
   }
   else {
-    gClippingsList.selectedIndex = deletedItemIndex;
-    gClippingsList.ensureIndexIsVisible(deletedItemIndex);
+    gClippingsTree.selectedIndex = deletedItemIndex;
+    gClippingsTree.ensureIndexIsVisible(deletedItemIndex);
     updateDisplay();
   }
 
@@ -2090,7 +2085,7 @@ function updateToolsMenu()
 {
   let cmdShowHidePlaceholderBar = $("cmd_togglePlaceholderBar");
   let cmdShowHideDetailsPane = $("cmd_toggleDetailsPane");
-  let uri = gClippingsList.selectedURI;
+  let uri = gClippingsTree.selectedURI;
 
   if (!uri || gClippingsSvc.isFolder(uri) || gClippingsSvc.isEmptyClipping(uri)) {
     cmdShowHidePlaceholderBar.setAttribute("disabled", "true");
@@ -2248,7 +2243,7 @@ function insertIntoClippingText(aInsertedText)
 
 function updateCurrentEntryStatus()
 {
-  if (gClippingsList.getRowCount() == 0) {
+  if (gClippingsTree.getRowCount() == 0) {
     return;
   }
 
@@ -2263,7 +2258,7 @@ function updateCurrentEntryStatus()
 
 function updateDisplay(aSuppressUpdateSelection)
 {
-  if (gClippingsList.getRowCount() == 0) {
+  if (gClippingsTree.getRowCount() == 0) {
     return;
   }
 
@@ -2282,17 +2277,17 @@ function updateDisplay(aSuppressUpdateSelection)
     labelPickerBtn = $("clipping-label-btn");
   }
 
-  var uri = gClippingsList.selectedURI;
+  var uri = gClippingsTree.selectedURI;
 
   if (! uri) {
     // Nothing selected - so just select whatever is at the current index.
-    var numRows = gClippingsList.getRowCount();
+    var numRows = gClippingsTree.getRowCount();
     if (gCurrentListItemIndex == -1 || gCurrentListItemIndex > (numRows - 1)) {
       gCurrentListItemIndex = numRows - 1;
     }
 
-    gClippingsList.selectedIndex = gCurrentListItemIndex;
-    uri = gClippingsList.selectedURI;
+    gClippingsTree.selectedIndex = gCurrentListItemIndex;
+    uri = gClippingsTree.selectedURI;
   }
 
   if (gClippingsSvc.isFolder(uri)) {
@@ -2346,13 +2341,14 @@ function updateDisplay(aSuppressUpdateSelection)
   }
 
   clippingName.value = gClippingsSvc.getName(uri);
-
+  let debugStr = "";
+  
   if (gClippingsSvc.isClipping(uri)) {
     clippingText.value = gClippingsSvc.getText(uri);
 
     if (gClippingsSvc.hasLabel(uri)) {
       let label = gClippingsSvc.getLabel(uri);
-      debugStr += aeString.format("\nLabel: %s", label);
+      debugStr += aeString.format("Label: %s", (label || "(none)"));
       updateLabelMenu();
       labelPickerBtn.image = aeString.format("chrome://clippings/skin/images/%s", gClippingLabelPicker.getIconFileStr(label));
     }
@@ -2376,10 +2372,10 @@ function updateDisplay(aSuppressUpdateSelection)
     clippingKey.selectedIndex = 0;
   }
 
-  gCurrentListItemIndex = gClippingsList.selectedIndex;
+  gCurrentListItemIndex = gClippingsTree.selectedIndex;
 
   if (! aSuppressUpdateSelection) {
-    gClippingsList.ensureIndexIsVisible(gClippingsList.selectedIndex);
+    gClippingsTree.ensureIndexIsVisible(gClippingsTree.selectedIndex);
   }
 }
 
@@ -2388,7 +2384,7 @@ updateDisplay.placeholderBarVisible = null;
 
 function updateLabelMenu()
 {
-  let uri = gClippingsList.selectedURI;
+  let uri = gClippingsTree.selectedURI;
 
   if (!uri || !gClippingsSvc.isClipping(uri)) {
     aeUtils.log("Unable to update the label picker because a selected clipping could not be located");
@@ -2433,7 +2429,7 @@ function updateLabel(aLabelID)
     return;
   }
 
-  var uri = gClippingsList.getURIAtIndex(gCurrentListItemIndex);
+  var uri = gClippingsTree.getURIAtIndex(gCurrentListItemIndex);
 
   if (!uri || !gClippingsSvc.isClipping(uri)) {
     aeUtils.log("updateLabel(): Can't update a label on a non-clipping!");
@@ -2486,7 +2482,7 @@ function updateName(aName)
     return;
   }
 
-  var uri = gClippingsList.getURIAtIndex(gCurrentListItemIndex);
+  var uri = gClippingsTree.getURIAtIndex(gCurrentListItemIndex);
   updateNameHelper(uri, aName, UNDO_STACK);
 
   if (gFindBar.isActivated()) {
@@ -2523,7 +2519,7 @@ function updateText(aText)
   if (gCurrentListItemIndex == -1) {
     return;
   }
-  var uri = gClippingsList.getURIAtIndex(gCurrentListItemIndex);
+  var uri = gClippingsTree.getURIAtIndex(gCurrentListItemIndex);
   if (gClippingsSvc.isFolder(uri) || gClippingsSvc.isEmptyClipping(uri)) {
     // Folders don't have a `text' predicate, so just ignore
     return;
@@ -2576,7 +2572,7 @@ function updateCurrentClippingData()
   if (gClippingsSvc.numItems > 0) {
     updateName($("clipping-name").value);
 
-    var uri = gClippingsList.getURIAtIndex(gCurrentListItemIndex);
+    var uri = gClippingsTree.getURIAtIndex(gCurrentListItemIndex);
     if (gClippingsSvc.isClipping(uri)) {
       updateText($("clipping-text").value);
     }
@@ -2586,14 +2582,14 @@ function updateCurrentClippingData()
 
 function moveUp()
 {
-  var currentURI = gClippingsList.selectedURI;
+  var currentURI = gClippingsTree.selectedURI;
   var p = gClippingsSvc.getParent(currentURI);
   var i = gClippingsSvc.indexOf(currentURI);
   var max = gClippingsSvc.getCount(p);
 
   if (1 < i && i <= max) {
     moveEntry(currentURI, p, i, i - 1, UNDO_STACK);
-    gClippingsList.selectedURI = currentURI;
+    gClippingsTree.selectedURI = currentURI;
     updateDisplay();
   }
   else if (i == 1) {
@@ -2605,14 +2601,14 @@ function moveUp()
 
 function moveDown()
 {
-  var currentURI = gClippingsList.selectedURI;
+  var currentURI = gClippingsTree.selectedURI;
   var p = gClippingsSvc.getParent(currentURI);
   var i = gClippingsSvc.indexOf(currentURI);
   var max = gClippingsSvc.getCount(p);
 
   if (1 <= i && i < max) {
     moveEntry(currentURI, p, i, i + 1, UNDO_STACK);
-    gClippingsList.selectedURI = currentURI;
+    gClippingsTree.selectedURI = currentURI;
     updateDisplay();
   }
   else if (i == max) {
@@ -2683,10 +2679,10 @@ function doImport()
   }
 
   var deck = $("entry-properties");
-  if (gClippingsList.getRowCount() > 0) {
+  if (gClippingsTree.getRowCount() > 0) {
     deck.selectedIndex = 0;
-    gClippingsList.selectedIndex = 0;
-    gClippingsList.tree.click();
+    gClippingsTree.selectedIndex = 0;
+    gClippingsTree.click();
   }
 
   // Status bar msg is overwritten in listbox.click() call, so redisplay
@@ -2924,7 +2920,7 @@ function restoreBackup(aBackupFileURL)
 
   // Finally, select the first clipping.
   if (numImported > 0) {
-    gClippingsList.selectedIndex = 0;
+    gClippingsTree.selectedIndex = 0;
   }
   updateDisplay();
 
@@ -2936,13 +2932,13 @@ function restoreBackup(aBackupFileURL)
 
 function initClippingsListPopup()
 {
-  var numListItems = gClippingsList.getRowCount();
+  var numListItems = gClippingsTree.getRowCount();
   if (numListItems == 0) {
     return false;  // Don't show popup menu if list box is empty
   }
 
   var clippingsListCxt = $("clippings-list-context");
-  var uri = gClippingsList.selectedURI;
+  var uri = gClippingsTree.selectedURI;
   var isEmptyClipping = gClippingsSvc.isEmptyClipping(uri);
 
   for (let i = 0; i < clippingsListCxt.childNodes.length; i++) {
@@ -2968,7 +2964,7 @@ function initMoveMenuPopup()
 {
   var moveToMnu2 = $("move-to-2");
   var copyToMnu2 = $("copy-to-2");
-  var uri = gClippingsList.selectedURI;
+  var uri = gClippingsTree.selectedURI;
   var boolFlag  = gClippingsSvc.numItems == 0 || gClippingsSvc.isEmptyClipping(uri);
 
   moveToMnu2.setAttribute("disabled", boolFlag);
@@ -3022,8 +3018,8 @@ function undo()
     gIsClippingsDirty = true;
     commit();
 
-    gClippingsList.selectedURI = undo.uri;
-    gClippingsList.ensureURIIsVisible(undo.uri);
+    gClippingsTree.selectedURI = undo.uri;
+    gClippingsTree.ensureURIIsVisible(undo.uri);
     updateDisplay();
 
     aeUtils.log(aeString.format("Deletion undo\nEntry name: %S; entry URI: %S", undo.name, undo.uri));
@@ -3043,7 +3039,7 @@ function undo()
   }
   else if (undo.action == ACTION_EDITTEXT) {
     updateTextHelper(undo.uri, undo.text, REDO_STACK);
-    gClippingsList.selectedURI = undo.uri;
+    gClippingsTree.selectedURI = undo.uri;
     updateDisplay();
 
     var clippingText = $("clipping-text");
@@ -3054,7 +3050,7 @@ function undo()
   }
   else if (undo.action == ACTION_EDITNAME) {
     updateNameHelper(undo.uri, undo.name, REDO_STACK);
-    gClippingsList.selectedURI = undo.uri;
+    gClippingsTree.selectedURI = undo.uri;
     updateDisplay();
 
     var clippingName = $("clipping-name");
@@ -3066,7 +3062,7 @@ function undo()
   else if (undo.action == ACTION_CREATENEW) {
     var key = gClippingsSvc.getShortcutKey(undo.uri);
     if (key) { aeUtils.log("Shortcut key of clipping whose creation is being undone is: `" + key + "'"); }
-    gClippingsList.selectedURI = undo.uri;
+    gClippingsTree.selectedURI = undo.uri;
     pos = undo.pos || gClippingsSvc.indexOf(undo.uri);
     deleteClippingHelper(undo.uri);
     aeUtils.log(aeString.format("Entry creation has been undone\nEntry name: %S; entry URI: %S", undo.name, undo.uri));
@@ -3077,7 +3073,7 @@ function undo()
                      parentFolderURI: undo.parentFolderURI});
   }
   else if (undo.action == ACTION_CREATENEWFOLDER) {
-    gClippingsList.selectedURI = undo.uri;
+    gClippingsTree.selectedURI = undo.uri;
     pos = undo.pos || gClippingsSvc.indexOf(undo.uri);
     deleteClippingHelper(undo.uri);
     gRedoStack.push({action: ACTION_CREATENEWFOLDER, name: undo.name,
@@ -3089,8 +3085,8 @@ function undo()
     gClippingsSvc.reattachToFolder(undo.parentFolderURI, undo.uri, undo.pos);
     gIsClippingsDirty = true;
 
-    gClippingsList.selectedURI = undo.uri;
-    gCurrentListItemIndex = gClippingsList.selectedIndex;
+    gClippingsTree.selectedURI = undo.uri;
+    gCurrentListItemIndex = gClippingsTree.selectedIndex;
     updateDisplay();
     removeFolderMenuSeparator();
 
@@ -3099,7 +3095,7 @@ function undo()
   }
   else if (undo.action == ACTION_DELETEEMPTYFOLDER) {
     newFolderHelper(undo.parentFolderURI, undo.name, undo.uri, undo.pos, null);
-    gCurrentListItemIndex = gClippingsList.selectedIndex;
+    gCurrentListItemIndex = gClippingsTree.selectedIndex;
     updateDisplay();
     
     gRedoStack.push({action: ACTION_DELETEEMPTYFOLDER, uri: undo.uri});
@@ -3127,12 +3123,12 @@ function undo()
   }
   else if (undo.action == ACTION_CHANGEPOSITION) {
     moveEntry(undo.uri, undo.parentFolderURI, undo.currPos, undo.prevPos, REDO_STACK);
-    gClippingsList.selectedURI = undo.uri;
+    gClippingsTree.selectedURI = undo.uri;
     updateDisplay();
   }
   else if (undo.action == ACTION_SETSHORTCUTKEY) {
     var clippingKey = $("clipping-key");
-    gClippingsList.selectedURI = undo.uri;
+    gClippingsTree.selectedURI = undo.uri;
     updateDisplay();
 
     gShortcutKey.setOldKey();
@@ -3142,7 +3138,7 @@ function undo()
   }
   else if (undo.action == ACTION_SETLABEL) {
     updateLabelHelper(undo.uri, undo.label, REDO_STACK);
-    gClippingsList.selectedURI = undo.uri;
+    gClippingsTree.selectedURI = undo.uri;
     updateDisplay();
   }
 
@@ -3176,13 +3172,13 @@ function reverseLastUndo()
   }
 
   if (redo.action == ACTION_DELETECLIPPING) {
-    gClippingsList.selectedURI = redo.uri;
+    gClippingsTree.selectedURI = redo.uri;
     deleteClippingHelper(redo.uri, UNDO_STACK);
     aeUtils.log(aeString.format("Entry deletion redone!\nEntry name: %S; entry URI: %S", redo.name, redo.uri));
   }
   else if (redo.action == ACTION_EDITNAME) {
     updateNameHelper(redo.uri, redo.name, UNDO_STACK);
-    gClippingsList.selectedURI = redo.uri;
+    gClippingsTree.selectedURI = redo.uri;
     updateDisplay();
 
     var clippingName = $("clipping-name");
@@ -3193,7 +3189,7 @@ function reverseLastUndo()
   }
   else if (redo.action == ACTION_EDITTEXT) {
     updateTextHelper(redo.uri, redo.text, UNDO_STACK);
-    gClippingsList.selectedURI = redo.uri;
+    gClippingsTree.selectedURI = redo.uri;
     updateDisplay();
 
     var clippingText = $("clipping-text");
@@ -3212,7 +3208,7 @@ function reverseLastUndo()
     aeUtils.log(aeString.format("Redoing clipping creation: Name = %S", redo.name));
 
     newClippingHelperEx(redo.parentFolderURI, redo.name, redo.text, redo.uri, pos, shortcutKey, srcURL, label, UNDO_STACK);
-    gClippingsList.selectedURI = redo.uri;
+    gClippingsTree.selectedURI = redo.uri;
 
     gIsClippingsDirty = true;
     commit();
@@ -3225,7 +3221,7 @@ function reverseLastUndo()
   else if (redo.action == ACTION_CREATENEWFOLDER) {
     pos = null;  //redo.pos;
     newFolderHelper(redo.parentFolderURI, redo.name, redo.uri, pos, UNDO_STACK);
-    gClippingsList.selectedURI = redo.uri;
+    gClippingsTree.selectedURI = redo.uri;
     aeUtils.log("Folder creation redone!  Folder name: \"" + redo.name + "\"");
   }
   else if (redo.action == ACTION_DELETEFOLDER) {
@@ -3252,12 +3248,12 @@ function reverseLastUndo()
   }
   else if (redo.action == ACTION_CHANGEPOSITION) {
     moveEntry(redo.uri, redo.parentFolderURI, redo.currPos, redo.prevPos, UNDO_STACK);
-    gClippingsList.selectedURI = redo.uri;
+    gClippingsTree.selectedURI = redo.uri;
     updateDisplay();
   }
   else if (redo.action == ACTION_SETSHORTCUTKEY) {
     var clippingKey = $("clipping-key");
-    gClippingsList.selectedURI = redo.uri;
+    gClippingsTree.selectedURI = redo.uri;
     updateDisplay();
 
     gShortcutKey.setOldKey();
@@ -3267,7 +3263,7 @@ function reverseLastUndo()
   }
   else if (redo.action == ACTION_SETLABEL) {
     updateLabelHelper(redo.uri, redo.label, UNDO_STACK);
-    gClippingsList.selectedURI = redo.uri;
+    gClippingsTree.selectedURI = redo.uri;
     updateDisplay();
   }
   
@@ -3285,7 +3281,7 @@ function toggleFindBar()
 
   if (gFindBar.isVisible()) {
     gFindBar.hide();
-    gClippingsList.tree.focus();
+    gClippingsTree.focus();
     findBtn.checked = false;
   }
   else {
@@ -3301,7 +3297,7 @@ function userCancel()
   // Hide the Find Bar if it is visible.
   if (gFindBar.isVisible()) {
     gFindBar.hide();
-    gClippingsList.tree.focus();
+    gClippingsTree.focus();
     $("find").checked = false;
   }
   else {
