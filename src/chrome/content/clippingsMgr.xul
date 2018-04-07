@@ -516,10 +516,7 @@
     <vbox id="tree-box" width="200" minwidth="100" maxwidth="400" 
      persist="width">
       <tree id="clippings-list" flex="1" hidecolumnpicker="true"
-       datasources="rdf:null" flags="dont-build-content" seltype="single"
-       ref="http://clippings.mozdev.org/rdf/user-clippings-v2"
-       draggable="true"
-       context="clippings-list-context" 
+       seltype="single" draggable="true" context="clippings-list-context" 
        onclick="clippingsList_click(event)"
        ondblclick="insertClipping()"
        onfocus="clippingsList_focus(event)"
@@ -528,22 +525,10 @@
        ondrop="clippingsList_drop(event)">
 
         <treecols>
+	  <!-- TO DO: Set sorting on clipping/folder names -->
 	  <treecol id="all-clippings" flex="1" primary="true"
-	   hideheader="true" sortActive="true" sortDirection="natural"
-	   sort="rdf:http://clippings.mozdev.org/ns/rdf#name"/>
+	   hideheader="true" sortActive="true" sortDirection="natural"/>
 	</treecols>
-
-	<template>
-	  <rule>
-  	    <treechildren flex="1">
-	      <treeitem uri="rdf:*">
-	        <treerow> 
-  	          <treecell label="rdf:http://clippings.mozdev.org/ns/rdf#name" properties="rdf:http://clippings.mozdev.org/ns/rdf#dummy_flag rdf:http://clippings.mozdev.org/ns/rdf#label"/>
-		</treerow>
-	      </treeitem>
-	    </treechildren>
-	  </rule>
-	</template>
       </tree>
 
     </vbox>

@@ -9,6 +9,7 @@ ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
 ChromeUtils.import("resource://clippings/modules/aeCreateClippingHelper.js");
 ChromeUtils.import("resource://clippings/modules/aeInsertTextIntoTextbox.js");
 ChromeUtils.import("resource://clippings/modules/aeClippingLabelPicker.js");
+ChromeUtils.import("resource://clippings/modules/aeClippingsTree.js");
 
 
 const WINDOWSTATE_MAXIMIZE  = 1;
@@ -16,7 +17,8 @@ const WINDOWSTATE_MINIMIZE  = 2;
 const WINDOWSTATE_NORMAL    = 3;
 
 
-var gClippingsList, gStatusBar;
+var gClippingsList;  // DEPRECATED
+var gClippingsTree, gStatusBar;
 var gMoveToMnu1, gMoveToMnu2, gCopyToMnu1, gCopyToMnu2;
 var gCurrentListItemIndex = -1;
 var gStrBundle;
@@ -768,9 +770,12 @@ function init()
 
   gStrBundle = $("ae-clippings-strings");
 
-  var treeElt = $("clippings-list");
+  let treeElt = $("clippings-list");
+  gClippingsTree = aeClippingsTree.createInstance(treeElt);
+  /**
   gClippingsList = new RDFTreeWrapper(treeElt);
   gClippingsList.tree.builder.addObserver(treeBuilderObserver);
+  **/
   gOptionsBar.init();
   gFindBar.init();
 
@@ -832,15 +837,21 @@ function init()
   var deck = $("entry-properties");
   deck.selectedIndex = numItems == 0 ? 1 : 2;
 
+  gClippingsTree.build();
+  /**
   gClippingsList.tree.builder.rebuild();
-
+  **/
   if (numItems > 0) {
+    /**
     gClippingsList.selectedIndex = 0;
     gClippingsList.tree.click();
     gClippingsList.tree.focus();
+    **/
+    treeElt.click();
+    treeElt.focus();
     gCurrentListItemIndex = 0;
   }
-  
+
   if (recoveryMode.value) {
     aeUtils.beep();
     if (recoveryMode.value == doRecovery.IMPORT_FROM_DS_FILE
@@ -960,11 +971,12 @@ function initDataSrc(aRecoveryMode)
   //
   // This function will be invoked by function init() and also in Clippings 
   // listener's dataSrcLocationChanged() handler.
-  var rv;
-  var dsURL = aeUtils.getDataSourcePathURL() + aeConstants.CLIPDAT_FILE_NAME;
+  let rv;
+  let dsURL = aeUtils.getDataSourcePathURL() + aeConstants.CLIPDAT_FILE_NAME;
+  let ds;
 
   try {
-    var ds = gClippingsSvc.getDataSource(dsURL);
+    ds = gClippingsSvc.getDataSource(dsURL);
   }
   catch (e) {
     if (e.result === undefined) {
@@ -1002,7 +1014,6 @@ function initDataSrc(aRecoveryMode)
   }
 
   rv = gDataSource;
-  gClippingsList.tree.database.AddDataSource(ds);
   gDataSource = ds;
 
   return rv;
