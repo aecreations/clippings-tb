@@ -300,7 +300,7 @@ class ClippingsTree
     }
   }
   
-  setLabel(aNodeURI, aLabel)
+  setNodeTitle(aNodeURI, aLabel)
   {
     let treeitems = this._tree.getElementsByTagName("treeitem");
 
@@ -308,24 +308,15 @@ class ClippingsTree
       let treeitem = treeitems[i];
       let uri = treeitem.getAttribute("data-uri");
       if (uri == aNodeURI) {
-	aeUtils.log("Located <treeitem> with 'data-uri' attribute = " + uri);
 	let treerow = treeitem.firstChild;
 	if (treerow) {
-	  let treecell = treeitem.firstChild;
+	  let treecell = treerow.firstChild;
 	  if (treecell) {
-	    aeUtils.log("Setting label for item " + uri + " to '" + aLabel + "'");
 	    treecell.setAttribute("label", aLabel);
 	  }
 	}
 	break;
       }
     }
-
-    // Force refresh of the tree row.
-    this._tree.treeBoxObject.invalidate();  // This doesn't work either!
-    /***
-    let idx = this.getIndexAtURI(aNodeURI);
-    this._tree.treeBoxObject.invalidateRow(idx);
-    ***/
   }
 }

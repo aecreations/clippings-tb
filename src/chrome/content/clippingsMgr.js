@@ -2491,7 +2491,7 @@ function updateName(aName)
     gFindBar.setSearchResultsUpdateFlag();
   }
 
-  gClippingsTree.setLabel(uri, aName);
+  gClippingsTree.setNodeTitle(uri, aName);
 }
 
 
@@ -3056,6 +3056,7 @@ function undo()
   else if (undo.action == ACTION_EDITNAME) {
     updateNameHelper(undo.uri, undo.name, REDO_STACK);
     gClippingsTree.selectedURI = undo.uri;
+    gClippingsTree.setNodeTitle(undo.uri, undo.name);
     updateDisplay();
 
     var clippingName = $("clipping-name");
@@ -3185,6 +3186,7 @@ function reverseLastUndo()
   else if (redo.action == ACTION_EDITNAME) {
     updateNameHelper(redo.uri, redo.name, UNDO_STACK);
     gClippingsTree.selectedURI = redo.uri;
+    gClippingsTree.setNodeTitle(redo.uri, redo.name);
     updateDisplay();
 
     var clippingName = $("clipping-name");
