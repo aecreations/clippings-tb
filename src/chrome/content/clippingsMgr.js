@@ -2049,7 +2049,7 @@ function deleteClippingHelper(aURI, aDestUndoStack)
 
   gIsClippingsDirty = true;
   removeFolderMenuSeparator();
-  gClippingsTree.rebuild();
+  gClippingsTree.deleteNode(aURI);
 
   updateItemCount();
 
@@ -2490,6 +2490,8 @@ function updateName(aName)
   if (gFindBar.isActivated()) {
     gFindBar.setSearchResultsUpdateFlag();
   }
+
+  gClippingsTree.setLabel(uri, aName);
 }
 
 
