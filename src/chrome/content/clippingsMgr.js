@@ -1354,6 +1354,7 @@ function newFolderHelper(aParentFolderURI, aFolderName, aURI, aPos, aDestUndoSta
 {
   var newNodeURI = gClippingsSvc.createNewFolderEx(aParentFolderURI, aURI, aFolderName, aPos, false, gClippingsSvc.ORIGIN_CLIPPINGS_MGR);
 
+  gClippingsTree.addFolderNode(aParentFolderURI, newNodeURI, aFolderName);
   gClippingsTree.selectedURI = newNodeURI;
   gClippingsTree.ensureURIIsVisible(newNodeURI);
   gClippingsTree.click();
@@ -1437,6 +1438,7 @@ function newClippingHelperEx(aParentFolder, aName, aText, aURI, aPos, aShortcutK
     gClippingsSvc.setShortcutKey(newNodeURI, aShortcutKey);
   }
 
+  gClippingsTree.addLeafNode(aParentFolder, newNodeURI, aName);
   gClippingsTree.selectedURI = newNodeURI;
   gClippingsTree.ensureURIIsVisible(newNodeURI);
   gClippingsTree.click();
@@ -3018,6 +3020,7 @@ function undo()
     gIsClippingsDirty = true;
     commit();
 
+    gClippingsTree.addLeafNode(undo.parentFolderURI, undo.uri, undo.name);
     gClippingsTree.selectedURI = undo.uri;
     gClippingsTree.ensureURIIsVisible(undo.uri);
     updateDisplay();
@@ -3085,6 +3088,7 @@ function undo()
     gClippingsSvc.reattachToFolder(undo.parentFolderURI, undo.uri, undo.pos);
     gIsClippingsDirty = true;
 
+    gClippingsTree.addFolderNode(undo.parentFolderURI, undo.uri, undo.name);
     gClippingsTree.selectedURI = undo.uri;
     gCurrentListItemIndex = gClippingsTree.selectedIndex;
     updateDisplay();
