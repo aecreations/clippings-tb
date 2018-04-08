@@ -2696,6 +2696,8 @@ function doImport()
     return;
   }
 
+  gClippingsTree.rebuild();
+  
   var deck = $("entry-properties");
   if (gClippingsTree.getRowCount() > 0) {
     deck.selectedIndex = 0;
