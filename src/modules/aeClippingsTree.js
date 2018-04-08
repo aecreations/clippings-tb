@@ -278,5 +278,54 @@ class ClippingsTree
     treerow.appendChild(treecell);
     treeitem.appendChild(treerow);
     aTreechildrenElt.appendChild(treeitem);   
-  } 
+  }
+
+  deleteNode(aNodeURI)
+  {
+    let treeitems = this._tree.getElementsByTagName("treeitem");
+    let targetNode;
+
+    for (let i = 0; i < treeitems.length; i++) {
+      let treeitem = treeitems[i];
+      let uri = treeitem.getAttribute("data-uri");
+      if (uri == aNodeURI) {
+	targetNode = treeitem;
+	break;
+      }
+    }
+
+    if (targetNode) {
+      let parentNode = targetNode.parentNode;
+      parentNode.removeChild(targetNode);
+    }
+  }
+  
+  setLabel(aNodeURI, aLabel)
+  {
+    let treeitems = this._tree.getElementsByTagName("treeitem");
+
+    for (let i = 0; i < treeitems.length; i++) {
+      let treeitem = treeitems[i];
+      let uri = treeitem.getAttribute("data-uri");
+      if (uri == aNodeURI) {
+	aeUtils.log("Located <treeitem> with 'data-uri' attribute = " + uri);
+	let treerow = treeitem.firstChild;
+	if (treerow) {
+	  let treecell = treeitem.firstChild;
+	  if (treecell) {
+	    aeUtils.log("Setting label for item " + uri + " to '" + aLabel + "'");
+	    treecell.setAttribute("label", aLabel);
+	  }
+	}
+	break;
+      }
+    }
+
+    // Force refresh of the tree row.
+    this._tree.treeBoxObject.invalidate();  // This doesn't work either!
+    /***
+    let idx = this.getIndexAtURI(aNodeURI);
+    this._tree.treeBoxObject.invalidateRow(idx);
+    ***/
+  }
 }
