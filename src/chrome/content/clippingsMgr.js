@@ -169,7 +169,7 @@ var dndExtText = null;
 
 function initClippingsListDrag(aEvent)
 { 
-  var index = gClippingsList.tree.boxObject.getRowAt(aEvent.clientX, 
+  var index = gClippingsTree.tree.boxObject.getRowAt(aEvent.clientX, 
 						     aEvent.clientY);
   var uri = gClippingsTree.getURIAtIndex(index);
   var pos = gClippingsSvc.ctrIndexOf(uri);
@@ -607,8 +607,8 @@ var gFindBar = {
     // expanded so that they can be collapsed later (when user cancels search).
     for (let i = 0; i < pathToClipping.length; i++) {
       var idx = gClippingsTree.getIndexAtURI(pathToClipping[i]);
-      if (! gClippingsList.tree.view.isContainerOpen(idx)) {
-        gClippingsList.tree.view.toggleOpenState(idx);
+      if (! gClippingsTree.tree.view.isContainerOpen(idx)) {
+        gClippingsTree.tree.view.toggleOpenState(idx);
         this._expandedTreeRows.unshift(idx);
       }
     }
@@ -664,7 +664,7 @@ var gFindBar = {
     this._srchResultsIdx = null;
 
     for (let i = 0; i < this._expandedTreeRows.length; i++) {
-      gClippingsList.tree.view.toggleOpenState(this._expandedTreeRows[i]);
+      gClippingsTree.tree.view.toggleOpenState(this._expandedTreeRows[i]);
     }
     this._expandedTreeRows = [];
   }
@@ -784,10 +784,6 @@ function init()
 
   let treeElt = $("clippings-list");
   gClippingsTree = aeClippingsTree.createInstance(treeElt);
-  /**
-  gClippingsList = new RDFTreeWrapper(treeElt);
-  gClippingsList.tree.builder.addObserver(treeBuilderObserver);
-  **/
   gOptionsBar.init();
   gFindBar.init();
 
