@@ -764,8 +764,8 @@
     </grid>
   </hbox>
 
-  <statusbar id="status-bar">
-    <statusbarpanel id="app-status" label="" flex="1" />
-  </statusbar>
+  <hbox id="status-bar">
+    <label id="app-status" value="" flex="1" />
+  </hbox>
 
 </window>

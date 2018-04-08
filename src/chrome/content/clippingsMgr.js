@@ -18,7 +18,7 @@ const WINDOWSTATE_NORMAL    = 3;
 
 
 var gClippingsList;  // DEPRECATED
-var gClippingsTree, gStatusBar;
+var gClippingsTree;
 var gMoveToMnu1, gMoveToMnu2, gCopyToMnu1, gCopyToMnu2;
 var gCurrentListItemIndex = -1;
 var gStrBundle;
@@ -37,6 +37,18 @@ var gAltClippingLabelPicker;
 
 // Clippings XPCOM service
 var gClippingsSvc;
+
+let gStatusBar = {
+  set label(aStatusText)
+  {
+    $("app-status").value = aStatusText;
+  },
+
+  get label()
+  {
+    return $("app-status").value;
+  },
+};
 
 // Listener for the label picker in the main content area
 let gClippingLabelPickerListener = {
@@ -779,7 +791,6 @@ function init()
   gOptionsBar.init();
   gFindBar.init();
 
-  gStatusBar = $("app-status");
   setStatusBarVisibility();
 
   gPlaceholderBar.init();
@@ -1298,6 +1309,9 @@ function applyUpdatedClippingsMgrPrefs()
 function setStatusBarVisibility()
 {
   var showStatusBar = aeUtils.getPref("clippings.clipmgr.status_bar", true);
+
+  aeUtils.log("clippingsMgr.js: setStatusBarVisibility(): Show status bar: " + showStatusBar);
+  
   $("status-bar").hidden = !showStatusBar;
 }
 
