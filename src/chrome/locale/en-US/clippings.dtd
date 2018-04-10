@@ -91,10 +91,8 @@
 <!ENTITY insertClipping.accesskey "I">
 <!ENTITY move.label "Move">
 <!ENTITY move.accesskey "M">
-<!ENTITY moveTo.label "Move To">
+<!ENTITY moveTo.label "Move To...">
 <!ENTITY moveTo.accesskey "M">
-<!ENTITY copyTo.label "Copy To">
-<!ENTITY copyTo.accesskey "C">
 <!ENTITY moveHere.label "Move Here">
 <!ENTITY copyHere.label "Copy Here">
 <!ENTITY goToURL.label "Go to Source Web Page">
@@ -184,6 +182,13 @@
 <!ENTITY labelBlue.tooltip "Blue">
 <!ENTITY labelPurple.tooltip "Purple">
 <!ENTITY labelGray.tooltip "Gray">
+
+<!-- Move To Folder dialog -->
+<!ENTITY moveToFolder.title "Move To">
+<!ENTITY moveToFolder.label "Move to folder:">
+<!ENTITY moveToFolder.accesskey "M">
+<!ENTITY createCopy.label "Create a copy">
+<!ENTITY createCopy.accesskey "C">
 
 <!-- Insert Placeholder dialog -->
 <!ENTITY insertPlaceholder.title "Insert Placeholder">

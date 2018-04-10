@@ -231,78 +231,10 @@
     <menupopup id="clippings-list-context" 
      onpopupshowing="return initClippingsListPopup()">
       <menuseparator hidden="true"/>
-      <menu id="move-to-1"
-            label="&moveTo.label;" accesskey="&moveTo.accesskey;"
-            datasources="rdf:null"
-	    ref="http://clippings.mozdev.org/rdf/user-clippings-v2">
-        <menupopup id="move-to-1-popup"
-	 onpopupshowing="initFolderMenuSeparator(this)">
-	  <menuitem id="move-to-1-root"
-	   class="menuitem-iconic clippings-root"
-	   label="&clippingsRoot.label;"
-	   oncommand="moveToFolder(gClippingsSvc.kRootFolderURI)"/>
-	</menupopup>
 
-        <template id="move-to-template">
-          <rule iscontainer="true" clp:hassubfolders="true">
-            <menupopup
-	     onpopupshowing="initFolderMenuSeparator(this)">
-              <menu uri="rdf:*" class="menu-iconic clippings-folder"
-	       label="rdf:http://clippings.mozdev.org/ns/rdf#name">
-	        <menupopup>
-	          <menuitem label="&moveHere.label;"
-	           oncommand="moveToFolder(this.parentNode.parentNode.id)"/>
-                  <menuseparator/>
-		</menupopup>
-	      </menu>
-            </menupopup>
-          </rule>
-	  <rule iscontainer="true" clp:hassubfolders="false">
-	    <menupopup>
-	      <menuitem class="menuitem-iconic clippings-folder" uri="rdf:*"
-	       label="rdf:http://clippings.mozdev.org/ns/rdf#name"
-	       oncommand="moveToFolder(this.id)"/>
-	    </menupopup>
-	  </rule>
-        </template>
-      </menu>
-
-      <menu id="copy-to-1"
-            label="&copyTo.label;" accesskey="&copyTo.accesskey;"
-            datasources="rdf:null"
-            ref="http://clippings.mozdev.org/rdf/user-clippings-v2">
-        <menupopup id="copy-to-1-popup"
-	 onpopupshowing="initFolderMenuSeparator(this)">
-	  <menuitem id="copy-to-1-root"
-	   class="menuitem-iconic clippings-root"
-	   label="&clippingsRoot.label;"
-	   oncommand="copyToFolder(gClippingsSvc.kRootFolderURI)"/>
-	</menupopup>
-
-        <template id="copy-to-template">
-          <rule iscontainer="true" clp:hassubfolders="true">
-            <menupopup>
-              <menu class="menu-iconic clippings-folder" uri="rdf:*" 
-	       label="rdf:http://clippings.mozdev.org/ns/rdf#name">
-	        <menupopup>
-	          <menuitem label="&copyHere.label;"
-	           oncommand="copyToFolder(this.parentNode.parentNode.id)"/>
-                  <menuseparator/>
-		</menupopup>
-	      </menu>
-            </menupopup>
-          </rule>
-	  <rule iscontainer="true" clp:hassubfolders="false">
-	    <menupopup>
-	      <menuitem class="menuitem-iconic clippings-folder" uri="rdf:*"
-	       label="rdf:http://clippings.mozdev.org/ns/rdf#name"
-	       oncommand="copyToFolder(this.id)"/>
-	    </menupopup>
-	  </rule>
-        </template>
-
-      </menu>
-
+      <menuitem id="move-or-copy-cxt" label="&moveTo.label;"
+       accesskey="&moveTo.accesskey;" oncommand="moveOrCopy()"/>
+      
       <!-- Clipping label picker: for treelist context menu -->
       <menuseparator id="clipping-label-cxt-separator"/>
       <menu id="clipping-label-cxt" label="&clippingLabel.label;"
@@ -420,6 +352,8 @@
       <toolbarbutton id="new-clipping" label="&newClipping.label;" accesskey="&newClipping.accesskey;" oncommand="newClipping()" />
       <toolbarbutton id="new-folder" label="&newFolder.label;" accesskey="&newFolder.accesskey;" oncommand="newFolder()" />
 
+      <toolbarbutton id="toolbar-move" label="&move.label;" accesskey="&move.accesskey;" oncommand="moveOrCopy()"/>
+<!--
       <toolbarbutton id="toolbar-move" type="menu"
        label="&move.label;" accesskey="&move.accesskey;">
         <menupopup id="toolbar-move-popup"
@@ -453,7 +387,7 @@
           </menu>
 	</menupopup>
       </toolbarbutton>
-
+-->
       <toolbarbutton id="delete-clipping" label="&deleteClipping.label;" accesskey="&deleteClipping.accesskey;" command="cmd_delete" /> 
       <toolbarbutton id="undo" label="&undo.label;" accesskey="&undo.accesskey;" command="cmd_undo" />
       <toolbarbutton id="find" label="&find.label;" accesskey="&find.accesskey;" command="cmd_find" />

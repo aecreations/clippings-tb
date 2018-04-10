@@ -16,8 +16,6 @@ const WINDOWSTATE_MAXIMIZE  = 1;
 const WINDOWSTATE_MINIMIZE  = 2;
 const WINDOWSTATE_NORMAL    = 3;
 
-
-var gClippingsList;  // DEPRECATED
 var gClippingsTree;
 var gMoveToMnu1, gMoveToMnu2, gCopyToMnu1, gCopyToMnu2;
 var gCurrentListItemIndex = -1;
@@ -1549,6 +1547,29 @@ function pasteClippingAsNew()
 }
 
 
+function moveOrCopy()
+{
+  let dlgArgs = {
+    userCancel: null,
+    destFolderURI: gClippingsSvc.kRootFolderURI,
+    creatCopy: false,
+  };
+
+  window.openDialog("chrome://clippings/content/moveToFolder.xul", "dlg_clippings_mgr_moveto", "modal,centerscreen", dlgArgs);
+
+  if (dlgArgs.userCancel) {
+    return;
+  }
+
+  if (dlgArgs.createCopy) {
+    copyToFolder(dlgArgs.destFolderURI);
+  }
+  else {
+    moveToFolder(dlgArgs.destFolderURI);
+  }
+}
+
+
 function copyToFolder(aDestFolderURI)
 {
   // We have to do this, otherwise if the Move button was clicked, it will
@@ -1591,16 +1612,9 @@ function copyToFolderHelper(aItemURI, aSrcFolderURI, aDestFolderURI, aDestItemUR
 
   aeUtils.log(aeString.format("Copy completed.  Name of copied item: %S\nParent folder of copied item: %S", gClippingsSvc.getName(aItemURI), gClippingsSvc.getName(aDestFolderURI)));
 
-  removeFolderMenuSeparator();
-  gMoveToMnu1.builder.rebuild();
-  gCopyToMnu1.builder.rebuild();
-  gMoveToMnu2.builder.rebuild();
-  gCopyToMnu2.builder.rebuild();
-
   // The Clippings tree context menu doesn't close automatically after the
   // copy or move operation.
   $("clippings-list-context").hidePopup();
-  $("toolbar-move-popup").hidePopup();
 
   var state = {
     action:       ACTION_COPYTOFOLDER,
@@ -1632,6 +1646,7 @@ function copyToFolderHelper(aItemURI, aSrcFolderURI, aDestFolderURI, aDestItemUR
     }
   }
 
+  gClippingsTree.rebuild();
   updateDisplay();
   updateItemCount();
   gIsClippingsDirty = true;
@@ -1699,16 +1714,9 @@ function moveToFolderHelper(aItemURI, aSrcFolderURI, aDestFolderURI, aDestItemUR
 
   aeUtils.log(aeString.format("Move completed.  Name of moved item: %S\nParent folder the item was moved to: %S", gClippingsSvc.getName(newURI), gClippingsSvc.getName(aDestFolderURI)));
 
-  removeFolderMenuSeparator();
-  gMoveToMnu1.builder.rebuild();
-  gCopyToMnu1.builder.rebuild();
-  gMoveToMnu2.builder.rebuild();
-  gCopyToMnu2.builder.rebuild();
-
   // The Clippings tree context menu doesn't close automatically after the
   // copy or move operation.
   $("clippings-list-context").hidePopup();
-  $("toolbar-move-popup").hidePopup();
 
   var state = {
     action: ACTION_MOVETOFOLDER,
@@ -1743,6 +1751,7 @@ function moveToFolderHelper(aItemURI, aSrcFolderURI, aDestFolderURI, aDestItemUR
     }
   }
 
+  gClippingsTree.rebuild();
   updateDisplay();
   gIsClippingsDirty = true;
   commit();

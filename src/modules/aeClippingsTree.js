@@ -22,6 +22,8 @@ class ClippingsTree
   constructor(aTreeElt)
   {
     this._tree = aTreeElt;
+    this._fldrOnly = false;
+    this._showRootFldr = false;
     this._clippingsSvc = aeClippingsService.getService();
     this._doc = aTreeElt.ownerDocument;
   }
@@ -36,6 +38,26 @@ class ClippingsTree
     return (this._tree = aTreeElt);
   }
 
+  get foldersOnly()
+  {
+    return this._fldrOnly;
+  }
+
+  set foldersOnly(aFoldersOnly)
+  {
+    return (this._fldrOnly = aFoldersOnly);
+  }
+
+  get showRootFolder()
+  {
+    return this._showRootFldr;
+  }
+
+  set showRootFolder(aShowRootFolder)
+  {
+    return (this._showRootFldr = aShowRootFolder);
+  }
+  
   build()
   {
     let clippingsJSONStr = this._clippingsSvc.exportToJSONString();
@@ -44,9 +66,30 @@ class ClippingsTree
     aeUtils.log("aeClippingsTree.build(): Building Clippings tree");
 
     let treechildrenRoot = this._doc.createElement("treechildren");
-    this._buildHelper(treechildrenRoot, clippingsJSON);
 
-    this._tree.appendChild(treechildrenRoot);
+    if (this._showRootFldr) {
+      let rootTreeitem = this._doc.createElement("treeitem");
+      rootTreeitem.setAttribute("container", "true");
+      rootTreeitem.setAttribute("open", "true");
+      rootTreeitem.setAttribute("data-uri", this._clippingsSvc.kRootFolderURI);
+
+      let rootTreerow = this._doc.createElement("treerow");
+      let rootTreecell = this._doc.createElement("treecell");
+      rootTreecell.setAttribute("label", "Clippings");
+      rootTreerow.appendChild(rootTreecell);
+      rootTreeitem.appendChild(rootTreerow);
+
+      let nestedTreechildren = this._doc.createElement("treechildren");
+      this._buildHelper(nestedTreechildren, clippingsJSON);
+
+      rootTreeitem.appendChild(nestedTreechildren);
+      treechildrenRoot.appendChild(rootTreeitem);
+      this._tree.appendChild(treechildrenRoot);
+    }
+    else {
+      this._buildHelper(treechildrenRoot, clippingsJSON);
+      this._tree.appendChild(treechildrenRoot);
+    }
   }
 
   _buildHelper(aTreechildrenElt, aFolderItems)
@@ -71,6 +114,10 @@ class ClippingsTree
 	aTreechildrenElt.appendChild(treeitem);
       }
       else {
+	if (this._fldrOnly) {
+	  continue;
+	}
+	
 	let treeitem = this._doc.createElement("treeitem");
 	treeitem.setAttribute("data-uri", item.uri);
 	
