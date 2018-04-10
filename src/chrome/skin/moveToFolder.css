@@ -21,6 +21,7 @@ treechildren::-moz-tree-image(container, open) {
   list-style-image: url("chrome://clippings/skin/images/folder-open.svg");
 }
 
-treechildren::-moz-tree-image(container, closed) {
+treechildren::-moz-tree-image(container, closed),
+treechildren::-moz-tree-image(leaf) {
   list-style-image: url("chrome://clippings/skin/images/folder.svg");
 }
