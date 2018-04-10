@@ -24,6 +24,7 @@ class ClippingsTree
     this._tree = aTreeElt;
     this._fldrOnly = false;
     this._showRootFldr = false;
+    this._rootFldrTitle = "Clippings";
     this._clippingsSvc = aeClippingsService.getService();
     this._doc = aTreeElt.ownerDocument;
   }
@@ -75,7 +76,7 @@ class ClippingsTree
 
       let rootTreerow = this._doc.createElement("treerow");
       let rootTreecell = this._doc.createElement("treecell");
-      rootTreecell.setAttribute("label", "Clippings");
+      rootTreecell.setAttribute("label", this._rootFldrTitle);
       rootTreerow.appendChild(rootTreecell);
       rootTreeitem.appendChild(rootTreerow);
 
@@ -99,8 +100,8 @@ class ClippingsTree
       
       if (item.children) {
 	let treeitem = this._doc.createElement("treeitem");
-	treeitem.setAttribute("container", "true");
 	treeitem.setAttribute("data-uri", item.uri);
+	treeitem.setAttribute("container", "true");
 	
 	let treerow = this._doc.createElement("treerow");
 	let treecell = this._doc.createElement("treecell");
