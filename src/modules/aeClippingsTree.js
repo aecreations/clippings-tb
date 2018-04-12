@@ -77,6 +77,7 @@ class ClippingsTree
       let rootTreerow = this._doc.createElement("treerow");
       let rootTreecell = this._doc.createElement("treecell");
       rootTreecell.setAttribute("label", this._rootFldrTitle);
+      rootTreecell.setAttribute("properties", "root");
       rootTreerow.appendChild(rootTreecell);
       rootTreeitem.appendChild(rootTreerow);
 

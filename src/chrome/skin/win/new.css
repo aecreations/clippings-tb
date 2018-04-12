@@ -66,6 +66,10 @@ treechildren::-moz-tree-image(leaf) {
   list-style-image: url("chrome://clippings/skin/images/folder.svg");
 }
 
+treechildren::-moz-tree-image(container, root) {
+  list-style-image: url("chrome://clippings/skin/images/clippings-root.svg");
+}
+
 #new-folder, #clipping-label, #clipping-label-2 {
   min-width: 10px;
   min-height: 16px;
