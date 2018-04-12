@@ -20,6 +20,18 @@
   <stringbundle id="ae-clippings-strings" 
    src="chrome://clippings/locale/clippings.properties"/>
 
+  <popupset>
+    <panel id="folder-picker">
+      <tree id="folder-tree" flex="1" hidecolumnpicker="true" seltype="single"
+       onselect="chooseFolder()">
+        <treecols>
+          <treecol id="all-folders" flex="1" primary="true"
+           hideheader="true" sortActive="true" sortDirection="natural"/>
+        </treecols>
+      </tree>
+    </panel>
+  </popupset>
+
   <label value="&folderName.label;" accesskey="&folderName.accesskey;"
    control="folder-name"/>
   <textbox id="folder-name" size="32" onblur="validateFolderName(event)"/>
@@ -28,41 +40,9 @@
 
   <label value="&createAsSubf.label;" accesskey="&createAsSubf.accesskey;"
    control="folder-menu-button"/>
-  <menulist id="folder-menu-button" class="clippings-root"
-   xmlns:clp="http://clippings.mozdev.org/ns/rdf#"
-   datasources="rdf:null"
-   ref="http://clippings.mozdev.org/rdf/user-clippings-v2"
-   label="&clippingsRoot.label;" width="128" crop="end" flex="1">
-
-    <menupopup id="folder-menu-popup" onpopupshowing="initMenuSeparator(this)">
-      <menuitem id="clippings-root"
-       class="menuitem-iconic clippings-root"
-       label="&clippingsRoot.label;"
-       oncommand="chooseFolder(gClippingsSvc.kRootFolderURI)"/>
-    </menupopup>
-
-    <template id="create-in-template">
-      <rule iscontainer="true" clp:hassubfolders="true">
-        <menupopup>
-	  <menu class="menu-iconic ae-clippings-folder" uri="rdf:*"
-	   label="rdf:http://clippings.mozdev.org/ns/rdf#name">
-	    <menupopup>
-  	      <menuitem label="&chooseAsParent.label;"
-	       oncommand="chooseFolder(this.parentNode.parentNode.id)"/>
-	      <menuseparator/>
-  	    </menupopup>
-	  </menu>
-	</menupopup>
-      </rule>
-      <rule iscontainer="true" clp:hassubfolders="false">
-        <menupopup>
-	  <menuitem class="menuitem-iconic ae-clippings-folder" uri="rdf:*"
-	   label="rdf:http://clippings.mozdev.org/ns/rdf#name"
- 	   oncommand="chooseFolder(this.id)"/>
-  	</menupopup>
-      </rule>
-    </template>
-  </menulist>
+  <button id="folder-menu-button" class="clippings-root" align="left"
+   label="&clippingsRoot.label;" width="128" crop="end" flex="1"
+   oncommand="toggleFolderPicker()"/>
 
   <separator class="thin"/>
 

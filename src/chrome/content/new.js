@@ -11,13 +11,14 @@ ChromeUtils.import("resource://clippings/modules/aeString.js");
 ChromeUtils.import("resource://clippings/modules/aeUtils.js");
 ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
 ChromeUtils.import("resource://clippings/modules/aeClippingLabelPicker.js");
+ChromeUtils.import("resource://clippings/modules/aeClippingsTree.js");
 
 
 var gDlgArgs = window.arguments[0].wrappedJSObject;
 var gFolderMenu, gStrBundle;
 var gClippingsSvc;
+var gFolderTree;
 var gSelectedFolderURI;
-var gIsFolderMenuSeparatorInitialized = false;
 
 // Used in new.xul only
 var gClippingName, gClippingText, gCreateAsUnquoted, gRemoveExtraLineBreaks;
@@ -69,14 +70,11 @@ function init()
   }
 
   gStrBundle = $("ae-clippings-strings");
-
-  // The datasource has already been initialized in the host app, so just get
-  // the datasource object from the Clippings service.
-  var ds = gClippingsSvc.getDataSource("");
-
   gFolderMenu = $("folder-menu-button");
-  gFolderMenu.database.AddDataSource(ds);
-  gFolderMenu.builder.rebuild();
+  gFolderTree = aeClippingsTree.createInstance($("folder-tree"));
+  gFolderTree.foldersOnly = true;
+  gFolderTree.showRootFolder = true;
+  gFolderTree.build();
 
   // newFolder.xul
   if (window.location.href == "chrome://clippings/content/newFolder.xul") {
@@ -120,14 +118,11 @@ function init()
 
     $("shortcut-key-hint").setAttribute("tooltiptext", hint);
 
-    // Thunderbird-specific options
-    if (aeUtils.getHostAppID() == aeConstants.HOSTAPP_TB_GUID) {
-      $("tb-create-options-grid").style.display = "-moz-grid";
-      // If there are no message quotation symbols in gDlgArgs.text, then
-      // disable the "Create as unquoted text" checkbox.
-      if (gDlgArgs.text.search(/^>/gm) == -1) {
-	gCreateAsUnquoted.disabled = true;
-      }
+    $("tb-create-options-grid").style.display = "-moz-grid";
+    // If there are no message quotation symbols in gDlgArgs.text, then
+    // disable the "Create as unquoted text" checkbox.
+    if (gDlgArgs.text.search(/^>/gm) == -1) {
+      gCreateAsUnquoted.disabled = true;
     }
     
     gClippingName.value = gDlgArgs.name;
@@ -158,6 +153,20 @@ function init()
       gClippingLabelPicker = aeClippingLabelPicker.createInstance($("clipping-label-menupopup"));
     }
     gClippingLabelPicker.addListener(gClippingLabelPickerListener);
+  }
+}
+
+
+function toggleFolderPicker()
+{
+  let fldrMenuBtn = $("folder-menu-button");
+  let fldrPickerPanel = $("folder-picker");
+
+  if (fldrPickerPanel.state == "open") {
+    fldrPickerPanel.hidePopup;
+  }
+  else {
+    fldrPickerPanel.openPopup(fldrMenuBtn, "after_start", 0, 0, false, false);
   }
 }
 
@@ -217,35 +226,19 @@ function isFolderMissing(aFolderURI)
 
 function chooseFolder(aFolderURI)
 {
-  gSelectedFolderURI = aFolderURI;
+  let fldrURI = aFolderURI ? aFolderURI : gFolderTree.selectedURI; 
+  gSelectedFolderURI = fldrURI;
 
-  if (aFolderURI == gClippingsSvc.kRootFolderURI) {
+  let fldrPickerPanel = $("folder-picker");
+  fldrPickerPanel.hidePopup();
+
+  if (fldrURI == gClippingsSvc.kRootFolderURI) {
     gFolderMenu.setAttribute("label", gStrBundle.getString("clippingsRoot"));
     gFolderMenu.style.listStyleImage = "url('chrome://clippings/skin/images/clippings-root.svg')";
   }
   else {
-    gFolderMenu.setAttribute("label", gClippingsSvc.getName(aFolderURI));
+    gFolderMenu.setAttribute("label", gClippingsSvc.getName(fldrURI));
     gFolderMenu.style.listStyleImage = "url('chrome://clippings/skin/images/folder.svg')";
-  }
-}
-
-
-function initMenuSeparator(aMenuPopup)
-{
-  // Always rebuild folder menu separator
-  var popup = $("folder-menu-popup");
-  var oldSep = $("clippings-root-separator");
-  if (oldSep) {
-    popup.removeChild(oldSep);
-  }
-
-  if (gClippingsSvc.getCountSubfolders(gClippingsSvc.kRootFolderURI) > 0) {
-    var clippingsRootMnuItem = $("clippings-root");
-    var newSep = document.createElement("menuseparator");
-    newSep.id = "clippings-root-separator";
-    aMenuPopup.insertBefore(newSep, clippingsRootMnuItem.nextSibling);
-
-    gIsFolderMenuSeparatorInitialized = true;
   }
 }
 
@@ -287,16 +280,7 @@ function createFolder()
     return;
   }
 
-  // Remove the separator following the Clippings root folder item in
-  // preparation for the folder menu rebuild.
-  var popup = $("folder-menu-popup");
-  var sep = $("clippings-root-separator");
-  if (sep) {
-    popup.removeChild(sep);
-    gIsFolderMenuSeparatorInitialized = false;
-  }
-
-  gFolderMenu.builder.rebuild();
+  gFolderTree.rebuild();
   chooseFolder(dlgArgs.newFolderURI);
   gIsFolderCreated = true;
 }
@@ -392,7 +376,6 @@ function accept()
 
     gDlgArgs.name = gClippingName.value;
     gDlgArgs.text = clipText;
-    gDlgArgs.saveSrcURL = $("save-source-url").checked;
     gDlgArgs.destFolder = gSelectedFolderURI;
 
     // Label

@@ -36,8 +36,34 @@ menu[open="true"] {
   list-style-image: url("chrome://clippings/skin/images/clippings-root.svg");
 }
 
-#folder-menu-button .menulist-icon {
-  padding-right: 1px;
+#folder-menu-button image {
+  padding-right: 3px;
+}
+
+#folder-picker {
+  border: none;
+}
+
+#folder-tree {
+  width: 340px;  /* TO DO: Should inherit the width of the menu button */
+  height: 136px;
+  margin-left: 0;
+  margin-right: 0;
+  border: none;
+}
+
+/* Styling for the folder tree */
+treechildren::-moz-tree-image {
+  padding-right: 3px;
+}
+
+treechildren::-moz-tree-image(container, open) {
+  list-style-image: url("chrome://clippings/skin/images/folder-open.svg");
+}
+
+treechildren::-moz-tree-image(container, closed),
+treechildren::-moz-tree-image(leaf) {
+  list-style-image: url("chrome://clippings/skin/images/folder.svg");
 }
 
 #new-folder, #clipping-label, #clipping-label-2 {
