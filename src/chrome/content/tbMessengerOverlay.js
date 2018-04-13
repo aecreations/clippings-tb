@@ -334,9 +334,19 @@ window.aecreations.clippings = {
 
     // Place the status bar icon so that it appears as the last item, before
     // the window resizer grippy
-    var statusBar = document.getElementById("status-bar");
-    var statusBarPanel = document.getElementById("ae-clippings-icon");
-    statusBar.appendChild(statusBarPanel);
+    let statusBar = document.getElementById("status-bar");
+    let statusbarpanel = document.createElement("statusbarpanel");
+    let statusbarBtn = document.createElement("toolbarbutton");
+    statusbarBtn.id = "ae-clippings-icon";
+    statusbarBtn.setAttribute("context", "ae-clippings-popup");
+    statusbarBtn.setAttribute("tooltiptext", this.strBundle.getString("appName"));
+
+    statusbarBtn.addEventListener("command", aEvent => {
+      window.aecreations.clippings.openClippingsManager();
+    }, false);
+
+    statusbarpanel.appendChild(statusbarBtn);
+    statusBar.appendChild(statusbarpanel);
 
     // Dynamically create status bar icon popup menu.  Defining it in
     // tbMessengerOverlay.xul won't work - it seems to disappear during loading

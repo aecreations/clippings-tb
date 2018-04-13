@@ -41,21 +41,5 @@
     </panel>
   </popupset>
 
-  <!-- 
-     NOTE:
-     Status bar icon popup menu is created dynamically.  See note in
-     tbMessengerOverlay.js in window.aecreations.clippings.initClippings() for
-     details.
-  -->
-  <statusbar id="status-bar">
-    <statusbarpanel id="ae-clippings-icon" class="statusbarpanel-menu-iconic" 
-     tooltiptext="&statusbar.tooltip;"
-     context="ae-clippings-popup"
-     ondblclick="window.aecreations.clippings.openClippingsManager()"
-     ondragenter="return false;  // Necessary to allow the drop operation"
-     ondragover="return false;   // on this element."
-     ondrop="window.aecreations.clippings.statusBarDrop(event)"/>
-  </statusbar>
-
 </overlay>
 
