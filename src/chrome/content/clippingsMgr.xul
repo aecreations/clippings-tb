@@ -353,41 +353,6 @@
       <toolbarbutton id="new-folder" label="&newFolder.label;" accesskey="&newFolder.accesskey;" oncommand="newFolder()" />
 
       <toolbarbutton id="toolbar-move" label="&move.label;" accesskey="&move.accesskey;" oncommand="moveOrCopy()"/>
-<!--
-      <toolbarbutton id="toolbar-move" type="menu"
-       label="&move.label;" accesskey="&move.accesskey;">
-        <menupopup id="toolbar-move-popup"
-	 onpopupshowing="initMoveMenuPopup()">
-	  <menu id="move-to-2" 
-	   label="&moveTo.label;" accesskey="&moveTo.accesskey;"
-	   datasources="rdf:null"
-	   ref="http://clippings.mozdev.org/rdf/user-clippings-v2"
-	   template="move-to-template">
-	    <menupopup id="move-to-2-popup"
-	     onpopupshowing="initFolderMenuSeparator(this)">
-	      <menuitem id="move-to-2-root"
-	       class="menuitem-iconic clippings-root"
-	       label="&clippingsRoot.label;"
-	       oncommand="moveToFolder(gClippingsSvc.kRootFolderURI)"/>
-            </menupopup>
-          </menu>
-
-	  <menu id="copy-to-2" 
-	   label="&copyTo.label;" accesskey="&copyTo.accesskey;"
-	   datasources="rdf:null"
-	   ref="http://clippings.mozdev.org/rdf/user-clippings-v2"
-	   template="copy-to-template">
-	    <menupopup id="copy-to-2-popup"
-	     onpopupshowing="initFolderMenuSeparator(this)">
-	      <menuitem id="copy-to-2-root"
-	       class="menuitem-iconic clippings-root"
-	       label="&clippingsRoot.label;"
-	       oncommand="copyToFolder(gClippingsSvc.kRootFolderURI)"/>
-            </menupopup>
-          </menu>
-	</menupopup>
-      </toolbarbutton>
--->
       <toolbarbutton id="delete-clipping" label="&deleteClipping.label;" accesskey="&deleteClipping.accesskey;" command="cmd_delete" /> 
       <toolbarbutton id="undo" label="&undo.label;" accesskey="&undo.accesskey;" command="cmd_undo" />
       <toolbarbutton id="find" label="&find.label;" accesskey="&find.accesskey;" command="cmd_find" />

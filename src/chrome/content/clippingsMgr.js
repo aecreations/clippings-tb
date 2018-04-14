@@ -1205,41 +1205,6 @@ function initReloadMenuItem()
 }
 
 
-function initFolderMenuSeparator(aMenuPopup)
-{
-  var menuID = aMenuPopup.parentNode.id;
-  if (gIsFolderMenuSeparatorInitialized[menuID]) {
-    return;
-  }
-
-  if (gClippingsSvc.getCountSubfolders(gClippingsSvc.kRootFolderURI) > 0) {
-    var clippingsRootMnuItemID = menuID + "-root";
-    var clippingsRootMnuItem = $(clippingsRootMnuItemID);
-    var sep = document.createElement("menuseparator");
-    sep.id = menuID + "-separator";
-    aMenuPopup.insertBefore(sep, clippingsRootMnuItem.nextSibling);
-
-    gIsFolderMenuSeparatorInitialized[menuID] = true;
-  }
-}
-
-
-function removeFolderMenuSeparator() 
-{
-  // This function should be called immediately before rebuilding the Move To
-  // and Copy To menus, usually after creating a new folder, deleting a
-  // clipping or folder, etc.
-  for (let menuID in gIsFolderMenuSeparatorInitialized) {
-    var popup = $(menuID + "-popup");
-    var sep = $(menuID + "-separator");
-    if (sep) {
-      popup.removeChild(sep);
-    }
-    gIsFolderMenuSeparatorInitialized[menuID] = false;
-  }
-}
-
-
 function applyUpdatedClippingsMgrPrefs()
 {
   var isSpellCheckEnabled = aeUtils.getPref("clippings.check_spelling", true);
@@ -1807,9 +1772,7 @@ function reload()
   // Do not open any windows or dialog boxes from within this function;
   // otherwise Clipping Manager's reload event handler will be invoked again
   // when the window or dialog box is closed!
-
-  aeUtils.log(">> clippingsMgr.js: reload()");
-  
+ 
   if (gJustMigrated) {
     // Not necessary to reload if Migration Wizard has just completed.
     // Also, clear the `dirty' flag because it was ignored when datasource was
@@ -2019,7 +1982,6 @@ function deleteClippingHelper(aURI, aDestUndoStack)
   }
 
   gIsClippingsDirty = true;
-  removeFolderMenuSeparator();
   gClippingsTree.removeNode(aURI);
 
   updateItemCount();
@@ -2613,7 +2575,6 @@ function moveEntry(aURI, aParentFolderURI, aOldPos, aNewPos, aDestUndoStack)
 
   gClippingsSvc.changePosition(aParentFolderURI, aOldPos, aNewPos);
   gIsClippingsDirty = true;
-  removeFolderMenuSeparator();  // Rebuild folder menu separator
   commit();
 }
 
@@ -3070,7 +3031,6 @@ function undo()
     gClippingsTree.selectedURI = undo.uri;
     gCurrentListItemIndex = gClippingsTree.selectedIndex;
     updateDisplay();
-    removeFolderMenuSeparator();
 
     gRedoStack.push({action: ACTION_DELETEFOLDER, uri: undo.uri});
     commit();
