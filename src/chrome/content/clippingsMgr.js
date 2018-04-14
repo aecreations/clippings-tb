@@ -2020,7 +2020,7 @@ function deleteClippingHelper(aURI, aDestUndoStack)
 
   gIsClippingsDirty = true;
   removeFolderMenuSeparator();
-  gClippingsTree.deleteNode(aURI);
+  gClippingsTree.removeNode(aURI);
 
   updateItemCount();
 
@@ -2428,6 +2428,8 @@ function updateLabelHelper(aClippingURI, aLabelID, aDestUndoStack)
   if (gAltClippingLabelPicker) {
     updateAltLabelMenu(label);
   }
+
+  gClippingsTree.setNodeProperty(aClippingURI, label);
   
   var state = { 
     action: ACTION_SETLABEL, 

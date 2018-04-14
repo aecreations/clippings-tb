@@ -329,7 +329,7 @@ class ClippingsTree
     aTreechildrenElt.appendChild(treeitem);   
   }
 
-  deleteNode(aNodeURI)
+  removeNode(aNodeURI)
   {
     let treeitems = this._tree.getElementsByTagName("treeitem");
     let targetNode;
@@ -362,6 +362,26 @@ class ClippingsTree
 	  let treecell = treerow.firstChild;
 	  if (treecell) {
 	    treecell.setAttribute("label", aLabel);
+	  }
+	}
+	break;
+      }
+    }
+  }
+
+  setNodeProperty(aNodeURI, aProperty)
+  {
+    let treeitems = this._tree.getElementsByTagName("treeitem");
+
+    for (let i = 0; i < treeitems.length; i++) {
+      let treeitem = treeitems[i];
+      let uri = treeitem.getAttribute("data-uri");
+      if (uri == aNodeURI) {
+	let treerow = treeitem.firstChild;
+	if (treerow) {
+	  let treecell = treerow.firstChild;
+	  if (treecell) {
+	    treecell.setAttribute("properties", aProperty);
 	  }
 	}
 	break;
