@@ -17,7 +17,6 @@ const WINDOWSTATE_MINIMIZE  = 2;
 const WINDOWSTATE_NORMAL    = 3;
 
 var gClippingsTree;
-var gMoveToMnu1, gMoveToMnu2, gCopyToMnu1, gCopyToMnu2;
 var gCurrentListItemIndex = -1;
 var gStrBundle;
 var gDataSource;
@@ -881,27 +880,11 @@ function init()
       var recoveryMode = {};
       var oldDS = initDataSrc(recoveryMode);
       gClippingsTree.rebuild();
-
-      buildCopyToMenu(gMoveToMnu1, oldDS);
-      buildCopyToMenu(gCopyToMnu1, oldDS);
-      buildCopyToMenu(gMoveToMnu2, oldDS);
-      buildCopyToMenu(gCopyToMnu2, oldDS);
     },
 
     importDone: function (aNumItems) {}
   };
   gClippingsSvc.addListener(gClippingsListener);
-
-  gMoveToMnu1 = $("move-to-1");
-  gCopyToMnu1 = $("copy-to-1");
-  gMoveToMnu2 = $("move-to-2");
-  gCopyToMnu2 = $("copy-to-2");
-/**
-  buildCopyToMenu(gCopyToMnu1);
-  buildCopyToMenu(gMoveToMnu1);
-  buildCopyToMenu(gCopyToMnu2);
-  buildCopyToMenu(gMoveToMnu2);
-**/
 
   if (aeUtils.getOS() == "Darwin") {
     // On Mac OS X, OS_TARGET is "Darwin"
@@ -1060,31 +1043,7 @@ function detectExternallyCreatedFolder(aNewFolderURI)
   gUndoStack.push(state);
   aeUtils.log(aeString.format("New folder named %S added to undo stack (created outside Clippings Manager!)", state.name));
 
-  removeFolderMenuSeparator();
-  gMoveToMnu1.builder.rebuild();
-  gCopyToMnu1.builder.rebuild();
-  gMoveToMnu2.builder.rebuild();
-  gCopyToMnu2.builder.rebuild();
-
   updateItemCount();
-}
-
-
-function buildCopyToMenu(aMenu, aOldDataSrc)
-{
-  // This function is invoked during Clippings Manager initialization or
-  // after migration is completed.
-  if (! gDataSource) {
-    aeUtils.log("Failed to initialize Copy To or Move To menu - data source not initialized!");
-    return;
-  }
-
-  if (aOldDataSrc) {
-    aMenu.database.RemoveDataSource(aOldDataSrc);
-  }
-
-  aMenu.database.AddDataSource(gDataSource);
-  aMenu.builder.rebuild();
 }
 
 
@@ -1395,13 +1354,6 @@ function newFolderHelper(aParentFolderURI, aFolderName, aURI, aPos, aDestUndoSta
   }
 
   gIsClippingsDirty = true;
-
-  removeFolderMenuSeparator();
-  gMoveToMnu1.builder.rebuild();
-  gCopyToMnu1.builder.rebuild();
-  gMoveToMnu2.builder.rebuild();
-  gCopyToMnu2.builder.rebuild();
-  
   commit();
 }
 
