@@ -6,31 +6,31 @@
 
 
 /* Clipping labels - colorize menuitem label in case icons aren't displayed. */
-menuitem.ae-clippings-clipping[clipLabel="red"] {
+menuitem.ae-clippings-clipping[data-clipping-label="red"] {
   color: red;
 }
 
-menuitem.ae-clippings-clipping[clipLabel="orange"] {
+menuitem.ae-clippings-clipping[data-clipping-label="orange"] {
   color: orange;
 }
 
-menuitem.ae-clippings-clipping[clipLabel="yellow"] {
+menuitem.ae-clippings-clipping[data-clipping-label="yellow"] {
   color: rgb(200, 200, 0);
 }
 
-menuitem.ae-clippings-clipping[clipLabel="green"] {
+menuitem.ae-clippings-clipping[data-clipping-label="green"] {
   color: green;
 }
 
-menuitem.ae-clippings-clipping[clipLabel="blue"] {
+menuitem.ae-clippings-clipping[data-clipping-label="blue"] {
   color: blue;
 }
 
-menuitem.ae-clippings-clipping[clipLabel="purple"] {
+menuitem.ae-clippings-clipping[data-clipping-label="purple"] {
   color: purple;
 }
 
-menuitem.ae-clippings-clipping[clipLabel="grey"] {
+menuitem.ae-clippings-clipping[data-clipping-label="grey"] {
   color: gray;
 }
 

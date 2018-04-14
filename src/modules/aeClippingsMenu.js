@@ -1,4 +1,3 @@
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -64,6 +63,7 @@ class ClippingsMenu
 	menuItemElt.classList.add("menuitem-iconic", "ae-clippings-clipping");
 	menuItemElt.setAttribute("label", item.name);
 	menuItemElt.setAttribute("data-clipping-uri", item.uri);
+        menuItemElt.setAttribute("data-clipping-label", item.label);
 	menuItemElt.addEventListener("command", aEvent => {
 	  this._fnMenuItemCmd(aEvent);
 	}, false);
