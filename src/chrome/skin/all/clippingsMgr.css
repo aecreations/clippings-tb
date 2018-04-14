@@ -323,3 +323,7 @@ toolbarbutton .toolbarbutton-icon {
   font-weight: bold;
   cursor: pointer;
 }
+
+#status-bar {
+  -moz-appearance: statusbar;
+}

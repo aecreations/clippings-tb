@@ -422,6 +422,10 @@ toolbarbutton .toolbarbutton-icon {
   text-decoration: underline;
 }
 
-notification-bar description:active {
+#notification-bar description:active {
   color: -moz-activehyperlinktext;
+}
+
+#status-bar {
+  -moz-appearance: statusbar;
 }
