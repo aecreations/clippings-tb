@@ -1,4 +1,3 @@
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -667,6 +666,22 @@ window.aecreations.clippings = {
 
     this.clippingsSvc.addListener(this._clippingsListener);
 
+    // Initialize status bar icon.
+    let statusBar = document.getElementById("status-bar");
+    let statusbarpanel = document.createElement("statusbarpanel");
+    statusbarpanel.id = "ae-clippings-statubarpanel";
+    let statusbarBtn = document.createElement("toolbarbutton");
+    statusbarBtn.id = "ae-clippings-icon";
+    statusbarBtn.setAttribute("context", "ae-clippings-popup");
+    statusbarBtn.setAttribute("tooltiptext", this.strBundle.getString("appName"));
+
+    statusbarBtn.addEventListener("command", aEvent => {
+      window.aecreations.clippings.openClippingsManager();
+    }, false);
+
+    statusbarpanel.appendChild(statusbarBtn);
+    statusBar.appendChild(statusbarpanel);
+    
     // Set behaviour of "New Clipping" commands - prompt vs. silent operation
     this.showDialog = true;
     try {
