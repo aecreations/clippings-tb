@@ -206,17 +206,42 @@ class ClippingsTree
   {
     let treeitems = this._tree.getElementsByTagName("treeitem");
     let idx = -1;
+    let treeitem;
 
     for (let i = 0; i < treeitems.length; i++) {
       let uri = treeitems[i].getAttribute("data-uri");
       if (uri == aURI) {
 	idx = this._tree.view.getIndexOfItem(treeitems[i]);
+	treeitem = treeitems[i];
 	break;
       }
     }
 
     if (idx != -1) {
       this.ensureIndexIsVisible(idx);
+    }
+
+    if (treeitem) {
+      this._expandParentsOfNode(aURI);
+    }
+  }
+
+  _expandParentsOfNode(aURI)
+  {
+    let pathToNode = [];
+    let parentFolderURI = this._clippingsSvc.getParent(aURI);
+    while (parentFolderURI != this._clippingsSvc.kRootFolderURI) {
+      pathToNode.unshift(parentFolderURI);
+      parentFolderURI = this._clippingsSvc.getParent(parentFolderURI);
+    }
+
+    // Go through the `pathToNode' array and expand the tree rows of the
+    // folders that are currently collapsed.
+    for (let i = 0; i < pathToNode.length; i++) {
+      let idx = this.getIndexAtURI(pathToNode[i]);
+      if (! this._tree.view.isContainerOpen(idx)) {
+        this._tree.view.toggleOpenState(idx);
+      }
     }
   }
 

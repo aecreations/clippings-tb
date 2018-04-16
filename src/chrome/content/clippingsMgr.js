@@ -194,6 +194,7 @@ function dropIntoClippingsList(aEvent)
 }
 
 
+// TO DO: This is no longer used, so remove it.
 var treeBuilderObserver = {
   canDrop: function (idx, orient)
   {
@@ -1002,11 +1003,11 @@ function initDataSrc(aRecoveryMode)
 
 function detectExternallyCreatedEntry(aNewClippingURI)
 {
-  gClippingsTree.selectedURI = aNewClippingURI;
+  gClippingsTree.rebuild();
 
   // No effect if parent folder of new clipping isn't expanded.
   gClippingsTree.ensureURIIsVisible(aNewClippingURI); 
-
+  gClippingsTree.selectedURI = aNewClippingURI;
   gClippingsTree.click();
 
   var state = {
@@ -1028,8 +1029,9 @@ function detectExternallyCreatedEntry(aNewClippingURI)
 
 function detectExternallyCreatedFolder(aNewFolderURI)
 {
-  gClippingsTree.selectedURI = aNewFolderURI;
+  gClippingsTree.rebuild();
   gClippingsTree.ensureURIIsVisible(aNewFolderURI);
+  gClippingsTree.selectedURI = aNewFolderURI;
   gClippingsTree.click();
 
   var state = {
@@ -1050,10 +1052,6 @@ function detectExternallyCreatedFolder(aNewFolderURI)
 // This is called in Clippings Manager window's unload event handler
 function unload()
 {
-  /**
-  gClippingsList.tree.builder.removeObserver(treeBuilderObserver);
-  treeBuilderObserver = null;
-  **/
   gClippingLabelPicker.removeListener(gClippingLabelPickerListener);
 
   gClippingsSvc.purgeDetachedItems();
