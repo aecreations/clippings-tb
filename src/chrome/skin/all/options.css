@@ -9,6 +9,18 @@ prefwindow {
   min-width: 36em;
 }
 
+separator {
+  height: 18px;
+}
+
+separator.thin {
+  height: 8px;
+}
+
+label {
+  margin-left: 6px;
+}
+
 .ae-caption {
   margin-left: 0px;
 }

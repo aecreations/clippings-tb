@@ -31,6 +31,18 @@ prefpane description {
   font: -moz-info;
 }
 
+separator {
+  height: 18px;
+}
+
+separator.thin {
+  height: 8px;
+}
+
+label {
+  margin-left: 6px;
+}
+
 .ae-caption {
   margin-left: 0px;
 }
