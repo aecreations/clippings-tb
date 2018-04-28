@@ -1612,9 +1612,13 @@ function copyToFolderHelper(aItemURI, aSrcFolderURI, aDestFolderURI, aDestItemUR
     gRedoStack.push(state);
   }
 
+  gClippingsTree.rebuild();
+  updateDisplay();
+
   if (aSelectCopiedItem) {
-    gClippingsTree.selectedURI = newURI;
     gClippingsTree.ensureURIIsVisible(newURI);
+    gClippingsTree.selectedURI = newURI;
+    gClippingsTree.click();
   }
   else {
     var numRows = gClippingsTree.getRowCount();
@@ -1628,8 +1632,6 @@ function copyToFolderHelper(aItemURI, aSrcFolderURI, aDestFolderURI, aDestItemUR
     }
   }
 
-  gClippingsTree.rebuild();
-  updateDisplay();
   updateItemCount();
   gIsClippingsDirty = true;
   commit();
@@ -1715,11 +1717,13 @@ function moveToFolderHelper(aItemURI, aSrcFolderURI, aDestFolderURI, aDestItemUR
     gRedoStack.push(state);
   }
 
+  gClippingsTree.rebuild();
+  updateDisplay();
+
   if (aSelectMovedItem) {
-    // The following will not work if the parent of the item to select is
-    // not expanded.
-    gClippingsTree.selectedURI = newURI;
     gClippingsTree.ensureURIIsVisible(newURI);
+    gClippingsTree.selectedURI = newURI;
+    gClippingsTree.click();
   }
   else {
     var numRows = gClippingsTree.getRowCount();
@@ -1733,8 +1737,6 @@ function moveToFolderHelper(aItemURI, aSrcFolderURI, aDestFolderURI, aDestItemUR
     }
   }
 
-  gClippingsTree.rebuild();
-  updateDisplay();
   gIsClippingsDirty = true;
   commit();
 
@@ -3094,6 +3096,7 @@ function undo()
 
     gClippingsTree.addFolderNode(undo.parentFolderURI, undo.uri, undo.name);
     gClippingsTree.selectedURI = undo.uri;
+    gClippingsTree.ensureURIIsVisible(undo.uri);
     gCurrentListItemIndex = gClippingsTree.selectedIndex;
     updateDisplay();
 
