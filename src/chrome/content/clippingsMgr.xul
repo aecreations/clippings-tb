@@ -198,6 +198,9 @@
     <command id="cmd_close" oncommand="window.close()" />
     <command id="cmd_undo" oncommand="undo()" />
     <command id="cmd_undo_undo" oncommand="reverseLastUndo()" />
+    <command id="cmd_cut" oncommand="gClippingsTreeEdit.cut()"/>
+    <command id="cmd_copy" oncommand="gClippingsTreeEdit.copy()"/>
+    <command id="cmd_paste" oncommand="gClippingsTreeEdit.paste()" disabled="true"/>
     <command id="cmd_delete" oncommand="deleteClipping()"/>
     <command id="cmd_key_delete" oncommand="deleteClipping(true)"/>
     <command id="cmd_import" oncommand="doImport()"/>
@@ -232,6 +235,10 @@
      onpopupshowing="return initClippingsListPopup()">
       <menuseparator hidden="true"/>
 
+      <menuitem id="treeitem-cut" label="&cut.label;" accesskey="&cut.accesskey;" command="cmd_cut"/>
+      <menuitem id="treeitem-copy" label="&copy.label;" accesskey="&copy.accesskey;" command="cmd_copy"/>
+      <menuitem id="treeitem-paste" label="&paste.label;" accesskey="&paste.accesskey;" command="cmd_paste"/>
+      
       <menuitem id="move-or-copy-cxt" label="&moveTo.label;"
        accesskey="&moveTo.accesskey;" oncommand="moveOrCopy()"/>
       

@@ -336,6 +336,73 @@ var treeBuilderObserver = {
   onToggleOpenState: function (idx) {}
 };
 
+var gClippingsTreeEdit = {
+  ACTION_CUT: 1,
+  ACTION_COPY: 2,
+  _uri: null,
+  _srcFldrURI: null,
+  _action: null,
+  
+  cut()
+  {
+    let selectedURI = gClippingsTree.selectedURI;
+    if (! selectedURI) {
+      aeUtils.log("clippingsMgr.js: gClippingsTreeEdit.cut(): ERROR: Unable to get selected URI!");
+      return;
+    }
+
+    this._uri = selectedURI;
+    this._srcFldrURI = gClippingsSvc.getParent(selectedURI);
+    this._action = this.ACTION_CUT;
+
+    $("cmd_paste").removeAttribute("disabled");
+  },
+
+  copy()
+  {
+    let selectedURI = gClippingsTree.selectedURI;
+    if (! selectedURI) {
+      aeUtils.log("clippingsMgr.js: gClippingsTreeEdit.copy(): ERROR: Unable to get selected URI!");
+      return;
+    }
+
+    this._uri = selectedURI;
+    this._srcFldrURI = gClippingsSvc.getParent(selectedURI);
+    this._action = this.ACTION_COPY;
+
+    $("cmd_paste").removeAttribute("disabled");
+  },
+
+  paste()
+  {
+    if (!this._uri || !this._action) {
+      aeUtils.log("The selected action is not available right now.");
+      return;
+    }
+
+    let selectedURI = gClippingsTree.selectedURI;
+    let destFldrURI;
+    if (gClippingsSvc.isFolder(selectedURI)) {
+      destFldrURI = selectedURI;
+    }
+    else {
+      destFldrURI = gClippingsSvc.getParent(selectedURI);
+    }
+
+    if (this._action == this.ACTION_CUT) {
+      moveToFolderHelper(this._uri, this._srcFldrURI, destFldrURI, null, null, UNDO_STACK, true);
+    }
+    else if (this._action == this.ACTION_COPY) {
+      copyToFolderHelper(this._uri, this._srcFldrURI, destFldrURI, null, null, UNDO_STACK, true);
+    }
+    
+    this._uri = null;
+    this._srcFldrURI = null;
+    this._action = null;
+    $("cmd_paste").setAttribute("disabled", "true");
+  }
+};
+
 
 //
 // QuickEdit - instant updating of clipping edits, without the need
@@ -1467,7 +1534,7 @@ function moveOrCopy()
   let dlgArgs = {
     userCancel: null,
     destFolderURI: gClippingsSvc.kRootFolderURI,
-    creatCopy: false,
+    createCopy: false,
   };
 
   window.openDialog("chrome://clippings/content/moveToFolder.xul", "dlg_clippings_mgr_moveto", "modal,centerscreen", dlgArgs);

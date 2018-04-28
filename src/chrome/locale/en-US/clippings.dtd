@@ -183,6 +183,13 @@
 <!ENTITY labelPurple.tooltip "Purple">
 <!ENTITY labelGray.tooltip "Gray">
 
+<!ENTITY cut.label "Cut">
+<!ENTITY cut.accesskey "t">
+<!ENTITY copy.label "Copy">
+<!ENTITY copy.accesskey "C">
+<!ENTITY paste.label "Paste">
+<!ENTITY paste.accesskey "P">
+
 <!-- Move To Folder dialog -->
 <!ENTITY moveToFolder.title "Move To">
 <!ENTITY moveToFolder.label "Move to folder:">
