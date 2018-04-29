@@ -1544,10 +1544,10 @@ function moveOrCopy()
   }
 
   if (dlgArgs.createCopy) {
-    copyToFolder(dlgArgs.destFolderURI);
+    copyToFolderEx(dlgArgs.destFolderURI);
   }
   else {
-    moveToFolder(dlgArgs.destFolderURI);
+    moveToFolderEx(dlgArgs.destFolderURI);
   }
 }
 
@@ -1581,7 +1581,7 @@ function copyToFolderEx(aDestFolderURI)
     }
   }
 
-  copyToFolderHelper(itemURI, parentFolderURI, destFolderURI, null, null, UNDO_STACK, false);
+  copyToFolderHelper(itemURI, parentFolderURI, destFolderURI, null, null, UNDO_STACK, true);
 }
 
 
@@ -1684,7 +1684,7 @@ function moveToFolderEx(aDestFolderURI)
     }
   }
 
-  moveToFolderHelper(itemURI, parentFolderURI, destFolderURI, null, null, UNDO_STACK, false);
+  moveToFolderHelper(itemURI, parentFolderURI, destFolderURI, null, null, UNDO_STACK, true);
 }
 
 
@@ -3246,7 +3246,7 @@ function reverseLastUndo()
     try { 
       srcFolder = gClippingsSvc.getParent(redo.uri);
       moveToFolderHelper(redo.uri, srcFolder, redo.originalFolder,
-			 redo.originalURI, null, UNDO_STACK, false);
+			 redo.originalURI, null, UNDO_STACK, true);
     } catch (e) {
       throw ("Exception occurred while attempting to redo item move:\n" + e);
     }
@@ -3254,7 +3254,7 @@ function reverseLastUndo()
   }
   else if (redo.action == ACTION_COPYTOFOLDER) {
     copyToFolderHelper(redo.originalURI, redo.srcFolder, redo.destFolder,
-		       redo.copyURI, null, UNDO_STACK, false);
+		       redo.copyURI, null, UNDO_STACK, true);
     aeUtils.log("Copy redone!");
   }
   else if (redo.action == ACTION_CHANGEPOSITION) {
