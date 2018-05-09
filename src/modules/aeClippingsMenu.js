@@ -34,7 +34,7 @@ class ClippingsMenu
 
   build()
   {
-    let clippingsJSONStr = this._clippingsSvc.exportToJSONString();
+    let clippingsJSONStr = this._clippingsSvc.exportToJSONString(this._clippingsSvc.JSON_EXPORT_DEFAULT);
     let clippingsJSON = JSON.parse(clippingsJSONStr);
 
     aeUtils.log("aeClippingsMenu.build(): Building Clippings menu");

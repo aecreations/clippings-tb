@@ -15,6 +15,9 @@ aeClippingsService.prototype = {
   FILETYPE_CSV: 2,
   FILETYPE_WX_JSON: 3,
 
+  JSON_EXPORT_DEFAULT: 1,
+  JSON_EXPORT_TREE_VIEW: 2,
+  
   ORIGIN_CLIPPINGS_MGR: 1,
   ORIGIN_HOSTAPP: 2,
   ORIGIN_NEW_CLIPPING_DLG: 3,
@@ -1966,12 +1969,50 @@ aeClippingsService.prototype.killDataSrc = function ()
 };
 
 
-aeClippingsService.prototype.exportToJSONString = function ()
+aeClippingsService.prototype.getFolderItemsAsJSON = function (aFolderURI)
+{
+  if (!this.isFolder(aFolderURI) && aFolderURI != this.kRootFolderURI) {
+    throw Components.Exception("aeClippingsService.getFolderItemsAsJSON(): URI argument is not a folder resource!");
+  }
+  
+  let rv = "";
+  let jsonData = [];
+
+  let folderCtr = this._getSeqContainerFromFolder(aFolderURI);
+  let childrenEnum = folderCtr.GetElements();
+
+  while (childrenEnum.hasMoreElements()) {
+    let child = childrenEnum.getNext();
+    child = child.QueryInterface(Components.interfaces.nsIRDFResource);
+    let childURI = child.Value;
+
+    let itemData = {
+      uri: childURI,
+      title: this.getName(childURI),
+      isContainer: this.isFolder(childURI),
+      isContainerOpen: false
+    };
+
+    jsonData.push(itemData);
+  }
+  
+  rv = JSON.stringify(jsonData);
+  return rv;
+};
+
+
+aeClippingsService.prototype.exportToJSONString = function (aJSONExportMode)
 {
   let rv = "";
   let jsonData = [];
-  
-  this._exportAsClippingsWxJSON(this._rdfContainer, jsonData, true, true);
+
+  if (aJSONExportMode == this.JSON_EXPORT_DEFAULT) {
+    this._exportAsClippingsWxJSON(this._rdfContainer, jsonData, true, true);
+  }
+  else if (aJSONExportMode == this.JSON_EXPORT_TREE_VIEW) {
+    this._exportAsTreeViewData(this._rdfContainer, jsonData);
+  }
+
   rv = JSON.stringify(jsonData);
 
   return rv;
@@ -2101,6 +2142,47 @@ aeClippingsService.prototype._exportAsCSV = function (aFolderCtr, aCSVData)
   rv = count;
   
   return rv;
+};
+
+
+aeClippingsService.prototype._exportAsTreeViewData = function (aFolderCtr, aJSONFolderData)
+{
+  let rv;
+  let count = 0;
+  let childrenEnum = aFolderCtr.GetElements();
+  
+  while (childrenEnum.hasMoreElements()) {
+    let child = childrenEnum.getNext();
+    child = child.QueryInterface(Components.interfaces.nsIRDFResource);
+    let childURI = child.Value;
+
+    if (this.isFolder(childURI)) {
+      let subfolderCtr = this._getSeqContainerFromFolder(childURI);
+      let fldrItems = [];
+      count += this._exportAsTreeViewData(subfolderCtr, fldrItems);
+
+      let fldr = {
+        name: this.getName(childURI),
+        uri: childURI,
+        children: fldrItems,
+      };
+      aJSONFolderData.push(fldr);
+
+      count++;
+    }
+    else if (this.isClipping(childURI)) {
+      let clipping = {
+        name: this.getName(childURI),
+        uri: childURI,
+      };
+      aJSONFolderData.push(clipping);
+
+      count++;
+    }
+  }
+  rv = count;
+  
+  return rv;  
 };
 
 

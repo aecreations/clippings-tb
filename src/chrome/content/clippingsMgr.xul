@@ -437,6 +437,9 @@
 	  <treecol id="all-clippings" flex="1" primary="true"
 	   hideheader="true" sortActive="true" sortDirection="natural"/>
 	</treecols>
+
+	<!-- TEMPORARY -->
+	<treechildren/>
       </tree>
 
     </vbox>

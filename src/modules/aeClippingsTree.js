@@ -25,6 +25,7 @@ class ClippingsTree
     this._fldrOnly = false;
     this._showRootFldr = false;
     this._rootFldrTitle = "Clippings";
+    this._customView = false;
     this._clippingsSvc = aeClippingsService.getService();
     this._doc = aTreeElt.ownerDocument;
   }
@@ -58,10 +59,24 @@ class ClippingsTree
   {
     return (this._showRootFldr = aShowRootFolder);
   }
+
+  get customView()
+  {
+    return this._customView;
+  }
+
+  set customView(aCustomView)
+  {
+    return (this._customView = aCustomView);
+  }
   
   build()
   {
-    let clippingsJSONStr = this._clippingsSvc.exportToJSONString();
+    if (this._customView) {
+      throw new Error("Cannot use method build() on a tree with a custom view!");
+    }
+    
+    let clippingsJSONStr = this._clippingsSvc.exportToJSONString(this._clippingsSvc.JSON_EXPORT_DEFAULT);
     let clippingsJSON = JSON.parse(clippingsJSONStr);
 
     aeUtils.log("aeClippingsTree.build(): Building Clippings tree");

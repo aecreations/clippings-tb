@@ -168,6 +168,12 @@ function initClippingsListDrag(aEvent)
 { 
   var index = gClippingsTree.tree.boxObject.getRowAt(aEvent.clientX, 
 						     aEvent.clientY);
+/***
+  // TEMPORARY
+  aEvent.dataTransfer.setData("text/plain", "Foobar");
+  return;
+  // END TEMPORARY
+***/  
   var uri = gClippingsTree.getURIAtIndex(index);
   var pos = gClippingsSvc.ctrIndexOf(uri);
 
@@ -335,6 +341,169 @@ var treeBuilderObserver = {
   onSelectionChanged: function () {},
   onToggleOpenState: function (idx) {}
 };
+
+
+var gTreeView = {
+  visibleData: [],
+
+  // visibleData should be a representation of the rows that appear in the tree
+  visibleDataEg: [
+    { // Clipping
+      title: "One-liner",
+      uri: "rdf:abc123",
+      isContainer: false,
+      isContainerOpen: false
+    },
+    { // Folder
+      title: "AE Creations",
+      uri: "rdf:wxy345",
+      isContainer: true,
+      isContainerOpen: false
+    },
+    { // Clipping belonging to the above folder
+      title: "Release announcement",
+      uri: "rdf:jkl345",
+      isContainer: false,
+      isContainerOpen: false
+    },
+    // ...
+  ],
+
+  treeBox: null,
+  selection: null,
+
+  get rowCount()
+  {
+    return this.visibleData.length;
+  },
+  
+  setTree(aTreeBox)
+  {
+    this.treeBox = aTreeBox;
+  },
+  
+  getCellText(aIndex, aColumn)
+  {
+    // TO DO: Get the clipping/folder name from aeClippingService instead.
+    return this.visibleData[aIndex].title;
+  },
+  
+  isContainer(aIndex)
+  {
+    return this.visibleData[aIndex].isContainer;
+  },
+
+  isContainerOpen(aIndex)
+  {
+    return this.visibleData[aIndex].isContainerEmpty;
+  },
+
+  isContainerEmpty(aIndex)
+  {
+    let fldrURI = this.visibleData[aIndex].uri;
+    let numFldrItems = gClippingsSvc.getCount(fldrURI);
+    return (numFldrItems == 0);
+  },
+  
+  isSeparator: function(idx)         { return false; },
+  isSorted: function()               { return false; },
+  isEditable: function(idx, column)  { return false; },
+
+  getParentIndex(aIndex)
+  {
+    if (this.getLevel(aIndex) == 0) {
+      return -1;
+    }
+    
+    for (let t = aIndex - 1; t >= 0 ; t--) {
+      if (this.isContainer(t)) return t;
+    }
+
+    // Should never reach here...
+    return -1;
+  },
+
+  getLevel(aIndex)
+  {
+    let rv;
+    let parentFldrURI = gClippingsSvc.getParent(this.visibleData[aIndex].uri);
+    let level = 0;
+
+    while (parentFldrURI != gClippingsSvc.kRootFolderURI) {
+      level++;
+      parentFldrURI = gClippingsSvc.getParent(parentFldrURI);
+    }
+
+    rv = level;
+    return rv;
+  },
+
+  hasNextSibling(aIndex, aAfter)
+  {
+    var thisLevel = this.getLevel(aIndex);
+    for (var t = after + 1; t < this.visibleData.length; t++) {
+      var nextLevel = this.getLevel(t);
+      if (nextLevel == thisLevel) return true;
+      if (nextLevel < thisLevel) break;
+    }
+    return false;
+  },
+  
+  toggleOpenState(aIndex)
+  {
+    let item = this.visibleData[aIndex];
+    if (! item.isContainer) {
+      return;
+    }
+
+    if (item.isContainerOpen) {
+      item.isContainerOpen = false;
+
+      let thisLevel = this.getLevel(aIndex);
+      let deletecount = 0;
+
+      for (var t = aIndex + 1; t < this.visibleData.length; t++) {
+        if (this.getLevel(t) > thisLevel) deletecount++;
+        else break;
+      }
+      if (deletecount) {
+        this.visibleData.splice(aIndex + 1, deletecount);
+        this.treeBox.rowCountChanged(aIndex + 1, -deletecount);
+      }
+    }
+    else {
+      item.isContainerOpen = true;
+
+      let jsonData = gClippingsSvc.getFolderItemsAsJSON(item.uri);
+      let toinsert = JSON.parse(jsonData);
+      
+      for (let i = 0; i < toinsert.length; i++) {
+        this.visibleData.splice(idx + i + 1, 0, [toinsert[i], false]);
+      }
+      this.treeBox.rowCountChanged(idx + 1, toinsert.length);
+    }
+    this.treeBox.invalidateRow(aIndex);
+  },
+
+  getImageSrc: function(idx, column) {},
+  getProgressMode : function(idx,column) {},
+  getCellValue: function(idx, column) {},
+  cycleHeader: function(col, elem) {},
+  selectionChanged: function() {},
+  cycleCell: function(idx, column) {},
+  performAction: function(action) {},
+  performActionOnCell: function(action, index, column) {},
+  getRowProperties: function(idx, prop) {},
+  getCellProperties: function(idx, column, prop) {},
+  getColumnProperties: function(column, element, prop) {},
+
+  canDrop: function (idx, orient, dataTransfer) { return true; },
+
+  drop: function (row, orient, dataTransfer) {
+    aeUtils.log(">> gTreeView.drop()");
+  }
+};
+
 
 var gClippingsTreeEdit = {
   ACTION_CUT: 1,
@@ -849,6 +1018,9 @@ function init()
 
   let treeElt = $("clippings-list");
   gClippingsTree = aeClippingsTree.createInstance(treeElt);
+  gClippingsTree.customView = true;
+  gClippingsTree.tree.view = gTreeView;
+
   gOptionsBar.init();
   gFindBar.init();
 
@@ -909,6 +1081,8 @@ function init()
   var deck = $("entry-properties");
   deck.selectedIndex = numItems == 0 ? 1 : 2;
 
+  buildClippingsTree();
+/***
   gClippingsTree.build();
   if (numItems > 0) {
     gClippingsTree.selectedIndex = 0;
@@ -916,6 +1090,7 @@ function init()
     gClippingsTree.focus();
     gCurrentListItemIndex = 0;
   }
+***/
 
   if (recoveryMode.value) {
     aeUtils.beep();
@@ -1005,6 +1180,18 @@ function init()
     window.setTimeout(function () { showHelp(); }, 1000);
     aeUtils.setPref("clippings.clipmgr.first_run", false);
   }
+}
+
+
+function buildClippingsTree()
+{
+  let jsonData = gClippingsSvc.getFolderItemsAsJSON(gClippingsSvc.kRootFolderURI);
+  gTreeView.visibleData = JSON.parse(jsonData);
+
+  // DEBUGGING
+  aeUtils.log("clippingsMgr.js: buildClippingsTree(): gTreeView.visibleData:");
+  aeUtils.log(jsonData);
+  // END DEBUGGING
 }
 
 
@@ -2260,6 +2447,10 @@ function updateCurrentEntryStatus()
 
 function updateDisplay(aSuppressUpdateSelection)
 {
+  if (gClippingsTree.customView) {
+    return;
+  }
+  
   if (gClippingsTree.getRowCount() == 0) {
     return;
   }

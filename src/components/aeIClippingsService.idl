@@ -38,6 +38,12 @@ interface aeIClippingsService : nsISupports
   const short FILETYPE_WX_JSON = 3;
 
   /*
+   * aJSONExportMode constants for method exportToJSONString().
+   */
+  const short JSON_EXPORT_DEFAULT = 1;
+  const short JSON_EXPORT_TREE_VIEW = 2;
+  
+  /*
    * aOrigin constants for methods createNewFolderEx() and copyTo(). 
    */
   const short ORIGIN_CLIPPINGS_MGR = 1;
@@ -224,7 +230,10 @@ interface aeIClippingsService : nsISupports
 
   void refreshDataSrc();
 
-  aestring exportToJSONString();
+  /* Helper method to be used for tree view. Not recursive. */
+  aestring getFolderItemsAsJSON(in aestring aFolderURI);
+  
+  aestring exportToJSONString(in short aJSONExportMode);
   
   void exportToFile(in uri aFileURL, 
 		    in short aFileType, 
