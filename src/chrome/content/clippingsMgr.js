@@ -1499,6 +1499,8 @@ function pasteClippingAsNew()
     return;
   }
 
+  let newClippingName = gClippingsSvc.getName(newNodeURI);
+  gClippingsTree.addLeafNode(parentFolderURI, newNodeURI, newClippingName);
   gClippingsTree.selectedURI = newNodeURI;
   gClippingsTree.ensureURIIsVisible(newNodeURI);
   gClippingsTree.click();
@@ -2925,7 +2927,9 @@ function restoreBackup(aBackupFileURL)
 
   aeUtils.log("Datasource restore completed!");
 
-  // Finally, select the first clipping.
+  // Finally, rebuild the clippings tree and select the first clipping.
+  gClippingsTree.rebuild();
+
   if (numImported > 0) {
     gClippingsTree.selectedIndex = 0;
   }
