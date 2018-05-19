@@ -13,6 +13,7 @@
     <em:iconURL>chrome://clippings/skin/images/icon.png</em:iconURL>
     <em:homepageURL>http://aecreations.sourceforge.net/clippings/</em:homepageURL>
     <em:optionsURL>chrome://clippings/content/options.xul</em:optionsURL>
+    <em:updateURL>https://aecreations.github.io/updates/update.rdf</em:updateURL>
 
     <!-- Specify that the XPI must be unpacked into a directory.
          Required for packaged clippings to be located on first run. -->
