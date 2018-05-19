@@ -40,6 +40,44 @@ menu[open="true"] {
   padding-right: 1px;
 }
 
+#folder-picker {
+  border: none;
+}
+
+#folder-tree {
+  height: 136px;
+  margin-left: 0;
+  margin-right: 0;
+  border: none;
+}
+
+/* Width of folder picker panel */
+#ae-clippings-new #folder-tree {
+  width: 30em;
+}
+
+#ae-clippings-new-folder #folder-tree {
+  width: 24em;
+}
+
+/* Styling for the folder tree */
+treechildren::-moz-tree-image {
+  padding-right: 3px;
+}
+
+treechildren::-moz-tree-image(container, open) {
+  list-style-image: url("chrome://clippings/skin/images/folder-open.svg");
+}
+
+treechildren::-moz-tree-image(container, closed),
+treechildren::-moz-tree-image(leaf) {
+  list-style-image: url("chrome://clippings/skin/images/folder.svg");
+}
+
+treechildren::-moz-tree-image(container, root) {
+  list-style-image: url("chrome://clippings/skin/images/clippings-root.svg");
+}
+
 #new-folder, #clipping-label, #clipping-label-2 {
   min-width: 10px;
   min-height: 16px;

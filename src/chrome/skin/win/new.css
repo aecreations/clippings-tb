@@ -45,11 +45,19 @@ menu[open="true"] {
 }
 
 #folder-tree {
-  width: 340px;  /* TO DO: Should inherit the width of the menu button */
   height: 136px;
   margin-left: 0;
   margin-right: 0;
   border: none;
+}
+
+/* Width of folder picker panel */
+#ae-clippings-new #folder-tree {
+  width: 30em;
+}
+
+#ae-clippings-new-folder #folder-tree {
+  width: 20em;
 }
 
 /* Styling for the folder tree */

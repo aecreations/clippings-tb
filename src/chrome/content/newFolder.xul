@@ -20,7 +20,17 @@
   <stringbundle id="ae-clippings-strings" 
    src="chrome://clippings/locale/clippings.properties"/>
 
-  <popupset>
+  <label value="&folderName.label;" accesskey="&folderName.accesskey;"
+   control="folder-name"/>
+  <textbox id="folder-name" size="32" onblur="validateFolderName(event)"/>
+
+  <separator class="thin"/>
+
+  <label value="&createAsSubf.label;" accesskey="&createAsSubf.accesskey;"
+   control="folder-menu-button"/>
+  <button id="folder-menu-button" class="clippings-root" type="panel"
+   label="&clippingsRoot.label;" width="128" crop="end" flex="1" align="left"
+   oncommand="toggleFolderPicker()">
     <panel id="folder-picker">
       <tree id="folder-tree" flex="1" hidecolumnpicker="true" seltype="single"
        onselect="chooseFolder()">
@@ -30,19 +40,7 @@
         </treecols>
       </tree>
     </panel>
-  </popupset>
-
-  <label value="&folderName.label;" accesskey="&folderName.accesskey;"
-   control="folder-name"/>
-  <textbox id="folder-name" size="32" onblur="validateFolderName(event)"/>
-
-  <separator class="thin"/>
-
-  <label value="&createAsSubf.label;" accesskey="&createAsSubf.accesskey;"
-   control="folder-menu-button"/>
-  <button id="folder-menu-button" class="clippings-root" align="left"
-   label="&clippingsRoot.label;" width="128" crop="end" flex="1"
-   oncommand="toggleFolderPicker()"/>
+  </button>
 
   <separator class="thin"/>
 
