@@ -1,7 +1,7 @@
 # Makefile
 
 EXT_VER=`./getver.pl`
-DIST_FILE=clippings-$(EXT_VER).xpi
+DIST_FILE=clippings-tb-$(EXT_VER).xpi
 DIST_DEST=../dist
 CHROME = ./chrome
 COMPONENTS = ./components
