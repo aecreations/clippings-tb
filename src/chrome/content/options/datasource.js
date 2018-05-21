@@ -134,8 +134,7 @@ function browseDataSrcPath()
                              .createInstance(Components.interfaces
 					               .nsIFilePicker);
   var dataSrcDir = Components.classes["@mozilla.org/file/local;1"]
-                             .createInstance(Components.interfaces
-                                                       .nsILocalFile);
+                             .createInstance(Components.interfaces.nsIFile);
   dataSrcDir.initWithPath(gCustomDataSrcPath.value);
   filePicker.displayDirectory = dataSrcDir;
 
