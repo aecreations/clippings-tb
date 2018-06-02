@@ -13,6 +13,8 @@
     <preferences>
       <preference id="max-backup-files-pref" type="int"
        name="extensions.aecreations.clippings.backup.maxfiles"/>
+      <preference id="save-copy-clippings-6-pref" type="bool"
+       name="extensions.aecreations.clippings.datasource.wx_sync"/>
     </preferences>
 
     <groupbox style="width:33em">
@@ -34,6 +36,11 @@
 	   oncommand="browseDataSrcPath()"/>
   	  <spacer flex="1"/>
         </hbox>
+	<hbox>
+	  <checkbox id="save-copy-clippings-6" label="&saveCopy.label;"
+           preference="save-copy-clippings-6-pref"
+           accesskey="&saveCopy.accesskey;"/>
+	</hbox>
       </vbox>
     </groupbox>
     <groupbox orient="vertical">

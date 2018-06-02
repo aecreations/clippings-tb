@@ -10,7 +10,7 @@ ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
 
 var gStrBundle;
 var gDataSrcLocationOpt, gCustomDataSrcPath, gCustomDataSrcBrws;
-var gPrevSelectedDataSrcOpt, gPrevDataSrcPath;
+var gPrevSelectedDataSrcOpt, gPrevDataSrcPath, gSaveCopyClippings6;
 var gClippingsSvc;
 
 
@@ -69,7 +69,8 @@ function initPrefPaneDataSource()
   gDataSrcLocationOpt = $("datasrc-location-opt");
   gCustomDataSrcPath = $("custom-datasrc-path");
   gCustomDataSrcBrws = $("custom-datasrc-brws");
-
+  gSaveCopyClippings6 = $("save-copy-clippings-6");
+  
   // Set the proper host app name of the first radio button option.
   var hostAppProfDirRadioBtn = $("hostapp-profile-folder");
   var hostAppName = getHostAppName();
@@ -90,6 +91,7 @@ function initPrefPaneDataSource()
     gCustomDataSrcBrws.disabled = true;
     gCustomDataSrcPath.disabled = true;
     gCustomDataSrcPath.value = homePath;
+    gSaveCopyClippings6.disabled = true;
   }
   else {
     gDataSrcLocationOpt.selectedIndex = 1;
@@ -113,11 +115,13 @@ function changeDataSrcLocationOptions()
   if (gDataSrcLocationOpt.selectedIndex == 0) {
     gCustomDataSrcBrws.disabled = true;
     gCustomDataSrcPath.disabled = true;
+    gSaveCopyClippings6.disabled = true;
     newDataSrcPath = aeUtils.getUserProfileDir().path;
   }
   else if (gDataSrcLocationOpt.selectedIndex == 1) {
     gCustomDataSrcBrws.disabled = false;
     gCustomDataSrcPath.disabled = false;
+    gSaveCopyClippings6.disabled = false;
     newDataSrcPath = gCustomDataSrcPath.value;
   }
   
@@ -188,6 +192,7 @@ function applyDataSourcePrefChanges()
 
   if (gDataSrcLocationOpt.selectedIndex == 0) {
     newDataSrcPath = aeUtils.getUserProfileDir().path;
+    aeUtils.setPref("clippings.datasource.wx_sync", false);
   }
   else {
     newDataSrcPath = gCustomDataSrcPath.value;
