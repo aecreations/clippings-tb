@@ -170,10 +170,10 @@ function removeAllSourceURLs()
 
   if (confirmRemove) {
     // Do a backup of the datasource first
-    gClippingsSvc.flushDataSrc(true);
+    gClippingsSvc.flushDataSrc(true, false);
 
     gClippingsSvc.removeAllSourceURLs();
-    gClippingsSvc.flushDataSrc(false);
+    gClippingsSvc.flushDataSrc(false, false);
 
     aeUtils.alertEx(document.title, gStrBundle.getString("removeAllSrcURLsFinish"));
 

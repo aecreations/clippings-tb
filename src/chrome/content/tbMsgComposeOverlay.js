@@ -488,9 +488,10 @@ window.aecreations.clippings = {
 
   saveClippings: function () 
   {
-    var title = this.strBundle.getString("appName");
+    let title = this.strBundle.getString("appName");
+    let saveJSON = this.aeUtils.getPref("clippings.datasource.wx_sync", false);
     try {
-      this.clippingsSvc.flushDataSrc(true);
+      this.clippingsSvc.flushDataSrc(true, saveJSON);
     }
     catch (e) {
       if (e.result === undefined) {

@@ -52,11 +52,12 @@ aeClippingsService.prototype = {
   _RDF_SEQ_URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#Seq",
   _BACKUP_FILE_PREFIX:    "clippings_",
   _BACKUP_FILE_EXTENSION: ".rdf",
+  _WX_SYNC_FILENAME: "clippings-sync.json",
 
   _CLIPPINGS_HTML_NS: "http://clippings.mozdev.org/ns/html#",
 
   _JSON_EXPORT_VER: "6.0",
-  _JSON_EXPORT_CREATED_BY: "Clippings for Thunderbird 5.6",
+  _JSON_EXPORT_CREATED_BY: "Clippings for Thunderbird 5.5.9",
 
   // Private member variables
   _dataSrc: null,
@@ -1619,7 +1620,7 @@ aeClippingsService.prototype.changePosition = function (aParentFolderURI, aOldPo
 };
 
 
-aeClippingsService.prototype.flushDataSrc = function (aDoBackup)
+aeClippingsService.prototype.flushDataSrc = function (aDoBackup, aSaveJSONCopy)
 {
   if (! this._dataSrc) {
     throw Components.Exception("Data source not initialized",
@@ -1649,6 +1650,14 @@ aeClippingsService.prototype.flushDataSrc = function (aDoBackup)
   }
   catch (e) {
     this._log("aeClippingsService.flushDataSrc(): WARNING: Cannot delete old backup file(s): " + e);
+  }
+
+  if (aSaveJSONCopy) {
+    let dsURLPrefix = this._dsFileURL.substring(0, this._dsFileURL.lastIndexOf("/") + 1);
+    let fileURL = dsURLPrefix + this._WX_SYNC_FILENAME;
+    this._log("aeClippingsService.flushDataSrc(): Saving copy of datasource to Clippings 6 sync file.");
+    
+    this.exportToFile(fileURL, this.FILETYPE_WX_JSON, false);
   }
 };
 

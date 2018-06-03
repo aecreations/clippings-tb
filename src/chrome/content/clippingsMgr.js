@@ -1123,13 +1123,14 @@ function unload()
 
   gClippingsSvc.purgeDetachedItems();
 
-  var retrySave;
-  var doBackup = true;
+  let retrySave;
+  let doBackup = true;
+  let saveJSON = this.aeUtils.getPref("clippings.datasource.wx_sync", false);
 
   do {
     retrySave = false;
     try {
-      gClippingsSvc.flushDataSrc(doBackup);
+      gClippingsSvc.flushDataSrc(doBackup, saveJSON);
     }
     catch (e) {
       if (e.result === undefined) {
@@ -1776,7 +1777,7 @@ function commit()
 
     try {
       gSaveInProgress = true;
-      gClippingsSvc.flushDataSrc(false);
+      gClippingsSvc.flushDataSrc(false, false);
       gIsClippingsDirty = false;
     }
     catch (e) {	
@@ -1814,10 +1815,11 @@ function saveClippings(aSuppressStatusMsgs, aForceSave, aDoBackup)
     gStatusBar.label = gStrBundle.getString("saveProgress");
   }
 
-  var msg = gStrBundle.getString("saveCompleted");
+  let msg = gStrBundle.getString("saveCompleted");
+  let saveJSON = this.aeUtils.getPref("clippings.datasource.wx_sync", false);
   try {
     gSaveInProgress = true;
-    gClippingsSvc.flushDataSrc(aDoBackup);
+    gClippingsSvc.flushDataSrc(aDoBackup, saveJSON);
     gIsClippingsDirty = false;
 
     if (aSuppressStatusMsgs) {
@@ -2700,7 +2702,7 @@ function doImport()
                                      gStrBundle.getString("importBegin"),
                                      gStrBundle.getString("importDone"));
   try {
-    gClippingsSvc.flushDataSrc(true);
+    gClippingsSvc.flushDataSrc(true, false);
   }
   catch (e) {
     // Don't do anything for now - try again when closing Clippings Manager.
@@ -2870,7 +2872,7 @@ function restoreBackup(aBackupFileURL)
   
   // Must flush changes, or else the original clippings data will persist.
   try {
-    gClippingsSvc.flushDataSrc(false);
+    gClippingsSvc.flushDataSrc(false, false);
   }
   catch (e) {}
 
@@ -2921,7 +2923,7 @@ function restoreBackup(aBackupFileURL)
   gClippingsSvc.processEmptyFolders();
 
   try {
-    gClippingsSvc.flushDataSrc(true);
+    gClippingsSvc.flushDataSrc(true, false);
   }
   catch (e) {}
 

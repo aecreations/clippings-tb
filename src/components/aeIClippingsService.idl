@@ -219,7 +219,7 @@ interface aeIClippingsService : nsISupports
   void changePosition(in uri aParentFolder, in size_t aOldPos,
 		      in size_t aNewPos);
 
-  void flushDataSrc(in boolean aDoBackup); 
+  void flushDataSrc(in boolean aDoBackup, in boolean aSaveJSONCopy);
   /* throws NS_ERROR_FAILURE - if datasource flush failed */
 
   void refreshDataSrc();
