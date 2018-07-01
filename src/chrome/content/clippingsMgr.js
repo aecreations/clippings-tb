@@ -38,12 +38,12 @@ var gClippingsSvc;
 let gStatusBar = {
   set label(aStatusText)
   {
-    $("app-status").value = aStatusText;
+    document.getElementById("app-status").value = aStatusText;
   },
 
   get label()
   {
-    return $("app-status").value;
+    return document.getElementById("app-status").value;
   },
 };
 
@@ -58,7 +58,7 @@ let gClippingLabelPickerListener = {
 
   selectionChanged: function (aNewLabel)
   {
-    $(this._btnID).image = aeString.format("chrome://clippings/skin/images/%s", gClippingLabelPicker.getIconFileStr(aNewLabel));
+    document.getElementById(this._btnID).image = aeString.format("chrome://clippings/skin/images/%s", gClippingLabelPicker.getIconFileStr(aNewLabel));
   }
 };
 
@@ -128,12 +128,6 @@ const REDO_STACK = 2;
 //
 // Page utility functions
 //
-
-function $(aID)
-{
-  return document.getElementById(aID);
-}
-
 
 function getParamsMap(aQueryStr)
 {
@@ -234,7 +228,7 @@ var treeBuilderObserver = {
 	gClippingsTree.ensureURIIsVisible(newNodeURI);
 	gClippingsTree.click();
 	
-	var clippingName = $("clipping-name");
+	var clippingName = document.getElementById("clipping-name");
 	clippingName.select();
 	clippingName.focus();
 
@@ -355,7 +349,7 @@ var gClippingsTreeEdit = {
     this._srcFldrURI = gClippingsSvc.getParent(selectedURI);
     this._action = this.ACTION_CUT;
 
-    $("cmd_paste").removeAttribute("disabled");
+    document.getElementById("cmd_paste").removeAttribute("disabled");
   },
 
   copy()
@@ -370,7 +364,7 @@ var gClippingsTreeEdit = {
     this._srcFldrURI = gClippingsSvc.getParent(selectedURI);
     this._action = this.ACTION_COPY;
 
-    $("cmd_paste").removeAttribute("disabled");
+    document.getElementById("cmd_paste").removeAttribute("disabled");
   },
 
   paste()
@@ -399,7 +393,7 @@ var gClippingsTreeEdit = {
     this._uri = null;
     this._srcFldrURI = null;
     this._action = null;
-    $("cmd_paste").setAttribute("disabled", "true");
+    document.getElementById("cmd_paste").setAttribute("disabled", "true");
   }
 };
 
@@ -563,14 +557,14 @@ var gFindBar = {
 
   init: function ()
   {
-    this._findBarElt = $("find-bar");
-    this._findStatusElt = $("find-status");
+    this._findBarElt = document.getElementById("find-bar");
+    this._findStatusElt = document.getElementById("find-status");
     this._srchFilter = this.FILTER_CLIPPINGS;
 
     if (aeUtils.getOS() == "Darwin") {
       this._altFindBarFilterBtn = true;
-      $("find-filter-menu").setAttribute("hidden", "true");
-      $("find-filter-menu-btn").removeAttribute("hidden");
+      document.getElementById("find-filter-menu").setAttribute("hidden", "true");
+      document.getElementById("find-filter-menu-btn").removeAttribute("hidden");
     }
   },
 
@@ -612,10 +606,10 @@ var gFindBar = {
 
     // Update the filter button image.
     if (this._srchFilter == this.FILTER_CLIPPINGS) {
-      $(findFilterBtnId).className = "find-filter-clippings";
+      document.getElementById(findFilterBtnId).className = "find-filter-clippings";
     }
     else if (this._srchFilter == this.FILTER_CLIPPINGS_AND_FLDRS) {
-      $(findFilterBtnId).className = "find-filter-clippings-and-fldrs";
+      document.getElementById(findFilterBtnId).className = "find-filter-clippings-and-fldrs";
     }
 
     this.setSearchResultsUpdateFlag();
@@ -686,7 +680,7 @@ var gFindBar = {
   findNext: function ()
   {
     if (this._updateSrchResults) {
-      this.updateSearch($("find-clipping").value);
+      this.updateSearch(document.getElementById("find-clipping").value);
       this._updateSrchResults = false;
     }
 
@@ -703,7 +697,7 @@ var gFindBar = {
   findPrev: function ()
   {
     if (this._updateSrchResults) {
-      this.updateSearch($("find-clipping").value);
+      this.updateSearch(document.getElementById("find-clipping").value);
       this._updateSrchResults = false;
     }
 
@@ -745,7 +739,7 @@ var gPlaceholderBar = {
 
   init: function ()
   {
-    this._placeholderBarElt = $("clipping-content-editor-toolbox");
+    this._placeholderBarElt = document.getElementById("clipping-content-editor-toolbox");
   },
 
   show: function ()
@@ -771,9 +765,9 @@ var gPlaceholderBar = {
 
   setDisabledState: function (aDisabled)
   {
-    $("placeholder-presets").disabled = aDisabled;
-    $("placeholder-custom").disabled = aDisabled;
-    $("placeholder-autoincrement").disabled = aDisabled;
+    document.getElementById("placeholder-presets").disabled = aDisabled;
+    document.getElementById("placeholder-custom").disabled = aDisabled;
+    document.getElementById("placeholder-autoincrement").disabled = aDisabled;
   }
 };
 
@@ -787,7 +781,7 @@ var gOptionsBar = {
 
  init: function ()
  {
-   this._optionsBarElt = $("options-bar");
+   this._optionsBarElt = document.getElementById("options-bar");
  },
 
  show: function () 
@@ -845,15 +839,19 @@ function init()
     doAlert(e);
   }
 
-  gStrBundle = $("ae-clippings-strings");
+  gStrBundle = document.getElementById("ae-clippings-strings");
 
-  let treeElt = $("clippings-list");
+/**
+  let treeElt = document.getElementById("clippings-list");
   gClippingsTree = aeClippingsTree.createInstance(treeElt);
+
   gOptionsBar.init();
   gFindBar.init();
+**/
 
+  buildClippingsTree();
   setStatusBarVisibility();
-
+/**
   gPlaceholderBar.init();
   var isPlaceholderBarVisible = aeUtils.getPref("clippings.clipmgr.placeholder_toolbar", false);
   if (isPlaceholderBarVisible) {
@@ -864,34 +862,34 @@ function init()
   if (! gClippingDetailsPaneVisible) {
     gOptionsBar.hide();
   }
-
+**/
   // Clipping label picker widgets
   let os = aeUtils.getOS();
   let btnMenuPopupID = "";
   let cxtMenuPopupID = "";
-
+/**
   if (os != "WINNT" && os != "Darwin") { 
     // Use the alternative color label picker menu
     gClippingLabelPickerListener.init("clipping-label-btn-2");
     btnMenuPopupID = "clipping-label-menupopup-2";
     cxtMenuPopupID = "clipping-label-cxt-menupopup-2";
-    $("clipping-label-deck").selectedIndex = 1;
-    $("clipping-label-cxt").style.display = "none";
+    document.getElementById("clipping-label-deck").selectedIndex = 1;
+    document.getElementById("clipping-label-cxt").style.display = "none";
     gAltClippingLabelPicker = true;
   }
   else {
     gClippingLabelPickerListener.init("clipping-label-btn");
     btnMenuPopupID = "clipping-label-menupopup";
     cxtMenuPopupID = "clipping-label-cxt-menupopup";
-    $("clipping-label-deck").selectedIndex = 0;
-    $("clipping-label-cxt-2").style.display = "none";
+    document.getElementById("clipping-label-deck").selectedIndex = 0;
+    document.getElementById("clipping-label-cxt-2").style.display = "none";
     gAltClippingLabelPicker = false;
   }
 
-  gClippingLabelPicker = aeClippingLabelPicker.createInstance($(btnMenuPopupID));
+  gClippingLabelPicker = aeClippingLabelPicker.createInstance(document.getElementById(btnMenuPopupID));
   gClippingLabelPicker.addListener(gClippingLabelPickerListener);
-  gClippingLabelPickerCxtMenu = aeClippingLabelPicker.createInstance($(cxtMenuPopupID));
-
+  gClippingLabelPickerCxtMenu = aeClippingLabelPicker.createInstance(document.getElementById(cxtMenuPopupID));
+**/
   // Clippings backup
   var backupDirURL = aeUtils.getDataSourcePathURL() + aeConstants.BACKUP_DIR_NAME;
   gClippingsSvc.setBackupDir(backupDirURL);
@@ -906,9 +904,9 @@ function init()
   }
 
   var numItems = gClippingsSvc.numItems;
-  var deck = $("entry-properties");
-  deck.selectedIndex = numItems == 0 ? 1 : 2;
-
+  var deck = document.getElementById("entry-properties");
+  deck.selectedIndex = 0; // numItems == 0 ? 1 : 2;
+/**
   gClippingsTree.build();
   if (numItems > 0) {
     gClippingsTree.selectedIndex = 0;
@@ -953,11 +951,11 @@ function init()
     importDone: function (aNumItems) {}
   };
   gClippingsSvc.addListener(gClippingsListener);
-
+**/
   if (aeUtils.getOS() == "Darwin") {
     // On Mac OS X, OS_TARGET is "Darwin"
     // Remove 0-9 as shortcut key choices; digits do not work on Mac OS X
-    var clippingKeyPopup = $("clipping-key-popup");
+    var clippingKeyPopup = document.getElementById("clipping-key-popup");
     var digitMenuitems = [];
     for (let i = 0; i < clippingKeyPopup.childNodes.length; i++) {
       var child = clippingKeyPopup.childNodes[i];
@@ -971,8 +969,8 @@ function init()
     }
   }
 
-  var clippingNameElt = $("clipping-name");
-  var clippingTextElt = $("clipping-text");
+  var clippingNameElt = document.getElementById("clipping-name");
+  var clippingTextElt = document.getElementById("clipping-text");
   var isSelectAllOnClickEnabled = aeUtils.getPref("clippings.clipmgr.select_text_on_click", false);
 
   if (isSelectAllOnClickEnabled) {
@@ -993,18 +991,140 @@ function init()
     gMoveTimerID = window.setInterval(function () { windowMove(); }, 1000);
     window.onresize = windowResize;
   }
-
+/**
   var isTreeLinesEnabled = aeUtils.getPref("clippings.clipmgr.show_tree_lines", true);
   
   if (isTreeLinesEnabled) {
     treeElt.setAttribute("treelines", "true");
   }
-
+**/
   // First-run help
   if (aeUtils.getPref("clippings.clipmgr.first_run", true)) {
     window.setTimeout(function () { showHelp(); }, 1000);
     aeUtils.setPref("clippings.clipmgr.first_run", false);
   }
+
+  aeUtils.log("<< init()");
+}
+
+
+function getClippingsTree()
+{
+  let rv = $("#clippings-tree").fancytree("getTree");
+  return rv;
+}
+
+
+function buildClippingsTree()
+{
+  let treeData = buildClippingsTreeHelper();
+
+  if (treeData.length == 0) {
+    // TO DO: Set empty clippings state
+  }
+  
+  $("#clippings-tree").fancytree({
+    extensions: ["dnd5"],
+
+    debugLevel: 0,
+    autoScroll: true,
+    source: treeData,
+    selectMode: 1,
+    
+    icon: true,
+
+    init(aEvent, aData) {
+      let rootNode = aData.tree.getRootNode();
+      if (rootNode.children.length > 0) {
+	rootNode.children[0].setActive();
+      }
+    },
+
+    activate(aEvent, aData) {
+      aeUtils.log("clippingsMgr.js: Activate event fired on clippings tree");
+      // TO DO: Call updateDisplay().
+    },
+
+    dblclick(aEvent, aData) {
+      aeUtils.log("clippingsMgr.js: Double-click event fired on clippings tree");
+    },
+
+    dnd5: {
+      preventRecursiveMoves: true,
+      preventVoidMoves: true,
+      scroll: true,
+
+      dragStart(aNode, aData) {
+	return true;
+      },
+
+      dragEnter(aNode, aData) {
+	if (! aNode.isFolder()) {
+	  // Prevent attempt to drop a node into a non-folder node; in such a
+	  // case, only allow reordering of nodes.
+	  return ["before", "after"];
+	}
+
+	aData.dataTransfer.dropEffect = "move";
+	return true;
+      },
+
+      dragDrop(aNode, aData) {
+	if (aData.otherNode) {
+	  // Prevent dropping a node into a non-folder node.
+	  if (!aNode.isFolder() && aDate.hitMode == "over") {
+	    return;
+	  }
+
+	  // TO DO: Finish implementation.
+	}
+      },
+    }
+  });
+}
+
+
+function buildClippingsTreeHelper(aFolderData)
+{
+  let rv = [];
+  let clippingsData;
+
+  if (! aFolderData) {
+    clippingsData = JSON.parse(gClippingsSvc.exportToJSONString());
+  }
+  else {
+    clippingsData = aFolderData;
+  }
+  
+  for (let i = 0; i < clippingsData.length; i++) {
+    let item = clippingsData[i];
+
+    if (item.children) {
+      let folderNode = {
+	key: item.uri,
+	title: item.name,
+	folder: true
+      };
+
+      let childNodes = buildClippingsTreeHelper(item.uri);
+      folderNode.children = childNodes;
+      rv.push(folderNode);
+    }
+    else {
+      let clippingNode = {
+	key: item.uri,
+	title: item.name
+      };
+
+      if (item.label) {
+	clippingNode.extraClasses = `ae-clipping-label-${item.label}`;
+      }
+
+      rv.push(clippingNode);
+    }
+  }
+  
+  return rv;
 }
 
 
@@ -1265,8 +1385,8 @@ doRecovery.FAILSAFE_CREATE_BLANK_DS = 4;
 function initReloadMenuItem() 
 {
   if (aeUtils.PORTABLE_APP_BUILD) {
-    $("reload_menuseparator").style.display = 'none';
-    $("reload_menuitem").style.display = 'none';
+    document.getElementById("reload_menuseparator").style.display = 'none';
+    document.getElementById("reload_menuitem").style.display = 'none';
   }
 }
 
@@ -1274,8 +1394,8 @@ function initReloadMenuItem()
 function applyUpdatedClippingsMgrPrefs()
 {
   var isSpellCheckEnabled = aeUtils.getPref("clippings.check_spelling", true);
-  var clippingNameElt = $("clipping-name");
-  var clippingTextElt = $("clipping-text");
+  var clippingNameElt = document.getElementById("clipping-name");
+  var clippingTextElt = document.getElementById("clipping-text");
 
   if (isSpellCheckEnabled && !clippingNameElt.hasAttribute("spellcheck")) {
     clippingNameElt.setAttribute("spellcheck", "true");
@@ -1296,13 +1416,13 @@ function setStatusBarVisibility()
 
   aeUtils.log("clippingsMgr.js: setStatusBarVisibility(): Show status bar: " + showStatusBar);
   
-  $("status-bar").hidden = !showStatusBar;
+  document.getElementById("status-bar").hidden = !showStatusBar;
 }
 
 
 function closeNotificationBar()
 {
-  $("notification-bar").hidden = true;
+  document.getElementById("notification-bar").hidden = true;
 }
 
 
@@ -1357,12 +1477,12 @@ function newFolderHelper(aParentFolderURI, aFolderName, aURI, aPos, aDestUndoSta
   gClippingsTree.ensureURIIsVisible(newNodeURI);
   gClippingsTree.click();
 
-  var deck = $("entry-properties");
+  var deck = document.getElementById("entry-properties");
   if (deck.selectedIndex != 0) {
     deck.selectedIndex = 0;
   }
 
-  var folderName = $("clipping-name");
+  var folderName = document.getElementById("clipping-name");
   folderName.select();
   folderName.focus();
 
@@ -1434,12 +1554,12 @@ function newClippingHelperEx(aParentFolder, aName, aText, aURI, aPos, aShortcutK
   gClippingsTree.ensureURIIsVisible(newNodeURI);
   gClippingsTree.click();
 
-  var deck = $("entry-properties");
+  var deck = document.getElementById("entry-properties");
   if (deck.selectedIndex != 0) {
     deck.selectedIndex = 0;
   }
 
-  var clippingName = $("clipping-name");
+  var clippingName = document.getElementById("clipping-name");
   clippingName.select();
   clippingName.focus();
 
@@ -1471,8 +1591,8 @@ function pasteClippingAsNew()
   if (! txt) {
     aeUtils.beep();
     
-    let toolsMenu = $("clippings-options");
-    let panel = $("ae-clippings-clipboard-alert");
+    let toolsMenu = document.getElementById("clippings-options");
+    let panel = document.getElementById("ae-clippings-clipboard-alert");
     panel.openPopup(toolsMenu, "after_start", 0, 0, false, false);
     return;
   }
@@ -1506,12 +1626,12 @@ function pasteClippingAsNew()
   gClippingsTree.ensureURIIsVisible(newNodeURI);
   gClippingsTree.click();
 
-  var deck = $("entry-properties");
+  var deck = document.getElementById("entry-properties");
   if (deck.selectedIndex != 0) {
     deck.selectedIndex = 0;
   }
 
-  var clippingName = $("clipping-name");
+  var clippingName = document.getElementById("clipping-name");
   clippingName.select();
   clippingName.focus();
 
@@ -1599,7 +1719,7 @@ function copyToFolderHelper(aItemURI, aSrcFolderURI, aDestFolderURI, aDestItemUR
 
   // The Clippings tree context menu doesn't close automatically after the
   // copy or move operation.
-  $("clippings-list-context").hidePopup();
+  document.getElementById("clippings-list-context").hidePopup();
 
   var state = {
     action:       ACTION_COPYTOFOLDER,
@@ -1703,7 +1823,7 @@ function moveToFolderHelper(aItemURI, aSrcFolderURI, aDestFolderURI, aDestItemUR
 
   // The Clippings tree context menu doesn't close automatically after the
   // copy or move operation.
-  $("clippings-list-context").hidePopup();
+  document.getElementById("clippings-list-context").hidePopup();
 
   var state = {
     action: ACTION_MOVETOFOLDER,
@@ -1896,7 +2016,7 @@ function reload()
   // Selection on tree list disappears after rebuild.  Restore it.
   var numRows = gClippingsTree.getRowCount();
   if (numRows == 0) {
-    $("entry-properties").selectedIndex = 1;
+    document.getElementById("entry-properties").selectedIndex = 1;
     gCurrentListItemIndex = -1;
   }
   else if (currIndex == numRows) {  // Deleted item was last list item
@@ -2059,7 +2179,7 @@ function deleteClippingHelper(aURI, aDestUndoStack)
 
   var numRows = gClippingsTree.getRowCount();
   if (numRows == 0) {
-    $("entry-properties").selectedIndex = 1;
+    document.getElementById("entry-properties").selectedIndex = 1;
     gCurrentListItemIndex = -1;
   }
   else if (deletedItemIndex == numRows) {  // Deleted item was last list item
@@ -2089,8 +2209,8 @@ function isClippingTextAreaFocused()
 
 function updateToolsMenu()
 {
-  let cmdShowHidePlaceholderBar = $("cmd_togglePlaceholderBar");
-  let cmdShowHideDetailsPane = $("cmd_toggleDetailsPane");
+  let cmdShowHidePlaceholderBar = document.getElementById("cmd_togglePlaceholderBar");
+  let cmdShowHideDetailsPane = document.getElementById("cmd_toggleDetailsPane");
   let uri = gClippingsTree.selectedURI;
 
   if (!uri || gClippingsSvc.isFolder(uri) || gClippingsSvc.isEmptyClipping(uri)) {
@@ -2255,7 +2375,7 @@ function updateCurrentEntryStatus()
 
   updateItemCount();
 
-  var deck = $("entry-properties");
+  var deck = document.getElementById("entry-properties");
   if (deck.selectedIndex != 0) {
     deck.selectedIndex = 0;
   }
@@ -2264,23 +2384,25 @@ function updateCurrentEntryStatus()
 
 function updateDisplay(aSuppressUpdateSelection)
 {
+  aeUtils.log(">> updateDisplay()");
+  
   if (gClippingsTree.getRowCount() == 0) {
     return;
   }
 
-  var clippingName = $("clipping-name");
-  var clippingText = $("clipping-text");
-  var clippingKey = $("clipping-key");
-  var clippingKeyLabel = $("clipping-key-label");
-  var shortcutKeyMiniHelp = $("shortcut-key-minihelp");
-  var labelPickerLabel = $("clipping-label");
+  var clippingName = document.getElementById("clipping-name");
+  var clippingText = document.getElementById("clipping-text");
+  var clippingKey = document.getElementById("clipping-key");
+  var clippingKeyLabel = document.getElementById("clipping-key-label");
+  var shortcutKeyMiniHelp = document.getElementById("shortcut-key-minihelp");
+  var labelPickerLabel = document.getElementById("clipping-label");
   var labelPickerBtn;
 
   if (gAltClippingLabelPicker) {
-    labelPickerBtn = $("clipping-label-btn-2");
+    labelPickerBtn = document.getElementById("clipping-label-btn-2");
   }
   else {
-    labelPickerBtn = $("clipping-label-btn");
+    labelPickerBtn = document.getElementById("clipping-label-btn");
   }
 
   var uri = gClippingsTree.selectedURI;
@@ -2414,18 +2536,18 @@ function updateAltLabelMenu(aLabel)
 
   aeUtils.log(aeString.format("updateAltLabelMenu(): Updating radio menuitem selection for alternative color label picker; label class: %S", labelClass));
 
-  let menuitems = $("clipping-label-menupopup-2").childNodes;
+  let menuitems = document.getElementById("clipping-label-menupopup-2").childNodes;
   for (let i = 0; i < menuitems.length; i++) {
     menuitems[i].removeAttribute("checked");
   }
 
-  let menuitemsCxt = $("clipping-label-cxt-menupopup-2").childNodes;
+  let menuitemsCxt = document.getElementById("clipping-label-cxt-menupopup-2").childNodes;
   for (let i = 0; i < menuitemsCxt.length; i++) {
     menuitemsCxt[i].removeAttribute("checked");
   }
 
-  $("clipping-label-menupopup-2").getElementsByClassName(labelClass)[0].setAttribute("checked", "true");
-  $("clipping-label-cxt-menupopup-2").getElementsByClassName(labelClass)[0].setAttribute("checked", "true");
+  document.getElementById("clipping-label-menupopup-2").getElementsByClassName(labelClass)[0].setAttribute("checked", "true");
+  document.getElementById("clipping-label-cxt-menupopup-2").getElementsByClassName(labelClass)[0].setAttribute("checked", "true");
 }
 
 
@@ -2580,11 +2702,11 @@ function updateCurrentClippingData()
   }
 
   if (gClippingsSvc.numItems > 0) {
-    updateName($("clipping-name").value);
+    updateName(document.getElementById("clipping-name").value);
 
     var uri = gClippingsTree.getURIAtIndex(gCurrentListItemIndex);
     if (gClippingsSvc.isClipping(uri)) {
-      updateText($("clipping-text").value);
+      updateText(document.getElementById("clipping-text").value);
     }
   }
 }
@@ -2677,9 +2799,9 @@ function doImport()
 
   // Handle empty RDF files
   if (dlgArgs.numImported == 0) {
-    let toolsMenu = $("clippings-options");
-    let panel = $("import-empty-alert");
-    $("import-empty-alert-msg").value = gStrBundle.getString("msgNoItems");
+    let toolsMenu = document.getElementById("clippings-options");
+    let panel = document.getElementById("import-empty-alert");
+    document.getElementById("import-empty-alert-msg").value = gStrBundle.getString("msgNoItems");
     gStatusBar.label = "";
     aeUtils.beep();
     panel.openPopup(toolsMenu, "after_start", 0, 0, false, false);
@@ -2689,7 +2811,7 @@ function doImport()
 
   gClippingsTree.rebuild();
   
-  var deck = $("entry-properties");
+  var deck = document.getElementById("entry-properties");
   if (gClippingsTree.getRowCount() > 0) {
     deck.selectedIndex = 0;
     gClippingsTree.selectedIndex = 0;
@@ -2733,7 +2855,7 @@ function initRestorePopup(aEvent)
   }
 
   var restoreMenuPopup = aEvent.target;
-  var chooseBackupMenuItem = $("choose-backup-file");
+  var chooseBackupMenuItem = document.getElementById("choose-backup-file");
 
   // Refresh the menu by deleting all entries except the "Choose File" command.
   var rmTarget = restoreMenuPopup.firstChild;
@@ -2950,7 +3072,7 @@ function initClippingsListPopup()
     return false;  // Don't show popup menu if list box is empty
   }
 
-  var clippingsListCxt = $("clippings-list-context");
+  var clippingsListCxt = document.getElementById("clippings-list-context");
   var uri = gClippingsTree.selectedURI;
   var isEmptyClipping = gClippingsSvc.isEmptyClipping(uri);
 
@@ -2960,14 +3082,14 @@ function initClippingsListPopup()
 
   var clippingLabelCxtMenu;
   if (gAltClippingLabelPicker) {
-    clippingLabelCxtMenu = $("clipping-label-cxt-2");
+    clippingLabelCxtMenu = document.getElementById("clipping-label-cxt-2");
   }
   else {
-    clippingLabelCxtMenu = $("clipping-label-cxt");
+    clippingLabelCxtMenu = document.getElementById("clipping-label-cxt");
   }
 
   clippingLabelCxtMenu.hidden = !gClippingsSvc.isClipping(uri);
-  $("clipping-label-cxt-separator").hidden = !gClippingsSvc.isClipping(uri);
+  document.getElementById("clipping-label-cxt-separator").hidden = !gClippingsSvc.isClipping(uri);
 
   return true;
 }
@@ -2975,8 +3097,8 @@ function initClippingsListPopup()
 
 function initMoveMenuPopup()
 {
-  var moveToMnu2 = $("move-to-2");
-  var copyToMnu2 = $("copy-to-2");
+  var moveToMnu2 = document.getElementById("move-to-2");
+  var copyToMnu2 = document.getElementById("copy-to-2");
   var uri = gClippingsTree.selectedURI;
   var boolFlag  = gClippingsSvc.numItems == 0 || gClippingsSvc.isEmptyClipping(uri);
 
@@ -3056,7 +3178,7 @@ function undo()
     gClippingsTree.selectedURI = undo.uri;
     updateDisplay();
 
-    var clippingText = $("clipping-text");
+    var clippingText = document.getElementById("clipping-text");
     clippingText.focus();
     clippingText.select();
 
@@ -3068,7 +3190,7 @@ function undo()
     gClippingsTree.setNodeTitle(undo.uri, undo.name);
     updateDisplay();
 
-    var clippingName = $("clipping-name");
+    var clippingName = document.getElementById("clipping-name");
     clippingName.focus();
     clippingName.select();
 
@@ -3143,7 +3265,7 @@ function undo()
     updateDisplay();
   }
   else if (undo.action == ACTION_SETSHORTCUTKEY) {
-    var clippingKey = $("clipping-key");
+    var clippingKey = document.getElementById("clipping-key");
     gClippingsTree.selectedURI = undo.uri;
     updateDisplay();
 
@@ -3198,7 +3320,7 @@ function reverseLastUndo()
     gClippingsTree.setNodeTitle(redo.uri, redo.name);
     updateDisplay();
 
-    var clippingName = $("clipping-name");
+    var clippingName = document.getElementById("clipping-name");
     clippingName.focus();
     clippingName.select();
 
@@ -3209,7 +3331,7 @@ function reverseLastUndo()
     gClippingsTree.selectedURI = redo.uri;
     updateDisplay();
 
-    var clippingText = $("clipping-text");
+    var clippingText = document.getElementById("clipping-text");
     clippingText.focus();
     clippingText.select();
 
@@ -3269,7 +3391,7 @@ function reverseLastUndo()
     updateDisplay();
   }
   else if (redo.action == ACTION_SETSHORTCUTKEY) {
-    var clippingKey = $("clipping-key");
+    var clippingKey = document.getElementById("clipping-key");
     gClippingsTree.selectedURI = redo.uri;
     updateDisplay();
 
@@ -3294,7 +3416,7 @@ function reverseLastUndo()
 
 function toggleFindBar()
 {
-  var findBtn = $("find");
+  var findBtn = document.getElementById("find");
 
   if (gFindBar.isVisible()) {
     gFindBar.hide();
@@ -3303,7 +3425,7 @@ function toggleFindBar()
   }
   else {
     gFindBar.show();
-    $("find-clipping").focus();
+    document.getElementById("find-clipping").focus();
     findBtn.checked = true;
   }
 }
@@ -3315,7 +3437,7 @@ function userCancel()
   if (gFindBar.isVisible()) {
     gFindBar.hide();
     gClippingsTree.focus();
-    $("find").checked = false;
+    document.getElementById("find").checked = false;
   }
   else {
     aeUtils.beep();

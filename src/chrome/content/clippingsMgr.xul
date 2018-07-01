@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet href="chrome://clippings-laf/skin/clippingsMgr.css" type="text/css"?>
 <?xml-stylesheet href="chrome://clippings-laf/skin/clippingLabelPalette.css" type="text/css"?>
+<?xml-stylesheet href="chrome://clippings/content/lib/fancytree/skin-win8/ui.fancytree.css" type="text/css"?>
 
 <!DOCTYPE window SYSTEM "chrome://clippings/locale/clippings.dtd">
 
@@ -10,6 +11,7 @@
 
 <window id="ae-clippings-manager"
  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+ xmlns:html="http://www.w3.org/1999/xhtml"	
  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
  xmlns:clp="http://clippings.mozdev.org/ns/rdf#"
  sizemode="normal" screenX="48" screenY="96" 
@@ -24,6 +26,9 @@
 
   <script type="application/javascript" src="chrome://clippings/content/RDFTreeWrapper.js"/>
   <script type="application/javascript" src="chrome://clippings/content/clippingsMgr.js"/>
+  <script type="application/javascript" src="chrome://clippings/content/lib/jquery.min.js"/>
+  <script type="application/javascript" src="chrome://clippings/content/lib/fancytree/jquery.fancytree-all-deps.js"/>
+  <script type="application/javascript" src="chrome://clippings/content/lib/fancytree/jquery.fancytree.dnd5.js"/>
   <script type="application/javascript">
   <![CDATA[
 
@@ -419,6 +424,8 @@
   <hbox id="content" flex="1">
     <vbox id="tree-box" width="200" minwidth="100" maxwidth="400" 
      persist="width">
+      <html:div id="clippings-tree"></html:div>
+<!--
       <tree id="clippings-list" flex="1" hidecolumnpicker="true"
        seltype="single" draggable="true" context="clippings-list-context" 
        onclick="clippingsList_click(event)"
@@ -429,15 +436,14 @@
        ondrop="clippingsList_drop(event)">
 
         <treecols>
-	  <!-- TO DO: Set sorting on clipping/folder names -->
 	  <treecol id="all-clippings" flex="1" primary="true"
 	   hideheader="true" sortActive="true" sortDirection="natural"/>
 	</treecols>
       </tree>
-
+-->
     </vbox>
     <splitter id="splitter"/>
-    <deck id="entry-properties" selectedIndex="1" flex="1">
+    <deck id="entry-properties" flex="1">
       <vbox flex="1">
         <textbox id="clipping-name" maxlength="64"
 	 oninput="if(!gQuickEdit.isStarted()){gQuickEdit.start();updateEditStatus()}"
