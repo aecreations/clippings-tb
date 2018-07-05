@@ -13,7 +13,7 @@ overlay	chrome://messenger/content/messengercompose/messengercompose.xul	chrome:
 overlay	chrome://messenger/content/messageWindow.xul	chrome://clippings/content/tbMessengerOverlay.xul
 
 resource	clippings	./
-content	clippings	chrome/content/
+content	clippings	chrome/content/	contentaccessible=yes
 
 skin	clippings	classic/1.0	chrome/skin/
 

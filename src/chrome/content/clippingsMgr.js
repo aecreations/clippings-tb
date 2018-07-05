@@ -1300,6 +1300,16 @@ function setStatusBarVisibility()
 }
 
 
+function arrangeItemsByDnD()
+{
+  let dlgArgs = {
+    userCancel: null
+  };
+  
+  window.openDialog("chrome://clippings/content/clipMgrDnD.xhtml", "dlg_clippingsmgr_dndext", "centerscreen,modal", dlgArgs);
+}
+
+
 function closeNotificationBar()
 {
   $("notification-bar").hidden = true;

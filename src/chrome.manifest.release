@@ -4,7 +4,7 @@ overlay	chrome://messenger/content/messengercompose/messengercompose.xul	chrome:
 overlay	chrome://messenger/content/messageWindow.xul	chrome://clippings/content/tbMessengerOverlay.xul
 
 resource	clippings	./
-content	clippings	jar:chrome/clippings.jar!/content/
+content	clippings	jar:chrome/clippings.jar!/content/	contentaccessible=yes
 
 skin	clippings	classic/1.0	jar:chrome/clippings.jar!/skin/
 

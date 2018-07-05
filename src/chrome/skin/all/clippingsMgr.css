@@ -200,6 +200,14 @@ toolbarbutton .toolbarbutton-icon {
   display: none;
 }
 
+#dnd-arrange {
+  -moz-image-region: rect(0px, 336px, 16px, 320px);
+}
+
+#dnd-arrange:hover {
+  -moz-image-region: rect(16px, 336px, 32px, 320px);
+}
+
 /* Workaround to bug 22005 caused by Console^2 extension */
 #clipping-name > .textbox-input-box > .textbox-search-icons {
   display: none;

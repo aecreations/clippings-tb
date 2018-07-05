@@ -238,6 +238,8 @@
       <menuitem id="move-or-copy-cxt" label="&moveTo.label;"
        accesskey="&moveTo.accesskey;" oncommand="moveOrCopy()"/>
       
+      <menuitem id="dnd-arrange-cxt" label="&dndArrange.label;" accesskey="&dndArrange.accesskey;" oncommand="arrangeItemsByDnD()"/>
+
       <!-- Clipping label picker: for treelist context menu -->
       <menuseparator id="clipping-label-cxt-separator"/>
       <menu id="clipping-label-cxt" label="&clippingLabel.label;"
@@ -356,6 +358,7 @@
       <toolbarbutton id="new-folder" label="&newFolder.label;" accesskey="&newFolder.accesskey;" oncommand="newFolder()" />
 
       <toolbarbutton id="toolbar-move" label="&move.label;" accesskey="&move.accesskey;" oncommand="moveOrCopy()"/>
+      <toolbarbutton id="dnd-arrange" label="&arrange.label;" accesskey="&arrange.accesskey;" tooltiptext="&arrange.tooltip;" oncommand="arrangeItemsByDnD()"/>
       <toolbarbutton id="delete-clipping" label="&deleteClipping.label;" accesskey="&deleteClipping.accesskey;" command="cmd_delete" /> 
       <toolbarbutton id="undo" label="&undo.label;" accesskey="&undo.accesskey;" command="cmd_undo" />
       <toolbarbutton id="find" label="&find.label;" accesskey="&find.accesskey;" command="cmd_find" />
