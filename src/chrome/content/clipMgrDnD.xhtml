@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd" [
+  <!ENTITY % dlgDTD SYSTEM "chrome://clippings/locale/clippings.dtd"> %dlgDTD;
+  <!ENTITY % globalDTD SYSTEM "chrome://global/locale/dialogOverlay.dtd"> %globalDTD;	  
+]>
+
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Arrange</title>
+
+    <script src="chrome://clippings/content/lib/jquery.min.js"></script>
+    <script src="chrome://clippings/content/lib/fancytree/jquery.fancytree-all-deps.js"></script>
+    <script src="chrome://clippings/content/lib/fancytree/jquery.fancytree.dnd5.js"></script>
+    <script src="chrome://clippings/content/clipMgrDnD.js"></script>
+    
+    <link rel="stylesheet" href="chrome://clippings/skin/clipMgrDnD.css"/>
+    <style type="text/css">
+      body {
+        font: message-box;
+        background-color: -moz-dialog;
+        margin-bottom: 6px;
+      }
+
+      #clippings-tree {
+        width:  136px;
+        height: 180px;
+      }
+
+      button {
+        margin-left: 6px;
+      }
+
+      .dlg-row {
+        white-space: nowrap;
+        margin-top: 0.2em;
+        margin-bottom: 0.2em;
+        margin-left: 0.5em;
+        margin-right: 0.5em;
+      }
+      
+      #dlg-buttons {
+        margin-top: 1.2em;
+        margin-bottom: 0.5em;
+      }
+
+      #dlg-buttons #main-btns {
+        float: right;
+        padding-left: 1.5em;
+      }
+    </style>
+  </head>
+  <body onload="init()">
+
+    <div class="description">Arrange your clippings and folders using drag and drop.</div>
+
+    <div id="clippings-tree"></div>
+    
+    <div id="dlg-buttons" class="dlg-row">
+      <div id="main-btns">
+        <button id="btn-accept" onclick="accept()">&okButton.label;</button>
+        <button id="btn-cancel" onclick="cancel()">&cancelButton.label;</button>
+      </div>
+    </div>
+  </body>
+</html>
