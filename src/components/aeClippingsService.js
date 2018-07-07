@@ -35,10 +35,11 @@ aeClippingsService.prototype = {
   MAX_NAME_LENGTH:        64,
 
   // Private constants (not declared in interface definition)
-  _DEBUG:  false,
+  _DEBUG:  true,
   _TEST_CORRUPTION: false,
   _SEQNODE_RESOURCE_URI:  "http://clippings.mozdev.org/rdf/user-clippings-v2",
   _OLD_SEQNODE_RESOURCE_URI: "http://clippings.mozdev.org/rdf/user-clippings",
+  _SYNCED_CLIPPINGS_FOLDER_URI: "http://clippings.mozdev.org/ns/rdf#wx-sync",
   _PREDNAME_RESOURCE_URI: "http://clippings.mozdev.org/ns/rdf#name",
   _PREDTEXT_RESOURCE_URI: "http://clippings.mozdev.org/ns/rdf#text",
   _PREDKEY_RESOURCE_URI:  "http://clippings.mozdev.org/ns/rdf#key",
@@ -57,7 +58,7 @@ aeClippingsService.prototype = {
   _CLIPPINGS_HTML_NS: "http://clippings.mozdev.org/ns/html#",
 
   _JSON_EXPORT_VER: "6.0",
-  _JSON_EXPORT_CREATED_BY: "Clippings for Thunderbird 5.5.9",
+  _JSON_EXPORT_CREATED_BY: "Clippings for Thunderbird 5.6",
 
   // Private member variables
   _dataSrc: null,
@@ -72,6 +73,8 @@ aeClippingsService.prototype = {
   _listeners:        [],
   _detachedItems:    [],
   _count:            -1,
+  _syncedClippings:  false,
+  _syncedClippingsFldrName: "Synced Clippings",
 
   // Getter
   get kRootFolderURI()
@@ -165,6 +168,7 @@ aeClippingsService.prototype.reset = function ()
   this._rdfContainer = null;
   this._dsFileURL = "";
   this._count = -1;
+  this._syncedClippings = false;
 };
 
 
@@ -1657,7 +1661,7 @@ aeClippingsService.prototype.flushDataSrc = function (aDoBackup, aSaveJSONCopy)
     let fileURL = dsURLPrefix + this._WX_SYNC_FILENAME;
     this._log("aeClippingsService.flushDataSrc(): Saving copy of datasource to Clippings 6 sync file.");
     
-    this.exportToFile(fileURL, this.FILETYPE_WX_JSON, false);
+    this.exportSubfolderToFile(fileURL, this.FILETYPE_WX_JSON, false, this._SYNCED_CLIPPINGS_FOLDER_URI);
   }
 };
 
@@ -1979,7 +1983,7 @@ aeClippingsService.prototype.exportToJSONString = function ()
 {
   let rv = "";
   let jsonData = [];
-  
+
   this._exportAsClippingsWxJSON(this._rdfContainer, jsonData, true, true);
   rv = JSON.stringify(jsonData);
 
@@ -1987,7 +1991,38 @@ aeClippingsService.prototype.exportToJSONString = function ()
 };
 
 
+aeClippingsService.prototype.setSyncedClippings = function (aIsEnabled)
+{
+  this._syncedClippings = aIsEnabled;
+
+  if (aIsEnabled) {
+    if (this.exists(this._SYNCED_CLIPPINGS_FOLDER_URI)) {
+      return;
+    }
+
+    this.createNewFolderEx(this.kRootFolderURI, this._SYNCED_CLIPPINGS_FOLDER_URI, this._syncedClippingsFldrName, 1, false, this.ORIGIN_HOSTAPP);
+  }
+  else {
+    // Delete the "Synced Clippings" folder only if it is empty.
+    if (this.exists(this._SYNCED_CLIPPINGS_FOLDER_URI) && this.getCount(this._SYNCED_CLIPPINGS_FOLDER_URI) == 0) {
+      this.remove(this._SYNCED_CLIPPINGS_FOLDER_URI);
+    }
+  }
+};
+
+
+aeClippingsService.prototype.setSyncedClippingsFolderName = function (aFolderName) {
+  this._syncedClippingsFldrName = aFolderName;
+};
+
+
 aeClippingsService.prototype.exportToFile = function (aFileURL, aFileType, aIncludeSrcURLs)
+{
+  this.exportSubfolderToFile(aFileURL, aFileType, aIncludeSrcURLs, this.kRootFolderURI);
+};
+
+
+aeClippingsService.prototype.exportSubfolderToFile = function (aFileURL, aFileType, aIncludeSrcURLs, aFolderURI)
 {
   // We have to do it this way because we don't want to include unpurged
   // detached folders with the exported file.
@@ -2048,7 +2083,15 @@ aeClippingsService.prototype.exportToFile = function (aFileURL, aFileType, aIncl
     format = "CSV";
   }
   else if (aFileType == this.FILETYPE_WX_JSON) {
-    count = this._exportAsClippingsWxJSON(this._rdfContainer, jsonData.userClippingsRoot, aIncludeSrcURLs, false);
+    let rootFldrCtr;
+    if (aFolderURI == this.kRootFolderURI) {
+      rootFldrCtr = this._rdfContainer;
+    }
+    else {
+      rootFldrCtr = this._getSeqContainerFromFolder(aFolderURI);
+    }
+    
+    count = this._exportAsClippingsWxJSON(rootFldrCtr, jsonData.userClippingsRoot, aIncludeSrcURLs, false);
     format = "Clippings/wx JSON";
   }
   else {

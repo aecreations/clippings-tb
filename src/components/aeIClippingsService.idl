@@ -224,13 +224,17 @@ interface aeIClippingsService : nsISupports
 
   void refreshDataSrc();
 
-  aestring exportToJSONString();
-  
   void exportToFile(in uri aFileURL, 
 		    in short aFileType, 
 		    in boolean aIncludeSrcURLs);
   /* throws NS_ERROR_INVALID_ARG - if aFileType is invalid */
 
+  void exportSubfolderToFile(in uri aFileURL,
+			     in short aFileType,
+			     in boolean aIncludeSrcURLs,
+			     in uri aFolderURI);
+  /* throws NS_ERROR_INVALID_ARG - if aFileType is invalid */
+  
   /*
    * Method importFromFile():
    * Shortcut keys are imported unless aImportShortcutKeys is false.
@@ -257,6 +261,12 @@ interface aeIClippingsService : nsISupports
   void cancelDeferredShortcutKeyImport();
 
   size_t importFromJSON(in aestring aJSONRawData, in boolean aReplaceShortcutKeys);
+
+  aestring exportToJSONString();
+
+  void setSyncedClippings(in boolean aIsEnabled);
+
+  void setSyncedClippingsFolderName(in aestring aFolderName);
   
   /*
    * Method processEmptyFolders():

@@ -50,7 +50,7 @@
 <!ENTITY otherLocation.accesskey "O">
 <!ENTITY fileBrowse.label "Browse...">
 <!ENTITY fileBrowse.accesskey "B">
-<!ENTITY saveCopy.label "Save a copy in Clippings 6 format">
+<!ENTITY saveCopy.label "Share clippings with Clippings 6 via the ''Sync Clippings'' folder">
 <!ENTITY saveCopy.accesskey "c">
 <!ENTITY backupFiles.caption "Backup Files">
 <!ENTITY maxFiles.label "Maximum number of files to keep:">

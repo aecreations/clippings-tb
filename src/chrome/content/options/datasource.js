@@ -214,5 +214,10 @@ function applyDataSourcePrefChanges()
   gClippingsSvc.notifyDataSrcLocationChanged();
   aeUtils.setPref("clippings.datasource.location", newDataSrcPath);
 
+  if (gDataSrcLocationOpt.selectedIndex == 1) {
+    let isWxSyncEnabled = aeUtils.getPref("clippings.datasource.wx_sync", false);
+    gClippingsSvc.setSyncedClippings(isWxSyncEnabled);
+  }
+  
   return true;
 }
