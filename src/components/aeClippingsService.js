@@ -2207,6 +2207,20 @@ aeClippingsService.prototype._exportAsClippingsWxJSON = function (aFolderCtr, aJ
 };
 
 
+aeClippingsService.prototype.getClippingsAsHTML = function ()
+{
+  let rv = "";
+
+  // Put the Clippings HTML heading in a pref to permit localization.
+  let prefSvc = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
+  let htmlTitle = prefSvc.getCharPref("extensions.aecreations.clippings.export.html.title");
+
+  rv = this._exportHTMLHelper(this._rdfContainer, htmlTitle);
+  
+  return rv;
+};
+
+
 aeClippingsService.prototype.getClippingsAsHTMLNodes = function ()
 {
   var rv;
@@ -2274,6 +2288,58 @@ aeClippingsService.prototype.writeFile = function (aFileURL, aData)
     
     fos.close();
   }
+};
+
+
+aeClippingsService.prototype._exportHTMLHelper = function (aLocalFolderCtr, aDocTitleText)
+{
+  let that = this;
+  
+  function exportToHTMLHelper(aFldrItems)
+  {
+    let rv = "<dl>";
+    
+    for (let item of aFldrItems) {
+      if (item.children) {
+	let name = that._escapeHTML(item.name);
+	let dt = `<dt class="folder"><h2>${name}</h2></dt>`;
+	let dd = "<dd>" + exportToHTMLHelper(item.children);
+	dd += "</dd>";
+	rv += dt + dd;
+      }
+      else {
+	let name = that._escapeHTML(item.name);
+	let dt = `<dt class="clipping"><h3>${name}</h3></dt>`;
+	let text = that._escapeHTML(item.content);
+	text = text.replace(/\n/g, "<br>");
+	let dd = `<dd>${text}</dd>`;
+	rv += dt + dd;
+      }
+    }
+
+    rv = rv + "</dl>";
+    return rv;
+  }
+
+  let rv = "";
+
+  let expData = [];
+  try {
+    this._exportAsClippingsWxJSON(aLocalFolderCtr, expData, false, false);
+  }
+  catch (e) {
+    this._log("aeClippingsService._exportHTMLHelper(): " + e);
+    throw e;
+  }
+
+  let htmlSrc = `<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>${aDocTitleText}</title></head><body><h1>${aDocTitleText}</h1>`;
+
+  htmlSrc += exportToHTMLHelper(expData);
+
+  rv = htmlSrc + "</body></html>";
+
+  return rv;
 };
 
 
@@ -2788,6 +2854,15 @@ aeClippingsService.prototype._sanitize = function (aString)
   // Don't exclude tabs (HT, ASCII 9) since they'll be collapsed anyway when
   // the RDF data is saved.
   var rv = aString.replace(/[\x00-\x09\x0b\x0c\x0e-\x1f\x7f]/g, " ");
+  return rv;
+};
+
+
+aeClippingsService.prototype._escapeHTML = function (aString)
+{
+  let rv = aString.replace(/</g, "&lt;");
+  rv = rv.replace(/>/g, "&gt;");
+  
   return rv;
 };
 

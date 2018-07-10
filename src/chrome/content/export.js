@@ -173,22 +173,8 @@ function exportClippings()
       }
       // HTML export.
       else {
-	var bodyElt = gClippingsSvc.getClippingsAsHTMLNodes();
-	var editor = $("html-export");
-	editor.focus();
-	var htmlEditor = editor.getHTMLEditor(editor.contentWindow);
-	var bodyEltEx = editor.contentDocument.importNode(bodyElt, true);
-	htmlEditor.insertElementAtSelection(bodyEltEx, true);
-	var data = editor.contentDocument.getElementsByTagName("body").item(0).innerHTML;
-	data = data.replace(/&lt;br&gt;/g, "<br>");
-
-	var charset = "UTF-8";
-	var doctype = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/REC-html40/loose.dtd\">";
-	var meta = "<META http-equiv=\"Content-Type\" content=\"text/html; charset=" + charset + "\">";
-	var header = "<html><head>" + meta + "<title>" + gStrBundle.getString("appName") + "</title></head>";
-	var footer = "</html>";
-	data = doctype + "\n" + header + "\n" + data + "\n" + footer;
-
+	data = gClippingsSvc.getClippingsAsHTML();
+	
 	fnExport = function () {
 	  gClippingsSvc.writeFile(url, data);
 	};

@@ -290,6 +290,8 @@ interface aeIClippingsService : nsISupports
 
   nsIDOMElement getClippingsAsHTMLNodes();
 
+  aestring getClippingsAsHTML();
+
   void writeFile(in uri aFileURL, in aestring aData);
 
   void setBackupDir(in uri aBackupDirURL);
