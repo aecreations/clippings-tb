@@ -23,7 +23,7 @@ const Ci = Components.interfaces;
 let aeUtils = {
   // Debugging flags - set to false to suppress extraneous JS console messages
   // and diagnostic audio beeps.
-  DEBUG: false,
+  DEBUG: true,
   NOISY_DEBUG: false,
 };
 
@@ -372,4 +372,26 @@ aeUtils.log = function (aMessage)
 					             .nsIConsoleService);
     consoleSvc.logStringMessage(aMessage);
   }
+};
+
+
+aeUtils.getStringBundle = function (aStringBundleURL)
+{
+  let rv = new aeStringBundle(aStringBundleURL);
+  return rv;
+};
+
+
+//
+// String bundle wrapper object
+//
+
+function aeStringBundle(aStrBundleURL)
+{
+  this._strBundle = Services.strings.createBundle(aStrBundleURL);
+}
+
+aeStringBundle.prototype.getString = function (aKey)
+{
+  return this._strBundle.GetStringFromName(aKey);
 };
