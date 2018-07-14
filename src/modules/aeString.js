@@ -1,7 +1,6 @@
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /*
  * stringUtils.js - AE Creations string utilities
- * Copyright (C) 2005 - 2010, Alex Eng <ateng@users.sourceforge.net>
+ * Copyright (C) 2005 - 2018, Alex Eng <ateng@users.sourceforge.net>
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -137,6 +136,7 @@ var aeString = {
     return acc;
   },
 
+
   trim: function (str) 
   {
     const SPACE_CODE = 32;
@@ -161,5 +161,31 @@ var aeString = {
     var m = len;
     while (m > 0 && str.charCodeAt(--m) <= SPACE_CODE);
     return str.substring(k, m + 1);
+  },
+
+
+  truncate: function (str, max, ellipses)
+  {
+    if (! str) {
+      return "";
+    }
+    
+    if (! max) {
+      max = 32;
+    }
+
+    if (! ellipses) {
+      ellipses = "...";
+    }
+    
+    if (str.length < max) {
+      return str;
+    }
+
+    var rv = "";
+    rv = str.substring(0, max);
+    rv += ellipses;
+
+    return rv;
   }
 };
