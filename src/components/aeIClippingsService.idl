@@ -264,6 +264,12 @@ interface aeIClippingsService : nsISupports
 
   aestring exportToJSONString();
 
+  /*
+   * Method getSubfolderItemsAsJSONString():
+   * Not recursive. Not Clippings 6 format.
+   */
+  aestring getSubfolderItemsAsJSONString(in aestring aFolderURI);
+
   void setSyncedClippings(in boolean aIsEnabled);
 
   void setSyncedClippingsFolderName(in aestring aFolderName);

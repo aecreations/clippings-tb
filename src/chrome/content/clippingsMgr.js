@@ -1300,6 +1300,71 @@ function setStatusBarVisibility()
 }
 
 
+function arrangeItemsByDnD()
+{
+  let selectedURI = gClippingsTree.selectedURI;
+  let folders = [];
+  let fldrName = "";
+  let rootFldrName = gStrBundle.getString("appName");
+
+  if (gClippingsSvc.isFolder(selectedURI)) {
+    fldrName = gClippingsSvc.getName(selectedURI);
+    let fldrItems = gClippingsSvc.getSubfolderItemsAsJSONString(selectedURI);
+    folders.push({
+      uri:  selectedURI,
+      name: fldrName,
+      items: JSON.parse(fldrItems)
+    });
+
+    // If the parent of the selected folder is the root folder, then also get
+    // the root-level items.
+    if (gClippingsSvc.getParent(selectedURI) == gClippingsSvc.kRootFolderURI) {
+      let rootFldrItems = gClippingsSvc.getSubfolderItemsAsJSONString(gClippingsSvc.kRootFolderURI);
+      folders.push({
+	uri:  gClippingsSvc.kRootFolderURI,
+	name: rootFldrName,
+	items: JSON.parse(rootFldrItems)
+      });
+    }
+  }
+  else {
+    let parentURI = gClippingsSvc.getParent(selectedURI);
+    if (parentURI == gClippingsSvc.kRootFolderURI) {
+      fldrName = rootFldrName;
+    }
+    else {
+      fldrName = gClippingsSvc.getName(parentURI);
+    }
+
+    let fldrItems = gClippingsSvc.getSubfolderItemsAsJSONString(parentURI);
+    folders.push({
+      uri: parentURI,
+      name: fldrName,
+      items: JSON.parse(fldrItems)
+    });
+  }
+  
+  let dlgArgs = {
+    folders,
+    rearrangedItems: [],
+    userCancel: null
+  };
+
+  window.openDialog("chrome://clippings/content/dndArrange.xhtml", "dlg_clippingsmgr_dndext", "centerscreen,modal", dlgArgs);
+
+  if (dlgArgs.userCancel) {
+    return;
+  }
+  
+  for (let i = 0; i < dlgArgs.rearrangedItems.length; i++) {
+    let item = dlgArgs.rearrangedItems[i];
+    gClippingsSvc.changePosition(item.parentFolderURI, item.oldPos, item.newPos);
+  }
+
+  gClippingsTree.rebuild();
+}
+
+
 function closeNotificationBar()
 {
   $("notification-bar").hidden = true;

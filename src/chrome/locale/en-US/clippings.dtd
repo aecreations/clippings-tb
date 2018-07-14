@@ -95,6 +95,13 @@
 <!ENTITY move.accesskey "M">
 <!ENTITY moveTo.label "Move To...">
 <!ENTITY moveTo.accesskey "M">
+<!ENTITY arrange.label "Arrange">
+<!ENTITY arrange.tooltip "Arrange the items in the selected folder using drag and drop">
+<!ENTITY dndArrange.label "Drag and Drop Arrange...">
+<!ENTITY arrange.accesskey "r">
+<!ENTITY dndArrange.title "Arrange">
+<!ENTITY dndArrange.description "Arrange the items in the selected folder using drag and drop.">
+<!ENTITY folder.label "Folder:">
 <!ENTITY moveHere.label "Move Here">
 <!ENTITY copyHere.label "Copy Here">
 <!ENTITY goToURL.label "Go to Source Web Page">

@@ -208,6 +208,7 @@
     <command id="cmd_clipmgr_opts" oncommand="clippingsMgrOptions()"/>
     <command id="cmd_togglePlaceholderBar" oncommand="togglePlaceholderBar()"/>
     <command id="cmd_toggleDetailsPane" oncommand="toggleClippingDetails()"/>
+    <command id="cmd_dndArrange" oncommand="arrangeItemsByDnD()"/>
   </commandset>
 
   <keyset>
@@ -238,6 +239,8 @@
       <menuitem id="move-or-copy-cxt" label="&moveTo.label;"
        accesskey="&moveTo.accesskey;" oncommand="moveOrCopy()"/>
       
+      <menuitem id="dnd-arrange-cxt" label="&dndArrange.label;" accesskey="&arrange.accesskey;" command="cmd_dndArrange"/>
+
       <!-- Clipping label picker: for treelist context menu -->
       <menuseparator id="clipping-label-cxt-separator"/>
       <menu id="clipping-label-cxt" label="&clippingLabel.label;"
@@ -356,6 +359,7 @@
       <toolbarbutton id="new-folder" label="&newFolder.label;" accesskey="&newFolder.accesskey;" oncommand="newFolder()" />
 
       <toolbarbutton id="toolbar-move" label="&move.label;" accesskey="&move.accesskey;" oncommand="moveOrCopy()"/>
+      <toolbarbutton id="dnd-arrange" label="&arrange.label;" accesskey="&arrange.accesskey;" tooltiptext="&arrange.tooltip;" command="cmd_dndArrange"/>
       <toolbarbutton id="delete-clipping" label="&deleteClipping.label;" accesskey="&deleteClipping.accesskey;" command="cmd_delete" /> 
       <toolbarbutton id="undo" label="&undo.label;" accesskey="&undo.accesskey;" command="cmd_undo" />
       <toolbarbutton id="find" label="&find.label;" accesskey="&find.accesskey;" command="cmd_find" />

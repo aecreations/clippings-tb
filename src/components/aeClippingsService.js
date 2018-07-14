@@ -1991,6 +1991,38 @@ aeClippingsService.prototype.exportToJSONString = function ()
 };
 
 
+aeClippingsService.prototype.getSubfolderItemsAsJSONString = function (aFolderURI)
+{
+  let rv = "";
+  let jsonData = [];
+  let rootFldrCtr;
+
+  if (aFolderURI == this.kRootFolderURI) {
+    rootFldrCtr = this._rdfContainer;
+  }
+  else {
+    rootFldrCtr = this._getSeqContainerFromFolder(aFolderURI);
+  }
+
+  let childrenEnum = rootFldrCtr.GetElements();
+  while (childrenEnum.hasMoreElements()) {
+    let child = childrenEnum.getNext();
+    child = child.QueryInterface(Components.interfaces.nsIRDFResource);
+    let childURI = child.Value;
+
+    let folderItem = {
+      uri: childURI,
+      name: this.getName(childURI),
+      isFolder: this.isFolder(childURI)
+    };
+    jsonData.push(folderItem);
+  }
+
+  rv = JSON.stringify(jsonData);
+  return rv;
+};
+
+
 aeClippingsService.prototype.setSyncedClippings = function (aIsEnabled)
 {
   this._syncedClippings = aIsEnabled;
