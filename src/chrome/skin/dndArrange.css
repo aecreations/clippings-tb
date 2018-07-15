@@ -21,10 +21,6 @@ button, select {
     width: 200px;
 }
 
-#folder-picker .root-folder {
-    background-color: yellow;
-}
-
 #folder-items {
     width:  100%;
     max-width: 22em;
