@@ -28,12 +28,14 @@ function initPrefPaneGeneral()
     window.sizeToContent();
   }
 
-  var shortcutKeyPrefix;
+  var shortcutKeyPrefix, shortcutKeyPrefixWx;
   if (aeUtils.getOS() == "Darwin") {
     shortcutKeyPrefix = gStrBundle.getString("shortcutKeyPrefixMac");
+    shortcutkeyPrefixWx = gStrBundle.getString("shortcutKeyPrefixWxMac");
   }
   else {
     shortcutKeyPrefix = gStrBundle.getString("shortcutKeyPrefix");
+    shortcutKeyPrefixWx = gStrBundle.getString("shortcutKeyPrefixWx");
   }
 
   if (aeUtils.getHostAppID() == aeConstants.HOSTAPP_TB_GUID) {    
@@ -43,6 +45,13 @@ function initPrefPaneGeneral()
   var shortcutKeyStr = gStrBundle.getFormattedString("shortcutMode", [shortcutKeyPrefix]);
   $("enable-shortcut-key").label = shortcutKeyStr;
   $("enable-shortcut-key").accessKey = gStrBundle.getString("shortcutModeAccessKey");
+  $("enable-clippings6-shortcut-key").label = gStrBundle.getFormattedString("shortcutModeNew", [shortcutKeyPrefixWx]);
+  $("enable-clippings6-shortcut-key").accessKey = gStrBundle.getString("shortcutModeNewAccessKey");
+
+  let shortcutKeyEnabled = aeUtils.getPref("clippings.enable_keyboard_paste", true);
+  if (! shortcutKeyEnabled) {
+    $("enable-clippings6-shortcut-key").disabled = true;
+  }
 }
 
 
@@ -59,4 +68,17 @@ function showChangedPrefMsg()
   }
 
   aeUtils.alertEx(document.title, gStrBundle.getString(strKey));
+}
+
+
+function toggleEnableClippings6ShortcutKey()
+{
+  let enableShortcutKey = $("enable-shortcut-key");
+  let enableClippings6ShortcutKey = $("enable-clippings6-shortcut-key");
+  enableClippings6ShortcutKey.disabled = !enableShortcutKey.checked;
+
+  if (! enableShortcutKey.checked) {
+    enableClippings6ShortcutKey.checked = false;
+    aeUtils.setPref("clippings.enable_wx_paste_prefix_key", false);
+  }
 }

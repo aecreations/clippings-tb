@@ -33,12 +33,15 @@
 
   <keyset id="tasksKeys">
     <key id="key_ae_clippings" key="v"
-     modifiers="alt control"
-     command="ae_clippings_keyboard_insert" />
-
+     modifiers="alt control" command="ae_clippings_keyboard_insert"/>
+    <key id="key_ae_clippings_new" key="y"
+     modifiers="alt shift" command="ae_clippings_keyboard_insert"/>
+    
     <!-- For Mac OS X -->
     <key id="key_ae_clippings_mac" key="v"
-     modifiers="alt meta" command="ae_clippings_keyboard_insert" />
+     modifiers="alt meta" command="ae_clippings_keyboard_insert"/>
+    <key id="key_ae_clippings_new_mac" key="y"
+     modifiers="meta shift" command="ae_clippings_keyboard_insert"/>
   </keyset>
 
   <menupopup id="msgComposeContext">

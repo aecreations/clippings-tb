@@ -23,6 +23,7 @@ pref("extensions.aecreations.clippings.html_paste", 0);
 pref("extensions.aecreations.clippings.html_auto_line_break", true);
 pref("extensions.aecreations.clippings.check_spelling", true);
 pref("extensions.aecreations.clippings.enable_keyboard_paste", true);
+pref("extensions.aecreations.clippings.enable_wx_paste_prefix_key", true);
 pref("extensions.aecreations.clippings.beep_on_error", true);
 pref("extensions.aecreations.clippings.migrated_prefs", false);
 pref("extensions.aecreations.clippings.paste_shortcut_mode", 1);

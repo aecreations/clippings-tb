@@ -707,10 +707,24 @@ window.aecreations.clippings = {
 
     // Enable/disable Clippings paste using the keyboard.
     let keyEnabled = this.aeUtils.getPref("clippings.enable_keyboard_paste", true);
+    let keyset = document.getElementById("tasksKeys");
     let keyElt = document.getElementById("key_ae_clippings");
+    let keyEltMac = document.getElementById("key_ae_clippings_mac");
+    let keyEltNew = document.getElementById("key_ae_clippings_new");
+    let keyEltNewMac = document.getElementById("key_ae_clippings_new_mac");
 
-    if (!keyEnabled && keyElt) {
-      document.getElementById("tasksKeys").removeChild(keyElt);
+    if (!keyEnabled && keyElt) {     
+      keyset.removeChild(keyElt);
+      keyset.removeChild(keyEltMac);
+      keyset.removeChild(keyEltNew);
+      keyset.removeChild(keyEltNewMac);
+    }
+    else {
+      let newKeysEnabled = this.aeUtils.getPref("clippings.enable_wx_paste_prefix_key", true);
+      if (! newKeysEnabled) {
+	keyset.removeChild(keyEltNew);
+	keyset.removeChild(keyEltNewMac);
+      }
     }
 
     this.isClippingsInitialized = true;

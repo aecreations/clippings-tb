@@ -22,6 +22,8 @@
        name="extensions.aecreations.clippings.check_spelling"/>
       <preference id="enable-shortcut-key-pref" type="bool"
        name="extensions.aecreations.clippings.enable_keyboard_paste"/>
+      <preference id="enable-clippings6-shortcut-key-pref" type="bool"
+       name="extensions.aecreations.clippings.enable_wx_paste_prefix_key"/>
       <preference id="beep-on-errors-pref" type="bool"
        name="extensions.aecreations.clippings.beep_on_error"/>
     </preferences>
@@ -51,8 +53,10 @@
        label="&useClipboard.label;" accesskey="&useClipboard.accesskey;"/>
 
       <checkbox id="enable-shortcut-key" preference="enable-shortcut-key-pref"
+       oncommand="showChangedPrefMsg();toggleEnableClippings6ShortcutKey()"/>
+      <checkbox id="enable-clippings6-shortcut-key" class="indent"
+       preference="enable-clippings6-shortcut-key-pref"
        oncommand="showChangedPrefMsg()"/>
-
     </groupbox>
     <separator class="thin"/>
 
