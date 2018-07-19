@@ -36,11 +36,11 @@
 	   oncommand="browseDataSrcPath()"/>
   	  <spacer flex="1"/>
         </hbox>
-	<hbox><!--
+	<hbox>
 	  <checkbox id="save-copy-clippings-6" label="&saveCopy.label;"
            preference="save-copy-clippings-6-pref"
            accesskey="&saveCopy.accesskey;"/>
--->	</hbox>
+        </hbox>
       </vbox>
     </groupbox>
     <groupbox orient="vertical">

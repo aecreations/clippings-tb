@@ -91,7 +91,7 @@ function initPrefPaneDataSource()
     gCustomDataSrcBrws.disabled = true;
     gCustomDataSrcPath.disabled = true;
     gCustomDataSrcPath.value = homePath;
-    //gSaveCopyClippings6.disabled = true;
+    gSaveCopyClippings6.disabled = true;
   }
   else {
     gDataSrcLocationOpt.selectedIndex = 1;
@@ -115,13 +115,13 @@ function changeDataSrcLocationOptions()
   if (gDataSrcLocationOpt.selectedIndex == 0) {
     gCustomDataSrcBrws.disabled = true;
     gCustomDataSrcPath.disabled = true;
-    //gSaveCopyClippings6.disabled = true;
+    gSaveCopyClippings6.disabled = true;
     newDataSrcPath = aeUtils.getUserProfileDir().path;
   }
   else if (gDataSrcLocationOpt.selectedIndex == 1) {
     gCustomDataSrcBrws.disabled = false;
     gCustomDataSrcPath.disabled = false;
-    //gSaveCopyClippings6.disabled = false;
+    gSaveCopyClippings6.disabled = false;
     newDataSrcPath = gCustomDataSrcPath.value;
   }
   
