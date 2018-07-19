@@ -323,7 +323,7 @@ window.aecreations.clippings = {
 
     this.dataSrcInitialized = true;
 
-    this.aeUtils.log(this.aeString.format("gClippings.initClippings(): Clippings data source successfully loaded.\nHost app: %s (version %s)\nInitializing Clippings integration with host app window:\n%s", this.aeUtils.getHostAppName(), this.aeUtils.getHostAppVersion(), window.location.href));
+    this.aeUtils.log(this.aeString.format("gClippings.initClippings(): Clippings data source successfully loaded.\nHost app: %s (version %s)\nOS identifier: %s\nInitializing Clippings integration with host app window: %s", this.aeUtils.getHostAppName(), this.aeUtils.getHostAppVersion(), this.aeUtils.getOS(), window.location.href));
 
     // Add null clipping to root folder if there are no items
     if (this.aeUtils.getPref("clippings.datasource.process_root", true) == true) {
