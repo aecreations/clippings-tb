@@ -45,7 +45,7 @@ function initPrefPaneGeneral()
   var shortcutKeyStr = gStrBundle.getFormattedString("shortcutMode", [shortcutKeyPrefix]);
   $("enable-shortcut-key").label = shortcutKeyStr;
   $("enable-shortcut-key").accessKey = gStrBundle.getString("shortcutModeAccessKey");
-  $("enable-clippings6-shortcut-key").label = gStrBundle.getFormattedString("shortcutModeNew", [shortcutKeyPrefixWx]);
+  $("enable-clippings6-shortcut-key").label = gStrBundle.getFormattedString("shortcutModeNew", [shortcutkeyPrefixWx]);
   $("enable-clippings6-shortcut-key").accessKey = gStrBundle.getString("shortcutModeNewAccessKey");
 
   let shortcutKeyEnabled = aeUtils.getPref("clippings.enable_keyboard_paste", true);
