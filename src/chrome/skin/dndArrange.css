@@ -41,7 +41,7 @@ button, select {
     background-position: left;
     background-size: contain;
     background-repeat: no-repeat;
-    font-size: 12px;
+    font-size: 11.5px;
 }
 
 #folder-items > div:hover {
