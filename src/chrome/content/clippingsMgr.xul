@@ -197,8 +197,8 @@
     <command id="cmd_cut" oncommand="gClippingsTreeEdit.cut()"/>
     <command id="cmd_copy" oncommand="gClippingsTreeEdit.copy()"/>
     <command id="cmd_paste" oncommand="gClippingsTreeEdit.paste()" disabled="true"/>
-    <command id="cmd_delete" oncommand="deleteClipping()"/>
-    <command id="cmd_key_delete" oncommand="deleteClipping(true)"/>
+    <command id="cmd_delete" oncommand="deleteClippingOrFolder()"/>
+    <command id="cmd_key_delete" oncommand="deleteClippingOrFolder(true)"/>
     <command id="cmd_import" oncommand="doImport()"/>
     <command id="cmd_export" oncommand="doExport()"/>
     <command id="cmd_new_from_clipboard" oncommand="pasteClippingAsNew()"/>

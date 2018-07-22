@@ -2007,7 +2007,7 @@ function insertClipping()
 }
 
 
-function deleteClipping(aDelKeyPressed) 
+function deleteClippingOrFolder(aDelKeyPressed) 
 {
   if (aDelKeyPressed) {
     var delKeyEnabled = aeUtils.getPref("clippings.clipmgr.enable_delete_key", true);
@@ -2034,7 +2034,13 @@ function deleteClipping(aDelKeyPressed)
     return;
   }
 
-  deleteClippingHelper(uri, UNDO_STACK);
+  let isSyncClippings = aeUtils.getPref("clippings.datasource.wx_sync", false);
+  if (uri == gClippingsSvc.kSyncFolderURI && isSyncClippings) {
+    doAlert(gStrBundle.getString("deleteSyncFldr"));
+    return;
+  }
+
+  deleteClpOrFldrHelper(uri, UNDO_STACK);
 
   if (gFindBar.isActivated()) {
     gFindBar.setSearchResultsUpdateFlag();
@@ -2042,8 +2048,7 @@ function deleteClipping(aDelKeyPressed)
 }
 
 
-function deleteClippingHelper(aURI, aDestUndoStack)
-  // NOTE - This deletes both clippings and folders
+function deleteClpOrFldrHelper(aURI, aDestUndoStack)
 {
   var deletedItemIndex = gClippingsTree.selectedIndex;
   var state;
@@ -3144,7 +3149,7 @@ function undo()
     if (key) { aeUtils.log("Shortcut key of clipping whose creation is being undone is: `" + key + "'"); }
     gClippingsTree.selectedURI = undo.uri;
     pos = undo.pos || gClippingsSvc.indexOf(undo.uri);
-    deleteClippingHelper(undo.uri);
+    deleteClpOrFldrHelper(undo.uri);
     aeUtils.log(aeString.format("Entry creation has been undone\nEntry name: %S; entry URI: %S", undo.name, undo.uri));
 
     gRedoStack.push({action: ACTION_CREATENEW, uri: undo.uri, 
@@ -3155,7 +3160,7 @@ function undo()
   else if (undo.action == ACTION_CREATENEWFOLDER) {
     gClippingsTree.selectedURI = undo.uri;
     pos = undo.pos || gClippingsSvc.indexOf(undo.uri);
-    deleteClippingHelper(undo.uri);
+    deleteClpOrFldrHelper(undo.uri);
     gRedoStack.push({action: ACTION_CREATENEWFOLDER, name: undo.name,
 	             pos: pos, uri: undo.uri,
 		     parentFolderURI: undo.parentFolderURI});
@@ -3194,7 +3199,7 @@ function undo()
   }
   else if (undo.action == ACTION_COPYTOFOLDER) {
     var destFolder = gClippingsSvc.getParent(undo.copyURI);
-    deleteClippingHelper(undo.copyURI);
+    deleteClpOrFldrHelper(undo.copyURI);
     gRedoStack.push({action:      ACTION_COPYTOFOLDER,
 		     originalURI: undo.originalURI,
 		     srcFolder:   undo.srcFolder,
@@ -3254,7 +3259,7 @@ function reverseLastUndo()
 
   if (redo.action == ACTION_DELETECLIPPING) {
     gClippingsTree.selectedURI = redo.uri;
-    deleteClippingHelper(redo.uri, UNDO_STACK);
+    deleteClpOrFldrHelper(redo.uri, UNDO_STACK);
     aeUtils.log(aeString.format("Entry deletion redone!\nEntry name: %S; entry URI: %S", redo.name, redo.uri));
   }
   else if (redo.action == ACTION_EDITNAME) {
@@ -3307,10 +3312,10 @@ function reverseLastUndo()
     aeUtils.log("Folder creation redone!  Folder name: \"" + redo.name + "\"");
   }
   else if (redo.action == ACTION_DELETEFOLDER) {
-    deleteClippingHelper(redo.uri, UNDO_STACK);
+    deleteClpOrFldrHelper(redo.uri, UNDO_STACK);
   }
   else if (redo.action == ACTION_DELETEEMPTYFOLDER) {
-    deleteClippingHelper(redo.uri, UNDO_STACK);
+    deleteClpOrFldrHelper(redo.uri, UNDO_STACK);
   }
 
   else if (redo.action == ACTION_MOVETOFOLDER) {
