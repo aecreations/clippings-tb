@@ -82,6 +82,11 @@ aeClippingsService.prototype = {
     return this._SEQNODE_RESOURCE_URI;
   },
 
+  get kSyncFolderURI()
+  {
+    return this._SYNCED_CLIPPINGS_FOLDER_URI;
+  },
+
   get dataSourceURL()
   {
     return this._dsFileURL;

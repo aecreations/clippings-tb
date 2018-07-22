@@ -66,6 +66,7 @@ interface aeIClippingsService : nsISupports
   const short MAX_NAME_LENGTH = 64;
 
   readonly attribute uri     kRootFolderURI;
+  readonly attribute uri     kSyncFolderURI;
   readonly attribute aestring dataSourceURL;
   readonly attribute size_t  numItems;  
 
