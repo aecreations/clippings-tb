@@ -54,11 +54,12 @@ aeClippingsService.prototype = {
   _BACKUP_FILE_PREFIX:    "clippings_",
   _BACKUP_FILE_EXTENSION: ".rdf",
   _WX_SYNC_FILENAME: "clippings-sync.json",
+  _WX_COPY_FILENAME: "clippings.json",
 
   _CLIPPINGS_HTML_NS: "http://clippings.mozdev.org/ns/html#",
 
   _JSON_EXPORT_VER: "6.0",
-  _JSON_EXPORT_CREATED_BY: "Clippings for Thunderbird 5.6",
+  _JSON_EXPORT_CREATED_BY: "Clippings for Thunderbird",
 
   // Private member variables
   _dataSrc: null,
@@ -1629,7 +1630,7 @@ aeClippingsService.prototype.changePosition = function (aParentFolderURI, aOldPo
 };
 
 
-aeClippingsService.prototype.flushDataSrc = function (aDoBackup, aSaveJSONCopy)
+aeClippingsService.prototype.flushDataSrc = function (aDoBackup, aUpdateSyncFile)
 {
   if (! this._dataSrc) {
     throw Components.Exception("Data source not initialized",
@@ -1661,12 +1662,18 @@ aeClippingsService.prototype.flushDataSrc = function (aDoBackup, aSaveJSONCopy)
     this._log("aeClippingsService.flushDataSrc(): WARNING: Cannot delete old backup file(s): " + e);
   }
 
-  if (aSaveJSONCopy) {
-    let dsURLPrefix = this._dsFileURL.substring(0, this._dsFileURL.lastIndexOf("/") + 1);
-    let fileURL = dsURLPrefix + this._WX_SYNC_FILENAME;
-    this._log("aeClippingsService.flushDataSrc(): Saving copy of datasource to Clippings 6 sync file.");
+  // Save copy of datasource to Clippings 6 JSON file.
+  let dsURLPrefix = this._dsFileURL.substring(0, this._dsFileURL.lastIndexOf("/") + 1);
+  let jsonCpyFileURL = dsURLPrefix + this._WX_COPY_FILENAME;
+  
+  this._log("aeClippingsService.flushDataSrc(): Saving a copy of the datasource to a Clippings 6 file.");
+  this.exportToFile(jsonCpyFileURL, this.FILETYPE_WX_JSON, false);
+
+  if (aUpdateSyncFile) {
+    let syncFileURL = dsURLPrefix + this._WX_SYNC_FILENAME;
+    this._log("aeClippingsService.flushDataSrc(): Saving all items in the \"Sync Clippings\" folder to sync file.");
     
-    this.exportSubfolderToFile(fileURL, this.FILETYPE_WX_JSON, false, this._SYNCED_CLIPPINGS_FOLDER_URI);
+    this.exportSubfolderToFile(syncFileURL, this.FILETYPE_WX_JSON, false, this._SYNCED_CLIPPINGS_FOLDER_URI);
   }
 };
 
