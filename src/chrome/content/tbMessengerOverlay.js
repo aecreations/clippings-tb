@@ -331,6 +331,13 @@ window.aecreations.clippings = {
       this.aeUtils.setPref("clippings.datasource.process_root", false);
     }
 
+    let syncClippings = this.aeUtils.getPref("clippings.datasource.wx_sync", false);
+    if (syncClippings) {
+      this.aeUtils.log("gClippings.initClippings(): Sync Clippings is turned on. Refreshing the Synced Clippings folder.");
+
+      this.clippingsSvc.refreshSyncedClippings();
+    }
+
     this.showDialog = !(this.aeUtils.getPref("clippings.entries.add_silently", false));
 
     // Place the status bar icon so that it appears as the last item, before

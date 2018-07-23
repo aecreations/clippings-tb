@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 
 
 function aeClippingsService() {}
@@ -1071,6 +1072,8 @@ aeClippingsService.prototype.removeAll = function ()
 // not exposed in interface.
 aeClippingsService.prototype.remove = function (aURI, aDontUpdateCount, aPurgeFlag)
 {
+  this._log("aeClippingsService.remove(): URI of item to be removed: " + aURI);
+  
   var subjectNode = this._rdfSvc.GetResource(aURI);
   var name = this.getName(aURI) || "(no name)";
   var isFolderBeingDeleted = false;
@@ -1698,6 +1701,87 @@ aeClippingsService.prototype.refreshDataSrc = function ()
 };
 
 
+aeClippingsService.prototype.refreshSyncedClippings = function ()
+{
+  let that = this;
+  
+  function removeSyncFolder()
+  {
+    let syncFldrCtr = that._getSeqContainerFromFolder(that._SYNCED_CLIPPINGS_FOLDER_URI);
+    let childrenEnum = syncFldrCtr.GetElements();
+    while (childrenEnum.hasMoreElements()) {
+      let child = childrenEnum.getNext();
+      child = child.QueryInterface(Components.interfaces.nsIRDFResource);
+      let childURI = child.Value;
+      that.remove(childURI, true, true);
+    }
+
+    that.remove(that._SYNCED_CLIPPINGS_FOLDER_URI);
+  }
+  
+  function getSyncedClippingsData()
+  {
+    let rv = "";
+    let dsURLPrefix = that._dsFileURL.substring(0, that._dsFileURL.lastIndexOf("/") + 1);
+    let syncFileURL = dsURLPrefix + that._WX_SYNC_FILENAME;
+    let syncFile = that._getFileFromURL(syncFileURL);
+
+    if (!syncFile.exists() || !syncFile.isFile()) {
+      throw Components.Exception("File not found: " + that._WX_SYNC_FILENAME);
+    }
+
+    return new Promise(function (aFnResolve, aFnReject) {
+      // Get the synced clippings data from the sync file.
+      NetUtil.asyncFetch(syncFile, function(aInputStream, aStatus) {
+        if (! Components.isSuccessCode(aStatus)) {
+          aFnReject(Components.Exception("Error reading " + that._WX_SYNC_FILENAME));
+        }
+
+        rv = NetUtil.readInputStreamToString(aInputStream, aInputStream.available(), { charset: "UTF-8" });
+
+        aFnResolve(rv);
+      });
+    });
+  }
+  // END nested functions
+  
+  if (! this._dataSrc) {
+    throw Components.Exception("Data source not initialized",
+			       Components.results.NS_ERROR_NOT_INITIALIZED);
+  }
+
+  if (this.exists(this._SYNCED_CLIPPINGS_FOLDER_URI)) {
+    this._log("aeClippingsService.refreshSyncedClippings(): The Synced Clippings folder exists. Removing and recreating it...");
+    removeSyncFolder();
+  }
+
+  this._log("aeClippingsService.refreshSyncedClippings(): Creating the 'Synced Clippings' folder...");
+  this.createNewFolderEx(this.kRootFolderURI, this._SYNCED_CLIPPINGS_FOLDER_URI, this._syncedClippingsFldrName, 1, false, this.ORIGIN_HOSTAPP);
+
+  getSyncedClippingsData().then(function (aJSONSyncRawData) {
+    that._log("aeClippingsService.refreshSyncedClippings(): Parsing JSON data from sync file...");
+      
+    let jsonSyncData = [];
+    try {
+      jsonSyncData = JSON.parse(aJSONSyncRawData);
+    }
+    catch (e) {
+      throw Components.Exception("Failed to import JSON data: " + e);
+    }
+
+    if (jsonSyncData.userClippingsRoot === undefined) {
+      throw Components.Exception("Malformed JSON data");
+    }
+
+    that._log("aeClippingsService.refreshSyncedClippings(): Importing clippings data from sync file...");
+
+    let shortcutKeyLookup = that.getShortcutKeyDict();
+    let syncCount = that._importFromJSONHelper(that.kSyncFolderURI, jsonSyncData.userClippingsRoot, false, shortcutKeyLookup);
+
+    that._log("aeClippingsService.refreshSyncedClippings(): Refresh of Sync Clippings data completed: " + syncCount + " items synchronized.");
+  });
+};
+
 
 aeClippingsService.prototype._doBackup = function ()
 {
@@ -2044,7 +2128,7 @@ aeClippingsService.prototype.setSyncedClippings = function (aIsEnabled)
       return;
     }
 
-    this.createNewFolderEx(this.kRootFolderURI, this._SYNCED_CLIPPINGS_FOLDER_URI, this._syncedClippingsFldrName, 1, false, this.ORIGIN_HOSTAPP);
+    this.createNewFolderEx(this.kRootFolderURI, this._SYNCED_CLIPPINGS_FOLDER_URI, this._syncedClippingsFldrName, 1, true, null);
   }
   else {
     // Delete the "Synced Clippings" folder only if it is empty.

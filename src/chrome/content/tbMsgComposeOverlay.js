@@ -641,6 +641,13 @@ window.aecreations.clippings = {
       this.aeUtils.setPref("clippings.datasource.process_root", false);
     }
 
+    let syncClippings = this.aeUtils.getPref("clippings.datasource.wx_sync", false);
+    if (syncClippings) {
+      this.aeUtils.log("gClippings.initClippings(): Sync Clippings is turned on. Refreshing the Synced Clippings folder.");
+
+      this.clippingsSvc.refreshSyncedClippings();
+    }
+
     // Attaching event handler to context menu 
     var hostAppContextMenu = document.getElementById("msgComposeContext");
     hostAppContextMenu.addEventListener("popupshowing", 

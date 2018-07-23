@@ -225,6 +225,8 @@ interface aeIClippingsService : nsISupports
 
   void refreshDataSrc();
 
+  void refreshSyncedClippings();
+
   void exportToFile(in uri aFileURL, 
 		    in short aFileType, 
 		    in boolean aIncludeSrcURLs);
