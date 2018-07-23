@@ -6,8 +6,7 @@ const EXPORTED_SYMBOLS = ["aeConstants"];
 
 
 var aeConstants = {
-  // Extension GUID
-  EXTENSION_ID: "{91aa5abe-9de4-4347-b7b5-322c38dd9271}",
+  EXTENSION_ID: "clippings-tb@aecreations.github.io",
 
   // Host app GUIDs
   HOSTAPP_FX_GUID: "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}",
