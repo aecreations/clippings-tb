@@ -96,7 +96,7 @@ aeClippings3._importPackagedClippings = function ()
 aeClippings3._importPackagedClippingsHelper = function ()
 {
   try {
-    aePackagedClippings.import(this._clippingsSvc);
+    aePackagedClippings.importData(this._clippingsSvc);
   }
   catch (e) {
     if (e == aePackagedClippings.E_FLUSH_FAILED) {

@@ -69,7 +69,7 @@ aePackagedClippings._getPackagedDataSrcFile = function ()
 /*
  * Import the packaged clippings data into the Clippings data source
  */
-aePackagedClippings.import = function (aClippingsSvc)
+aePackagedClippings.importData = function (aClippingsSvc)
 {
   if (! aClippingsSvc) {
     throw this.E_CLIPPINGSSVC_NOT_INITIALIZED;
@@ -87,7 +87,7 @@ aePackagedClippings.import = function (aClippingsSvc)
     numImported = aClippingsSvc.importFromFile(pkgDataSrcURL, true, importShortcutKeys, {});
   }
   catch (e) {
-    aeUtils.log(aeString.format("aePackagedClippings.import(): Exception thrown by aeIClippingsService.importFromFile():\n\n%s", e));
+    aeUtils.log(aeString.format("aePackagedClippings.importData(): Exception thrown by aeIClippingsService.importFromFile():\n\n%s", e));
     throw this.E_IMPORT_FAILED;
   }
 
@@ -98,7 +98,7 @@ aePackagedClippings.import = function (aClippingsSvc)
       aClippingsSvc.flushDataSrc(true, false);
     }
     catch (e) {
-      aeUtils.log(aeString.format("aePackagedClippings.import(): Exception thrown by aeIClippingsService.flushDataSrc():\n\n%s", e));
+      aeUtils.log(aeString.format("aePackagedClippings.importData(): Exception thrown by aeIClippingsService.flushDataSrc():\n\n%s", e));
       throw this.E_FLUSH_FAILED;
     }
   }
