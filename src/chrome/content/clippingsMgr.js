@@ -1125,7 +1125,7 @@ function unload()
 
   let retrySave;
   let doBackup = true;
-  let saveJSON = this.aeUtils.getPref("clippings.datasource.wx_sync", false);
+  let saveJSON = this.aeUtils.getPref("clippings.datasource.wx_sync.enabled", false);
 
   do {
     retrySave = false;
@@ -1881,7 +1881,7 @@ function saveClippings(aSuppressStatusMsgs, aForceSave, aDoBackup)
   }
 
   let msg = gStrBundle.getString("saveCompleted");
-  let saveJSON = this.aeUtils.getPref("clippings.datasource.wx_sync", false);
+  let saveJSON = this.aeUtils.getPref("clippings.datasource.wx_sync.enabled", false);
   try {
     gSaveInProgress = true;
     gClippingsSvc.flushDataSrc(aDoBackup, saveJSON);
@@ -2034,7 +2034,7 @@ function deleteClippingOrFolder(aDelKeyPressed)
     return;
   }
 
-  let isSyncClippings = aeUtils.getPref("clippings.datasource.wx_sync", false);
+  let isSyncClippings = aeUtils.getPref("clippings.datasource.wx_sync.enabled", false);
   if (uri == gClippingsSvc.kSyncFolderURI && isSyncClippings) {
     doAlert(gStrBundle.getString("deleteSyncFldr"));
     return;

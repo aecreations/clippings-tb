@@ -489,7 +489,7 @@ window.aecreations.clippings = {
   saveClippings: function () 
   {
     let title = this.strBundle.getString("appName");
-    let saveJSON = this.aeUtils.getPref("clippings.datasource.wx_sync", false);
+    let saveJSON = this.aeUtils.getPref("clippings.datasource.wx_sync.enabled", false);
     try {
       this.clippingsSvc.flushDataSrc(true, saveJSON);
     }
@@ -641,7 +641,7 @@ window.aecreations.clippings = {
       this.aeUtils.setPref("clippings.datasource.process_root", false);
     }
 
-    let syncClippings = this.aeUtils.getPref("clippings.datasource.wx_sync", false);
+    let syncClippings = this.aeUtils.getPref("clippings.datasource.wx_sync.enabled", false);
     if (syncClippings) {
       this.aeUtils.log("gClippings.initClippings(): Sync Clippings is turned on. Refreshing the Synced Clippings folder.");
 

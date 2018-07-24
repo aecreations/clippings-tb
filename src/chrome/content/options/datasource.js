@@ -192,7 +192,7 @@ function applyDataSourcePrefChanges()
 
   if (gDataSrcLocationOpt.selectedIndex == 0) {
     newDataSrcPath = aeUtils.getUserProfileDir().path;
-    aeUtils.setPref("clippings.datasource.wx_sync", false);
+    aeUtils.setPref("clippings.datasource.wx_sync.enabled", false);
   }
   else {
     newDataSrcPath = gCustomDataSrcPath.value;
@@ -215,7 +215,7 @@ function applyDataSourcePrefChanges()
   aeUtils.setPref("clippings.datasource.location", newDataSrcPath);
 
   if (gDataSrcLocationOpt.selectedIndex == 1) {
-    let isWxSyncEnabled = aeUtils.getPref("clippings.datasource.wx_sync", false);
+    let isWxSyncEnabled = aeUtils.getPref("clippings.datasource.wx_sync.enabled", false);
     gClippingsSvc.enableSyncClippings(isWxSyncEnabled);
   }
   
