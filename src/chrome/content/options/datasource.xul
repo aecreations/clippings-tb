@@ -14,7 +14,7 @@
       <preference id="max-backup-files-pref" type="int"
        name="extensions.aecreations.clippings.backup.maxfiles"/>
       <preference id="save-copy-clippings-6-pref" type="bool"
-       name="extensions.aecreations.clippings.datasource.wx_sync"/>
+       name="extensions.aecreations.clippings.datasource.wx_sync.enabled"/>
     </preferences>
 
     <groupbox style="width:33em">
