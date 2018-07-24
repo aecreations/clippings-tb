@@ -216,7 +216,7 @@ function applyDataSourcePrefChanges()
 
   if (gDataSrcLocationOpt.selectedIndex == 1) {
     let isWxSyncEnabled = aeUtils.getPref("clippings.datasource.wx_sync", false);
-    gClippingsSvc.setSyncedClippings(isWxSyncEnabled);
+    gClippingsSvc.enableSyncClippings(isWxSyncEnabled);
   }
   
   return true;

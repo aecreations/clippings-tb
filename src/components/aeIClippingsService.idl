@@ -273,7 +273,7 @@ interface aeIClippingsService : nsISupports
    */
   aestring getSubfolderItemsAsJSONString(in aestring aFolderURI);
 
-  void setSyncedClippings(in boolean aIsEnabled);
+  void enableSyncClippings(in boolean aIsEnabled);
 
   void setSyncedClippingsFolderName(in aestring aFolderName);
   

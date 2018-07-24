@@ -2119,7 +2119,7 @@ aeClippingsService.prototype.getSubfolderItemsAsJSONString = function (aFolderUR
 };
 
 
-aeClippingsService.prototype.setSyncedClippings = function (aIsEnabled)
+aeClippingsService.prototype.enableSyncClippings = function (aIsEnabled)
 {
   this._syncedClippings = aIsEnabled;
 
