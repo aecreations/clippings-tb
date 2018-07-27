@@ -219,8 +219,8 @@ window.aecreations.clippings = {
       this.alert(e);
     }
 
-    // String used for empty (null) clippings
     this.clippingsSvc.setEmptyClippingString(this.strBundle.getString('emptyClippingLabel'));
+    this.clippingsSvc.setSyncedClippingsFolderName(this.strBundle.getString("syncFldrLabel"));
 
     // Migrate prefs from root to the "extensions." branch
     let prefsMigrated = this.aeUtils.getPref("clippings.migrated_prefs", false);
