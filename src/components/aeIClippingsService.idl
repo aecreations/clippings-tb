@@ -276,6 +276,8 @@ interface aeIClippingsService : nsISupports
   void enableSyncClippings(in boolean aIsEnabled);
 
   void setSyncedClippingsFolderName(in aestring aFolderName);
+
+  void setSyncDir(in uri aSyncDirURL);
   
   /*
    * Method processEmptyFolders():

@@ -70,6 +70,7 @@ aeClippingsService.prototype = {
   _rdfContainer:        null,
   _dsFileURL:        "",
   _backupDirURL:     "",
+  _syncDirURL:       "",
   _maxBackupFiles:   10,
   _emptyClippingStr: "(Empty)",
   _listeners:        [],
@@ -1673,8 +1674,8 @@ aeClippingsService.prototype.flushDataSrc = function (aDoBackup, aUpdateSyncFile
   this.exportToFile(jsonCpyFileURL, this.FILETYPE_WX_JSON, false);
 
   if (aUpdateSyncFile) {
-    let syncFileURL = dsURLPrefix + this._WX_SYNC_FILENAME;
-    this._log("aeClippingsService.flushDataSrc(): Saving all items in the \"Sync Clippings\" folder to sync file.");
+    let syncFileURL = this._syncDirURL + this._WX_SYNC_FILENAME;
+    this._log("aeClippingsService.flushDataSrc(): Saving all items in the \"Sync Clippings\" folder to sync file: " + syncFileURL);
     
     this.exportSubfolderToFile(syncFileURL, this.FILETYPE_WX_JSON, false, this._SYNCED_CLIPPINGS_FOLDER_URI);
   }
@@ -1722,8 +1723,11 @@ aeClippingsService.prototype.refreshSyncedClippings = function ()
   function getSyncedClippingsData()
   {
     let rv = "";
-    let dsURLPrefix = that._dsFileURL.substring(0, that._dsFileURL.lastIndexOf("/") + 1);
-    let syncFileURL = dsURLPrefix + that._WX_SYNC_FILENAME;
+
+    let syncFileURL = that._syncDirURL + that._WX_SYNC_FILENAME;
+
+    that._log("aeClippingsService.refreshSyncedClippings():getSyncedClippingsData(): Sync file URL: " + syncFileURL);
+
     let syncFile = that._getFileFromURL(syncFileURL);
 
     if (!syncFile.exists() || !syncFile.isFile()) {
@@ -2136,6 +2140,12 @@ aeClippingsService.prototype.enableSyncClippings = function (aIsEnabled)
       this.remove(this._SYNCED_CLIPPINGS_FOLDER_URI);
     }
   }
+};
+
+
+aeClippingsService.prototype.setSyncDir = function (aSyncDirURL)
+{
+  this._syncDirURL = aSyncDirURL;
 };
 
 

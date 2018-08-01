@@ -9,9 +9,9 @@ ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
 
 
 var gStrBundle;
+var gClippingsSvc;
 var gDataSrcLocationOpt, gCustomDataSrcPath, gCustomDataSrcBrws;
 var gPrevSelectedDataSrcOpt, gPrevDataSrcPath, gSaveCopyClippings6;
-var gClippingsSvc;
 
 
 //
@@ -216,6 +216,25 @@ function applyDataSourcePrefChanges()
 
   if (gDataSrcLocationOpt.selectedIndex == 1) {
     let isWxSyncEnabled = aeUtils.getPref("clippings.datasource.wx_sync.enabled", false);
+
+    if (isWxSyncEnabled) {
+      let syncDirPath = aeUtils.getPref("clippings.datasource.wx_sync.location", "");
+
+      // The default sync file location is the same as the custom data source
+      // location.
+      if (! syncDirPath) {
+	aeUtils.setPref("clippings.datasource.wx_sync.location", newDataSrcPath);
+      }
+
+      // If the custom data source path was changed, set the sync file location
+      // to be the new data source path.
+      if (newDataSrcPath != gPrevDataSrcPath) {
+	aeUtils.setPref("clippings.datasource.wx_sync.location", newDataSrcPath);
+      }
+
+      let syncDirURL = aeUtils.getURLFromFilePath(syncDirPath);
+      gClippingsSvc.setSyncDir(syncDirURL);
+    }
     gClippingsSvc.enableSyncClippings(isWxSyncEnabled);
   }
   

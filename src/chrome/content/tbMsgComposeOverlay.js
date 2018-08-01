@@ -644,7 +644,15 @@ window.aecreations.clippings = {
     let syncClippings = this.aeUtils.getPref("clippings.datasource.wx_sync.enabled", false);
     if (syncClippings) {
       this.aeUtils.log("gClippings.initClippings(): Sync Clippings is turned on. Refreshing the Synced Clippings folder.");
+      let syncDirPath = this.aeUtils.getPref("clippings.datasource.wx_sync.location", "");
+      if (! syncDirPath) {
+	syncDirPath = this.aeUtils.getPref("clippings.datasource.location", "");
+	this.aeUtils.setPref("clippings.datasource.wx_sync.location", syncDirPath);
+      }
+      this.aeUtils.log("gClippings.initClippings: Sync folder location: " + syncDirPath);
 
+      let syncDirURL = this.aeUtils.getURLFromFilePath(syncDirPath);
+      this.clippingsSvc.setSyncDir(syncDirURL);
       this.clippingsSvc.refreshSyncedClippings();
     }
 

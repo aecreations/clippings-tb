@@ -7,6 +7,7 @@ pref("extensions.aecreations.clippings.export.html.title", "Clippings");
 pref("extensions.aecreations.clippings.datasource.location", "");
 pref("extensions.aecreations.clippings.datasource.process_root", true);
 pref("extensions.aecreations.clippings.datasource.wx_sync.enabled", false);
+pref("extensions.aecreations.clippings.datasource.wx_sync.location", "");
 pref("extensions.aecreations.clippings.clipmgr.quickedit.update_interval", 1000);
 pref("extensions.aecreations.clippings.clipmgr.first_run", true);
 pref("extensions.aecreations.clippings.clipmgr.max_commit_attempts", 5);
