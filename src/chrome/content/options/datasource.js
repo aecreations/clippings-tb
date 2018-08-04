@@ -235,6 +235,10 @@ function applyDataSourcePrefChanges()
   var numBackupFiles = aeUtils.getPref("clippings.backup.maxfiles", 10);
   gClippingsSvc.setMaxBackupFiles(numBackupFiles);
 
+  // Save clippings one last time before changing datasource and/or
+  // sync folder locations.
+  gClippingsSvc.flushDataSrc(true, true);
+  
   var newDataSrcPath;
 
   if (gDataSrcLocationOpt.selectedIndex == 0) {
@@ -266,7 +270,7 @@ function applyDataSourcePrefChanges()
     let syncDirPath = gSyncFilePath.value;
     let syncDirURL = aeUtils.getURLFromFilePath(syncDirPath);
     gClippingsSvc.setSyncDir(syncDirURL);
-    gClippingsSvc.refreshSyncedClippings();
+    gClippingsSvc.refreshSyncedClippings(true);
     aeUtils.setPref("clippings.datasource.wx_sync.location", syncDirPath);
   }
   gClippingsSvc.enableSyncClippings(isWxSyncEnabled);

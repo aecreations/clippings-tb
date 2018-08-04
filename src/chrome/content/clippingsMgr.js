@@ -950,6 +950,10 @@ function init()
       gClippingsTree.rebuild();
     },
 
+    syncLocationChanged: function (aSyncURL) {
+      gClippingsTree.rebuild();
+    },
+
     importDone: function (aNumItems) {}
   };
   gClippingsSvc.addListener(gClippingsListener);

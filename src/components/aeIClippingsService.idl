@@ -23,6 +23,7 @@ interface aeIClippingsListener : nsISupports
   void newClippingCreated(in uri aClippingURI);
   void importDone(in size_t aNumItems);
   void dataSrcLocationChanged(in uri aDataSrcURL);
+  void syncLocationChanged(in uri aSyncURL);
 };
 
 
@@ -225,7 +226,7 @@ interface aeIClippingsService : nsISupports
 
   void refreshDataSrc();
 
-  void refreshSyncedClippings();
+  void refreshSyncedClippings(in boolean aNotify);
 
   void exportToFile(in uri aFileURL, 
 		    in short aFileType, 
@@ -330,6 +331,11 @@ interface aeIClippingsService : nsISupports
    * Notifies all listeners that the datasource location has changed.
    */
   void notifyDataSrcLocationChanged();
+
+  /*
+   * Notifies all listeners that the sync file location has changed.
+   */
+  void notifySyncLocationChanged();
 
   void addListener(in aeIClippingsListener aListener);
 
