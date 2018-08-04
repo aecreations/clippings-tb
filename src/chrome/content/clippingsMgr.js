@@ -1599,6 +1599,27 @@ function pasteClippingAsNew()
 
 function moveOrCopy()
 {
+  if (gClippingsTree.getRowCount() == 0) {
+    aeUtils.beep();
+    return;
+  }
+
+  let uri = gClippingsTree.selectedURI;
+  if (! uri) {
+    return;
+  }
+
+  if (gClippingsSvc.isEmptyClipping(uri)) {
+    aeUtils.beep();
+    return;
+  }
+
+  let isSyncClippings = aeUtils.getPref("clippings.datasource.wx_sync.enabled", false);
+  if (uri == gClippingsSvc.kSyncFolderURI && isSyncClippings) {
+    doAlert(gStrBundle.getString("moveSyncFldr"));
+    return;
+  }
+  
   let dlgArgs = {
     userCancel: null,
     destFolderURI: gClippingsSvc.kRootFolderURI,
