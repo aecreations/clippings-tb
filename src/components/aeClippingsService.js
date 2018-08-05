@@ -1730,11 +1730,15 @@ aeClippingsService.prototype.refreshSyncedClippings = function (aNotify)
 
     let syncFile = that._getFileFromURL(syncFileURL);
 
-    if (!syncFile.exists() || !syncFile.isFile()) {
-      throw Components.Exception("File not found: " + that._WX_SYNC_FILENAME);
-    }
-
     return new Promise(function (aFnResolve, aFnReject) {
+      if (!syncFile.exists() || !syncFile.isFile()) {
+        that._log("aeClippingsService.refreshSyncedClippings():getSyncedClippingsData(): Sync file does not exist. Generating blank synced clippings data.");
+        let jsonData = that._getWxJSONTemplate();
+        rv = JSON.stringify(jsonData);
+        aFnResolve(rv);
+        return;
+      }
+
       // Get the synced clippings data from the sync file.
       NetUtil.asyncFetch(syncFile, function(aInputStream, aStatus) {
         if (! Components.isSuccessCode(aStatus)) {
@@ -2223,11 +2227,7 @@ aeClippingsService.prototype.exportSubfolderToFile = function (aFileURL, aFileTy
   }
   else {
     csvData = [];
-    jsonData = {
-      version: this._JSON_EXPORT_VER,
-      createdBy: this._JSON_EXPORT_CREATED_BY,
-      userClippingsRoot: []
-    };
+    jsonData = this._getWxJSONTemplate();
   }
 
   this._log("Initialized export file - URL: '" + aFileURL + "'");
@@ -2361,6 +2361,18 @@ aeClippingsService.prototype._exportAsClippingsWxJSON = function (aFolderCtr, aJ
   }
   rv = count;
   
+  return rv;
+};
+
+
+aeClippingsService.prototype._getWxJSONTemplate = function ()
+{
+  let rv = {
+    version: this._JSON_EXPORT_VER,
+    createdBy: this._JSON_EXPORT_CREATED_BY,
+    userClippingsRoot: []
+  };
+
   return rv;
 };
 

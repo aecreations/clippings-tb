@@ -12,6 +12,7 @@ var gStrBundle;
 var gClippingsSvc;
 var gDataSrcLocationOpt, gCustomDataSrcPath, gCustomDataSrcBrws, gSyncFilePath;
 var gPrevSelectedDataSrcOpt, gPrevDataSrcPath, gSyncClippings;
+var gWasSyncActive;
 
 
 //
@@ -118,6 +119,7 @@ function initPrefPaneDataSource()
   gSyncFilePath.disabled = !isSyncActive;
   $("sync-file-path-label").disabled = !isSyncActive;
   $("sync-file-path-brws").disabled = !isSyncActive;
+  gWasSyncActive = isSyncActive;
   
   // On Thunderbird, hide the button to strip out source URLs in all clippings.
   if (aeUtils.getHostAppID() == aeConstants.HOSTAPP_TB_GUID) {
@@ -237,7 +239,7 @@ function applyDataSourcePrefChanges()
 
   // Save clippings one last time before changing datasource and/or
   // sync folder locations.
-  gClippingsSvc.flushDataSrc(true, true);
+  gClippingsSvc.flushDataSrc(true, gWasSyncActive);
   
   var newDataSrcPath;
 
