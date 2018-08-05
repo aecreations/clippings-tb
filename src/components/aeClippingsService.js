@@ -1758,14 +1758,8 @@ aeClippingsService.prototype.refreshSyncedClippings = function (aNotify)
 			       Components.results.NS_ERROR_NOT_INITIALIZED);
   }
 
-  if (this.exists(this._SYNCED_CLIPPINGS_FOLDER_URI)) {
-    this._log("aeClippingsService.refreshSyncedClippings(): The Synced Clippings folder exists. Removing and recreating it...");
-    removeSyncFolder();
-  }
-
-  this._log("aeClippingsService.refreshSyncedClippings(): Creating the 'Synced Clippings' folder...");
-  this.createNewFolderEx(this.kRootFolderURI, this._SYNCED_CLIPPINGS_FOLDER_URI, this._syncedClippingsFldrName, 1, false, this.ORIGIN_HOSTAPP);
-
+  this._log("aeClippingsService.refreshSyncedClippings(): Reading sync file...");
+  
   getSyncedClippingsData().then(function (aJSONSyncRawData) {
     that._log("aeClippingsService.refreshSyncedClippings(): Parsing JSON data from sync file...");
       
@@ -1780,6 +1774,16 @@ aeClippingsService.prototype.refreshSyncedClippings = function (aNotify)
     if (jsonSyncData.userClippingsRoot === undefined) {
       throw Components.Exception("Malformed JSON data");
     }
+
+    // Create or recreate the Synced Clippings folder only after successfully
+    // reading and parsing the data from the sync file.
+    if (that.exists(that._SYNCED_CLIPPINGS_FOLDER_URI)) {
+      that._log("aeClippingsService.refreshSyncedClippings(): The Synced Clippings folder exists. Now removing and recreating it...");
+      removeSyncFolder();
+    }
+
+    that._log("aeClippingsService.refreshSyncedClippings(): Creating the 'Synced Clippings' folder...");
+    that.createNewFolderEx(that.kRootFolderURI, that._SYNCED_CLIPPINGS_FOLDER_URI, that._syncedClippingsFldrName, 1, false, that.ORIGIN_HOSTAPP);
 
     that._log("aeClippingsService.refreshSyncedClippings(): Importing clippings data from sync file...");
 
