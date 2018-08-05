@@ -653,7 +653,7 @@ window.aecreations.clippings = {
 
       let syncDirURL = this.aeUtils.getURLFromFilePath(syncDirPath);
       this.clippingsSvc.setSyncDir(syncDirURL);
-      this.clippingsSvc.refreshSyncedClippings();
+      this.clippingsSvc.refreshSyncedClippings(false);
     }
 
     // Attaching event handler to context menu 
@@ -675,6 +675,7 @@ window.aecreations.clippings = {
         that.initClippingsPopup(popup, menu);
       },
 
+      syncLocationChanged: function (aSyncURL) {},
       newFolderCreated:    function (aFolderURI) {},
       newClippingCreated:  function (aClippingURI) {},
       importDone:          function (aNumItems) {}

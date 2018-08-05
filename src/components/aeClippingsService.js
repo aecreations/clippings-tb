@@ -1702,7 +1702,7 @@ aeClippingsService.prototype.refreshDataSrc = function ()
 };
 
 
-aeClippingsService.prototype.refreshSyncedClippings = function ()
+aeClippingsService.prototype.refreshSyncedClippings = function (aNotify)
 {
   let that = this;
   
@@ -1783,6 +1783,10 @@ aeClippingsService.prototype.refreshSyncedClippings = function ()
     let syncCount = that._importFromJSONHelper(that.kSyncFolderURI, jsonSyncData.userClippingsRoot, false, shortcutKeyLookup);
 
     that._log("aeClippingsService.refreshSyncedClippings(): Refresh of Sync Clippings data completed: " + syncCount + " items synchronized.");
+
+    if (aNotify) {
+      that.notifySyncLocationChanged();
+    }
   });
 };
 
@@ -2037,8 +2041,24 @@ aeClippingsService.prototype.notifyDataSrcLocationChanged = function ()
 
   for (let i = 0; i < this._listeners.length; i++) {
     if (this._listeners[i]) {
-      this._log("aeClippingsService.notifyDataSrcLocationChange(): Notifying observer " + i + "; origin: " + this._listeners[i].origin + " (1 = Clippings Manager; 2 = host app window; 3 = New Clipping dialog)");
+      this._log("aeClippingsService.notifyDataSrcLocationChanged(): Notifying observer " + i + "; origin: " + this._listeners[i].origin + " (1 = Clippings Manager; 2 = host app window; 3 = New Clipping dialog)");
       this._listeners[i].dataSrcLocationChanged(this._dsFileURL);
+    }
+  }
+};
+
+
+aeClippingsService.prototype.notifySyncLocationChanged = function ()
+{
+  if (!this._dataSrc || !this._dsFileURL) {
+    throw Components.Exception("Datasource not initialized",
+			       Components.results.NS_ERROR_NOT_INITIALIZED);
+  }
+
+  for (let i = 0; i < this._listeners.length; i++) {
+    if (this._listeners[i]) {
+      this._log("aeClippingsService.notifySyncLocationChanged(): Notifying observer " + i + "; origin: " + this._listeners[i].origin + " (1 = Clippings Manager; 2 = host app window; 3 = New Clipping dialog)");
+      this._listeners[i].syncLocationChanged(this._syncDirURL);
     }
   }
 };

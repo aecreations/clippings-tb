@@ -344,7 +344,7 @@ window.aecreations.clippings = {
 
       let syncDirURL = this.aeUtils.getURLFromFilePath(syncDirPath);
       this.clippingsSvc.setSyncDir(syncDirURL);
-      this.clippingsSvc.refreshSyncedClippings();
+      this.clippingsSvc.refreshSyncedClippings(false);
     }
 
     this.showDialog = !(this.aeUtils.getPref("clippings.entries.add_silently", false));

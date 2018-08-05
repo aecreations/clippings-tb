@@ -10,8 +10,8 @@ ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
 
 var gStrBundle;
 var gClippingsSvc;
-var gDataSrcLocationOpt, gCustomDataSrcPath, gCustomDataSrcBrws;
-var gPrevSelectedDataSrcOpt, gPrevDataSrcPath, gSaveCopyClippings6;
+var gDataSrcLocationOpt, gCustomDataSrcPath, gCustomDataSrcBrws, gSyncFilePath;
+var gPrevSelectedDataSrcOpt, gPrevDataSrcPath, gSyncClippings;
 
 
 //
@@ -69,7 +69,8 @@ function initPrefPaneDataSource()
   gDataSrcLocationOpt = $("datasrc-location-opt");
   gCustomDataSrcPath = $("custom-datasrc-path");
   gCustomDataSrcBrws = $("custom-datasrc-brws");
-  gSaveCopyClippings6 = $("save-copy-clippings-6");
+  gSyncClippings = $("sync-clippings");
+  gSyncFilePath = $("sync-file-path");
   
   // Set the proper host app name of the first radio button option.
   var hostAppProfDirRadioBtn = $("hostapp-profile-folder");
@@ -91,7 +92,6 @@ function initPrefPaneDataSource()
     gCustomDataSrcBrws.disabled = true;
     gCustomDataSrcPath.disabled = true;
     gCustomDataSrcPath.value = homePath;
-    gSaveCopyClippings6.disabled = true;
   }
   else {
     gDataSrcLocationOpt.selectedIndex = 1;
@@ -101,6 +101,24 @@ function initPrefPaneDataSource()
   gPrevSelectedDataSrcOpt = gDataSrcLocationOpt.selectedIndex;
   gPrevDataSrcPath = dataSrcPath;
 
+  let syncPath = aeUtils.getPref("clippings.datasource.wx_sync.location", "");
+  if (syncPath) {
+    gSyncFilePath.value = syncPath;
+  }
+  else {
+    if (gDataSrcLocationOpt.selectedIndex == 0) {
+      gSyncFilePath.value = aeUtils.getHomeDir().path;
+    }
+    else {
+      gSyncFilePath.value = dataSrcPath;
+    }
+  }
+
+  let isSyncActive = aeUtils.getPref("clippings.datasource.wx_sync.enabled", false);
+  gSyncFilePath.disabled = !isSyncActive;
+  $("sync-file-path-label").disabled = !isSyncActive;
+  $("sync-file-path-brws").disabled = !isSyncActive;
+  
   // On Thunderbird, hide the button to strip out source URLs in all clippings.
   if (aeUtils.getHostAppID() == aeConstants.HOSTAPP_TB_GUID) {
     $("src-urls-groupbox").hidden = true;
@@ -115,13 +133,11 @@ function changeDataSrcLocationOptions()
   if (gDataSrcLocationOpt.selectedIndex == 0) {
     gCustomDataSrcBrws.disabled = true;
     gCustomDataSrcPath.disabled = true;
-    gSaveCopyClippings6.disabled = true;
     newDataSrcPath = aeUtils.getUserProfileDir().path;
   }
   else if (gDataSrcLocationOpt.selectedIndex == 1) {
     gCustomDataSrcBrws.disabled = false;
     gCustomDataSrcPath.disabled = false;
-    gSaveCopyClippings6.disabled = false;
     newDataSrcPath = gCustomDataSrcPath.value;
   }
   
@@ -134,21 +150,53 @@ function changeDataSrcLocationOptions()
 
 function browseDataSrcPath()
 {
-  var filePicker = Components.classes["@mozilla.org/filepicker;1"]
+  let filePicker = Components.classes["@mozilla.org/filepicker;1"]
                              .createInstance(Components.interfaces
 					               .nsIFilePicker);
-  var dataSrcDir = Components.classes["@mozilla.org/file/local;1"]
+  let dataSrcDir = Components.classes["@mozilla.org/file/local;1"]
                              .createInstance(Components.interfaces.nsIFile);
   dataSrcDir.initWithPath(gCustomDataSrcPath.value);
   filePicker.displayDirectory = dataSrcDir;
 
   filePicker.init(window, "", filePicker.modeGetFolder);
 
-  var fpShownCallback = {
-    done: function (aResult) {
+  let fpShownCallback = {
+    done(aResult) {
       if (aResult == filePicker.returnOK) {
         gCustomDataSrcPath.value = filePicker.file.path;
         $("remove-all-src-urls").disabled = true;
+      }
+    }
+  };
+
+  filePicker.open(fpShownCallback);
+}
+
+
+function setSyncFilePath()
+{
+  let syncClippings = $("sync-clippings");
+  $("sync-file-path-label").disabled = !syncClippings.checked;
+  $("sync-file-path").disabled = !syncClippings.checked;
+  $("sync-file-path-brws").disabled = !syncClippings.checked;
+}
+
+
+function browseSyncFilePath()
+{
+  let filePicker = Components.classes["@mozilla.org/filepicker;1"]
+                             .createInstance(Components.interfaces
+					               .nsIFilePicker);
+  let syncDir = Components.classes["@mozilla.org/file/local;1"]
+                           .createInstance(Components.interfaces.nsIFile);
+
+  syncDir.initWithPath(gSyncFilePath.value);
+  filePicker.init(window, "", filePicker.modeGetFolder);
+  
+  let fpShownCallback = {
+    done(aResult) {
+      if (aResult == filePicker.returnOK) {
+	gSyncFilePath.value = filePicker.file.path;
       }
     }
   };
@@ -184,15 +232,17 @@ function removeAllSourceURLs()
 
 function applyDataSourcePrefChanges() 
 {
-
   var numBackupFiles = aeUtils.getPref("clippings.backup.maxfiles", 10);
   gClippingsSvc.setMaxBackupFiles(numBackupFiles);
 
+  // Save clippings one last time before changing datasource and/or
+  // sync folder locations.
+  gClippingsSvc.flushDataSrc(true, true);
+  
   var newDataSrcPath;
 
   if (gDataSrcLocationOpt.selectedIndex == 0) {
     newDataSrcPath = aeUtils.getUserProfileDir().path;
-    aeUtils.setPref("clippings.datasource.wx_sync.enabled", false);
   }
   else {
     newDataSrcPath = gCustomDataSrcPath.value;
@@ -214,29 +264,16 @@ function applyDataSourcePrefChanges()
   gClippingsSvc.notifyDataSrcLocationChanged();
   aeUtils.setPref("clippings.datasource.location", newDataSrcPath);
 
-  if (gDataSrcLocationOpt.selectedIndex == 1) {
-    let isWxSyncEnabled = aeUtils.getPref("clippings.datasource.wx_sync.enabled", false);
+  let isWxSyncEnabled = aeUtils.getPref("clippings.datasource.wx_sync.enabled", false);
 
-    if (isWxSyncEnabled) {
-      let syncDirPath = aeUtils.getPref("clippings.datasource.wx_sync.location", "");
-
-      // The default sync file location is the same as the custom data source
-      // location.
-      if (! syncDirPath) {
-	aeUtils.setPref("clippings.datasource.wx_sync.location", newDataSrcPath);
-      }
-
-      // If the custom data source path was changed, set the sync file location
-      // to be the new data source path.
-      if (newDataSrcPath != gPrevDataSrcPath) {
-	aeUtils.setPref("clippings.datasource.wx_sync.location", newDataSrcPath);
-      }
-
-      let syncDirURL = aeUtils.getURLFromFilePath(syncDirPath);
-      gClippingsSvc.setSyncDir(syncDirURL);
-    }
-    gClippingsSvc.enableSyncClippings(isWxSyncEnabled);
+  if (isWxSyncEnabled) {
+    let syncDirPath = gSyncFilePath.value;
+    let syncDirURL = aeUtils.getURLFromFilePath(syncDirPath);
+    gClippingsSvc.setSyncDir(syncDirURL);
+    gClippingsSvc.refreshSyncedClippings(true);
+    aeUtils.setPref("clippings.datasource.wx_sync.location", syncDirPath);
   }
+  gClippingsSvc.enableSyncClippings(isWxSyncEnabled);
   
   return true;
 }
