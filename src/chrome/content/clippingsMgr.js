@@ -1105,17 +1105,20 @@ function detectExternallyCreatedFolder(aNewFolderURI)
   gClippingsTree.selectedURI = aNewFolderURI;
   gClippingsTree.click();
 
-  var state = {
-    action: ACTION_CREATENEWFOLDER,
-    uri:    aNewFolderURI,
-    name:   gClippingsSvc.getName(aNewFolderURI),
-    pos:    gClippingsSvc.indexOf(aNewFolderURI),
-    parentFolderURI: gClippingsSvc.getParent(aNewFolderURI)
-  };
+  // Never add the "Synced Clippings" folder to the undo stack.
+  if (aNewFolderURI != gClippingsSvc.kSyncFolderURI) {
+    var state = {
+      action: ACTION_CREATENEWFOLDER,
+      uri:    aNewFolderURI,
+      name:   gClippingsSvc.getName(aNewFolderURI),
+      pos:    gClippingsSvc.indexOf(aNewFolderURI),
+      parentFolderURI: gClippingsSvc.getParent(aNewFolderURI)
+    };
 
-  gUndoStack.push(state);
-  aeUtils.log(aeString.format("New folder named %S added to undo stack (created outside Clippings Manager!)", state.name));
-
+    gUndoStack.push(state);
+    aeUtils.log(aeString.format("New folder named %S added to undo stack (created outside Clippings Manager!)", state.name));
+  }
+  
   updateItemCount();
 }
 
