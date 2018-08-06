@@ -2395,7 +2395,7 @@ function updateDisplay(aSuppressUpdateSelection)
   }
 
   if (gClippingsSvc.isFolder(uri)) {
-    clippingName.disabled = false;
+    clippingName.disabled = (uri == gClippingsSvc.kSyncFolderURI);
     clippingText.style.visibility = "hidden";
     shortcutKeyMiniHelp.style.visibility = "hidden";
       
