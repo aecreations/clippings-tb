@@ -59,6 +59,11 @@ menu.ae-clippings-folder-menu[open="true"] {
   list-style-image: url("chrome://clippings/skin/images/folder-open.svg");
 }
 
+menu.ae-clippings-sync-folder,
+menu.ae-clippings-sync-folder[open="true"] {
+  list-style-image: url("chrome://clippings/skin/images/synced-clippings.svg");
+}
+
 #ae-clippings-clipboard-alert {
   padding: 4px;
 }

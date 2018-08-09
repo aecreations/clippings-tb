@@ -73,6 +73,9 @@ treechildren::-moz-tree-image(container, closed) {
   list-style-image: url("chrome://clippings/skin/images/folder.svg");
 }
 
+treechildren::-moz-tree-image(container, sync) {
+  list-style-image: url("chrome://clippings/skin/images/synced-clippings.svg");
+}
 
 #no-clippings-message {
   text-align:  center;

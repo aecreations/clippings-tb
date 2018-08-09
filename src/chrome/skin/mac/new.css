@@ -80,6 +80,10 @@ treechildren::-moz-tree-image(container, root) {
   list-style-image: url("chrome://clippings/skin/images/clippings-root.svg");
 }
 
+treechildren::-moz-tree-image(container, sync) {
+  list-style-image: url("chrome://clippings/skin/images/synced-clippings.svg");
+}
+
 #new-folder, #clipping-label, #clipping-label-2 {
   min-width: 10px;
   min-height: 16px;

@@ -50,6 +50,10 @@ class ClippingsMenu
         //aeUtils.log("Creating <menu> for folder '" + item.name + "'");
 	let menuElt = this._doc.createElement("menu");
 	menuElt.classList.add("menu-iconic", "ae-clippings-folder-menu");
+	if (item.uri == this._clippingsSvc.kSyncFolderURI) {
+	  menuElt.classList.add("ae-clippings-sync-folder");
+	}
+	
 	menuElt.setAttribute("label", item.name);
 
 	let menuPopupElt = this._doc.createElement("menupopup");

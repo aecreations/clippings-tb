@@ -107,6 +107,10 @@ class ClippingsTree
 	let treerow = this._doc.createElement("treerow");
 	let treecell = this._doc.createElement("treecell");
 	treecell.setAttribute("label", item.name);
+	if (item.uri == this._clippingsSvc.kSyncFolderURI) {
+	  treecell.setAttribute("properties", "sync");
+	}
+
 	treerow.appendChild(treecell);
 	treeitem.appendChild(treerow);
 
