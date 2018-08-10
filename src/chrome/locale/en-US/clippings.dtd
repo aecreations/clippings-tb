@@ -50,7 +50,7 @@
 <!ENTITY otherLocation.accesskey "O">
 <!ENTITY fileBrowse.label "Browse...">
 <!ENTITY fileBrowse.accesskey "B">
-<!ENTITY syncClippings.label "Share clippings with Clippings 6 via the ''Synced Clippings'' folder">
+<!ENTITY syncClippings.label "Sync my clippings with Clippings 6 via the ''Synced Clippings'' folder">
 <!ENTITY syncClippings.accesskey "c">
 <!ENTITY syncClippings.caption "Sync Clippings">
 <!ENTITY syncClippingsHlp.label "Learn more about Sync Clippings.">
