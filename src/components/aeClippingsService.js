@@ -60,7 +60,7 @@ aeClippingsService.prototype = {
   _CLIPPINGS_HTML_NS: "http://clippings.mozdev.org/ns/html#",
 
   _JSON_EXPORT_VER: "6.0",
-  _JSON_EXPORT_CREATED_BY: "Clippings for Thunderbird",
+  _JSON_EXPORT_CREATED_BY: "Clippings for Thunderbird 5.6",
 
   // Private member variables
   _dataSrc: null,
@@ -2112,7 +2112,7 @@ aeClippingsService.prototype.exportToJSONString = function ()
   let rv = "";
   let jsonData = [];
 
-  this._exportAsClippingsWxJSON(this._rdfContainer, jsonData, true, true);
+  this._exportAsClippingsWxJSON(this._rdfContainer, jsonData, true, true, true);
   rv = JSON.stringify(jsonData);
 
   return rv;
@@ -2252,8 +2252,10 @@ aeClippingsService.prototype.exportSubfolderToFile = function (aFileURL, aFileTy
     else {
       rootFldrCtr = this._getSeqContainerFromFolder(aFolderURI);
     }
+
+    let inclSyncFldr = aFolderURI == this._SYNCED_CLIPPINGS_FOLDER_URI;
     
-    count = this._exportAsClippingsWxJSON(rootFldrCtr, jsonData.userClippingsRoot, aIncludeSrcURLs, false);
+    count = this._exportAsClippingsWxJSON(rootFldrCtr, jsonData.userClippingsRoot, aIncludeSrcURLs, false, inclSyncFldr);
     format = "Clippings/wx JSON";
   }
   else {
@@ -2300,7 +2302,7 @@ aeClippingsService.prototype._exportAsCSV = function (aFolderCtr, aCSVData)
     child = child.QueryInterface(Components.interfaces.nsIRDFResource);
     let childURI = child.Value;
 
-    if (this.isFolder(childURI)) {
+    if (this.isFolder(childURI) && childURI != this._SYNCED_CLIPPINGS_FOLDER_URI) {
       let subfolderCtr = this._getSeqContainerFromFolder(childURI);
       count += this._exportAsCSV(subfolderCtr, aCSVData);
     }
@@ -2318,7 +2320,7 @@ aeClippingsService.prototype._exportAsCSV = function (aFolderCtr, aCSVData)
 };
 
 
-aeClippingsService.prototype._exportAsClippingsWxJSON = function (aFolderCtr, aJSONFolderData, aIncludeSrcURLs, aIncludeIDs)
+aeClippingsService.prototype._exportAsClippingsWxJSON = function (aFolderCtr, aJSONFolderData, aIncludeSrcURLs, aIncludeIDs, aIncludeSyncFldr)
 {
   let rv;
   let count = 0;
@@ -2329,6 +2331,11 @@ aeClippingsService.prototype._exportAsClippingsWxJSON = function (aFolderCtr, aJ
     child = child.QueryInterface(Components.interfaces.nsIRDFResource);
     let childURI = child.Value;
     if (this.isFolder(childURI)) {
+      // Exclude the Synced Clippings folder unless synchronizing.
+      if (childURI == this._SYNCED_CLIPPINGS_FOLDER_URI && !aIncludeSyncFldr) {
+        continue;
+      }
+      
       let subfolderCtr = this._getSeqContainerFromFolder(childURI);
       let fldrItems = [];
       count += this._exportAsClippingsWxJSON(subfolderCtr, fldrItems, aIncludeSrcURLs, aIncludeIDs);
@@ -2499,7 +2506,7 @@ aeClippingsService.prototype._exportHTMLHelper = function (aLocalFolderCtr, aDoc
 
   let expData = [];
   try {
-    this._exportAsClippingsWxJSON(aLocalFolderCtr, expData, false, false);
+    this._exportAsClippingsWxJSON(aLocalFolderCtr, expData, false, false, true);
   }
   catch (e) {
     this._log("aeClippingsService._exportHTMLHelper(): " + e);
@@ -2764,6 +2771,10 @@ aeClippingsService.prototype._importFromFileEx = function (aExtFolderCtr, aExtDa
       
     }
     else if (this.isFolder(extChildURI, aExtDataSrc)) {
+      if (extChildURI == this._SYNCED_CLIPPINGS_FOLDER_URI) {
+        continue;
+      }
+      
       let extSubfolderCtr = this._getSeqContainerFromFolder(extChildURI, aExtDataSrc);
       let localSubfolderURI = this.createNewFolder(localFolderURI, name, true, aLocalDataSrc);
       let localSubfolderCtr = this._getSeqContainerFromFolder(localSubfolderURI, aLocalDataSrc);
