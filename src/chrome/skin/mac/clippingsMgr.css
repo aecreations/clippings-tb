@@ -239,6 +239,10 @@ toolbarbutton .toolbarbutton-icon {
   -moz-image-region: rect(16px, 336px, 32px, 320px);
 }
 
+#dnd-arrange:active {
+  -moz-image-region: rect(32px, 336px, 48px, 320px);
+}
+
 /* Workaround to bug 22005 caused by Console^2 extension */
 #clipping-name > .textbox-input-box > .textbox-search-icons {
   display: none;
