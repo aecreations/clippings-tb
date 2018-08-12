@@ -279,3 +279,12 @@ function applyDataSourcePrefChanges()
   
   return true;
 }
+
+
+function showSyncClippingsMinihelp()
+{
+  let hlpTitle = gStrBundle.getString("syncClpgs");
+  let hlpText = gStrBundle.getString("syncClpgsHlp");
+  
+  window.openDialog("chrome://clippings/content/miniHelp.xul", "ae_minihlp_wnd", "centerscreen,dialog,modal", hlpTitle, hlpText);  
+}
