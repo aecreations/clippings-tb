@@ -9,7 +9,7 @@
 
 <dialog id="ae-clippings-minihelp" 
  title="&clippings.appName;"
- orient="vertical" style="width:28em"
+ orient="vertical" style="width:32em"
  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
  buttons="accept"
  onload="initDlg()" ondialogaccept="return doOK()">
@@ -52,6 +52,6 @@
   <stringbundle id="ae-clippings-strings" 
    src="chrome://clippings/locale/clippings.properties"/>
 
-  <textbox id="minihelp-text" readonly="true" multiline="true" rows="8" />
+  <textbox id="minihelp-text" readonly="true" multiline="true" rows="10" />
 
 </dialog>
