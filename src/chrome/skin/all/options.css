@@ -45,3 +45,16 @@ groupbox label {
 #clipmgr-shortcut-key-legend {
   height: 12em;
 }
+
+.text-link {
+  color: -moz-hyperlinktext;
+}
+
+.text-link:hover {
+  text-decoration: underline;
+  cursor: pointer
+}
+
+.text-link:active {
+  color: -moz-activehyperlinktext;
+}

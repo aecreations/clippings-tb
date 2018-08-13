@@ -76,3 +76,16 @@ groupbox label {
   width: 36.8em;
   height: 10em;
 }
+
+.text-link {
+  color: -moz-hyperlinktext;
+}
+
+.text-link:hover {
+  text-decoration: underline;
+  cursor: pointer
+}
+
+.text-link:active {
+  color: -moz-activehyperlinktext;
+}
