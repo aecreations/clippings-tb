@@ -1300,9 +1300,6 @@ function applyUpdatedClippingsMgrPrefs()
 function setStatusBarVisibility()
 {
   var showStatusBar = aeUtils.getPref("clippings.clipmgr.status_bar", true);
-
-  aeUtils.log("clippingsMgr.js: setStatusBarVisibility(): Show status bar: " + showStatusBar);
-  
   $("status-bar").hidden = !showStatusBar;
 }
 
