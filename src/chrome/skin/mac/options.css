@@ -2,12 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@import url("chrome://messenger/skin/preferences/preferences.css");
+@import url("chrome://clippings/skin/options.css");
 
-
-prefwindow {
-  min-width: 36em;
-}
 
 /* Fix for Mac OS X issue where pref dialog heights are sometimes wrong. */
 prefpane > .content-box,
@@ -31,35 +27,6 @@ prefpane description {
   font: -moz-info;
 }
 
-separator {
-  height: 18px;
-}
-
-separator.thin {
-  height: 8px;
-}
-
-groupbox label {
-  margin-left: 6px;
-}
-
-.ae-caption {
-  margin-left: 0px;
-}
-
-.ae-separator {
-  height: 0px !important;
-  border-top: 1px solid threedshadow;
-  border-bottom: 1px solid threedhighlight;
-  margin-top: 2px;
-  margin-bottom: 0.5em;
-}
-
-.ae-group-box {
-  -moz-box-flex: 1;
-  margin-left: 1.5em;
-}
-
 .indent {
   margin-left: 2.5em;
 }
@@ -75,17 +42,4 @@ groupbox label {
 #clipmgr-shortcut-key-legend {
   width: 36.8em;
   height: 10em;
-}
-
-.text-link {
-  color: -moz-hyperlinktext;
-}
-
-.text-link:hover {
-  text-decoration: underline;
-  cursor: pointer
-}
-
-.text-link:active {
-  color: -moz-activehyperlinktext;
 }
