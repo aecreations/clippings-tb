@@ -310,7 +310,7 @@
         </menupopup>
       </menu>
       <menuseparator/>
-      <menuitem label="&deleteClipping.label;" accesskey="&deleteClipping.accesskey;" command="cmd_delete"/>
+      <menuitem id="delete-cxt" label="&deleteClipping.label;" accesskey="&deleteClipping.accesskey;" command="cmd_delete"/>
     </menupopup>
 
     <!-- Find Bar filter menu -->
