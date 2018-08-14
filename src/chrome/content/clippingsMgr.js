@@ -3047,11 +3047,12 @@ function initClippingsListPopup()
 
   var clippingsListCxt = $("clippings-list-context");
   var uri = gClippingsTree.selectedURI;
-  var isEmptyClipping = gClippingsSvc.isEmptyClipping(uri);
-
-  for (let i = 0; i < clippingsListCxt.childNodes.length; i++) {
-    clippingsListCxt.childNodes[i].setAttribute("disabled", isEmptyClipping);
-  }
+  
+  let isSyncFldr = uri == gClippingsSvc.kSyncFolderURI;
+  $("cmd_cut").setAttribute("disabled", isSyncFldr);
+  $("cmd_copy").setAttribute("disabled", isSyncFldr);
+  $("move-or-copy-cxt").setAttribute("disabled", isSyncFldr);
+  $("delete-cxt").setAttribute("disabled", isSyncFldr);
 
   var clippingLabelCxtMenu;
   if (gAltClippingLabelPicker) {
