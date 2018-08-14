@@ -7,7 +7,7 @@
     <em:name>Clippings</em:name>
     <em:id>clippings-tb@aecreations.github.io</em:id>
     <em:type>2</em:type>
-    <em:version>5.6rc1</em:version>
+    <em:version>5.6rc1+</em:version>
     <em:description>Save frequently-entered text for pasting later.</em:description>
     <em:creator>AE Creations</em:creator>
     <em:iconURL>chrome://clippings/skin/images/icon.png</em:iconURL>
