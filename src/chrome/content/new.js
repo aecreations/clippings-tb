@@ -236,6 +236,10 @@ function chooseFolder(aFolderURI)
     gFolderMenu.setAttribute("label", gStrBundle.getString("clippingsRoot"));
     gFolderMenu.style.listStyleImage = "url('chrome://clippings/skin/images/clippings-root.svg')";
   }
+  else if (fldrURI == gClippingsSvc.kSyncFolderURI) {
+    gFolderMenu.setAttribute("label", gStrBundle.getString("syncFldrLabel"));
+    gFolderMenu.style.listStyleImage = "url('chrome://clippings/skin/images/synced-clippings.svg')";
+  }
   else {
     gFolderMenu.setAttribute("label", gClippingsSvc.getName(fldrURI));
     gFolderMenu.style.listStyleImage = "url('chrome://clippings/skin/images/folder.svg')";
