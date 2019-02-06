@@ -395,3 +395,8 @@ aeStringBundle.prototype.getString = function (aKey)
 {
   return this._strBundle.GetStringFromName(aKey);
 };
+
+aeStringBundle.prototype.getFormattedString = function (aKey, aParams)
+{
+  return this._strBundle.formatStringFromName(aKey, aParams, aParams.length);
+};
