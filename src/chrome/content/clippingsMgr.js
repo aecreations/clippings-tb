@@ -845,7 +845,7 @@ function init()
     doAlert(e);
   }
 
-  gStrBundle = $("ae-clippings-strings");
+  gStrBundle = aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
 
   let treeElt = $("clippings-list");
   gClippingsTree = aeClippingsTree.createInstance(treeElt);

@@ -13,11 +13,6 @@
 
   <script type="application/javascript" src="chrome://clippings/content/tbMsgComposeOverlay.js"/>
 
-  <stringbundleset id="stringbundleset">
-    <stringbundle id="ae-clippings-strings" 
-     src="chrome://clippings/locale/clippings.properties"/>
-  </stringbundleset>
-
   <commandset id="composeCommands">
     <command id="ae_clippings_manager" 
      oncommand="window.aecreations.clippings.openClippingsManager()"/>

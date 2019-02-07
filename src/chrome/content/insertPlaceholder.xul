@@ -17,9 +17,6 @@
 
   <script type="application/javascript" src="chrome://clippings/content/insertPlaceholder.js"/>
 
-  <stringbundle id="ae-clippings-strings" 
-   src="chrome://clippings/locale/clippings.properties"/>
-
   <vbox style="width:28em">
     <label id="placeholder-name-label" accesskey="&placeholderName.accesskey;"
      control="placeholder-name"/>

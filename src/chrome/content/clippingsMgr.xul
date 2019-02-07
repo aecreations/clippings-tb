@@ -187,9 +187,6 @@
   ]]>
   </script>
 
-  <stringbundle id="ae-clippings-strings" 
-   src="chrome://clippings/locale/clippings.properties"/>
-
   <commandset>
     <command id="cmd_close" oncommand="window.close()" />
     <command id="cmd_undo" oncommand="undo()" />

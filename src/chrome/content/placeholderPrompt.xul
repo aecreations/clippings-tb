@@ -17,9 +17,6 @@
 
   <script type="application/javascript" src="chrome://clippings/content/placeholderPrompt.js"/>
 
-  <stringbundle id="ae-clippings-strings" 
-   src="chrome://clippings/locale/clippings.properties"/>
-
   <hbox>
     <separator class="thin"/>
     <vbox>

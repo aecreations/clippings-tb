@@ -32,7 +32,7 @@ function init()
     alert(e);
   }
 
-  gStrBundle = $("clippings-strings");
+  gStrBundle = aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
   gDlgArgs = window.arguments[0];
 
   $("replace-shortcut-keys").checked = gDlgArgs.replaceShortcutKeys;

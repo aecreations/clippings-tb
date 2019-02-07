@@ -88,7 +88,7 @@ window.aecreations.clippings = {
 
   alert: function (aMessage)
   {
-    var title = this.strBundle.getString('appName');
+    var title = this.strBundle.getString("appName");
     this.aeUtils.alertEx(title, aMessage);
   },
 
@@ -166,8 +166,7 @@ window.aecreations.clippings = {
       }
     }
     else {
-      var strBundle = document.getElementById("ae-clippings-strings");
-      this.alert(this.strBundle.getString('errorNoSelection'));
+      this.alert(this.strBundle.getString("errorNoSelection"));
     }
   },
 
@@ -525,13 +524,13 @@ window.aecreations.clippings = {
       }
       else if (e.result == Components.results.NS_ERROR_FILE_READ_ONLY) {
 	let msg = this.aeString.format("%s: %s",
-			        this.strBundle.getString('errorFileReadOnly'),
+			        this.strBundle.getString("errorFileReadOnly"),
 			        this.aeConstants.CLIPDAT_FILE_NAME);
 	this.aeUtils.alertEx(title, msg);
       }
       else if (e.result == Components.results.NS_ERROR_FILE_DISK_FULL) {
 	let msg = this.aeString.format("%s: %s",
-			        this.strBundle.getString('errorDiskFull'),
+			        this.strBundle.getString("errorDiskFull"),
 			        this.aeConstants.CLIPDAT_FILE_NAME);
 	this.aeUtils.alertEx(title, msg);
       }
@@ -553,7 +552,7 @@ window.aecreations.clippings = {
       return;
     }
 
-    this.strBundle = document.getElementById("ae-clippings-strings");
+    this.strBundle = this.aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
     this.aeClippingSubst.init(this.strBundle, navigator.userAgent);
 
     try {
@@ -563,7 +562,7 @@ window.aecreations.clippings = {
       this.alert(e);
     }
 
-    this.clippingsSvc.setEmptyClippingString(this.strBundle.getString('emptyClippingLabel'));
+    this.clippingsSvc.setEmptyClippingString(this.strBundle.getString("emptyClippingLabel"));
     this.clippingsSvc.setSyncedClippingsFolderName(this.strBundle.getString("syncFldrLabel"));
 
     // Migrate prefs from root to the "extensions." branch
@@ -777,7 +776,6 @@ window.aecreations.clippings = {
 
     this._menu.rebuild();
 
-    var strBundle = document.getElementById("ae-clippings-strings");
     var ellipsis = this.showDialog ? this.strBundle.getString("ellipsis") : "";
     var addEntryCmd = document.getElementById("ae_new_clipping_from_selection");
     var selection;
@@ -787,7 +785,7 @@ window.aecreations.clippings = {
     }
   
     addEntryCmd.setAttribute("disabled", selection == "");
-    addEntryCmd.setAttribute("label", strBundle.getString("newFromSelect")
+    addEntryCmd.setAttribute("label", this.strBundle.getString("newFromSelect")
 			     + ellipsis);
 
     this._initAutoIncrementPlaceholderMenu();

@@ -16,9 +16,6 @@
 
   <script type="application/javascript" src="chrome://clippings/content/searchClipping.js"/>
 
-  <stringbundle id="ae-clippings-strings" 
-   src="chrome://clippings/locale/clippings.properties"/>
-
   <panel id="search-results-popup" noautofocus="true" orient="vertical">
     <richlistbox id="search-results-listbox" flex="1" seltype="single"
      onkeypress="selectClippingByKeyboard(event)"

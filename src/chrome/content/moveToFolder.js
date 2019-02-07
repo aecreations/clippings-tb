@@ -32,7 +32,7 @@ function init()
     window.close();
   }
 
-  gStrBundle = $("ae-clippings-strings");
+  gStrBundle = aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
 
   gFolderTree = aeClippingsTree.createInstance($("folder-tree"));
   gFolderTree.foldersOnly = true;

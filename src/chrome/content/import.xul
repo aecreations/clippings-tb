@@ -18,9 +18,6 @@
 
   <script type="application/javascript" src="chrome://clippings/content/import.js"/>
 
-  <stringbundle id="clippings-strings" 
-   src="chrome://clippings/locale/clippings.properties"/>
-
   <separator class="thin"/>
   <vbox>
     <label value="&selectImpFile.label;" />

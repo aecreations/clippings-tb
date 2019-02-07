@@ -17,7 +17,7 @@ function $(aID)
 
 function init()
 {
-  gStrBundle = $("ae-clippings-strings");
+  gStrBundle = aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
 
   var placeholderDeck = $("placeholder-deck");
   placeholderDeck.selectedIndex = gDlgArgs.placeholderType;

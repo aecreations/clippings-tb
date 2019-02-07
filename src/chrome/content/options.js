@@ -27,7 +27,7 @@ function initDlg()
   // NOTE: The pref dialog's `onload' event is called *after* the `onpaneload'
   // events in each pref pane!
   if (! gIsDlgInitialized) {
-    gStrBundle = $("ae-clippings-strings");
+    gStrBundle = aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
 
     var titleKey;
     if (aeUtils.getOS() == "WINNT") {

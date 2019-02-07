@@ -17,9 +17,6 @@
 
   <script type="application/javascript" src="chrome://clippings/content/new.js"/>
 
-  <stringbundle id="ae-clippings-strings" 
-   src="chrome://clippings/locale/clippings.properties"/>
-
   <label value="&folderName.label;" accesskey="&folderName.accesskey;"
    control="folder-name"/>
   <textbox id="folder-name" size="32" onblur="validateFolderName(event)"/>

@@ -21,9 +21,6 @@
 
   <script type="application/javascript" src="chrome://clippings/content/export.js"/>
 
-  <stringbundle id="clippings-strings" 
-   src="chrome://clippings/locale/clippings.properties"/>
-
   <label value="&exportFormatList.label;" accesskey="&exportFormatList.accesskey;" control="export-format-list"/>
 
   <html:select id="export-format-list" size="4" onclick="exportFormatList_click(event)" style="margin-left:4px;margin-right:4px;font:caption">

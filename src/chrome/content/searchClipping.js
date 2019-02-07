@@ -29,7 +29,7 @@ function $(aID)
 function initDlg()
 {
   gDlgArgs = window.arguments[0];
-  gStrBundle = $("ae-clippings-strings");
+  gStrBundle = aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
 
   try {
     gClippingsSvc = aeClippingsService.getService();

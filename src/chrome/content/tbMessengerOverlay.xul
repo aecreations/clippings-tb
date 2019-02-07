@@ -13,11 +13,6 @@
 
   <script type="application/javascript" src="chrome://clippings/content/tbMessengerOverlay.js"/>
 
-  <stringbundleset id="stringbundleset">
-    <stringbundle id="ae-clippings-strings" 
-     src="chrome://clippings/locale/clippings.properties"/>
-  </stringbundleset>
-
   <commandset id="mailCommands">
     <command id="ae_clippings_manager" 
      oncommand="window.aecreations.clippings.openClippingsManager()"/>
