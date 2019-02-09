@@ -11,6 +11,7 @@
  title="&import.title;"
  orient="vertical"
  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+ xmlns:html="http://www.w3.org/1999/xhtml"
  buttons="accept, cancel"
  buttonlabelaccept="&importButton.label;"
  onload="init()" ondialogaccept="return importClippings()"
@@ -32,7 +33,6 @@
   </vbox>
   <separator class="thin"/>
 
-  <progressmeter id="import-progress" mode="determined" value="0"
-   style="visibility:hidden"/>
+  <html:progress id="import-progress" max="100" value="0" style="visibility:hidden"/>
 
 </dialog>
