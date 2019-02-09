@@ -111,8 +111,7 @@ aeClippingsService.prototype = {
   classDescription: "Clippings Datasource API",
   classID:          Components.ID("{8ebf6eef-c354-4211-89d0-603b45b76393}"),
   contractID:       "clippings@mozdev.org/clippings;1",
-  QueryInterface:   XPCOMUtils.generateQI([Components.interfaces.aeIClippingsService])
-
+  QueryInterface:   ChromeUtils.generateQI([Components.interfaces.aeIClippingsService])
 };
 
 
@@ -3111,5 +3110,4 @@ aeClippingsService.prototype._getURLFromFile = function (aFile)
 // Component registration
 //
 
-const NSGetFactory = XPCOMUtils.generateNSGetFactory([aeClippingsService]);
-
+const NSGetFactory = ChromeUtils.generateNSGetFactory([aeClippingsService]);

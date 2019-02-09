@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "name": "Clippings",
+  "name": "Clippings for Thunderbird",
   "description": "Save frequently-entered text for pasting later.",
   "version": "5.6+",
   "author": "AE Creations",

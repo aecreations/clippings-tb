@@ -61,10 +61,8 @@ aeDictionary.prototype= {
     classDescription: "Dictionary data structure class",
     classID:          DICTIONARY_CID,
     contractID:       DICTIONARY_CONTRACTID,
-    QueryInterface:   XPCOMUtils.generateQI([DICTIONARY_IID])
+    QueryInterface:   ChromeUtils.generateQI([DICTIONARY_IID])
 };
 
 
-const NSGetFactory = XPCOMUtils.generateNSGetFactory([aeDictionary]);
-
-
+const NSGetFactory = ChromeUtils.generateNSGetFactory([aeDictionary]);
