@@ -44,7 +44,7 @@
   </script>
 
   <groupbox>
-    <caption label="&pasteClippingAs.label;"/>
+    <caption>&pasteClippingAs.label;</caption>
 
     <radiogroup id="paste-as">
       <radio id="paste-as-normal" selected="true"

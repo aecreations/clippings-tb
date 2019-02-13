@@ -29,7 +29,7 @@
     </preferences>
 
     <groupbox>
-      <caption label="&pasteOptions.caption;"/>
+      <caption>&pasteOptions.caption;</caption>
 
       <vbox id="paste-html-vbox">
         <label id="paste-html-formatted-clipping" value="&htmlPasteOptions.label;" accesskey="&htmlPasteOptions.accesskey;" control="html-paste-options"/>
@@ -61,7 +61,7 @@
     <separator class="thin"/>
 
     <groupbox>
-      <caption label="&generalOptions.caption;"/>
+      <caption>&generalOptions.caption;</caption>
 
       <hbox flex="1">
         <checkbox id="check-spelling" flex="1"

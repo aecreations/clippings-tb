@@ -18,7 +18,7 @@
     </preferences>
 
     <groupbox style="width:33em">
-      <caption label="&dataSrcLocation.caption;"/>
+      <caption>&dataSrcLocation.caption;</caption>
       <hbox>
         <radiogroup id="datasrc-location-opt">
           <radio id="hostapp-profile-folder"
@@ -36,7 +36,7 @@
       </hbox>
     </groupbox>
     <groupbox orient="vertical">
-      <caption label="&syncClippings.caption;"/>
+      <caption>&syncClippings.caption;</caption>
       <hbox>
 	<checkbox id="sync-clippings" label="&syncClippings.label;"
 	 preference="sync-clippings-pref"
@@ -57,7 +57,7 @@
       </vbox>
     </groupbox>
     <groupbox orient="vertical">
-      <caption label="&backupFiles.caption;"/>
+      <caption>&backupFiles.caption;</caption>
       <grid flex="1">
         <columns>
           <column/>
@@ -92,7 +92,7 @@
     </groupbox>
 
     <groupbox id="src-urls-groupbox">
-      <caption label="&srcURLs.caption;"/>
+      <caption>&srcURLs.caption;</caption>
 
       <hbox id="remove-all-src-urls-panel">
         <description flex="1" style="margin-right:1em;margin-top:0.5em;margin-bottom:0.5em;word-wrap:break-word;width:26em">&removeAllSrcURLs.description;</description>

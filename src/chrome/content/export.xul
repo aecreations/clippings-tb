@@ -31,7 +31,7 @@
   </html:select>
 
   <groupbox style="height:8em;width:26em">
-    <caption label="&description.caption;"/>
+    <caption>&description.caption;</caption>
     <label id="format-description"/>
   </groupbox>
 
