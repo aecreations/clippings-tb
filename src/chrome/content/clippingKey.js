@@ -44,29 +44,20 @@ function processKeyPress(aEvent)
     gDlgArgs.userCancel = true;
   }
   else {
-    var key = aEvent.key.toUpperCase();
+    let key = aEvent.key.toUpperCase();
 
     aeUtils.log(aeString.format("Clippings: Key pressed: %S", key));
 
-    var keyDict = gClippingsSvc.getShortcutKeyDict();
-    var keys;
-    var keyCount = {};
-    keys = keyDict.getKeys(keyCount);
+    let keyMap = gClippingsSvc.getShortcutKeyMap();
 
-    if (! keyDict.hasKey(key)) {
+    if (! keyMap.has(key)) {
       aeUtils.beep();
       gDlgArgs.userCancel = true;
       window.close();
       return;
     }
 
-    try {
-      var valueStr = keyDict.getValue(key);
-    }
-    catch (e) {}
-    
-    valueStr = valueStr.QueryInterface(Components.interfaces.nsISupportsString);
-    gDlgArgs.clippingURI = valueStr.data;
+    gDlgArgs.clippingURI = keyMap.get(key);
     gDlgArgs.switchModes = false;
     gDlgArgs.userCancel = false;
   }

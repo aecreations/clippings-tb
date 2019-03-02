@@ -56,18 +56,18 @@ function updateSearchResults(aSearchText)
     return;
   }
 
-  var numMatches = {};
-  var srchResults = gClippingsSvc.findByName(aSearchText, false, false, numMatches);
+  let srchResults = gClippingsSvc.findByName(aSearchText, false, false);
+  let numMatches = srchResults.length;
 
-  if (numMatches.value == 0) {
+  if (numMatches == 0) {
     $("search-status").value = gStrBundle.getString("findBarNotFound");
   }
   else {
-    $("search-status").value = gStrBundle.getFormattedString("findBarMatches", [numMatches.value]);
-    $("num-matches").value = gStrBundle.getFormattedString("findBarMatches", [numMatches.value]);
+    $("search-status").value = gStrBundle.getFormattedString("findBarMatches", [numMatches]);
+    $("num-matches").value = gStrBundle.getFormattedString("findBarMatches", [numMatches]);
 
     // Populate the popup.
-    var max = numMatches.value;
+    var max = numMatches;
     for (let i = 0; i < max; i++) {
       var clippingURI = srchResults[i];
       var name = gClippingsSvc.getName(clippingURI);
@@ -123,10 +123,10 @@ function handleSearchKeys(aEvent, aSearchText)
       return;
     }
 
-    var numMatches = {};
-    var srchResults = gClippingsSvc.findByName(aSearchText, false, false, numMatches);
+    let srchResults = gClippingsSvc.findByName(aSearchText, false, false);
+    let numMatches = srchResults.length;
 
-    if (numMatches.value == 0) {
+    if (numMatches == 0) {
       aeUtils.beep();
       return;
     }

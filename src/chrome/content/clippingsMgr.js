@@ -511,9 +511,9 @@ var gShortcutKey = {
       return;
     }
 
-    var keyDict = gClippingsSvc.getShortcutKeyDict();
+    var keyMap = gClippingsSvc.getShortcutKeyMap();
 
-    if (keyDict.hasKey(key)) {
+    if (keyMap.has(key)) {
       doAlert(gStrBundle.getString("errorShortcutKeyDetail"));
       clippingKey.selectedIndex = this._oldIndex;
       return;
@@ -632,7 +632,7 @@ var gFindBar = {
 
     this._isSrchActivated = true;
     var srchFolders = (this._srchFilter == this.FILTER_CLIPPINGS_AND_FLDRS);
-    this._srchResults = gClippingsSvc.findByName(aSearchStr, this._matchCase, srchFolders, {});
+    this._srchResults = gClippingsSvc.findByName(aSearchStr, this._matchCase, srchFolders);
     var numResults = this._srchResults.length;
 
     if (numResults == 0) {
@@ -2827,37 +2827,36 @@ function initRestorePopup(aEvent)
     return;
   }
 
-  var restoreMenuPopup = aEvent.target;
-  var chooseBackupMenuItem = $("choose-backup-file");
+  let restoreMenuPopup = aEvent.target;
+  let chooseBackupMenuItem = $("choose-backup-file");
 
   // Refresh the menu by deleting all entries except the "Choose File" command.
-  var rmTarget = restoreMenuPopup.firstChild;
+  let rmTarget = restoreMenuPopup.firstChild;
   while (rmTarget.id != "choose-backup-file") {
     restoreMenuPopup.removeChild(rmTarget);
     rmTarget = restoreMenuPopup.firstChild;
   }
 
-  var backupDict = gClippingsSvc.getBackupFileNamesDict();
-  var backupFileNameCount = {};
-  var backupFileNames = backupDict.getKeys(backupFileNameCount);
+  let backupFileNamesMap = gClippingsSvc.getBackupFileNamesMap();
+  let backupFileNames = [];
+
+  backupFileNamesMap.forEach((aValue, aKey, aMap) => {
+    backupFileNames.push(aValue);
+  });
+  
   backupFileNames = backupFileNames.sort();
 
   for (let i = 0; i < backupFileNames.length; i++) {
     let menuItem = document.createElement("menuitem");
-    let valueStr = {};
-    try {
-      valueStr = backupDict.getValue(backupFileNames[i]);
-    }
-    catch (e) {}
-    valueStr = valueStr.QueryInterface(Components.interfaces.nsISupportsString);
-    menuItem.setAttribute("label", valueStr.data);
+    let valueStr = backupFileNamesMap.get(backupFileNames[i]);
+    menuItem.setAttribute("label", valueStr);
     menuItem.setAttribute("value", backupFileNames[i]);
     menuItem.addEventListener("command", function (evt) { restoreBackupFile(evt.target.value); }, false);
     restoreMenuPopup.insertBefore(menuItem, chooseBackupMenuItem);
   }
 
   if (backupFileNames.length > 0) {
-    var separator = document.createElement("menuseparator");
+    let separator = document.createElement("menuseparator");
     restoreMenuPopup.insertBefore(separator, chooseBackupMenuItem);
   }
 }
@@ -3421,22 +3420,17 @@ function userCancel()
 
 function showShortcutKeyMinihelp()
 {
-  var keyDict = gClippingsSvc.getShortcutKeyDict();
-  var keys;
-  var keyCount = {};
-  keys = keyDict.getKeys(keyCount);
-  keys = keys.sort();
-  keyCount = keyCount.value;
+  let rawKeyMap = gClippingsSvc.getShortcutKeyMap();
+  let keys = [];
 
-  var keyMap = {};
+  rawKeyMap.forEach((aValue, aKey, aMap) => { keys.push(aValue) });
+  keys = keys.sort();
+
+  let keyCount = keys.length;
+  let keyMap = {};
 
   for (let i = 0; i < keyCount; i++) {
-    try {
-      var valueStr = keyDict.getValue(keys[i]);
-    }
-    catch (e) {}
-    valueStr = valueStr.QueryInterface(Components.interfaces.nsISupportsString);
-    let clippingURI = valueStr.data;
+    let clippingURI = rawKeyMap.get(keys[i]);
     let clippingName = gClippingsSvc.getName(clippingURI);
 
     keyMap[keys[i]] = {
@@ -3445,7 +3439,7 @@ function showShortcutKeyMinihelp()
     };
   }
 
-  var dlgArgs = {
+  let dlgArgs = {
     keyMap:   keyMap,
     keyCount: keyCount,
     showInsertClippingCmd: false
@@ -3454,8 +3448,8 @@ function showShortcutKeyMinihelp()
 
   // Position the help window so that it is relative to the Clippings Manager
   // window.
-  var wndFeatures = aeString.format("top=%d,left=%d,resizable", window.screenY+72, window.screenX+128);
-  var helpWnd = window.openDialog("chrome://clippings/content/shortcutHelp.xul", "clipkey_help", wndFeatures, dlgArgs);
+  let wndFeatures = aeString.format("top=%d,left=%d,resizable", window.screenY+72, window.screenX+128);
+  let helpWnd = window.openDialog("chrome://clippings/content/shortcutHelp.xul", "clipkey_help", wndFeatures, dlgArgs);
   helpWnd.focus();
 }
 

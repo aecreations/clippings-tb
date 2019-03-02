@@ -293,17 +293,17 @@ function createFolder()
 // new.xul only
 function updateShortcutKeyAvailability()
 {
-  var msgTxtNode = $("key-conflict-notification").firstChild;
+  let msgTxtNode = $("key-conflict-notification").firstChild;
 
   if (gClippingKey.selectedIndex == 0) {
     msgTxtNode.data = gStrBundle.getString("shortcutKeyNoneAssigned");
     return;
   }
 
-  var selectedKey = gClippingKey.selectedItem.label;
-  var keyDict = gClippingsSvc.getShortcutKeyDict();
+  let selectedKey = gClippingKey.selectedItem.label;
+  let keyMap = gClippingsSvc.getShortcutKeyMap();
 
-  if (keyDict.hasKey(selectedKey)) {
+  if (keyMap.has(selectedKey)) {
     msgTxtNode.data = gStrBundle.getString("shortcutKeyUsed");
   }
   else {
@@ -387,12 +387,12 @@ function accept()
 
     // Shortcut key
     if (gClippingKey.selectedIndex > 0) {
-      var selectedKey = gClippingKey.selectedItem.label;
+      let selectedKey = gClippingKey.selectedItem.label;
 
       // Check if the key is already assigned to another clipping
-      var keyDict = gClippingsSvc.getShortcutKeyDict();
+      let keyMap = gClippingsSvc.getShortcutKeyMap();
 
-      if (keyDict.hasKey(selectedKey)) {
+      if (keyMap.has(selectedKey)) {
 	aeUtils.alertEx(gStrBundle.getString("appName"),
 	   	       gStrBundle.getString("errorShortcutKeyDetail"));
 	gClippingKey.focus();
