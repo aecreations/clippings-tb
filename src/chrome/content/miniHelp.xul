@@ -17,6 +17,8 @@
   <script type="application/javascript">
   <![CDATA[
 
+    ChromeUtils.import("resource://clippings/modules/aeUtils.js");
+
     function initDlg() 
     {
       var strBundle = aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
