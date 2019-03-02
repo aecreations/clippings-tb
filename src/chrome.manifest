@@ -18,16 +18,3 @@ content	clippings	chrome/content/
 skin	clippings	classic/1.0	chrome/skin/
 
 locale	clippings	en-US	chrome/locale/en-US/
-
-
-# XPCOM type libraries
-interfaces	components/aeIClippingsService.xpt
-interfaces	components/aeIDictionary.xpt
-
-# aeIClippingsService
-component	{8ebf6eef-c354-4211-89d0-603b45b76393}	components/aeClippingsService.js
-contract	clippings@mozdev.org/clippings;1	{8ebf6eef-c354-4211-89d0-603b45b76393}
-
-# aeIDictionary
-component	{1dd0cb45-aea3-4a52-8b29-01429a542863}	components/aeDictionary.js
-contract	clippings@mozdev.org/dictionary;1	{1dd0cb45-aea3-4a52-8b29-01429a542863}
