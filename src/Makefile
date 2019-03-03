@@ -6,7 +6,7 @@ CHROME = ./chrome
 MODULES = ./modules
 MODULE_FILES = $(MODULES)/*.js
 DEFAULTS_PREFS = ./defaults/preferences
-EXCLUDE = \*.html \*~ \*.psp \*.bak
+EXCLUDE = \*~ \*.psp \*.bak
 
 
 $(DIST_FILE): $(CHROME)/clippings.jar manifest.json $(DEFAULTS_PREFS)/prefs.js
@@ -14,7 +14,7 @@ $(DIST_FILE): $(CHROME)/clippings.jar manifest.json $(DEFAULTS_PREFS)/prefs.js
 	zip $(DIST_FILE) $(CHROME)/clippings.jar manifest.json chrome.manifest $(DEFAULTS_PREFS)/prefs.js $(MODULE_FILES)
 
 $(CHROME)/clippings.jar: 
-	cd $(CHROME); zip -r clippings.jar * -x $(EXCLUDE); zip -d clippings.jar content/strfmt.js content/strtrm.js
+	cd $(CHROME); zip -r clippings.jar * -x $(EXCLUDE)
 
 clean:
 	rm -fv ./$(DIST_FILE) $(CHROME)/clippings.jar
