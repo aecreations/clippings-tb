@@ -1917,9 +1917,16 @@ aeClippingsServiceImpl.prototype.getBackupFileNamesMap = function ()
   }
 
   rv = new Map();
+  let fileNames = [];
   
   for (let i = 0; i < backupFiles.length; i++) {
     let filename = backupFiles[i].leafName;
+    fileNames.push(filename);
+  }
+  fileNames = fileNames.sort();
+
+  for (let i = 0; i < fileNames.length; i++) {
+    let filename = fileNames[i];
     let friendlyDateTime = this._parseBackupFilename(filename);
     rv.set(filename, friendlyDateTime);
   }

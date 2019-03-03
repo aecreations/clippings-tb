@@ -2838,24 +2838,16 @@ function initRestorePopup(aEvent)
   }
 
   let backupFileNamesMap = gClippingsSvc.getBackupFileNamesMap();
-  let backupFileNames = [];
 
-  backupFileNamesMap.forEach((aValue, aKey, aMap) => {
-    backupFileNames.push(aValue);
-  });
-  
-  backupFileNames = backupFileNames.sort();
-
-  for (let i = 0; i < backupFileNames.length; i++) {
+  for (const [filename, backupDateTime] of backupFileNamesMap) {
     let menuItem = document.createElement("menuitem");
-    let valueStr = backupFileNamesMap.get(backupFileNames[i]);
-    menuItem.setAttribute("label", valueStr);
-    menuItem.setAttribute("value", backupFileNames[i]);
+    menuItem.setAttribute("label", backupDateTime);
+    menuItem.setAttribute("value", filename);
     menuItem.addEventListener("command", function (evt) { restoreBackupFile(evt.target.value); }, false);
     restoreMenuPopup.insertBefore(menuItem, chooseBackupMenuItem);
   }
 
-  if (backupFileNames.length > 0) {
+  if (backupFileNamesMap.length > 0) {
     let separator = document.createElement("menuseparator");
     restoreMenuPopup.insertBefore(separator, chooseBackupMenuItem);
   }
@@ -3420,17 +3412,17 @@ function userCancel()
 
 function showShortcutKeyMinihelp()
 {
-  let rawKeyMap = gClippingsSvc.getShortcutKeyMap();
+  let unsortedKeyMap = gClippingsSvc.getShortcutKeyMap();
   let keys = [];
 
-  rawKeyMap.forEach((aValue, aKey, aMap) => { keys.push(aValue) });
+  unsortedKeyMap.forEach((aValue, aKey, aMap) => { keys.push(aKey) });
   keys = keys.sort();
 
   let keyCount = keys.length;
   let keyMap = {};
 
   for (let i = 0; i < keyCount; i++) {
-    let clippingURI = rawKeyMap.get(keys[i]);
+    let clippingURI = unsortedKeyMap.get(keys[i]);
     let clippingName = gClippingsSvc.getName(clippingURI);
 
     keyMap[keys[i]] = {

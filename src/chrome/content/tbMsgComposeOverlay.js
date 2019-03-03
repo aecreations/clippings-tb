@@ -428,17 +428,17 @@ window.aecreations.clippings = {
 
     do {
       if (dlgArgs.action == dlgArgs.SHORTCUT_KEY_HELP) {
-        let rawKeyMap = this.clippingsSvc.getShortcutKeyMap();
+        let unsortedKeyMap = this.clippingsSvc.getShortcutKeyMap();
         let keys = [];
 
-	rawKeyMap.forEach((aValue, aKey, aMap) => { keys.push(aValue) });
+	unsortedKeyMap.forEach((aValue, aKey, aMap) => { keys.push(aKey) });
         keys = keys.sort();
 
         let keyCount = keys.length;
         let keyMap = {};
 
         for (let i = 0; i < keyCount; i++) {
-          let clippingURI = rawKeyMap.get(keys[i]);
+          let clippingURI = unsortedKeyMap.get(keys[i]);
           let clippingName = this.clippingsSvc.getName(clippingURI);
 
           keyMap[keys[i]] = {
