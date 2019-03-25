@@ -1375,18 +1375,9 @@ function closeNotificationBar()
 }
 
 
-function dataSrcOptions()
-{
-  // Open the extension preferences dialog, with the Data Source pane displayed
-  window.openDialog("chrome://clippings/content/options.xul", "dlg_clippings_datasrc", "chrome,titlebar,toolbar,centerscreen,dialog=yes", "pane-datasource");
-}
-
-
 function clippingsMgrOptions()
 {
-  // Open the extension preferences dialog, with the Clippings Manager pane
-  // displayed.
-  window.openDialog("chrome://clippings/content/options.xul", "dlg_clippings_datasrc", "chrome,titlebar,toolbar,centerscreen,dialog=yes", "pane-clippings-mgr");
+  window.openDialog("chrome://clippings/content/preferences.xul", "dlg_clippings_prefs", "modal,centerscreen");
 }
 
 

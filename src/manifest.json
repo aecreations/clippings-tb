@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "name": "Clippings for Thunderbird",
+  "name": "Clippings",
   "description": "Save frequently-entered text for pasting later.",
   "version": "5.7a0+",
   "author": "AE Creations",
@@ -19,7 +19,7 @@
 
   "legacy": {
     "options": {
-      "page": "chrome://clippings/content/options.xul",
+      "page": "chrome://clippings/content/preferences.xul",
       "open_in_tab": false
     }
   }

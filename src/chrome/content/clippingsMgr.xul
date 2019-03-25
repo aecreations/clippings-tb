@@ -201,7 +201,6 @@
     <command id="cmd_new_from_clipboard" oncommand="pasteClippingAsNew()"/>
     <command id="cmd_reload" oncommand="reload()"/>
     <command id="cmd_find" oncommand="toggleFindBar()"/>
-    <command id="cmd_datasrc_opts" oncommand="dataSrcOptions()"/>
     <command id="cmd_clipmgr_opts" oncommand="clippingsMgrOptions()"/>
     <command id="cmd_togglePlaceholderBar" oncommand="togglePlaceholderBar()"/>
     <command id="cmd_toggleDetailsPane" oncommand="toggleClippingDetails()"/>
@@ -368,7 +367,6 @@
 	  <menuseparator/>
 	  <menuitem id="reload_menuitem" label="&reload.label;" accesskey="&reload.accesskey;" key="key_force_reload" command="cmd_reload" />
 	  <menuseparator id="reload_menuseparator"/>
-	  <menuitem id="datasrc-options" label="&dataFileOptions.label;" accesskey="&dataFileOptions.accesskey;" command="cmd_datasrc_opts"/>
           <menuitem id="backup" label="&backup.label;" accesskey="&backup.accesskey;"
            oncommand="backupClippings()"/>
 	  <menu id="restore" label="&restore.label;" accesskey="&restore.accesskey;">
