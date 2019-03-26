@@ -166,6 +166,8 @@
 <!ENTITY placeholderBar.accesskey "P">
 <!ENTITY detailsPane.label "Details Pane">
 <!ENTITY detailsPane.accesskey "D">
+<!ENTITY statusBar.label "Status Bar">
+<!ENTITY statusBar.accesskey "S">
 
 <!ENTITY closeCmd.key "W">
 <!ENTITY forceSaveCmd.key "S">

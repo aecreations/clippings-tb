@@ -36,13 +36,11 @@ var gAltClippingLabelPicker;
 var gClippingsSvc;
 
 let gStatusBar = {
-  set label(aStatusText)
-  {
+  set label(aStatusText) {
     $("app-status").value = aStatusText;
   },
 
-  get label()
-  {
+  get label() {
     return $("app-status").value;
   },
 };
@@ -2177,6 +2175,7 @@ function updateToolsMenu()
 {
   let cmdShowHidePlaceholderBar = $("cmd_togglePlaceholderBar");
   let cmdShowHideDetailsPane = $("cmd_toggleDetailsPane");
+  let cmdShowHideStatusBar = $("cmd_toggleStatusBar");
   let uri = gClippingsTree.selectedURI;
 
   if (!uri || gClippingsSvc.isFolder(uri) || gClippingsSvc.isEmptyClipping(uri)) {
@@ -2190,6 +2189,7 @@ function updateToolsMenu()
 
   cmdShowHidePlaceholderBar.setAttribute("checked", gPlaceholderBar.isActivated());
   cmdShowHideDetailsPane.setAttribute("checked", gClippingDetailsPaneVisible);
+  cmdShowHideStatusBar.setAttribute("checked", !$("status-bar").hidden);
 }
 
 
@@ -2218,6 +2218,14 @@ function toggleClippingDetails()
   }
 
   aeUtils.setPref("clippings.clipmgr.details_pane", gClippingDetailsPaneVisible);
+}
+
+
+function toggleStatusBar()
+{
+  let showStatusBar = aeUtils.getPref("clippings.clipmgr.status_bar", true);
+  $("status-bar").hidden = !showStatusBar;
+  aeUtils.setPref("clippings.clipmgr.status_bar", !showStatusBar);
 }
 
 
