@@ -384,13 +384,13 @@
 	  <menu id="show-hide" label="&showHide.label;"
            accesskey="&showHide.accesskey;">
 	    <menupopup>
+              <menuitem id="toggle-options-pane" type="checkbox"
+               label="&detailsPane.label;" accesskey="&detailsPane.accesskey;"
+               command="cmd_toggleDetailsPane"/>
               <menuitem id="toggle-placeholder-bar" type="checkbox"
                label="&placeholderBar.label;" 
                accesskey="&placeholderBar.accesskey;"
                command="cmd_togglePlaceholderBar"/>
-              <menuitem id="toggle-options-pane" type="checkbox"
-               label="&detailsPane.label;" accesskey="&detailsPane.accesskey;"
-               command="cmd_toggleDetailsPane"/>
 	      <menuitem id="toggle-status-bar" type="checkbox"
                label="&statusBar.label;" accesskey="&statusBar.accesskey;"
                command="cmd_toggleStatusBar"/>
