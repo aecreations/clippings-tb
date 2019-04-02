@@ -6,7 +6,7 @@
 const EXPORTED_SYMBOLS = ["aeClippingsService"];
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
+ChromeUtils.import("resource://gre/modules/osfile.jsm");
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;
@@ -1741,14 +1741,14 @@ aeClippingsServiceImpl.prototype.refreshSyncedClippings = function (aNotify)
       }
 
       // Get the synced clippings data from the sync file.
-      NetUtil.asyncFetch(syncFile, function(aInputStream, aStatus) {
-        if (! Components.isSuccessCode(aStatus)) {
-          aFnReject(Components.Exception("Error reading " + that._WX_SYNC_FILENAME));
-        }
+      let syncFilePath = syncFile.path;
+      let readFile = OS.File.read(syncFilePath, { encoding: "utf-8" });
 
-        rv = NetUtil.readInputStreamToString(aInputStream, aInputStream.available(), { charset: "UTF-8" });
-
+      readFile.then(aFileData => {
+        rv = aFileData;
         aFnResolve(rv);
+      }).catch(aFileErr => {
+        aFnReject(Components.Exception("Error reading " + that._WX_SYNC_FILENAME));  
       });
     });
   }
