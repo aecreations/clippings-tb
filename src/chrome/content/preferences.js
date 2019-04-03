@@ -290,7 +290,8 @@ function applyDataSourcePrefChanges()
   gClippingsSvc.notifyDataSrcLocationChanged();
   aeUtils.setPref("clippings.datasource.location", newDataSrcPath);
 
-  let isWxSyncEnabled = aeUtils.getPref("clippings.datasource.wx_sync.enabled", false);
+  let isWxSyncEnabled = gSyncClippings.checked;
+  aeUtils.setPref("clippings.datasource.wx_sync.enabled", isWxSyncEnabled);
 
   if (isWxSyncEnabled) {
     let syncDirPath = gSyncFilePath.value;
