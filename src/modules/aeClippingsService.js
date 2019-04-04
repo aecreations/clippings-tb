@@ -53,7 +53,7 @@ aeClippingsServiceImpl.prototype = {
   MAX_NAME_LENGTH:        64,
 
   // Private constants.
-  _DEBUG:  false,
+  _DEBUG:  true,
   _TEST_CORRUPTION: false,
   _SEQNODE_RESOURCE_URI:  "http://clippings.mozdev.org/rdf/user-clippings-v2",
   _OLD_SEQNODE_RESOURCE_URI: "http://clippings.mozdev.org/rdf/user-clippings",
@@ -1784,7 +1784,12 @@ aeClippingsServiceImpl.prototype.refreshSyncedClippings = function (aNotify)
     }
 
     that._log("aeClippingsService.refreshSyncedClippings(): Creating the 'Synced Clippings' folder...");
-    that.createNewFolderEx(that.kRootFolderURI, that._SYNCED_CLIPPINGS_FOLDER_URI, that._syncedClippingsFldrName, 1, false, that.ORIGIN_HOSTAPP);
+    try {
+      that.createNewFolderEx(that.kRootFolderURI, that._SYNCED_CLIPPINGS_FOLDER_URI, that._syncedClippingsFldrName, 1, false, that.ORIGIN_HOSTAPP);
+    }
+    catch (e) {
+      that._log("aeClippingsService.refreshSyncedClippings(): Exception thrown while creating 'Synced Clippings' folder: " + e);
+    }
 
     that._log("aeClippingsService.refreshSyncedClippings(): Importing clippings data from sync file...");
 

@@ -251,7 +251,7 @@ class ClippingsTree
 
   ensureIndexIsVisible(aIndex)
   {
-    this._tree.treeBoxObject.ensureRowIsVisible(aIndex);    
+    // In Thunderbird 66 and newer, this is a no-op.
   }
 
   getRowCount()
