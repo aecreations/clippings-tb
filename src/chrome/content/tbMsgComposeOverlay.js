@@ -679,7 +679,7 @@ window.aecreations.clippings = {
 
     // Initialize status bar icon.
     let statusBar = document.getElementById("status-bar");
-    let statusbarpanel = document.createElement("statusbarpanel");
+    let statusbarpanel = document.createElement("hbox");
     statusbarpanel.id = "ae-clippings-statubarpanel";
     let statusbarBtn = document.createElement("toolbarbutton");
     statusbarBtn.id = "ae-clippings-icon";
@@ -691,7 +691,7 @@ window.aecreations.clippings = {
     }, false);
 
     statusbarpanel.appendChild(statusbarBtn);
-    statusBar.appendChild(statusbarpanel);
+    statusBar.insertBefore(statusbarpanel, statusBar.lastChild);
     
     // Set behaviour of "New Clipping" commands - prompt vs. silent operation
     this.showDialog = true;

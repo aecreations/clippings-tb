@@ -352,7 +352,7 @@ window.aecreations.clippings = {
     // Place the status bar icon so that it appears as the last item, before
     // the window resizer grippy
     let statusBar = document.getElementById("status-bar");
-    let statusbarpanel = document.createElement("statusbarpanel");
+    let statusbarpanel = document.createElement("hbox");
     let statusbarBtn = document.createElement("toolbarbutton");
     statusbarBtn.id = "ae-clippings-icon";
     statusbarBtn.setAttribute("context", "ae-clippings-popup");
@@ -363,8 +363,8 @@ window.aecreations.clippings = {
     }, false);
 
     statusbarpanel.appendChild(statusbarBtn);
-    statusBar.appendChild(statusbarpanel);
-
+    statusBar.insertBefore(statusbarpanel, statusBar.lastChild);
+    
     // Dynamically create status bar icon popup menu.  Defining it in
     // tbMessengerOverlay.xul won't work - it seems to disappear during loading
     // of the Messenger window.
