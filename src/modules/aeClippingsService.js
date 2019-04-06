@@ -76,8 +76,8 @@ aeClippingsServiceImpl.prototype = {
 
   _CLIPPINGS_HTML_NS: "http://clippings.mozdev.org/ns/html#",
 
-  _JSON_EXPORT_VER: "6.0",
-  _JSON_EXPORT_CREATED_BY: "Clippings for Thunderbird 5.6+",
+  _JSON_EXPORT_VER: "6.1",
+  _JSON_EXPORT_CREATED_BY: "Clippings for Thunderbird 5.7",
 
   // Private member variables
   _dataSrc: null,
@@ -1794,7 +1794,8 @@ aeClippingsServiceImpl.prototype.refreshSyncedClippings = function (aNotify)
     that._log("aeClippingsService.refreshSyncedClippings(): Importing clippings data from sync file...");
 
     let keyMap = that.getShortcutKeyMap();
-    let syncCount = that._importFromJSONHelper(that.kSyncFolderURI, jsonSyncData.userClippingsRoot, false, keyMap);
+    let isSorted = parseFloat(jsonSyncData.version) >= 6.1; 
+    let syncCount = that._importFromJSONHelper(that.kSyncFolderURI, jsonSyncData.userClippingsRoot, false, keyMap, isSorted);
 
     that._log("aeClippingsService.refreshSyncedClippings(): Refresh of Sync Clippings data completed: " + syncCount + " items synchronized.");
 
@@ -2334,6 +2335,7 @@ aeClippingsServiceImpl.prototype._exportAsClippingsWxJSON = function (aFolderCtr
 {
   let rv;
   let count = 0;
+  let seq = 0;
   let childrenEnum = aFolderCtr.GetElements();
   
   while (childrenEnum.hasMoreElements()) {
@@ -2353,6 +2355,7 @@ aeClippingsServiceImpl.prototype._exportAsClippingsWxJSON = function (aFolderCtr
       let fldr = {
         name: this.getName(childURI),
         children: fldrItems,
+        seq,
       };
 
       if (aIncludeIDs) {
@@ -2369,7 +2372,8 @@ aeClippingsServiceImpl.prototype._exportAsClippingsWxJSON = function (aFolderCtr
         content:     this.getText(childURI),
         shortcutKey: this.getShortcutKey(childURI),
         sourceURL:   srcURL,
-        label:       this.getLabel(childURI)
+        label:       this.getLabel(childURI),
+        seq,
       };
 
       if (aIncludeIDs) {
@@ -2379,6 +2383,7 @@ aeClippingsServiceImpl.prototype._exportAsClippingsWxJSON = function (aFolderCtr
 
       count++;
     }
+    seq++;
   }
   rv = count;
   
@@ -2898,14 +2903,15 @@ aeClippingsServiceImpl.prototype.importFromJSON = function (aJSONRawData, aRepla
   }
 
   let keyMap = this.getShortcutKeyMap();
+  let isSorted = parseFloat(jsonData.version) >= 6.1;
 
-  rv = this._importFromJSONHelper(this.kRootFolderURI, jsonData.userClippingsRoot, aReplaceShortcutKeys, keyMap);
+  rv = this._importFromJSONHelper(this.kRootFolderURI, jsonData.userClippingsRoot, aReplaceShortcutKeys, keyMap, isSorted);
 
   return rv;
 };
 
 
-aeClippingsServiceImpl.prototype._importFromJSONHelper = function (aFolderURI, aImportedItems, aReplaceShortcutKeys, aShortcutKeyMap)
+aeClippingsServiceImpl.prototype._importFromJSONHelper = function (aFolderURI, aImportedItems, aReplaceShortcutKeys, aShortcutKeyMap, aIsSorted)
 {
   function getClippingURIWithShortcutKey(aShortcutKey) {
     let rv = aShortcutKeyMap.get(aShortcutKey);
@@ -2915,6 +2921,16 @@ aeClippingsServiceImpl.prototype._importFromJSONHelper = function (aFolderURI, a
   let rv = null;
   let count = 0;
 
+  if (aIsSorted) {
+    aImportedItems = aImportedItems.sort((aItem1, aItem2) => {
+      let rv = 0;
+      if ("seq" in aItem1 && "seq" in aItem2) {
+        rv = aItem1.seq - aItem2.seq;
+      }
+      return rv;
+    });
+  }
+
   for (let i = 0; i < aImportedItems.length; i++) {
     let item = aImportedItems[i];
     let uri = "";
@@ -2922,7 +2938,7 @@ aeClippingsServiceImpl.prototype._importFromJSONHelper = function (aFolderURI, a
     if ("children" in item) {
       uri = this.createNewFolder(aFolderURI, item.name, true);
       count++;
-      count += this._importFromJSONHelper(uri, item.children, aReplaceShortcutKeys, aShortcutKeyMap);
+      count += this._importFromJSONHelper(uri, item.children, aReplaceShortcutKeys, aShortcutKeyMap, aIsSorted);
     }
     else {
       let label = ("label" in item ? item.label : "");
