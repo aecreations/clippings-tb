@@ -1,5 +1,5 @@
 <!-- General -->
-<!ENTITY clippings.appName "Clippings">
+<!ENTITY clippings.appName "Clippings for Thunderbird">
 
 <!-- Overlay -->
 <!ENTITY clippings.menuLabel "Clippings">
@@ -69,6 +69,10 @@
 <!ENTITY showStatusBar.label "Show the status bar">
 <!ENTITY showStatusBar.accesskey "S">
 <!ENTITY clippingsMgrKeys.caption "Clippings Manager Shortcut Keys">
+<!ENTITY about.label "About...">
+<!ENTITY about.title "About Clippings">
+<!ENTITY homePgLink "Visit home page">
+<!ENTITY licenseInfoLink "License information">
 
 <!-- Clippings Manager shortcut key legend -->
 <!ENTITY key.del "DEL">

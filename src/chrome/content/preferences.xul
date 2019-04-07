@@ -9,9 +9,10 @@
 
 <dialog id="ae-clippings-preferences"
  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
- buttons="accept,cancel"
- onload="initDlg()" ondialogaccept="return accept()"
- ondialogcancel="return cancel()">
+ buttons="extra2,accept,cancel"
+ buttonlabelextra2="&about.label;"
+ onload="initDlg()" ondialogextra2="showAboutDlg()"
+ ondialogaccept="return accept()" ondialogcancel="return cancel()">
 
   <script type="application/javascript" src="chrome://clippings/content/preferences.js"></script>
   

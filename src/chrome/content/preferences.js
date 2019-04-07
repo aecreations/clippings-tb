@@ -307,6 +307,11 @@ function applyDataSourcePrefChanges()
 }
 
 
+function showAboutDlg()
+{
+  window.openDialog("chrome://clippings/content/about.xul", "ae_about_clippingstb", "modal,centerscreen");
+}
+
 function accept()
 {
   let rv = true;
