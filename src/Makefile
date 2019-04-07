@@ -10,7 +10,7 @@ $(COMPONENTS)/aeIDictionary.xpt $(COMPONENTS)/aeDictionary.js
 MODULES = ./modules
 MODULE_FILES = $(MODULES)/*.js
 DEFAULTS_PREFS = ./defaults/preferences
-EXCLUDE = \*.html \*~ \*.psp \*.bak
+EXCLUDE = \*~ \*.psp \*.bak
 
 
 $(DIST_FILE): $(CHROME)/clippings.jar install.rdf $(DEFAULTS_PREFS)/prefs.js $(COMP_FILES)
