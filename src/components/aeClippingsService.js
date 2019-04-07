@@ -1,4 +1,4 @@
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* -*- mode: JavaScript; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -59,7 +59,7 @@ aeClippingsService.prototype = {
 
   _CLIPPINGS_HTML_NS: "http://clippings.mozdev.org/ns/html#",
 
-  _JSON_EXPORT_VER: "6.0",
+  _JSON_EXPORT_VER: "6.1",
   _JSON_EXPORT_CREATED_BY: "Clippings for Thunderbird 5.6",
 
   // Private member variables
@@ -1788,7 +1788,8 @@ aeClippingsService.prototype.refreshSyncedClippings = function (aNotify)
     that._log("aeClippingsService.refreshSyncedClippings(): Importing clippings data from sync file...");
 
     let shortcutKeyLookup = that.getShortcutKeyDict();
-    let syncCount = that._importFromJSONHelper(that.kSyncFolderURI, jsonSyncData.userClippingsRoot, false, shortcutKeyLookup);
+    let isSorted = parseFloat(jsonSyncData.version) >= 6.1; 
+    let syncCount = that._importFromJSONHelper(that.kSyncFolderURI, jsonSyncData.userClippingsRoot, false, shortcutKeyLookup, isSorted);
 
     that._log("aeClippingsService.refreshSyncedClippings(): Refresh of Sync Clippings data completed: " + syncCount + " items synchronized.");
 
@@ -2324,6 +2325,7 @@ aeClippingsService.prototype._exportAsClippingsWxJSON = function (aFolderCtr, aJ
 {
   let rv;
   let count = 0;
+  let seq = 0;
   let childrenEnum = aFolderCtr.GetElements();
   
   while (childrenEnum.hasMoreElements()) {
@@ -2343,6 +2345,7 @@ aeClippingsService.prototype._exportAsClippingsWxJSON = function (aFolderCtr, aJ
       let fldr = {
         name: this.getName(childURI),
         children: fldrItems,
+        seq,
       };
 
       if (aIncludeIDs) {
@@ -2359,7 +2362,8 @@ aeClippingsService.prototype._exportAsClippingsWxJSON = function (aFolderCtr, aJ
         content:     this.getText(childURI),
         shortcutKey: this.getShortcutKey(childURI),
         sourceURL:   srcURL,
-        label:       this.getLabel(childURI)
+        label:       this.getLabel(childURI),
+        seq,
       };
 
       if (aIncludeIDs) {
@@ -2369,6 +2373,7 @@ aeClippingsService.prototype._exportAsClippingsWxJSON = function (aFolderCtr, aJ
 
       count++;
     }
+    seq++;
   }
   rv = count;
   
@@ -2922,14 +2927,15 @@ aeClippingsService.prototype.importFromJSON = function (aJSONRawData, aReplaceSh
   }
 
   let shortcutKeyLookup = this.getShortcutKeyDict();
+  let isSorted = parseFloat(jsonData.version) >= 6.1; 
 
-  rv = this._importFromJSONHelper(this.kRootFolderURI, jsonData.userClippingsRoot, aReplaceShortcutKeys, shortcutKeyLookup);
+  rv = this._importFromJSONHelper(this.kRootFolderURI, jsonData.userClippingsRoot, aReplaceShortcutKeys, shortcutKeyLookup, isSorted);
 
   return rv;
 };
 
 
-aeClippingsService.prototype._importFromJSONHelper = function (aFolderURI, aImportedItems, aReplaceShortcutKeys, aShortcutKeys)
+aeClippingsService.prototype._importFromJSONHelper = function (aFolderURI, aImportedItems, aReplaceShortcutKeys, aShortcutKeys, aIsSorted)
 {
   function getClippingURIWithShortcutKey(aShortcutKey) {
     let rv = "";
@@ -2949,6 +2955,16 @@ aeClippingsService.prototype._importFromJSONHelper = function (aFolderURI, aImpo
   let rv = null;
   let count = 0;
 
+  if (aIsSorted) {
+    aImportedItems = aImportedItems.sort((aItem1, aItem2) => {
+      let rv = 0;
+      if ("seq" in aItem1 && "seq" in aItem2) {
+        rv = aItem1.seq - aItem2.seq;
+      }
+      return rv;
+    });
+  }
+
   for (let i = 0; i < aImportedItems.length; i++) {
     let item = aImportedItems[i];
     let uri = "";
@@ -2956,7 +2972,7 @@ aeClippingsService.prototype._importFromJSONHelper = function (aFolderURI, aImpo
     if ("children" in item) {
       uri = this.createNewFolder(aFolderURI, item.name, true);
       count++;
-      count += this._importFromJSONHelper(uri, item.children, aReplaceShortcutKeys, aShortcutKeys);
+      count += this._importFromJSONHelper(uri, item.children, aReplaceShortcutKeys, aShortcutKeys, aIsSorted);
     }
     else {
       let label = ("label" in item ? item.label : "");
