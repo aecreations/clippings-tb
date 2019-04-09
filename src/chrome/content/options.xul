@@ -27,7 +27,4 @@
        due to Mozilla bug 296418 -->
   <script type="application/javascript" src="chrome://clippings/content/options.js"/>
 
-  <stringbundle id="ae-clippings-strings" 
-   src="chrome://clippings/locale/clippings.properties"/>
-
 </prefwindow>

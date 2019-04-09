@@ -30,7 +30,7 @@ function init()
     alertEx(e);
   }
 
-  gStrBundle = $("clippings-strings");
+  gStrBundle = aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
   gExportFormatList = $("export-format-list");
   gExportFormatList.selectedIndex = 0;
   gExportFormatList.focus();

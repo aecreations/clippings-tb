@@ -30,7 +30,7 @@ function init()
   var keyMap = gDlgArgs.keyMap;
   var keyCount = gDlgArgs.keyCount;
 
-  gStrBundle = $("ae-clippings-strings");
+  gStrBundle = aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
 
   var treeChildren = $("grid-content");
 

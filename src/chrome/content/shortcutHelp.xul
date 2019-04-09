@@ -15,9 +15,6 @@
 
   <script type="application/javascript" src="chrome://clippings/content/shortcutHelp.js"/>
 
-  <stringbundle id="ae-clippings-strings" 
-   src="chrome://clippings/locale/clippings.properties"/>
-
   <keyset>
     <key id="key_close" key="&closeCmd.key;" modifiers="accel" 
      oncommand="window.close()"/>

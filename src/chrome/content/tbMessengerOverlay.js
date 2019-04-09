@@ -79,7 +79,7 @@ window.aecreations.clippings = {
 
   alert: function (aMessage)
   {
-    var title = this.strBundle.getString('appName');
+    var title = this.strBundle.getString("appName");
     this.aeUtils.alertEx(title, aMessage);
   },
 
@@ -182,13 +182,13 @@ window.aecreations.clippings = {
       }
       else if (e.result == Components.results.NS_ERROR_FILE_READ_ONLY) {
 	var msg = this.aeString.format("%s: %s",
-				this.strBundle.getString('errorFileReadOnly'),
+				this.strBundle.getString("errorFileReadOnly"),
 				this.aeConstants.CLIPDAT_FILE_NAME);
 	this.aeUtils.alertEx(title, msg);
       }
       else if (e.result == Components.results.NS_ERROR_FILE_DISK_FULL) {
 	var msg = this.aeString.format("%s: %s",
-				this.strBundle.getString('errorDiskFull'),
+				this.strBundle.getString("errorDiskFull"),
 				this.aeConstants.CLIPDAT_FILE_NAME);
 	this.aeUtils.alertEx(title, msg);
       }
@@ -210,7 +210,7 @@ window.aecreations.clippings = {
       return;
     }
 
-    this.strBundle = document.getElementById("ae-clippings-strings");
+    this.strBundle = this.aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
 
     try {
       this.clippingsSvc = this.aeClippingsService.getService();
@@ -219,7 +219,7 @@ window.aecreations.clippings = {
       this.alert(e);
     }
 
-    this.clippingsSvc.setEmptyClippingString(this.strBundle.getString('emptyClippingLabel'));
+    this.clippingsSvc.setEmptyClippingString(this.strBundle.getString("emptyClippingLabel"));
     this.clippingsSvc.setSyncedClippingsFolderName(this.strBundle.getString("syncFldrLabel"));
 
     // Migrate prefs from root to the "extensions." branch

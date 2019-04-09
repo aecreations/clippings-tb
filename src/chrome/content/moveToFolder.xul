@@ -16,9 +16,6 @@
 
   <script type="application/javascript" src="chrome://clippings/content/moveToFolder.js"/>
 
-  <stringbundle id="ae-clippings-strings" 
-   src="chrome://clippings/locale/clippings.properties"/>
-
   <label id="folder-tree-label" value="&moveToFolder.label;" accesskey="&moveToFolder.accesskey;"/>
   <tree id="folder-tree" flex="1" hidecolumnpicker="true"
    seltype="single">

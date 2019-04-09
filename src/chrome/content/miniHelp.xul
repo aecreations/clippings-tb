@@ -17,9 +17,11 @@
   <script type="application/javascript">
   <![CDATA[
 
+    ChromeUtils.import("resource://clippings/modules/aeUtils.js");
+
     function initDlg() 
     {
-      var strBundle = document.getElementById("ae-clippings-strings");
+      var strBundle = aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
       var helpStr;
 
       try {
@@ -48,9 +50,6 @@
 
   ]]>
   </script>
-
-  <stringbundle id="ae-clippings-strings" 
-   src="chrome://clippings/locale/clippings.properties"/>
 
   <textbox id="minihelp-text" readonly="true" multiline="true" rows="10" />
 

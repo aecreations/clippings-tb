@@ -19,9 +19,6 @@
 
   <script type="application/javascript" src="chrome://clippings/content/new.js"/>
 
-  <stringbundle id="ae-clippings-strings" 
-   src="chrome://clippings/locale/clippings.properties"/>
-
   <label value="&clippingName.label;" accesskey="&clippingName.accesskey;" control="clipping-name"/>
   <textbox id="clipping-name" size="50" maxlength="64"
    onblur="validateClippingName(event)"/>

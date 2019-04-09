@@ -12,6 +12,7 @@
  title="&export.title;"
  orient="vertical"
  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+ xmlns:html="http://www.w3.org/1999/xhtml"
  buttons="accept, cancel"
  buttonlabelaccept="&exportButton.label;"
  buttonaccesskeyaccept="&exportButton.accesskey;"
@@ -20,17 +21,14 @@
 
   <script type="application/javascript" src="chrome://clippings/content/export.js"/>
 
-  <stringbundle id="clippings-strings" 
-   src="chrome://clippings/locale/clippings.properties"/>
-
   <label value="&exportFormatList.label;" accesskey="&exportFormatList.accesskey;" control="export-format-list"/>
 
-  <listbox id="export-format-list" rows="4" onselect="exportFormatList_click(event)">
-    <listitem label="&fmtClippings.listitem;"/>
-    <listitem label="&fmtClippingsWx.listitem;"/>
-    <listitem label="&fmtCsv.listitem;"/>
-    <listitem label="&fmtHtmlDocument.listitem;"/>
-  </listbox>
+  <html:select id="export-format-list" size="4" onclick="exportFormatList_click(event)" style="margin-left:4px;margin-right:4px;font:caption">
+    <html:option>&fmtClippings.listitem;</html:option>
+    <html:option>&fmtClippingsWx.listitem;</html:option>
+    <html:option>&fmtCsv.listitem;</html:option>
+    <html:option>&fmtHtmlDocument.listitem;</html:option>
+  </html:select>
 
   <groupbox style="height:8em;width:26em">
     <caption label="&description.caption;"/>

@@ -21,7 +21,7 @@ function $(aID) {
 function initDlg()
 {
   gDlgArgs = window.arguments[0].wrappedJSObject;
-  gStrBundle = $("ae-clippings-strings");
+  gStrBundle = aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
   var promptText = $("prompt-text");
   var promptDeck = $("prompt-deck");
   var strKey;
