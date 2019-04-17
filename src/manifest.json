@@ -9,12 +9,12 @@
   "applications": {
     "gecko": {
       "id": "clippings-tb@aecreations.github.io",
-      "strict_min_version": "65.0b1"
+      "strict_min_version": "67.0b1"
     }
   },
   
   "icons": {
-    "32": "chrome://clippings/skin/images/icon.png"
+    "32": "chrome/skin/images/icon.png"
   },
 
   "legacy": {
