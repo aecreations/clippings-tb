@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://clippings/modules/aeConstants.js");
-ChromeUtils.import("resource://clippings/modules/aeUtils.js");
-ChromeUtils.import("resource://clippings/modules/aeString.js");
-ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
-ChromeUtils.import("resource://clippings/modules/aeCreateClippingHelper.js");
-ChromeUtils.import("resource://clippings/modules/aeInsertTextIntoTextbox.js");
-ChromeUtils.import("resource://clippings/modules/aeClippingLabelPicker.js");
-ChromeUtils.import("resource://clippings/modules/aeClippingsTree.js");
+const {aeConstants} = ChromeUtils.import("resource://clippings/modules/aeConstants.js");
+const {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
+const {aeString} = ChromeUtils.import("resource://clippings/modules/aeString.js");
+const {aeClippingsService} = ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
+const {aeCreateClippingFromText} = ChromeUtils.import("resource://clippings/modules/aeCreateClippingHelper.js");
+const {aeInsertTextIntoTextbox} = ChromeUtils.import("resource://clippings/modules/aeInsertTextIntoTextbox.js");
+const {aeClippingLabelPicker} = ChromeUtils.import("resource://clippings/modules/aeClippingLabelPicker.js");
+const {aeClippingsTree} = ChromeUtils.import("resource://clippings/modules/aeClippingsTree.js");
 
 
 const WINDOWSTATE_MAXIMIZE  = 1;
@@ -1130,7 +1130,7 @@ function unload()
 
   let retrySave;
   let doBackup = true;
-  let saveJSON = this.aeUtils.getPref("clippings.datasource.wx_sync.enabled", false);
+  let saveJSON = aeUtils.getPref("clippings.datasource.wx_sync.enabled", false);
 
   do {
     retrySave = false;
@@ -1895,7 +1895,7 @@ function saveClippings(aSuppressStatusMsgs, aForceSave, aDoBackup)
   }
 
   let msg = gStrBundle.getString("saveCompleted");
-  let saveJSON = this.aeUtils.getPref("clippings.datasource.wx_sync.enabled", false);
+  let saveJSON = aeUtils.getPref("clippings.datasource.wx_sync.enabled", false);
   try {
     gSaveInProgress = true;
     gClippingsSvc.flushDataSrc(aDoBackup, saveJSON);

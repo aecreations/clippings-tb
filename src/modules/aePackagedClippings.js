@@ -2,8 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://clippings/modules/aeString.js");
-ChromeUtils.import("resource://clippings/modules/aeUtils.js");
+const {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
 
 
 const EXPORTED_SYMBOLS = ["aePackagedClippings"];
@@ -81,24 +80,24 @@ aePackagedClippings.importData = function (aClippingsSvc)
   var numImported = -1;
   var importShortcutKeys = true;
 
-  aeUtils.log(aeString.format("URL of the packaged data source file to import: %S", pkgDataSrcURL));
+  aeUtils.log(`URL of the packaged data source file to import: ${pkgDataSrcURL}`);
 
   try {
     numImported = aClippingsSvc.importFromFile(pkgDataSrcURL, true, importShortcutKeys, {});
   }
   catch (e) {
-    aeUtils.log(aeString.format("aePackagedClippings.importData(): Exception thrown by aeIClippingsService.importFromFile():\n\n%s", e));
+    aeUtils.log(`aePackagedClippings.importData(): Exception thrown by aeClippingsService.importFromFile():\n\n${e}`);
     throw this.E_IMPORT_FAILED;
   }
 
   if (numImported != -1) {
-    aeUtils.log(aeString.format("Successfully imported the packaged data into the Clippings data source\n%d item(s) imported", numImported));
+    aeUtils.log(`Successfully imported the packaged data into the Clippings data source\n${numImported} item(s) imported`);
     
     try {
       aClippingsSvc.flushDataSrc(true, false);
     }
     catch (e) {
-      aeUtils.log(aeString.format("aePackagedClippings.importData(): Exception thrown by aeIClippingsService.flushDataSrc():\n\n%s", e));
+      aeUtils.log(`aePackagedClippings.importData(): Exception thrown by aeClippingsService.flushDataSrc():\n\n${e}`);
       throw this.E_FLUSH_FAILED;
     }
   }

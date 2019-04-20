@@ -64,7 +64,7 @@ window.aecreations.clippings = {
     }
 
     var text = aEvent.dataTransfer.getData("text/plain");
-    var result = this.aeCreateClippingFromText(this.clippingsSvc, text, null, this.showDialog, window, null, false);
+    var result = this.hlpr.aeCreateClippingFromText(this.clippingsSvc, text, null, this.showDialog, window, null, false);
 
     if (result) {
       let that = window.aecreations.clippings;
@@ -80,7 +80,7 @@ window.aecreations.clippings = {
   alert: function (aMessage)
   {
     var title = this.strBundle.getString("appName");
-    this.aeUtils.alertEx(title, aMessage);
+    this.util.aeUtils.alertEx(title, aMessage);
   },
 
 
@@ -91,7 +91,7 @@ window.aecreations.clippings = {
       return;
     }
 
-    var txt = this.aeUtils.getTextFromClipboard();
+    var txt = this.util.aeUtils.getTextFromClipboard();
     if (! txt) {
       var clippingsBtn = document.getElementById("ae-clippings-icon");
       var panel = document.getElementById("ae-clippings-clipboard-alert");
@@ -99,7 +99,7 @@ window.aecreations.clippings = {
       return;
     }
 
-    var result = this.aeCreateClippingFromText(this.clippingsSvc, txt, null, this.showDialog, window, null, false);
+    var result = this.hlpr.aeCreateClippingFromText(this.clippingsSvc, txt, null, this.showDialog, window, null, false);
     if (result) {
       let that = this;
       window.setTimeout(function () { 
@@ -128,7 +128,7 @@ window.aecreations.clippings = {
 
   insertClippingText: function (aText) 
   {
-    this.aeUtils.copyTextToClipboard(aText);
+    this.util.aeUtils.copyTextToClipboard(aText);
 
     try {
       // Paste clipping.  The following function is defined in
@@ -138,7 +138,7 @@ window.aecreations.clippings = {
     }
     catch (e) {
       // Exception thrown if command is disabled or not applicable
-      this.aeUtils.beep();
+      this.util.aeUtils.beep();
     }
   },
 
@@ -146,54 +146,54 @@ window.aecreations.clippings = {
   saveClippings: function () 
   {
     let title = this.strBundle.getString("appName");
-    let saveJSON = this.aeUtils.getPref("clippings.datasource.wx_sync.enabled", false);
+    let saveJSON = this.util.aeUtils.getPref("clippings.datasource.wx_sync.enabled", false);
     try {
       this.clippingsSvc.flushDataSrc(true, saveJSON);
     }
     catch (e) {
       if (e.result === undefined) {
-	this.aeUtils.alertEx(title, this.strBundle.getString("alertSaveFailed"));
+	this.util.aeUtils.alertEx(title, this.strBundle.getString("alertSaveFailed"));
 	return;
       }
       
       if (e.result == Components.results.NS_ERROR_NOT_INITIALIZED) {
-	this.aeUtils.alertEx(title, this.strBundle.getString("errorSaveFailedDSNotInitialized"));
+	this.util.aeUtils.alertEx(title, this.strBundle.getString("errorSaveFailedDSNotInitialized"));
       }
       else if (e.result == Components.results.NS_ERROR_OUT_OF_MEMORY) {
-	this.aeUtils.alertEx(title, this.strBundle.getString("errorOutOfMemory"));
+	this.util.aeUtils.alertEx(title, this.strBundle.getString("errorOutOfMemory"));
       }
       else if (e.result == Components.results.NS_ERROR_FILE_ACCESS_DENIED) {
-	var msg = this.aeString.format("%s: %s",
+	var msg = this.str.aeString.format("%s: %s",
 				this.strBundle.getString("errorAccessDenied"),
-				this.aeConstants.CLIPDAT_FILE_NAME);
-	this.aeUtils.alertEx(title, msg);
+				this.cnst.aeConstants.CLIPDAT_FILE_NAME);
+	this.util.aeUtils.alertEx(title, msg);
       }
       else if (e.result == Components.results.NS_ERROR_FILE_IS_LOCKED) {
-	var msg = this.aeString.format("%s: %s",
+	var msg = this.str.aeString.format("%s: %s",
 				this.strBundle.getString("errorFileLocked"),
-				this.aeConstants.CLIPDAT_FILE_NAME);
-	this.aeUtils.alertEx(title, msg);
+				this.cnst.aeConstants.CLIPDAT_FILE_NAME);
+	this.util.aeUtils.alertEx(title, msg);
       }
       else if (e.result == Components.results.NS_ERROR_FILE_TOO_BIG) {
-	var msg = this.aeString.format("%s: %s",
+	var msg = this.str.aeString.format("%s: %s",
 				this.strBundle.getString("errorFileTooBig"),
-				this.aeConstants.CLIPDAT_FILE_NAME);
-	this.aeUtils.alertEx(title, msg);
+				this.cnst.aeConstants.CLIPDAT_FILE_NAME);
+	this.util.aeUtils.alertEx(title, msg);
       }
       else if (e.result == Components.results.NS_ERROR_FILE_READ_ONLY) {
-	var msg = this.aeString.format("%s: %s",
+	var msg = this.str.aeString.format("%s: %s",
 				this.strBundle.getString("errorFileReadOnly"),
-				this.aeConstants.CLIPDAT_FILE_NAME);
-	this.aeUtils.alertEx(title, msg);
+				this.cnst.aeConstants.CLIPDAT_FILE_NAME);
+	this.util.aeUtils.alertEx(title, msg);
       }
       else if (e.result == Components.results.NS_ERROR_FILE_DISK_FULL) {
-	var msg = this.aeString.format("%s: %s",
+	var msg = this.str.aeString.format("%s: %s",
 				this.strBundle.getString("errorDiskFull"),
-				this.aeConstants.CLIPDAT_FILE_NAME);
-	this.aeUtils.alertEx(title, msg);
+				this.cnst.aeConstants.CLIPDAT_FILE_NAME);
+	this.util.aeUtils.alertEx(title, msg);
       }
       else {
-	this.aeUtils.alertEx(title, this.strBundle.getString("alertSaveFailed"));
+	this.util.aeUtils.alertEx(title, this.strBundle.getString("alertSaveFailed"));
       }
     }
   },
@@ -210,10 +210,10 @@ window.aecreations.clippings = {
       return;
     }
 
-    this.strBundle = this.aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
+    this.strBundle = this.util.aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
 
     try {
-      this.clippingsSvc = this.aeClippingsService.getService();
+      this.clippingsSvc = this.svc.aeClippingsService.getService();
     }
     catch (e) {
       this.alert(e);
@@ -223,63 +223,63 @@ window.aecreations.clippings = {
     this.clippingsSvc.setSyncedClippingsFolderName(this.strBundle.getString("syncFldrLabel"));
 
     // Migrate prefs from root to the "extensions." branch
-    let prefsMigrated = this.aeUtils.getPref("clippings.migrated_prefs", false);
+    let prefsMigrated = this.util.aeUtils.getPref("clippings.migrated_prefs", false);
     if (! prefsMigrated) {
-      this.aePrefMigrator.migratePrefs();
-      this.aeUtils.setPref("clippings.migrated_prefs", true);
+      this.pm.aePrefMigrator.migratePrefs();
+      this.util.aeUtils.setPref("clippings.migrated_prefs", true);
     }
 
     // Rename backup folder so that it isn't hidden on macOS and Linux.
-    let dataSrcPathURL = this.aeUtils.getDataSourcePathURL();
-    let oldBackupDirURL = dataSrcPathURL + this.aeConstants.OLD_BACKUP_DIR_NAME;
-    let oldBackupDirPath = this.aeUtils.getFilePathFromURL(oldBackupDirURL);
+    let dataSrcPathURL = this.util.aeUtils.getDataSourcePathURL();
+    let oldBackupDirURL = dataSrcPathURL + this.cnst.aeConstants.OLD_BACKUP_DIR_NAME;
+    let oldBackupDirPath = this.util.aeUtils.getFilePathFromURL(oldBackupDirURL);
     let oldBkupDir = Components.classes["@mozilla.org/file/local;1"]
                                .createInstance(Components.interfaces.nsIFile);
 
     oldBkupDir.initWithPath(oldBackupDirPath);
     if (oldBkupDir.exists() && oldBkupDir.isDirectory()) {
-      this.aeUtils.log(`Detected old backup folder '.clipbak' in "${dataSrcPathURL}" - renaming it to '${this.aeConstants.BACKUP_DIR_NAME}'`);
+      this.util.aeUtils.log(`Detected old backup folder '.clipbak' in "${dataSrcPathURL}" - renaming it to '${this.cnst.aeConstants.BACKUP_DIR_NAME}'`);
       try {
-        oldBkupDir.renameTo(null, this.aeConstants.BACKUP_DIR_NAME);
+        oldBkupDir.renameTo(null, this.cnst.aeConstants.BACKUP_DIR_NAME);
       }
       catch (e) {
-        this.aeUtils.log(e);
-        this.aeUtils.alertEx(this.strBundle.getString("appName"),
-                             this.strBundle.getFormattedString("bkupFldrRenameError", [this.aeUtils.getFilePathFromURL(dataSrcPathURL)]));
+        this.util.aeUtils.log(e);
+        this.util.aeUtils.alertEx(this.strBundle.getString("appName"),
+                             this.strBundle.getFormattedString("bkupFldrRenameError", [this.util.aeUtils.getFilePathFromURL(dataSrcPathURL)]));
       }
     }
     
     // First-run initialization
-    if (this.aeUtils.getPref("clippings.first_run", true) == true) {
+    if (this.util.aeUtils.getPref("clippings.first_run", true) == true) {
       // Starting with Clippings 4.0, the status bar in Clippings Manager will
       // be hidden by default for new users.  Users upgrading from earlier
       // versions of Clippings will continue to see the status bar.
-      this.aeUtils.setPref("clippings.clipmgr.status_bar", false);
+      this.util.aeUtils.setPref("clippings.clipmgr.status_bar", false);
       
-      this.aeUtils.setPref("clippings.first_run", false);
+      this.util.aeUtils.setPref("clippings.first_run", false);
     }
 
     // Migration of deprecated common clippings pref (Clippings 4.0+)
-    if (this.aeUtils.getPref("clippings.migrate_common_ds_pref", true) == true) {
-      this.aeClippings3.migrateCommonDataSrcPref();
-      this.aeUtils.setPref("clippings.migrate_common_ds_pref", false);
+    if (this.util.aeUtils.getPref("clippings.migrate_common_ds_pref", true) == true) {
+      this.legacy.aeClippings3.migrateCommonDataSrcPref();
+      this.util.aeUtils.setPref("clippings.migrate_common_ds_pref", false);
     }
 
     // First-run initialization after upgrade from 2.x -> 3.0+
-    if (this.aeUtils.getPref("clippings.v3.first_run", true) == true) {
-      this.aeClippings3.init(this.clippingsSvc, this.strBundle);
-      var initFinished = this.aeClippings3.startInit();
+    if (this.util.aeUtils.getPref("clippings.v3.first_run", true) == true) {
+      this.legacy.aeClippings3.init(this.clippingsSvc, this.strBundle);
+      var initFinished = this.legacy.aeClippings3.startInit();
       if (initFinished) {
-	this.aeUtils.setPref("clippings.v3.first_run", false);
+	this.util.aeUtils.setPref("clippings.v3.first_run", false);
       }
     }
 
-    let profilePath = this.aeUtils.getUserProfileDir().path;
-    let dsPath = this.aeUtils.getPref("clippings.datasource.location", profilePath);
+    let profilePath = this.util.aeUtils.getUserProfileDir().path;
+    let dsPath = this.util.aeUtils.getPref("clippings.datasource.location", profilePath);
     
     // Initialize the datasource in the Clippings XPCOM service
     var err = false;
-    var dsURL = this.aeUtils.getDataSourcePathURL() + this.aeConstants.CLIPDAT_FILE_NAME;
+    var dsURL = this.util.aeUtils.getDataSourcePathURL() + this.cnst.aeConstants.CLIPDAT_FILE_NAME;
     try {
       var ds = this.clippingsSvc.getDataSource(dsURL);
     }
@@ -291,19 +291,19 @@ window.aecreations.clippings = {
 	err = this.strBundle.getString("errorOutOfMemory");
       }
       else if (e.result == Components.results.NS_ERROR_FILE_ACCESS_DENIED) {
-	err = this.aeString.format("%s: %s",
+	err = this.str.aeString.format("%s: %s",
 		  	    this.strBundle.getString("errorAccessDenied"),
-			    this.aeConstants.CLIPDAT_FILE_NAME);
+			    this.cnst.aeConstants.CLIPDAT_FILE_NAME);
       }
       else if (e.result == Components.results.NS_ERROR_FILE_IS_LOCKED) {
-	err = this.aeString.format("%s: %s",
+	err = this.str.aeString.format("%s: %s",
 		  	    this.strBundle.getString("errorFileLocked"),
-			    this.aeConstants.CLIPDAT_FILE_NAME);
+			    this.cnst.aeConstants.CLIPDAT_FILE_NAME);
       }
       else if (e.result == Components.results.NS_ERROR_FILE_TOO_BIG) {
-	err = this.aeString.format("%s: %s",
+	err = this.str.aeString.format("%s: %s",
 		 	    this.strBundle.getString("errorFileTooBig"),
-			    this.aeConstants.CLIPDAT_FILE_NAME);
+			    this.cnst.aeConstants.CLIPDAT_FILE_NAME);
       }
       else {
 	// File is corrupt - open Clippings Manager and perform recovery.
@@ -317,37 +317,37 @@ window.aecreations.clippings = {
     }
 
     // Clippings backup
-    var backupDirURL = this.aeUtils.getDataSourcePathURL() + this.aeConstants.BACKUP_DIR_NAME;
+    var backupDirURL = this.util.aeUtils.getDataSourcePathURL() + this.cnst.aeConstants.BACKUP_DIR_NAME;
     this.clippingsSvc.setBackupDir(backupDirURL);
-    this.clippingsSvc.setMaxBackupFiles(this.aeUtils.getPref("clippings.backup.maxfiles", 10));
+    this.clippingsSvc.setMaxBackupFiles(this.util.aeUtils.getPref("clippings.backup.maxfiles", 10));
 
     this.dataSrcInitialized = true;
 
-    this.aeUtils.log(this.aeString.format("gClippings.initClippings(): Clippings data source successfully loaded.\nHost app: %s (version %s)\nOS identifier: %s\nInitializing Clippings integration with host app window: %s", this.aeUtils.getHostAppName(), this.aeUtils.getHostAppVersion(), this.aeUtils.getOS(), window.location.href));
+    this.util.aeUtils.log(`initClippings(): Clippings data source successfully loaded.\nHost app: ${this.util.aeUtils.getHostAppName()} (version ${this.util.aeUtils.getHostAppVersion()})\nOS identifier: ${this.util.aeUtils.getOS()}\nInitializing Clippings integration with host app window: ${window.location.href}`);
 
     // Add null clipping to root folder if there are no items
-    if (this.aeUtils.getPref("clippings.datasource.process_root", true) == true) {
+    if (this.util.aeUtils.getPref("clippings.datasource.process_root", true) == true) {
       this.clippingsSvc.processRootFolder();
-      this.aeUtils.setPref("clippings.datasource.process_root", false);
+      this.util.aeUtils.setPref("clippings.datasource.process_root", false);
     }
 
-    let syncClippings = this.aeUtils.getPref("clippings.datasource.wx_sync.enabled", false);
+    let syncClippings = this.util.aeUtils.getPref("clippings.datasource.wx_sync.enabled", false);
     if (syncClippings) {
-      this.aeUtils.log("gClippings.initClippings(): Sync Clippings is turned on. Refreshing the Synced Clippings folder.");
+      this.util.aeUtils.log("gClippings.initClippings(): Sync Clippings is turned on. Refreshing the Synced Clippings folder.");
 
-      let syncDirPath = this.aeUtils.getPref("clippings.datasource.wx_sync.location", "");
+      let syncDirPath = this.util.aeUtils.getPref("clippings.datasource.wx_sync.location", "");
       if (! syncDirPath) {
-	syncDirPath = this.aeUtils.getPref("clippings.datasource.location", "");
-	this.aeUtils.setPref("clippings.datasource.wx_sync.location", syncDirPath);
+	syncDirPath = this.util.aeUtils.getPref("clippings.datasource.location", "");
+	this.util.aeUtils.setPref("clippings.datasource.wx_sync.location", syncDirPath);
       }
-      this.aeUtils.log("gClippings.initClippings: Sync folder location: " + syncDirPath);
+      this.util.aeUtils.log("gClippings.initClippings: Sync folder location: " + syncDirPath);
 
-      let syncDirURL = this.aeUtils.getURLFromFilePath(syncDirPath);
+      let syncDirURL = this.util.aeUtils.getURLFromFilePath(syncDirPath);
       this.clippingsSvc.setSyncDir(syncDirURL);
       this.clippingsSvc.refreshSyncedClippings(false);
     }
 
-    this.showDialog = !(this.aeUtils.getPref("clippings.entries.add_silently", false));
+    this.showDialog = !(this.util.aeUtils.getPref("clippings.entries.add_silently", false));
 
     // Place the status bar icon so that it appears as the last item, before
     // the window resizer grippy
@@ -392,9 +392,9 @@ window.aecreations.clippings = {
 
     // Disable Clippings Manager window persistence via JavaScript if running
     // on Mac OS X, unless user has explicitly set it.
-    if (this.aeUtils.getOS() == "Darwin") {
-      if (! this.aeUtils.hasPref("clippings.clipmgr.disable_js_window_geometry_persistence")) {
-	this.aeUtils.setPref("clippings.clipmgr.disable_js_window_geometry_persistence", true);
+    if (this.util.aeUtils.getOS() == "Darwin") {
+      if (! this.util.aeUtils.hasPref("clippings.clipmgr.disable_js_window_geometry_persistence")) {
+	this.util.aeUtils.setPref("clippings.clipmgr.disable_js_window_geometry_persistence", true);
       }
     }
 
@@ -402,21 +402,14 @@ window.aecreations.clippings = {
   }
 };
 
+window.aecreations.clippings.cnst = ChromeUtils.import("resource://clippings/modules/aeConstants.js");
+window.aecreations.clippings.str = ChromeUtils.import("resource://clippings/modules/aeString.js");
+window.aecreations.clippings.util = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
+window.aecreations.clippings.svc = ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
+window.aecreations.clippings.hlpr = ChromeUtils.import("resource://clippings/modules/aeCreateClippingHelper.js");
+window.aecreations.clippings.pm = ChromeUtils.import("resource://clippings/modules/aePrefMigrator.js");
+window.aecreations.clippings.legacy = ChromeUtils.import("resource://clippings/modules/aeClippings3.js");
 
-ChromeUtils.import("resource://clippings/modules/aeConstants.js",
-		   window.aecreations.clippings);
-ChromeUtils.import("resource://clippings/modules/aeString.js",
-                   window.aecreations.clippings);
-ChromeUtils.import("resource://clippings/modules/aeUtils.js",
-                   window.aecreations.clippings);
-ChromeUtils.import("resource://clippings/modules/aeClippingsService.js",
-		   window.aecreations.clippings);
-ChromeUtils.import("resource://clippings/modules/aeCreateClippingHelper.js",
-		   window.aecreations.clippings);
-ChromeUtils.import("resource://clippings/modules/aeClippings3.js",
-                   window.aecreations.clippings);
-ChromeUtils.import("resource://clippings/modules/aePrefMigrator.js",
-		   window.aecreations.clippings);
 
 //
 // Event handler initialization

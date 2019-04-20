@@ -17,7 +17,7 @@
   <script type="application/javascript">
   <![CDATA[
 
-    ChromeUtils.import("resource://clippings/modules/aeUtils.js");
+    const {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
 
     function initDlg() 
     {

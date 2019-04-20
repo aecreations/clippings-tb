@@ -5,8 +5,7 @@
 
 const EXPORTED_SYMBOLS = ["aeClippingsService"];
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/osfile.jsm");
+const {OS} = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;

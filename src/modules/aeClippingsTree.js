@@ -5,8 +5,8 @@
 const EXPORTED_SYMBOLS = ["aeClippingsTree"];
 
 
-ChromeUtils.import("resource://clippings/modules/aeUtils.js");
-ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
+const {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
+const {aeClippingsService} = ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
 
 
 let aeClippingsTree = {

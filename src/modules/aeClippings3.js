@@ -2,11 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
-ChromeUtils.import("resource://clippings/modules/aeConstants.js");
-ChromeUtils.import("resource://clippings/modules/aeUtils.js");
-ChromeUtils.import("resource://clippings/modules/aeString.js");
-ChromeUtils.import("resource://clippings/modules/aePackagedClippings.js");
+const {AddonManager} = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
+const {aeConstants} = ChromeUtils.import("resource://clippings/modules/aeConstants.js");
+const {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
+const {aePackagedClippings} = ChromeUtils.import("resource://clippings/modules/aePackagedClippings.js");
 
 //
 // Clippings initialization library for version 3.0 and later
@@ -107,7 +106,7 @@ aeClippings3._importPackagedClippingsHelper = function ()
       aeUtils.alertEx(this._strBundle.getString("appName"),
                       this._strBundle.getString("errorDSImportFailure"));
       var consoleSvc = Cc["@mozilla.org/consoleservice;1"].getService(Ci.nsIConsoleService);
-      var msg = aeString.format("Packaged Clipping import error: %s", e);
+      var msg = `Packaged Clipping import error: ${e}`;
       consoleSvc.logStringMessage(msg);
     }
   }
@@ -158,7 +157,7 @@ aeClippings3.migrateCommonDataSrcPref = function ()
       prefs.clearUserPref("clippings.datasource.common");
     }
     catch (e) {
-      aeUtils.log('aeClippings3._initDataSource(): Failed to remove deprecated user pref "clippings.datasource.common": ' + e);
+      aeUtils.log(`aeClippings3._initDataSource(): Failed to remove deprecated user pref "clippings.datasource.common": ${e}`);
     }
   }
   else {

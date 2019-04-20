@@ -6,12 +6,12 @@
 // This source file is shared by both new.xul and newFolder.xul
 //
 
-ChromeUtils.import("resource://clippings/modules/aeConstants.js");
-ChromeUtils.import("resource://clippings/modules/aeString.js");
-ChromeUtils.import("resource://clippings/modules/aeUtils.js");
-ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
-ChromeUtils.import("resource://clippings/modules/aeClippingLabelPicker.js");
-ChromeUtils.import("resource://clippings/modules/aeClippingsTree.js");
+const {aeConstants} = ChromeUtils.import("resource://clippings/modules/aeConstants.js");
+const {aeString} = ChromeUtils.import("resource://clippings/modules/aeString.js");
+const {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
+const {aeClippingsService} = ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
+const {aeClippingLabelPicker} = ChromeUtils.import("resource://clippings/modules/aeClippingLabelPicker.js");
+const {aeClippingsTree} = ChromeUtils.import("resource://clippings/modules/aeClippingsTree.js");
 
 
 var gDlgArgs = window.arguments[0].wrappedJSObject;
