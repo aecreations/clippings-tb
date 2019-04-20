@@ -249,7 +249,8 @@ toolbarbutton .toolbarbutton-icon {
 }
 
 #clipping-text {
-  margin-bottom: 1px;
+    margin-bottom: 1px;
+    -moz-box-flex: 1;
 }
 
 #find {

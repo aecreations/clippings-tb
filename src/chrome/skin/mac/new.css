@@ -9,6 +9,10 @@
   width: 34em;
 }
 
+#clipping-text {
+    -moz-box-flex: 1;
+}
+
 .ae-clippings-folder {
   list-style-image: url("chrome://clippings/skin/images/folder.svg");
 }

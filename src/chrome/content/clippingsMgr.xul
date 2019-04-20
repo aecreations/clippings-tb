@@ -10,6 +10,7 @@
 
 <window id="ae-clippings-manager"
  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+ xmlns:html="http://www.w3.org/1999/xhtml"
  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
  xmlns:clp="http://clippings.mozdev.org/ns/rdf#"
  sizemode="normal" screenX="48" screenY="96" 
@@ -444,11 +445,10 @@
 	 onblur="clippingName_blur(event)" 
 	 onfocus="clippingName_focus(event)" />
         <separator class="thin"/>
-        <textbox id="clipping-text" multiline="true" flex="1"
-         placeholder="&clippingText.placeholder;"
+        <html:textarea id="clipping-text" placeholder="&clippingText.placeholder;"
 	 oninput="if(!gQuickEdit.isStarted()){gQuickEdit.start();updateEditStatus()}"
 	 onblur="clippingText_blur(event)"
-	 onfocus="clippingText_focus(event)" />
+	 onfocus="clippingText_focus(event)"></html:textarea>
 
         <!-- Insert Placeholder bar -->
         <toolbox id="clipping-content-editor-toolbox" hidden="true">

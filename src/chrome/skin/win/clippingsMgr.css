@@ -208,6 +208,10 @@ toolbarbutton .toolbarbutton-icon {
   display: none;
 }
 
+#clipping-text {
+    -moz-box-flex: 1;
+}
+
 #find {
   -moz-image-region: rect(0px, 192px, 16px, 176px);
 }
