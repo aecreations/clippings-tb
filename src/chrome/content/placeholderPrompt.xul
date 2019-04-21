@@ -32,9 +32,7 @@
           <textbox id="placeholder-value" size="64"/>
 	</vbox>
 	<vbox id="select-prompt">
-          <menulist id="select-placeholder-value-menu" style="height:2em">
-            <menupopup/>
-          </menulist>
+          <menulist id="select-placeholder-value-menu" style="height:2em"></menulist>
 	</vbox>
       </deck>
       <separator class="thin"/>
