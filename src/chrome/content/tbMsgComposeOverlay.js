@@ -379,7 +379,7 @@ window.aecreations.clippings = {
         mailEditor.insertAsCitedQuotation(clippingText, "", true);
       }
       else {
-        mailEditor.insertAsQuotation(clippingText);
+	mailEditor.insertAsCitedQuotation(clippingText, "", false);
         mailEditor.rewrap(true);
       }
       return;
