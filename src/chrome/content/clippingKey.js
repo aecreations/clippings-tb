@@ -2,12 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://clippings/modules/aeUtils.js");
-ChromeUtils.import("resource://clippings/modules/aeString.js");
-ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
-
-const Cc = Components.classes;
-const Ci = Components.interfaces;
+const {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
+const {aeClippingsService} = ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
 
 var gDlgArgs;
 var gClippingsSvc;
@@ -21,7 +17,7 @@ function initWnd()
     gClippingsSvc = aeClippingsService.getService();
   }
   catch (e) {
-    alert(e);
+    aeUtils.log("clippingKey.js::initWnd(): Error retrieving Clippings service: " + e);
   }
 }
 
@@ -46,7 +42,7 @@ function processKeyPress(aEvent)
   else {
     let key = aEvent.key.toUpperCase();
 
-    aeUtils.log(aeString.format("Clippings: Key pressed: %S", key));
+    aeUtils.log(`clippingKey.js::processKeyPress(): Key pressed: '${key}'`);
 
     let keyMap = gClippingsSvc.getShortcutKeyMap();
 
