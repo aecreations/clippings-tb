@@ -35,7 +35,7 @@ function initDlg()
     strKey = "selectPromptText";
     promptDeck.selectedIndex = 1;
 
-    var menupopup = $("select-placeholder-value-menu").firstChild;
+    var menupopup = document.createElement("menupopup");
     var selectableValues = gDlgArgs.defaultValue.split("|");
 
     for (let value of selectableValues) {
@@ -44,6 +44,9 @@ function initDlg()
       menuitem.setAttribute("value", value);
       menupopup.appendChild(menuitem);
     }
+    let phValueMenu = $("select-placeholder-value-menu");
+    phValueMenu.appendChild(menupopup);
+    phValueMenu.selectedIndex = 0;
   }
   else {
     strKey = "substPromptText";
@@ -57,11 +60,14 @@ function initDlg()
 function accept()
 {
   if (gDlgArgs.selectMode) {
-    let selectedItem = $("select-placeholder-value-menu").selectedItem;
-    if (! selectedItem) {
+    let phValueMenu = $("select-placeholder-value-menu");
+    let selectedIdx = phValueMenu.selectedIndex;
+    if (selectedIdx == -1) {
       aeUtils.beep();
       return false;
     }
+
+    let selectedItem = phValueMenu.getItemAtIndex(selectedIdx);
     gDlgArgs.userInput = selectedItem.value;
   }
   else {
