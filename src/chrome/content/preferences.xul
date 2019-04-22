@@ -11,8 +11,7 @@
  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
  buttons="extra2,accept,cancel"
  buttonlabelextra2="&about.label;"
- onload="initDlg()" ondialogextra2="showAboutDlg()"
- ondialogaccept="return accept()" ondialogcancel="return cancel()">
+ onload="init()">
 
   <script type="application/javascript" src="chrome://clippings/content/preferences.js"></script>
   

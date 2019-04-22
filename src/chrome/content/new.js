@@ -76,6 +76,13 @@ function init()
   gFolderTree.showRootFolder = true;
   gFolderTree.build();
 
+  document.addEventListener("dialogaccept", aEvent => {
+    if (! accept()) {
+      aEvent.preventDefault();
+    }
+  });
+  document.addEventListener("dialogcancel", aEvent => { cancel() });
+  
   // newFolder.xul
   if (window.location.href == "chrome://clippings/content/newFolder.xul") {
     gFolderName = $("folder-name");

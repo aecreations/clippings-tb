@@ -19,7 +19,7 @@ function $(aID)
 }
 
 
-function initDlg()
+function init()
 {
   gStrBundle = aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
 
@@ -128,6 +128,10 @@ function initDlg()
 
   $("max-backup-files").value = aeUtils.getPref("clippings.backup.maxfiles", 10);
   $("sync-clippings").checked = aeUtils.getPref("clippings.datasource.wx_sync.enabled", false);
+
+  document.addEventListener("dialogaccept", aEvent => { accept() });
+  document.addEventListener("dialogcancel", aEvent => { cancel() });
+  document.addEventListener("dialogextra2", aEvent => { showAboutDlg() });
 }
 
 

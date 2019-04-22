@@ -15,8 +15,7 @@
  orient="vertical"
  persist="screenX screenY"
  buttons="accept,cancel"
- onload="init()" onfocus="checkForChangedFolders()"
- ondialogaccept="return accept()" ondialogcancel="return cancel()">
+ onload="init()" onfocus="checkForChangedFolders()">
 
   <script type="application/javascript" src="chrome://clippings/content/new.js"/>
 
