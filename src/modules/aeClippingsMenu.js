@@ -34,11 +34,10 @@ class ClippingsMenu
 
   build()
   {
-    let clippingsJSONStr = this._clippingsSvc.exportToJSONString();
-    let clippingsJSON = JSON.parse(clippingsJSONStr);
+    let clippingsData = this._clippingsSvc.getAllItemsAsArray();
 
     aeUtils.log("aeClippingsMenu.build(): Building Clippings menu");
-    this._buildHelper(this._menuPopupElt, clippingsJSON);
+    this._buildHelper(this._menuPopupElt, clippingsData);
   }
 
   _buildHelper(aMenuPopupElt, aFolderItems)

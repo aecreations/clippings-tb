@@ -1311,21 +1311,21 @@ function arrangeItemsByDnD()
 
   if (gClippingsSvc.isFolder(selectedURI)) {
     fldrName = gClippingsSvc.getName(selectedURI);
-    let fldrItems = gClippingsSvc.getSubfolderItemsAsJSONString(selectedURI);
+    let fldrItems = gClippingsSvc.getSubfolderItems(selectedURI);
     folders.push({
       uri:  selectedURI,
       name: fldrName,
-      items: JSON.parse(fldrItems)
+      items: fldrItems,
     });
 
     // If the parent of the selected folder is the root folder, then also get
     // the root-level items.
     if (gClippingsSvc.getParent(selectedURI) == gClippingsSvc.kRootFolderURI) {
-      let rootFldrItems = gClippingsSvc.getSubfolderItemsAsJSONString(gClippingsSvc.kRootFolderURI);
+      let rootFldrItems = gClippingsSvc.getSubfolderItems(gClippingsSvc.kRootFolderURI);
       folders.push({
 	uri:  gClippingsSvc.kRootFolderURI,
 	name: rootFldrName,
-	items: JSON.parse(rootFldrItems)
+	items: rootFldrItems,
       });
     }
   }
@@ -1338,11 +1338,11 @@ function arrangeItemsByDnD()
       fldrName = gClippingsSvc.getName(parentURI);
     }
 
-    let fldrItems = gClippingsSvc.getSubfolderItemsAsJSONString(parentURI);
+    let fldrItems = gClippingsSvc.getSubfolderItems(parentURI);
     folders.push({
       uri: parentURI,
       name: fldrName,
-      items: JSON.parse(fldrItems)
+      items: fldrItems,
     });
   }
   

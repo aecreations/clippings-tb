@@ -61,8 +61,7 @@ class ClippingsTree
   
   build()
   {
-    let clippingsJSONStr = this._clippingsSvc.exportToJSONString();
-    let clippingsJSON = JSON.parse(clippingsJSONStr);
+    let clippingsData = this._clippingsSvc.getAllItemsAsArray();
 
     aeUtils.log("aeClippingsTree.build(): Building Clippings tree");
 
@@ -82,14 +81,14 @@ class ClippingsTree
       rootTreeitem.appendChild(rootTreerow);
 
       let nestedTreechildren = this._doc.createElement("treechildren");
-      this._buildHelper(nestedTreechildren, clippingsJSON);
+      this._buildHelper(nestedTreechildren, clippingsData);
 
       rootTreeitem.appendChild(nestedTreechildren);
       treechildrenRoot.appendChild(rootTreeitem);
       this._tree.appendChild(treechildrenRoot);
     }
     else {
-      this._buildHelper(treechildrenRoot, clippingsJSON);
+      this._buildHelper(treechildrenRoot, clippingsData);
       this._tree.appendChild(treechildrenRoot);
     }
   }

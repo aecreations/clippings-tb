@@ -2117,22 +2117,18 @@ aeClippingsServiceImpl.prototype.killDataSrc = function ()
 };
 
 
-aeClippingsServiceImpl.prototype.exportToJSONString = function ()
-{
-  let rv = "";
-  let jsonData = [];
-
-  this._exportAsClippingsWxJSON(this._rdfContainer, jsonData, true, true, true);
-  rv = JSON.stringify(jsonData);
+aeClippingsServiceImpl.prototype.getAllItemsAsArray = function ()
+{ 
+  let rv = [];
+  this._exportAsClippingsWxJSON(this._rdfContainer, rv, true, true, true);
 
   return rv;
 };
 
 
-aeClippingsServiceImpl.prototype.getSubfolderItemsAsJSONString = function (aFolderURI)
+aeClippingsServiceImpl.prototype.getSubfolderItems = function (aFolderURI)
 {
-  let rv = "";
-  let jsonData = [];
+  let rv = [];
   let rootFldrCtr;
 
   if (aFolderURI == this.kRootFolderURI) {
@@ -2153,10 +2149,9 @@ aeClippingsServiceImpl.prototype.getSubfolderItemsAsJSONString = function (aFold
       name: this.getName(childURI),
       isFolder: this.isFolder(childURI)
     };
-    jsonData.push(folderItem);
+    rv.push(folderItem);
   }
 
-  rv = JSON.stringify(jsonData);
   return rv;
 };
 
