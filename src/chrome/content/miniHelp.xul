@@ -8,9 +8,10 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <dialog id="ae-clippings-minihelp" 
+ xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+ xmlns:html="http://www.w3.org/1999/xhtml"
  title="&clippings.appName;"
  orient="vertical" style="width:32em"
- xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
  buttons="accept"
  onload="initDlg()" ondialogaccept="return doOK()">
 
@@ -51,6 +52,6 @@
   ]]>
   </script>
 
-  <textbox id="minihelp-text" readonly="true" multiline="true" rows="10" />
+  <html:textarea id="minihelp-text" readonly="true" rows="10"></html:textarea>
 
 </dialog>
