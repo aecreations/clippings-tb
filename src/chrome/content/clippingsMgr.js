@@ -2231,11 +2231,6 @@ function toggleStatusBar()
 
 function insertCustomPlaceholder()
 {
-  if (! isClippingTextAreaFocused()) {
-    aeUtils.beep();
-    return;
-  }
-
   var dlgArgs = {
     CUSTOM: 0,
     AUTO_INCREMENT: 1,
@@ -2257,11 +2252,6 @@ function insertCustomPlaceholder()
 
 function insertAutoIncrementPlaceholder()
 {
-  if (! isClippingTextAreaFocused()) {
-    aeUtils.beep();
-    return;
-  }
-
   var dlgArgs = {
     CUSTOM: 0,
     AUTO_INCREMENT: 1,
@@ -2283,11 +2273,6 @@ function insertAutoIncrementPlaceholder()
 
 function insertPresetPlaceholder(aPresetName)
 {
-  if (! isClippingTextAreaFocused()) {
-    aeUtils.beep();
-    return;
-  }
-
   var placeholder = "";
 
   switch (aPresetName) {
@@ -2325,19 +2310,9 @@ function insertPresetPlaceholder(aPresetName)
 
 function insertIntoClippingText(aInsertedText)
 {
-  var focusedElt = document.commandDispatcher.focusedElement;
-
-  // <textbox multiline="true"> is actually an <html:textarea> element.
-  // Full XBL hierarchy: <textbox> -> <xul:hbox> -> <html:textarea>
-  if (focusedElt.nodeName == "html:textarea" && focusedElt.parentElement.parentElement.id == "clipping-text") {
-    let textbox = focusedElt;
-
-    aeInsertTextIntoTextbox(textbox, aInsertedText);
-  }
-  else {
-    aeUtils.beep();
-    aeUtils.log("The clipping content textarea is not focused!");
-  }
+  let textbox = $("clipping-text");
+  textbox.focus();
+  aeInsertTextIntoTextbox(textbox, aInsertedText);
 }
 
 
