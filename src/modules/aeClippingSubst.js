@@ -239,8 +239,9 @@ aeClippingSubst.processClippingText = function (aClippingInfo, aWnd, aAlwaysUseP
   // Extended-B, Cyrillic, Hebrew.
   // For normal placeholders, allow {|} chars for optional default values, and
   // within the { and }, allow the same characters as placeholder names, but
-  // including the space, hyphen and period.
-  rv = rv.replace(/\$\[([\w\u0080-\u00FF\u0100-\u017F\u0180-\u024F\u0400-\u04FF\u0590-\u05FF]+)(\{([\w \-\.\u0080-\u00FF\u0100-\u017F\u0180-\u024F\u0400-\u04FF\u0590-\u05FF\|])+\})?\]/gm, fnReplace);
+  // including the space, hyphen, period, and the following special characters:
+  // ?_/!@#%&;,:'" and common currency symbols
+  rv = rv.replace(/\$\[([\w\u0080-\u00FF\u0100-\u017F\u0180-\u024F\u0400-\u04FF\u0590-\u05FF]+)(\{([\w \-\.\?_\/!@#%&;:,'"$£¥€*¡¢\u0080-\u00FF\u0100-\u017F\u0180-\u024F\u0400-\u04FF\u0590-\u05FF\|])+\})?\]/gm, fnReplace);
   rv = rv.replace(/\#\[([a-zA-Z0-9_\u0080-\u00FF\u0100-\u017F\u0180-\u024F\u0400-\u04FF\u0590-\u05FF]+)\]/gm, fnAutoIncrement);
 
   return rv;
