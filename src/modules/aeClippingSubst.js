@@ -271,14 +271,14 @@ aeClippingSubst.processClippingText = function (aClippingInfo, aWnd, aAlwaysUseP
     aWnd.openDialog("chrome://clippings/content/processDateTimePlaceholder.xhtml", "ae_clippings_dtplchldrs", "chrome,modal,centerscreen", dlgArgs);
 
     for (let i = 0; i < dlgArgs.dtPlaceholders.length; i++) {
-      let suffix = "";
+      let prefix = "";
       if (dlgArgs.plchldrType[i] == "D") {
-	suffix = "$[DATE(";
+	prefix = "$[DATE(";
       }
       else if (dlgArgs.plchldrType[i] == "T"){
-	suffix = "$[TIME(";
+	prefix = "$[TIME(";
       }
-      let dtPlchldr = suffix + dlgArgs.dtPlaceholders[i] + ")]";
+      let dtPlchldr = prefix + dlgArgs.dtPlaceholders[i] + ")]";
       rv = rv.replace(dtPlchldr, dlgArgs.dtReplaced[i]);
     }
   }
