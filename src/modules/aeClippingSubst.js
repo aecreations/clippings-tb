@@ -247,8 +247,6 @@ aeClippingSubst.processClippingText = function (aClippingInfo, aWnd, aAlwaysUseP
   rv = rv.replace(/\$\[([\w\u0080-\u00FF\u0100-\u017F\u0180-\u024F\u0400-\u04FF\u0590-\u05FF]+)(\{([\w \-\.\?_\/\(\)!@#%&;:,'"$£¥€*¡¢\u0080-\u00FF\u0100-\u017F\u0180-\u024F\u0400-\u04FF\u0590-\u05FF\|])+\})?\]/gm, fnReplace);
   rv = rv.replace(/\#\[([a-zA-Z0-9_\u0080-\u00FF\u0100-\u017F\u0180-\u024F\u0400-\u04FF\u0590-\u05FF]+)\]/gm, fnAutoIncrement);
 
-  aeUtils.log(`It is ${hasFmtDateTime} that the clipping to be pasted (name "${aClippingInfo.name}") contains one or more occurrences of the formatted $[DATE()] and/or $[TIME()] placeholders.`);
-  
   if (hasFmtDateTime) {
     let dlgArgs = {
       dtPlaceholders: [],
