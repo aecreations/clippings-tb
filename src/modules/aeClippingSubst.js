@@ -59,6 +59,7 @@ aeClippingSubst.processClippingText = function (aClippingInfo, aWnd, aAlwaysUseP
   var rv = "";
   var strBundle = this._strBundle;
   var userAgentStr = this._userAgentStr;
+  var hasFmtDateTime = false;
 
   // Remember the value of the same placeholder that was filled in previously
   var knownTags = {};
@@ -226,6 +227,8 @@ aeClippingSubst.processClippingText = function (aClippingInfo, aWnd, aAlwaysUseP
 
   let date = new Date();
 
+  hasFmtDateTime = (aClippingInfo.text.search(/\$\[DATE\(([AaDdHhKkMmosYLlT ,.:\-\/]+)\)\]/) != -1 || aClippingInfo.text.search(/\$\[TIME\(([AaHhKkmsLT .:]+)\)\]/) != -1);
+
   rv = aClippingInfo.text.replace(/\$\[DATE\]/gm, date.toLocaleDateString());
   rv = rv.replace(/\$\[TIME\]/gm, date.toLocaleTimeString());
   rv = rv.replace(/\$\[NAME\]/gm, aClippingInfo.name);
@@ -243,6 +246,44 @@ aeClippingSubst.processClippingText = function (aClippingInfo, aWnd, aAlwaysUseP
   // and the following special characters: ?_/!@#%&;,:'"
   rv = rv.replace(/\$\[([\w\u0080-\u00FF\u0100-\u017F\u0180-\u024F\u0400-\u04FF\u0590-\u05FF]+)(\{([\w \-\.\?_\/\(\)!@#%&;:,'"$£¥€*¡¢\u0080-\u00FF\u0100-\u017F\u0180-\u024F\u0400-\u04FF\u0590-\u05FF\|])+\})?\]/gm, fnReplace);
   rv = rv.replace(/\#\[([a-zA-Z0-9_\u0080-\u00FF\u0100-\u017F\u0180-\u024F\u0400-\u04FF\u0590-\u05FF]+)\]/gm, fnAutoIncrement);
+
+  aeUtils.log(`It is ${hasFmtDateTime} that the clipping to be pasted (name "${aClippingInfo.name}") contains one or more occurrences of the formatted $[DATE()] and/or $[TIME()] placeholders.`);
+  
+  if (hasFmtDateTime) {
+    let dlgArgs = {
+      dtPlaceholders: [],
+      dtReplaced: [],
+      plchldrType: [],
+    };
+
+    let fmtDateRe = /\$\[DATE\(([AaDdHhKkMmosYLlT ,.:\-\/]+)\)\]/g;
+    let fmtDateResult;
+    while ((fmtDateResult = fmtDateRe.exec(aClippingInfo.text)) != null) {
+      dlgArgs.dtPlaceholders.push(fmtDateResult[1]);
+      dlgArgs.plchldrType.push("D");
+    }
+
+    let fmtTimeRe = /\$\[TIME\(([AaHhKkmsLT .:]+)\)\]/g;
+    let fmtTimeResult;
+    while ((fmtTimeResult = fmtTimeRe.exec(aClippingInfo.text)) != null) {
+      dlgArgs.dtPlaceholders.push(fmtTimeResult[1]);
+      dlgArgs.plchldrType.push("T");
+    }
+
+    aWnd.openDialog("chrome://clippings/content/processDateTimePlaceholder.xhtml", "ae_clippings_dtplchldrs", "chrome,modal,centerscreen", dlgArgs);
+
+    for (let i = 0; i < dlgArgs.dtPlaceholders.length; i++) {
+      let suffix = "";
+      if (dlgArgs.plchldrType[i] == "D") {
+	suffix = "$[DATE(";
+      }
+      else if (dlgArgs.plchldrType[i] == "T"){
+	suffix = "$[TIME(";
+      }
+      let dtPlchldr = suffix + dlgArgs.dtPlaceholders[i] + ")]";
+      rv = rv.replace(dtPlchldr, dlgArgs.dtReplaced[i]);
+    }
+  }
 
   return rv;
 };

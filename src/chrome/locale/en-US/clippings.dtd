@@ -306,6 +306,7 @@
 
 <!-- Placeholder prompt -->
 <!ENTITY pasteClipping.title "Paste Clipping">
+<!ENTITY dtPlchldrPs.label "Processing date/time placeholders...">
 
 <!-- Misc -->
 <!ENTITY okButton.label "OK">
