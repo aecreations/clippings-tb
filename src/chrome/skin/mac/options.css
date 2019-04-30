@@ -5,28 +5,6 @@
 @import url("chrome://clippings/skin/options.css");
 
 
-/* Fix for Mac OS X issue where pref dialog heights are sometimes wrong. */
-prefpane > .content-box,
-prefwindow > .paneDeckContainer {
-  overflow: visible;
-}
-
-prefwindow[animated="true"] #pane-general {
-  height: 30em;
-}
-
-prefwindow[animated="true"] #pane-datasource {
-  height: 16em;
-}
-
-prefwindow[animated="true"] #pane-clippings-mgr {
-  height: 14em;
-}
-
-prefpane description {
-  font: -moz-info;
-}
-
 .indent {
   margin-left: 2.5em;
 }
