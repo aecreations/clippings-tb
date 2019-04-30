@@ -305,6 +305,7 @@
         </menupopup>
       </menu>
       <menuseparator/>
+      <menuitem id="reload-cxt" label="&reload.label;" accesskey="&reload.accesskey;" command="cmd_reload"/>
       <menuitem id="delete-cxt" label="&deleteClipping.label;" accesskey="&deleteClipping.accesskey;" command="cmd_delete"/>
     </menupopup>
 

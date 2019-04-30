@@ -1269,10 +1269,7 @@ doRecovery.FAILSAFE_CREATE_BLANK_DS = 4;
 
 function initReloadMenuItem() 
 {
-  if (aeUtils.PORTABLE_APP_BUILD) {
-    $("reload_menuseparator").style.display = 'none';
-    $("reload_menuitem").style.display = 'none';
-  }
+  // No-op
 }
 
 
@@ -1964,9 +1961,17 @@ function reload()
   }
   catch (e) {
     aeUtils.beep();
-    aeUtils.log("function reload(): Reload failed!\n\n" + e);
+    aeUtils.log("clippingsMgr.js::reload(): Reload failed!\n\n" + e);
     gStatusBar.label = "Reload Failed!";
     return;
+  }
+
+  if (isSyncEnabled()) {
+    gClippingsSvc.refreshSyncedClippings(false);
+
+    // Introduce a forced pause to accommodate the asynchronous update to the
+    // Synced Clippings folder.
+    window.alert("Updating the Synced Clippings folder.");
   }
 
   gClippingsTree.rebuild();
@@ -1988,6 +1993,13 @@ function reload()
     gClippingsTree.ensureIndexIsVisible(currIndex);
     updateDisplay();
   }
+}
+
+
+function isSyncEnabled()
+{
+  let rv = aeUtils.getPref("clippings.datasource.wx_sync.enabled", false);
+  return rv;
 }
 
 
@@ -3017,7 +3029,8 @@ function initClippingsListPopup()
   $("cmd_cut").setAttribute("disabled", isSyncFldr);
   $("cmd_copy").setAttribute("disabled", isSyncFldr);
   $("move-or-copy-cxt").setAttribute("disabled", isSyncFldr);
-  $("delete-cxt").setAttribute("disabled", isSyncFldr);
+  $("cmd_delete").setAttribute("disabled", isSyncFldr);
+  $("reload-cxt").hidden = !isSyncFldr;
 
   var clippingLabelCxtMenu;
   if (gAltClippingLabelPicker) {
