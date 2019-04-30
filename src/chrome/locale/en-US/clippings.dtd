@@ -65,16 +65,14 @@
 <!ENTITY removeAllSrcURLs.label "Remove All">
 <!ENTITY removeAllSrcURLs.accesskey "R">
 <!ENTITY removeAllSrcURLs.description "Remove all saved source web page addresses (URLs) from your clippings.">
-
-<!ENTITY showStatusBar.label "Show the status bar">
-<!ENTITY showStatusBar.accesskey "S">
-<!ENTITY clippingsMgrKeys.caption "Clippings Manager Shortcut Keys">
 <!ENTITY about.label "About...">
 <!ENTITY about.title "About Clippings">
 <!ENTITY homePgLink "Visit home page">
 <!ENTITY licenseInfoLink "License information">
 
-<!-- Clippings Manager shortcut key legend -->
+<!-- Clippings Manager intro and keyboard shortcut legend -->
+<!ENTITY clippingsMgrHlp "Use Clippings Manager to edit, rename or delete clippings, and organize your collection of clippings into folders.">
+<!ENTITY clippingsMgrKeys.caption "Keyboard Shortcuts">
 <!ENTITY key.del "DEL">
 <!ENTITY key.esc "ESC">
 <!ENTITY key.ctrlF "CTRL+F">
@@ -313,5 +311,6 @@
 <!ENTITY cancelButton.label "Cancel">
 <!ENTITY closeButton.label "Close">
 <!ENTITY closeButton.accesskey "C">
+<!ENTITY clippingsHlp.title "Clippings Help">
 <!ENTITY errorNoClipboardContent.desc "Clipboard is empty or does not contain textual data.">
 <!ENTITY wxComing.desc "Clippings 6 is now available!  Click here to learn how to prepare for the upgrade.">

@@ -3436,15 +3436,7 @@ function showShortcutKeyMinihelp()
 function showHelp() 
 {
   updateCurrentClippingData();
-
-  openHelpDialog(gStrBundle.getString("clipmanHlp"),
-		 gStrBundle.getString("clippingsMgrHelp"));
-}
-
-
-function openHelpDialog(aHelpTitle, aHelpText)
-{
-  window.openDialog("chrome://clippings/content/miniHelp.xul", "ae_minihlp_wnd", "centerscreen,dialog,modal", aHelpTitle, aHelpText);
+  window.openDialog("chrome://clippings/content/hlpClippingsMgr.xul", "ae_clippingsmgr_hlp", "dialog,modal,centerscreen");
 }
 
 
