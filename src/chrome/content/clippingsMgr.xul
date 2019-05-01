@@ -23,7 +23,6 @@
  onkeyup="window_keyup(event)" onkeydown="window_keydown(event)"
  onkeypress="window_keypress(event)">
 
-  <script type="application/javascript" src="chrome://clippings/content/RDFTreeWrapper.js"/>
   <script type="application/javascript" src="chrome://clippings/content/clippingsMgr.js"/>
   <script type="application/javascript">
   <![CDATA[
