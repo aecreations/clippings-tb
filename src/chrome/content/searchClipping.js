@@ -26,7 +26,7 @@ function $(aID)
 
 
 
-function initDlg()
+function init()
 {
   gDlgArgs = window.arguments[0];
   gStrBundle = aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
@@ -37,6 +37,8 @@ function initDlg()
   catch (e) {
     alert(e);
   }
+
+  document.addEventListener("dialogcancel", aEvent => { cancel() });
 }
 
 

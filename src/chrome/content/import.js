@@ -38,6 +38,13 @@ function init()
   $("replace-shortcut-keys").checked = gDlgArgs.replaceShortcutKeys;
 
   $("import-file-brws").focus();
+
+  document.addEventListener("dialogaccept", aEvent => {
+    if (! importClippings()) {
+      aEvent.preventDefault();
+    }
+  });
+  document.addEventListener("dialogcancel", aEvent => { cancel() });
 }
 
 

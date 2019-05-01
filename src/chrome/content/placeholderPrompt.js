@@ -18,7 +18,7 @@ function $(aID) {
 
 
 
-function initDlg()
+function init()
 {
   gDlgArgs = window.arguments[0].wrappedJSObject;
   gStrBundle = aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
@@ -54,6 +54,13 @@ function initDlg()
     $("placeholder-value").value = gDlgArgs.defaultValue;
   }
   promptText.value = gStrBundle.getFormattedString(strKey, [gDlgArgs.varName]);
+
+  document.addEventListener("dialogaccept", aEvent => {
+    if (! accept()) {
+      aEvent.preventDefault();
+    }
+  });
+  document.addEventListener("dialogcancel", aEvent => { cancel() });
 }
 
 

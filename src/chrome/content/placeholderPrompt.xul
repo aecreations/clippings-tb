@@ -12,8 +12,7 @@
  orient="vertical"
  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
  buttons="accept,cancel"
- onload="initDlg()" ondialogaccept="return accept()"
- ondialogcancel="return cancel()">
+ onload="init()">
 
   <script type="application/javascript" src="chrome://clippings/content/placeholderPrompt.js"/>
 
