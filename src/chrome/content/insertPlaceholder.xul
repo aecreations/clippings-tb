@@ -19,13 +19,13 @@
   <vbox style="width:28em">
     <label id="placeholder-name-label" accesskey="&placeholderName.accesskey;"
      control="placeholder-name"/>
-    <textbox id="placeholder-name" size="48"/>
+    <textbox id="placeholder-name" size="48" placeholder="&placeholderName.placeholder;"/>
     <separator class="thin"/>
 
     <deck id="placeholder-deck">
       <vbox id="custom-placeholder-content">
         <label value="&defaultValue.label;" accesskey="&defaultValue.accesskey;" control="placeholder-default-value"/>
-	<textbox id="placeholder-default-value" size="48" placeholder="&defaultValue.placeholder;"/>
+	<textbox id="placeholder-default-value" size="48"/>
 	<separator class="thin"/>
 	<description>&defaultValue.description;</description>
       </vbox>

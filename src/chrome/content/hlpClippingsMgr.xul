@@ -14,7 +14,7 @@
 
   <script type="application/javascript" src="chrome://clippings/content/hlpClippingsMgr.js"/>
 
-  <label class="header" value="&clippingsManager.title;"/>
+  <label class="header" value="&welcClippingsMgr.title;"/>
   <description style="width:32em;margin-top:8px;margin-bottom:12px">&clippingsMgrHlp;</description>
 
   <label class="ae-caption" value="&clippingsMgrKeys.caption;"/>
