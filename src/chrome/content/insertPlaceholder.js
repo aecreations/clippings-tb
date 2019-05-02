@@ -36,6 +36,13 @@ function init()
   }
 
   $("placeholder-name-label").value = gStrBundle.getString(labelKey);
+
+  document.addEventListener("dialogaccept", aEvent => {
+    if (! accept()) {
+      aEvent.preventDefault();
+    }
+  });
+  document.addEventListener("dialogcancel", aEvent => { cancel() });
 }
 
 

@@ -12,36 +12,9 @@
  orient="vertical"
  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
  buttons="accept,cancel"
- onload="initDlg()" ondialogaccept="return doOK()"
- ondialogcancel="return doCancel()">
+ onload="init()">
 
-  <script type="application/x-javascript">
-  <![CDATA[
-
-    var dialogArgs = window.arguments[0];
-    var gPasteAs;
-
-
-    function initDlg() 
-    {
-      gPasteAs = document.getElementById("paste-as");
-    }
-
-    function doOK() 
-    {
-      dialogArgs.pasteOption = gPasteAs.selectedIndex;
-      dialogArgs.userCancel = false;
-      return true;
-    }
-
-    function doCancel() 
-    {
-      dialogArgs.userCancel = true;
-      return true;
-    }
-
-  ]]>
-  </script>
+  <script type="application/javascript" src="chrome://clippings/content/pasteOptions.js"/>
 
   <groupbox>
     <caption>&pasteClippingAs.label;</caption>

@@ -13,7 +13,7 @@ function $(aID)
 }
 
 
-function initDlg()
+function init()
 {
   let strBundle = aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
 
@@ -29,10 +29,3 @@ function initDlg()
     window.alert("Clippings for Thunderbird is available under the Mozilla Public License (MPL), version 2.0.");
   });
 }
-
-
-function accept()
-{
-  return true;
-}
-

@@ -13,44 +13,9 @@
  title="&clippings.appName;"
  orient="vertical" style="width:32em"
  buttons="accept"
- onload="initDlg()" ondialogaccept="return doOK()">
+ onload="init()">
 
-  <script type="application/javascript">
-  <![CDATA[
-
-    const {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
-
-    function initDlg() 
-    {
-      var strBundle = aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
-      var helpStr;
-
-      try {
-        document.title = window.arguments[0];
-      }
-      catch (e) {}
-
-      try {
-        helpStr = window.arguments[1];
-      }
-      catch (e) { 
-        helpStr = strBundle.getString("helpMsg");
-      }
-
-      document.getElementById("minihelp-text").value = helpStr;
-
-      var dlg = document.getElementById("ae-clippings-minihelp");
-      dlg.getButton("accept").focus();
-    }
-
-
-    function doOK() 
-    {
-      return true;
-    }
-
-  ]]>
-  </script>
+  <script type="application/javascript" src="chrome://clippings/content/miniHelp.js"/>
 
   <html:textarea id="minihelp-text" readonly="true" rows="10"></html:textarea>
 

@@ -37,6 +37,13 @@ function init()
   gFolderTree.foldersOnly = true;
   gFolderTree.showRootFolder = true;
   gFolderTree.build();
+
+  document.addEventListener("dialogaccept", aEvent => {
+    if (! accept()) {
+      aEvent.preventDefault();
+    }
+  });
+  document.addEventListener("dialogcancel", aEvent => { cancel() });
 }
 
 
