@@ -473,6 +473,9 @@
                  oncommand="insertPresetPlaceholder('NAME')"/>
 		<menuitem label="&placeholderFolderName.label;"
                  oncommand="insertPresetPlaceholder('FOLDER')"/>
+                <menuseparator/>
+		<menuitem label="&placeholderDateTime.label;"
+                 oncommand="insertFormattedDateTimePlaceholder()"/>
               </menupopup>
             </toolbarbutton>
             <toolbarbutton id="placeholder-custom" disabled="true"

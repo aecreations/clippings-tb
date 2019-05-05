@@ -2320,6 +2320,23 @@ function insertPresetPlaceholder(aPresetName)
 }
 
 
+function insertFormattedDateTimePlaceholder()
+{
+  let dlgArgs = {
+    placeholder: "",
+    userCancel: null
+  };
+
+  window.openDialog("chrome://clippings/content/insertDateTimePlaceholder.xul", "ae_clippings_mgr_ins_dt", "dialog,modal,centerscreen", dlgArgs);
+  
+  if (dlgArgs.userCancel) {
+    return;
+  }
+
+  insertIntoClippingText(dlgArgs.placeholder);
+}
+
+
 function insertIntoClippingText(aInsertedText)
 {
   let textbox = $("clipping-text");
