@@ -60,6 +60,23 @@ function init()
   if (gDlgArgs.showInsertClippingCmd) {
     $("insert-clipping").hidden = false;
   }
+
+  if (document.documentElement.nodeName == "dialog") {
+    let hint = "";
+
+    let os = aeUtils.getOS();
+    if (os == "Darwin") {
+      hint = gStrBundle.getString("shortcutInstrDlgMac");
+    }
+    else {
+      hint = gStrBundle.getString("shortcutInstrDlg");
+    }
+    
+    let helpTxt = document.createTextNode(hint);
+    $("shortcut-help").appendChild(helpTxt);
+
+    $("shortcut-map-grid").setAttribute("rows", "8");
+  }
 }
 
 

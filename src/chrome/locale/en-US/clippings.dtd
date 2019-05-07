@@ -300,8 +300,8 @@
 <!ENTITY shortcutHelp.title "Clippings Shortcut Keys">
 <!ENTITY shortcutCol.label "Shortcut Key"> 
 <!ENTITY clippingCol.label "Clipping Name">
-<!ENTITY save.label "Save">
-<!ENTITY save.accesskey "S">
+<!ENTITY save.label "Export To HTML">
+<!ENTITY save.accesskey "E">
 <!ENTITY print.label "Print">
 <!ENTITY print.accesskey "P">
 <!ENTITY close.accesskey "C">

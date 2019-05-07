@@ -3442,11 +3442,7 @@ function showShortcutKeyMinihelp()
   };
   dlgArgs.printToExtBrowser = aeUtils.getHostAppID() == aeConstants.HOSTAPP_TB_GUID;
 
-  // Position the help window so that it is relative to the Clippings Manager
-  // window.
-  let wndFeatures = aeString.format("top=%d,left=%d,resizable", window.screenY+72, window.screenX+128);
-  let helpWnd = window.openDialog("chrome://clippings/content/shortcutHelp.xul", "clipkey_help", wndFeatures, dlgArgs);
-  helpWnd.focus();
+  window.openDialog("chrome://clippings/content/shortcutHelpDlg.xul", "clipkey_helpdlg", "dialog,modal,centerscreen", dlgArgs);
 }
 
 
