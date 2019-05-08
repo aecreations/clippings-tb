@@ -88,7 +88,7 @@ aeUtils.getTextFromClipboard = function ()
     str = str.value.QueryInterface(Components.interfaces.nsISupportsString);
   }
   if (str) {
-    rv = str.data.substring(0, strLen.value / 2);
+    rv = str.data;
   }
 
   return rv;
