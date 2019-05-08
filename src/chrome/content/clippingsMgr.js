@@ -1287,8 +1287,6 @@ function applyUpdatedClippingsMgrPrefs()
     clippingNameElt.removeAttribute("spellcheck");
     clippingTextElt.removeAttribute("spellcheck");
   }
-
-  setStatusBarVisibility();
 }
 
 
@@ -1372,7 +1370,17 @@ function closeNotificationBar()
 
 function clippingsMgrOptions()
 {
-  window.openDialog("chrome://clippings/content/preferences.xul", "dlg_clippings_prefs", "modal,centerscreen");
+  let dlgURL = "chrome://clippings/content/preferences.xul";
+  let dlgName = "dlg_clippings_prefs";
+  let dlgFeatures = "modal,centerscreen";
+  
+  if (aeUtils.getOS() == "Darwin") {
+    let ww = Cc["@mozilla.org/embedcomp/window-watcher;1"].getService(Ci.nsIWindowWatcher);
+    ww.openWindow(null, dlgURL, dlgName, `${dlgFeatures},dialog=yes,resizable=no`, null);
+  }
+  else {
+    window.openDialog(dlgURL, dlgName, dlgFeatures);
+  }
 }
 
 
@@ -2235,9 +2243,11 @@ function toggleClippingDetails()
 
 function toggleStatusBar()
 {
-  let showStatusBar = aeUtils.getPref("clippings.clipmgr.status_bar", true);
-  $("status-bar").hidden = !showStatusBar;
-  aeUtils.setPref("clippings.clipmgr.status_bar", !showStatusBar);
+  let statusBar = $("status-bar");
+  let isStatusBarHidden = statusBar.hidden;
+
+  statusBar.hidden = !isStatusBarHidden;
+  aeUtils.setPref("clippings.clipmgr.status_bar", isStatusBarHidden);
 }
 
 
