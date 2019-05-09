@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <?xml-stylesheet href="chrome://clippings-laf/skin/options.css" type="text/css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/menulist.css"?>
 
 <!DOCTYPE dialog SYSTEM "chrome://clippings/locale/clippings.dtd">
 
@@ -13,6 +14,7 @@
  buttonlabelextra2="&about.label;"
  onload="init()">
 
+  <script type="application/javascript" src="chrome://messenger/content/customElements.js"/>
   <script type="application/javascript" src="chrome://clippings/content/preferences.js"></script>
   
   <tabbox>
@@ -129,8 +131,8 @@
 	      <row align="center">   
 		<label value="&maxFiles.label;" accesskey="&maxFiles.accesskey;"
 		 control="max-backup-files"/>
-		<menulist id="max-backup-files" editable="true" 
-		 preference="max-backup-files-pref">
+		<menulist id="max-backup-files" editable="true"
+                 is="menulist-editable">
 		  <menupopup>
 		    <menuitem label="0" value="0"/>
 		    <menuitem label="5" value="5"/>

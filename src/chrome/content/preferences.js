@@ -262,8 +262,10 @@ function showSyncClippingsMinihelp()
 function applyDataSourcePrefChanges() 
 {
   let rv = false;
-  let numBackupFiles = aeUtils.getPref("clippings.backup.maxfiles", 10);
+  
+  let numBackupFiles = $("max-backup-files").value;
   gClippingsSvc.setMaxBackupFiles(numBackupFiles);
+  aeUtils.setPref("clippings.backup.maxfiles", numBackupFiles);
 
   // Save clippings one last time before changing datasource and/or
   // sync folder locations.
@@ -315,6 +317,7 @@ function showAboutDlg()
 {
   window.openDialog("chrome://clippings/content/about.xul", "ae_about_clippingstb", "modal,centerscreen");
 }
+
 
 function accept()
 {
