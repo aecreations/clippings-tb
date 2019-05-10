@@ -10,7 +10,7 @@ function init()
   var helpStr;
 
   try {
-    document.title = window.arguments[0];
+    document.getElementById("hlp-title").value = window.arguments[0];
   }
   catch (e) {}
 

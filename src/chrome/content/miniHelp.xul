@@ -10,13 +10,15 @@
 <dialog id="ae-clippings-minihelp" 
  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
  xmlns:html="http://www.w3.org/1999/xhtml"
- title="&clippings.appName;"
+ title="&clippingsHlp.title;"
  orient="vertical" style="width:32em"
  buttons="accept"
  onload="init()">
 
   <script type="application/javascript" src="chrome://clippings/content/miniHelp.js"/>
 
-  <html:textarea id="minihelp-text" readonly="true" rows="10"></html:textarea>
+  <label id="hlp-title" class="header" value="" style="margin-bottom:8px"/>
+
+  <html:textarea id="minihelp-text" readonly="true" rows="10" style="-moz-box-flex:1"></html:textarea>
 
 </dialog>
