@@ -11,7 +11,7 @@ distribution are given below.
 
 - Moment.js License
 
-- Sortable.js License
+- Sortable License
 
 				     * * *
 
