@@ -22,7 +22,7 @@
     <separator class="thin" orient="vertical"/>
     <vbox>
       <spacer flex="1"/>
-      <image src="chrome://clippings/skin/images/clippings.png" width="32" height="32"/>
+      <image src="chrome://clippings/skin/images/icon.png" width="32" height="32"/>
       <spacer flex="1"/>
     </vbox>
     <separator class="thin" orient="vertical"/>
@@ -38,7 +38,7 @@
   <separator class="ae-separator"/>
   <hbox>
     <label id="creator-info"></label>
-    <label id="homepg-hyperlink" class="text-link" href="http://aecreations.sourceforge.net/clippings/">&homePgLink;</label>
+    <label id="homepg-hyperlink" class="text-link">&homePgLink;</label>
   </hbox>
   <label id="license-info-link" class="text-link">&licenseInfoLink;</label>
 

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const {AddonManager} = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const {aeConstants} = ChromeUtils.import("resource://clippings/modules/aeConstants.js");
 const {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
 
@@ -22,10 +23,21 @@ function init()
     $("ext-ver").value = strBundle.getFormattedString("versionInfo", [aAddon.version]);
     $("ext-desc").value = aAddon.description;
     $("creator-info").value = strBundle.getFormattedString("createdBy", [aAddon.creator]);
+    $("homepg-hyperlink").setAttribute("href", aAddon.homepageURL);
+  });
+
+  $("homepg-hyperlink").addEventListener("click", aEvent => {
+    let url = aEvent.target.getAttribute("href");
+    let mail3PaneWnd = Services.wm.getMostRecentWindow("mail:3pane");
+
+    if (mail3PaneWnd) {
+      let tabmail = mail3PaneWnd.document.getElementById("tabmail");
+      tabmail.openTab("contentTab", { contentPage: url });
+      mail3PaneWnd.focus();
+    }
   });
 
   $("license-info-link").addEventListener("click", aEvent => {
-    // TO DO: Open 'resource://LICENSE.txt' in mini-help window.
-    window.alert("Clippings for Thunderbird is available under the Mozilla Public License (MPL), version 2.0.");
+    Services.ww.openWindow(null, "chrome://clippings/content/LICENSE.txt", "ae_clippings_license", "chrome,centerscreen,dialog=no,resizable=yes,scrollbars=yes,width=680,height=500", {});
   });
 }
