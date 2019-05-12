@@ -23,8 +23,8 @@ let gDateFormats = [
 
 let gTimeFormats = [
   "h:mm A",
-  "H:mm",
-  "H:mm:ss",
+  "HH:mm",
+  "HH:mm:ss",
 ];
 
 
