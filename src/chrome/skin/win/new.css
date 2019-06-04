@@ -37,6 +37,7 @@ menu[open="true"] {
 }
 
 #folder-menu-button {
+  -moz-appearance: menulist-button;
   list-style-image: url("chrome://clippings/skin/images/clippings-root.svg");
 }
 
