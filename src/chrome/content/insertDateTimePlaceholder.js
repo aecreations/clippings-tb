@@ -16,7 +16,7 @@ let gDateFormats = [
   "YYYY-MM-DD",
   "D MMMM YYYY",
   "D.M.YYYY",
-  "DD-MMMM-YYYY",
+  "DD-MMM-YYYY",
   "MM/DD/YYYY h:mm A",
   "ddd, MMM DD, YYYY h:mm:ss A ZZ",
 ];
