@@ -227,7 +227,7 @@ aeClippingSubst.processClippingText = function (aClippingInfo, aWnd, aAlwaysUseP
 
   let date = new Date();
 
-  hasFmtDateTime = (aClippingInfo.text.search(/\$\[DATE\(([AaDdHhKkMmosYLlT ,.:\-\/]+)\)\]/) != -1 || aClippingInfo.text.search(/\$\[TIME\(([AaHhKkmsLT .:]+)\)\]/) != -1);
+  hasFmtDateTime = (aClippingInfo.text.search(/\$\[DATE\(([AaDdHhKkMmosYLlTZ ,.:\-\/]+)\)\]/) != -1 || aClippingInfo.text.search(/\$\[TIME\(([AaHhKkmsLTZ .:]+)\)\]/) != -1);
 
   rv = aClippingInfo.text.replace(/\$\[DATE\]/gm, date.toLocaleDateString());
   rv = rv.replace(/\$\[TIME\]/gm, date.toLocaleTimeString());
@@ -254,14 +254,14 @@ aeClippingSubst.processClippingText = function (aClippingInfo, aWnd, aAlwaysUseP
       plchldrType: [],
     };
 
-    let fmtDateRe = /\$\[DATE\(([AaDdHhKkMmosYLlT ,.:\-\/]+)\)\]/g;
+    let fmtDateRe = /\$\[DATE\(([AaDdHhKkMmosYLlTZ ,.:\-\/]+)\)\]/g;
     let fmtDateResult;
     while ((fmtDateResult = fmtDateRe.exec(aClippingInfo.text)) != null) {
       dlgArgs.dtPlaceholders.push(fmtDateResult[1]);
       dlgArgs.plchldrType.push("D");
     }
 
-    let fmtTimeRe = /\$\[TIME\(([AaHhKkmsLT .:]+)\)\]/g;
+    let fmtTimeRe = /\$\[TIME\(([AaHhKkmsLTZ .:]+)\)\]/g;
     let fmtTimeResult;
     while ((fmtTimeResult = fmtTimeRe.exec(aClippingInfo.text)) != null) {
       dlgArgs.dtPlaceholders.push(fmtTimeResult[1]);
