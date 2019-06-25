@@ -451,8 +451,8 @@
 	 onfocus="clippingText_focus(event)"></html:textarea>
 
         <!-- Insert Placeholder bar -->
-        <toolbox id="clipping-content-editor-toolbox" hidden="true">
-          <toolbar id="placeholder-toolbar">
+        <hbox id="clipping-content-editor-toolbox" hidden="true">
+          <toolbar id="placeholder-toolbar" flex="1">
 	    <vbox>
 	      <spacer flex="1"/>
               <label value="&placeholderToolbar.label;"/>
@@ -485,7 +485,7 @@
              label="&placeholderAutoincrement.label;"
              oncommand="insertAutoIncrementPlaceholder()"/>
           </toolbar>
-        </toolbox>
+        </hbox>
 
 	<!-- Shortcut key and label -->
 	<grid id="options-bar">
@@ -545,9 +545,8 @@
                   <menuitem label="0"/>
                 </menupopup>
               </menulist>
-              <label id="shortcut-key-minihelp" class="text-link" 
-               value="&shortcutKeyList.label;" 
-               onclick="showShortcutKeyMinihelp()"/>
+              <image id="shortcut-key-minihelp" src="chrome://clippings/skin/images/help.svg"
+               tooltiptext="&shctHlp.tooltip;" onclick="showShortcutKeyMinihelp()"/>
               <spacer flex="1"/>
 
               <label id="clipping-label" value="&clippingLabelPicker.label;"
