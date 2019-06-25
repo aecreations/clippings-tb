@@ -298,6 +298,10 @@ toolbarbutton .toolbarbutton-icon {
   -moz-image-region: rect(16px, 320px, 32px, 304px);
 }
 
+#shortcut-key-minihelp {
+    margin-left: 4px;
+}
+
 /* Insert Placeholder toolbar */
 #placeholder-custom {
   -moz-image-region: rect(0px, 272px, 16px, 256px);

@@ -206,6 +206,7 @@
 <!ENTITY copy.accesskey "C">
 <!ENTITY paste.label "Paste">
 <!ENTITY paste.accesskey "P">
+<!ENTITY shctHlp.tooltip "Shortcut Help">
 
 <!-- Move To Folder dialog -->
 <!ENTITY moveToFolder.title "Move To">
