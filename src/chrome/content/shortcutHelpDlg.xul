@@ -11,7 +11,8 @@
  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
  title="&shortcutHelp.title;"
  orient="vertical"
- buttons="accept" buttonlabelaccept="&closeButton.label;"
+ buttons="extra2,accept"
+ buttonlabelaccept="&closeButton.label;" buttonlabelextra2="&save.label;"
  onload="init()">
 
   <script type="application/javascript" src="chrome://clippings/content/shortcutHelp.js"/>
@@ -25,13 +26,6 @@
   <label class="header">&shortcutHelp.title;</label>
   <description id="shortcut-help" style="width:30em;margin-top:8px;margin-bottom:12px"></description>
   
-  <toolbar>
-    <toolbarbutton id="save" label="&save.label;" accesskey="&save.accesskey;"
-     oncommand="save()"/>
-    <toolbarbutton id="print" label="&print.label;"
-     accesskey="&print.accesskey;" oncommand="print()"/>
-  </toolbar>
-
   <tree id="shortcut-map-grid" flex="1" rows="10" hidecolumnpicker="true"
    seltype="single" onselect="selectClipping()" ondblclick="insertClipping()">
     <treecols>

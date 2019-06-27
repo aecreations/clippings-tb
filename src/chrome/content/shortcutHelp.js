@@ -76,6 +76,8 @@ function init()
     $("shortcut-help").appendChild(helpTxt);
 
     $("shortcut-map-grid").setAttribute("rows", "8");
+
+    document.addEventListener("dialogextra2", aEvent => { save() });
   }
 }
 
