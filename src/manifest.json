@@ -9,13 +9,13 @@
   "applications": {
     "gecko": {
       "id": "clippings-tb@aecreations.github.io",
-      "strict_min_version": "67.0b1",
+      "strict_min_version": "68.0b1",
       "update_url": "https://aecreations.github.io/updates/update.json"
     }
   },
   
   "icons": {
-    "32": "chrome/skin/images/icon.png"
+    "32": "icon.svg"
   },
 
   "legacy": {

@@ -11,7 +11,7 @@ EXCLUDE = \*~ \*.psp \*.bak
 
 $(DIST_FILE): $(CHROME)/clippings.jar manifest.json $(DEFAULTS_PREFS)/prefs.js
 	[ ! -f chrome.manifest.devel ] && mv -v chrome.manifest chrome.manifest.devel && cp -v chrome.manifest.release chrome.manifest
-	zip $(DIST_FILE) $(CHROME)/clippings.jar manifest.json chrome.manifest $(DEFAULTS_PREFS)/prefs.js $(MODULE_FILES)
+	zip $(DIST_FILE) $(CHROME)/clippings.jar manifest.json chrome.manifest $(DEFAULTS_PREFS)/prefs.js $(MODULE_FILES) icon.svg
 
 $(CHROME)/clippings.jar:
 	cp ../LICENSE.txt $(CHROME)/content/
