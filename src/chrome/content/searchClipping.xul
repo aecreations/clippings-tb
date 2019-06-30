@@ -18,7 +18,8 @@
 
   <panel id="search-results-popup" noautofocus="true" orient="vertical">
     <richlistbox id="search-results-listbox" flex="1" seltype="single"
-     onkeypress="selectClippingByKeyboard(event)"
+     onkeyup="selectClippingByKeyboard(event)"
+     onkeydown="executePaste(event)"
      onmouseover="selectSearchResult(event)"
      onmouseup="selectClippingByMouse(event)"/>
     <hbox>
@@ -37,8 +38,8 @@
       <description>&clippingSearch.description;</description>
       <separator />
       <textbox id="clipping-search" type="search"
-       onkeypress="handleSearchKeys(event, this.value)"
-       oncommand="updateSearchResults(this.value)"/>
+       onkeyup="handleSearchKeys(event, this.value)"
+       onkeydown="handleTabKey(event)"/>
       <separator class="thin"/>
       <label id="search-status" value=""/>
       <separator class="thin"/>

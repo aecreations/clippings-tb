@@ -15,7 +15,7 @@
   font: message-box;
 }
 
-#search-results-listbox scrollbox {
+#search-results-listbox {
   overflow-x: hidden !important;
 }
 
