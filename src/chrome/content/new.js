@@ -97,7 +97,7 @@ function init()
     gClippingKey  = $("clipping-key");
     gCreateAsUnquoted = $("create-as-unquoted");
     gRemoveExtraLineBreaks = $("remove-extra-linebreaks");
-    var app = gStrBundle.getString("pasteIntoBothHostApps");
+    var app = gStrBundle.getString("pasteIntoTb");
     var hint = gStrBundle.getFormattedString("shortcutKeyHint", [app]);
 
     let os = aeUtils.getOS();
