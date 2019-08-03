@@ -594,11 +594,22 @@ var gFindBar = {
     return this._isSrchActivated;
   },
 
+  getSearchText: function ()
+  {
+    return $("find-clipping").value;
+  },
+
+  clearSearchText: function ()
+  {
+    $("find-clipping").value = "";
+  },
+
   setSearchResultsUpdateFlag: function ()
   {
     // Invoke this method whenever a search option is changed (filtering,
     // match case).
     this._updateSrchResults = true;
+    this.updateSearch(this.getSearchText());
   },
 
   setFilter: function (aFilter)
@@ -3412,11 +3423,15 @@ function toggleFindBar()
 
 function userCancel()
 {
-  // Hide the Find Bar if it is visible.
   if (gFindBar.isVisible()) {
-    gFindBar.hide();
-    gClippingsTree.focus();
-    $("find").checked = false;
+    if (gFindBar.getSearchText()) {
+      gFindBar.clearSearchText();
+    }
+    else {
+      gFindBar.hide();
+      gClippingsTree.focus();
+      $("find").checked = false;
+    }
   }
   else {
     aeUtils.beep();

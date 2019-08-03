@@ -20,8 +20,7 @@
  onunload="window_unload(event)"
  onfocus="window_focus(event)"
  onblur="window_blur(event)"
- onkeyup="window_keyup(event)" onkeydown="window_keydown(event)"
- onkeypress="window_keypress(event)">
+ onkeyup="window_keyup(event)" onkeydown="window_keydown(event)">
 
   <script type="application/javascript" src="chrome://clippings/content/clippingsMgr.js"/>
   <script type="application/javascript">
@@ -67,28 +66,6 @@
     {
       //aeUtils.log(aeString.format('clippingsMgr.xul:<window id="clippings-window"> Keydown event fired; aEvent.target.tagName == %S', aEvent.target.tagName));
     }
-
-    function window_keypress(aEvent)
-    {
-      //aeUtils.log(aeString.format('clippingsMgr.xul:<window id="clippings-window"> Keypress event fired; aEvent.target.tagName == %S', aEvent.target.tagName));
-
-      var btn, popup;
-
-      // Display Options menu upon ALT+O keypress since the accesskey attribute
-      // seems to be ignored on the menubutton element.
-      if (aEvent.altKey && aEvent.key.toUpperCase() == "O") {
-        btn = document.getElementById("clippings-options");
-	popup = document.getElementById("clippings-options-popup");
-	popup.showPopup(btn, -1, -1, "popup", "bottomleft", "topleft");
-      }
-      // Move menu (ALT+M)
-      else if (aEvent.altKey && aEvent.key.toUpperCase() == "M") {
-        btn = document.getElementById("toolbar-move");
-	popup = document.getElementById("toolbar-move-popup");
-	popup.showPopup(btn, -1, -1, "popup", "bottomleft", "topleft");
-      }
-    }
-
 
     function clippingsList_focus(aEvent)
     {
@@ -652,7 +629,7 @@
            type="menu" popup="find-filter-menupopup" hidden="true"/>
 
           <textbox id="find-clipping" type="search"
-           oncommand="gFindBar.updateSearch(this.value)"/>
+           onkeydown="gFindBar.updateSearch(this.value)"/>
           <toolbarbutton id="find-next" orient="horizontal"
            label="&findNext.label;" accesskey="&findNext.accesskey;"
            oncommand="gFindBar.findNext()"/>
