@@ -1363,6 +1363,8 @@ function arrangeItemsByDnD()
   if (dlgArgs.userCancel) {
     return;
   }
+
+  aeUtils.log("clippingsMgr.js: Rearranged items:\n" + JSON.stringify(dlgArgs.rearrangedItems));
   
   for (let i = 0; i < dlgArgs.rearrangedItems.length; i++) {
     let item = dlgArgs.rearrangedItems[i];
