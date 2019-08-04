@@ -142,13 +142,17 @@ function handleSearchKeys(aEvent, aSearchText)
     listbox.selectedIndex = 0;
     listbox.focus();
   }
-  // Press Tab key: if search box is open, then move the focus to it.
+  // Press Tab key: if search results listbox is open, then move the focus to it.
   else if (aEvent.key == "Tab") {
     listbox.focus();
     listbox.selectedIndex = 0;
   }
+  // Press Escape key: clear the search text.
   else if (aEvent.key == "Escape") {
-    // Don't do anything
+    if (aSearchText) {
+      $("clipping-search").value = "";
+      aEvent.preventDefault();
+    }
   }
   else {
     updateSearchResults(aSearchText);
@@ -162,6 +166,11 @@ function handleTabKey(aEvent)
 
   if (aEvent.key == "Tab" && srchResultsPopup.state == "closed") {
     switchToShortcutKeyMode();
+  }
+  else if (aEvent.key == "Escape") {
+    if ($("clipping-search").value) {
+      aEvent.preventDefault();
+    }
   }
 }
 
@@ -203,6 +212,7 @@ function selectClippingByKeyboard(aEvent)
   else if (aEvent.key == "Escape") {
     $("search-results-popup").hidePopup();
     $("clipping-search").focus();
+    aEvent.preventDefault();
   }
 }
 
