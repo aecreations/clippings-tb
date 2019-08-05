@@ -13,9 +13,9 @@ DEFAULTS_PREFS = ./defaults/preferences
 EXCLUDE = \*~ \*.psp \*.bak
 
 
-$(DIST_FILE): $(CHROME)/clippings.jar install.rdf $(DEFAULTS_PREFS)/prefs.js $(COMP_FILES)
+$(DIST_FILE): $(CHROME)/clippings.jar install.rdf manifest.json $(DEFAULTS_PREFS)/prefs.js $(COMP_FILES)
 	[ ! -f chrome.manifest.devel ] && mv -v chrome.manifest chrome.manifest.devel && cp -v chrome.manifest.release chrome.manifest
-	zip $(DIST_FILE) $(CHROME)/clippings.jar install.rdf chrome.manifest  \
+	zip $(DIST_FILE) $(CHROME)/clippings.jar install.rdf manifest.json chrome.manifest \
 $(DEFAULTS_PREFS)/prefs.js $(COMP_FILES) $(MODULE_FILES)
 
 $(CHROME)/clippings.jar: 
