@@ -29,6 +29,7 @@
     <html:option>&fmtHtmlDocument.listitem;</html:option>
   </html:select>
 
+  <separator class="thin"/>
   <groupbox style="height:8em;width:26em">
     <caption>&description.caption;</caption>
     <label id="format-description"/>
