@@ -92,6 +92,7 @@
 	     oncommand="browseDataSrcPath()"/>
 	  </hbox>
 	</groupbox>
+        <separator class="thin"/>
 	<groupbox orient="vertical">
 	  <caption>&syncClippings.caption;</caption>
 	  <separator class="ae-separator"/>
@@ -115,6 +116,8 @@
 	     onclick="showSyncClippingsMinihelp()"/>
 	  </vbox>
 	</groupbox>
+
+	<separator class="thin"/>
 	<groupbox orient="vertical">
 	  <caption>&backupFiles.caption;</caption>
 	  <separator class="ae-separator"/>

@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet type="text/css" href="chrome://global/skin/global.css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/messenger.css"?>
 
 <!DOCTYPE overlay SYSTEM "chrome://clippings/locale/clippings.dtd">
 
@@ -17,7 +18,9 @@
   <script type="application/javascript" src="chrome://clippings/content/pasteOptions.js"/>
 
   <groupbox>
-    <caption>&pasteClippingAs.label;</caption>
+    <hbox class="groupbox-title">
+      <label class="header">&pasteClippingAs.label;</label>
+    </hbox>
 
     <radiogroup id="paste-as">
       <radio id="paste-as-normal" selected="true"
