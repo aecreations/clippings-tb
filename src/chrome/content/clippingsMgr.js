@@ -1992,7 +1992,7 @@ function reload()
 
     // Introduce a forced pause to accommodate the asynchronous update to the
     // Synced Clippings folder.
-    window.alert("Updating the Synced Clippings folder.");
+    aeUtils.alertEx(document.title, gStrBundle.getString("updateSyncFldr"));
   }
 
   gClippingsTree.rebuild();
@@ -2667,10 +2667,8 @@ function updateTextHelper(aURI, aText, aDestUndoStack)
     return;
   }
 
-  // DEBUGGING
   var name = gClippingsSvc.getName(aURI);
-  // END DEBUGGING
-
+ 
   var state = {action: ACTION_EDITTEXT, uri: aURI, name: name, text: oldText};
   if (aDestUndoStack == UNDO_STACK) {
     gUndoStack.push({action:ACTION_EDITTEXT, uri:aURI, name:name, text:oldText});
