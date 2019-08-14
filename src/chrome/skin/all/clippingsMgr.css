@@ -116,8 +116,11 @@ spacer.toolbar-separator {
   width: 40px;
 }
 
-toolbarbutton:not(#placeholder-presets) {
+toolbarbutton:not(#placeholder-presets):not(#shortcut-key-minihelp) {
   list-style-image: url("chrome://clippings/skin/images/clippingsMgrToolbar.svg");
+}
+
+#clippings-toolbar > toolbarbutton {
   -moz-box-orient: vertical;
   min-width: 52px;
 }

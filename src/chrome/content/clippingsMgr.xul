@@ -522,7 +522,7 @@
                   <menuitem label="0"/>
                 </menupopup>
               </menulist>
-              <image id="shortcut-key-minihelp" src="chrome://clippings/skin/images/help.svg"
+              <toolbarbutton id="shortcut-key-minihelp" image="chrome://clippings/skin/images/help.svg"
                tooltiptext="&shctHlp.tooltip;" onclick="showShortcutKeyMinihelp()"/>
               <spacer flex="1"/>
 
