@@ -2417,6 +2417,9 @@ function updateDisplay(aSuppressUpdateSelection)
     uri = gClippingsTree.selectedURI;
   }
 
+  let isSyncFldr = uri == gClippingsSvc.kSyncFolderURI;
+  $("cmd_delete").setAttribute("disabled", isSyncFldr);
+
   if (gClippingsSvc.isFolder(uri)) {
     clippingName.disabled = (uri == gClippingsSvc.kSyncFolderURI);
     clippingText.style.visibility = "hidden";
