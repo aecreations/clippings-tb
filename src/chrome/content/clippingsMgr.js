@@ -3070,7 +3070,6 @@ function initClippingsListPopup()
   $("cmd_cut").setAttribute("disabled", isSyncFldr);
   $("cmd_copy").setAttribute("disabled", isSyncFldr);
   $("move-or-copy-cxt").setAttribute("disabled", isSyncFldr);
-  $("cmd_delete").setAttribute("disabled", isSyncFldr);
   $("reload-cxt").hidden = !isSyncFldr;
 
   var clippingLabelCxtMenu;
