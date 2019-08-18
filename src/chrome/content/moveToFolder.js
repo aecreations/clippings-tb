@@ -37,7 +37,8 @@ function init()
   gFolderTree.foldersOnly = true;
   gFolderTree.showRootFolder = true;
   gFolderTree.build();
-
+  gFolderTree.selectedIndex = 0;
+  
   document.addEventListener("dialogaccept", aEvent => {
     if (! accept()) {
       aEvent.preventDefault();
