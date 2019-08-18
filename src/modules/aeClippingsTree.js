@@ -166,12 +166,12 @@ class ClippingsTree
 
   focus()
   {
-    this._tree.focus();
+    // In Thunderbird 68, this is a no-op.
   }
 
   get selectedIndex()
   {
-    return this._tree.currentIndex;
+    return this._tree.view.selection.currentIndex;
   }
 
   set selectedIndex(aIndex)
@@ -250,7 +250,7 @@ class ClippingsTree
 
   ensureIndexIsVisible(aIndex)
   {
-    // In Thunderbird 66 and newer, this is a no-op.
+    this._tree.ensureRowIsVisible(aIndex);
   }
 
   getRowCount()

@@ -164,8 +164,8 @@ var dndExtText = null;
 
 function initClippingsListDrag(aEvent)
 { 
-  var index = gClippingsTree.tree.boxObject.getRowAt(aEvent.clientX, 
-						     aEvent.clientY);
+  var index = gClippingsTree.tree.getRowAt(aEvent.clientX, 
+				           aEvent.clientY);
   var uri = gClippingsTree.getURIAtIndex(index);
   var pos = gClippingsSvc.ctrIndexOf(uri);
 
@@ -1819,6 +1819,8 @@ function moveToFolderHelper(aItemURI, aSrcFolderURI, aDestFolderURI, aDestItemUR
 
   gClippingsTree.rebuild();
   updateDisplay();
+ 
+  let numRows = gClippingsTree.getRowCount();
 
   if (aSelectMovedItem) {
     gClippingsTree.ensureURIIsVisible(newURI);
@@ -1826,7 +1828,6 @@ function moveToFolderHelper(aItemURI, aSrcFolderURI, aDestFolderURI, aDestItemUR
     gClippingsTree.click();
   }
   else {
-    var numRows = gClippingsTree.getRowCount();
     if (prevIndex == numRows) {  // Moved item was last list item.
       gClippingsTree.selectedIndex = numRows - 1;
       gClippingsTree.ensureIndexIsVisible(numRows - 1);
