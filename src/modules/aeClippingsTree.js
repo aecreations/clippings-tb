@@ -182,7 +182,7 @@ class ClippingsTree
   get selectedURI()
   {
     let rv = "";
-    let idx = this._tree.currentIndex;
+    let idx = this.selectedIndex;
     if (idx != -1) {
       let treeitem = this._tree.view.getItemAtIndex(idx);
       if (treeitem) {
