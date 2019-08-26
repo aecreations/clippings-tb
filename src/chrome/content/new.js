@@ -61,6 +61,8 @@ function $(aID)
     
 function init()
 {
+  aeUtils.log("new.js: Initializing the New Clipping dialog.");
+  
   try {
     gClippingsSvc = aeClippingsService.getService();
   }
@@ -160,6 +162,8 @@ function init()
       gClippingLabelPicker = aeClippingLabelPicker.createInstance($("clipping-label-menupopup"));
     }
     gClippingLabelPicker.addListener(gClippingLabelPickerListener);
+
+    aeUtils.log("new.js: init(): First folder in the folder picker - URI: " + gFolderTree.getURIAtIndex(0) + ", name: " + gClippingsSvc.getName(gFolderTree.getURIAtIndex(0)));
   }
 }
 
@@ -180,6 +184,7 @@ function toggleFolderPicker()
 
 function checkForChangedFolders()
 {
+  aeUtils.log(">>> new.js: checkForChangedFolders()");
   if (isFolderMissing(gSelectedFolderURI)) {
     aeUtils.log("Folder does not exist.  Defaulting to root folder.");
     gSelectedFolderURI = gClippingsSvc.kRootFolderURI;
@@ -194,6 +199,14 @@ function isFolderMissing(aFolderURI)
   var rv = false;
   var exists;
 
+  aeUtils.log("new.js: isFolderMissing: aFolderURI = " + aFolderURI);
+  try {
+    aeUtils.log("Folder name to check for: " + gClippingsSvc.getName(aFolderURI));
+  }
+  catch (e) {
+    aeUtils.log("Exception thrown while attempting to get name of folder to check: " + e);
+  }
+  
   try {
     exists =  gClippingsSvc.exists(aFolderURI);
   }
@@ -233,9 +246,16 @@ function isFolderMissing(aFolderURI)
 
 function chooseFolder(aFolderURI)
 {
-  let fldrURI = aFolderURI ? aFolderURI : gFolderTree.selectedURI; 
+  let fldrURI = aFolderURI ? aFolderURI : gFolderTree.selectedURI;
   gSelectedFolderURI = fldrURI;
 
+  aeUtils.log("new.js: chooseFolder(): folder URI: " + fldrURI);
+
+  if (! fldrURI) {
+    aeUtils.log("new.js: chooseFolder(): folder URI is not set; returning.");
+    return;
+  }
+  
   let fldrPickerPanel = $("folder-picker");
   fldrPickerPanel.hidePopup();
 
@@ -291,7 +311,16 @@ function createFolder()
     return;
   }
 
+  aeUtils.log("new.js: createFolder(): New Folder dialog dismissed. Rebuilding folder tree in the folder picker menu.");
+  
   gFolderTree.rebuild();
+
+  aeUtils.log("new.js: createFolder(): First folder in the folder picker - URI: " + gFolderTree.getURIAtIndex(0) + ", name: " + gClippingsSvc.getName(gFolderTree.getURIAtIndex(0)));
+
+  aeUtils.log("new.js: Attempting to select the newly-created folder in the folder menu.  URI of the newly-created folder (returned from the New Folder dialog): " + dlgArgs.newFolderURI);
+  gFolderTree.selectedURI = dlgArgs.newFolderURI;
+
+  aeUtils.log("new.js: Attempting to set the folder menu button label to be the name of the newly-created folder.");
   chooseFolder(dlgArgs.newFolderURI);
   gIsFolderCreated = true;
 }

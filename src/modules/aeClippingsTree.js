@@ -61,10 +61,9 @@ class ClippingsTree
   
   build()
   {
+    aeUtils.log(">>> aeClippingsTree.build()");
+
     let clippingsData = this._clippingsSvc.getAllItemsAsArray();
-
-    aeUtils.log("aeClippingsTree.build(): Building Clippings tree");
-
     let treechildrenRoot = this._doc.createElement("treechildren");
 
     if (this._showRootFldr) {
@@ -91,6 +90,8 @@ class ClippingsTree
       this._buildHelper(treechildrenRoot, clippingsData);
       this._tree.appendChild(treechildrenRoot);
     }
+
+    aeUtils.log("<<< aeClippingsTree.build()");
   }
 
   _buildHelper(aTreechildrenElt, aFolderItems)
@@ -102,6 +103,9 @@ class ClippingsTree
 	let treeitem = this._doc.createElement("treeitem");
 	treeitem.setAttribute("data-uri", item.uri);
 	treeitem.setAttribute("container", "true");
+
+	aeUtils.log("aeClippingsTree._buildHelper(): Building <treeitem> element for folder '" + item.name + "' (URI = " + item.uri + ")");
+	aeUtils.log("Value of 'data-uri' attribute on the <treeitem> element: " + treeitem.getAttribute("data-uri"));
 	
 	let treerow = this._doc.createElement("treerow");
 	let treecell = this._doc.createElement("treecell");
@@ -176,6 +180,7 @@ class ClippingsTree
 
   set selectedIndex(aIndex)
   {
+    aeUtils.log("aeClippingsTree.set selectedIndex(): aIndex: " + aIndex);
     return (this._tree.view.selection.select(aIndex));
   }
 
@@ -194,11 +199,14 @@ class ClippingsTree
 
   set selectedURI(aURI)
   {
+    aeUtils.log("aeClippingsTree.set selectedURI(): aURI = " + aURI);
+    
     let treeitems = this._tree.getElementsByTagName("treeitem");
     for (let i = 0; i < treeitems.length; i++) {
       let uri = treeitems[i].getAttribute("data-uri");
       if (uri == aURI) {
 	let idx = this._tree.view.getIndexOfItem(treeitems[i]);
+	aeUtils.log("Index of item with URI: " + idx);
 	this.selectedIndex = idx;
 	break;
       }
@@ -273,10 +281,16 @@ class ClippingsTree
     let rv = -1;
     let treeitems = this._tree.getElementsByTagName("treeitem");
 
+    aeUtils.log("aeClippingsTree.getIndexAtURI(): aURI = " + aURI);
+    aeUtils.log("Array of <treeitems> elements: " + treeitems);
+    
     for (let i = 0; i < treeitems.length; i++) {
       let uri = treeitems[i].getAttribute("data-uri");
+      aeUtils.log("Iterating through <treeitem> array: Current item's 'data-uri' value: " + uri);
       if (uri == aURI) {
+	aeUtils.log("Found the <treeitem> with URI of " + aURI);
 	rv = this._tree.view.getIndexOfItem(treeitems[i]);
+	aeUtils.log("Index of <treeitem> with the URI: " + rv);
 	break;
       }
     }

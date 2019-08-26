@@ -23,7 +23,7 @@ const Ci = Components.interfaces;
 let aeUtils = {
   // Debugging flags - set to false to suppress extraneous JS console messages
   // and diagnostic audio beeps.
-  DEBUG: false,
+  DEBUG: true,
   NOISY_DEBUG: false,
 };
 

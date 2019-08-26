@@ -52,7 +52,7 @@ aeClippingsServiceImpl.prototype = {
   MAX_NAME_LENGTH:        64,
 
   // Private constants.
-  _DEBUG:  false,
+  _DEBUG:  true,
   _TEST_CORRUPTION: false,
   _SEQNODE_RESOURCE_URI:  "http://clippings.mozdev.org/rdf/user-clippings-v2",
   _OLD_SEQNODE_RESOURCE_URI: "http://clippings.mozdev.org/rdf/user-clippings",
@@ -352,6 +352,7 @@ aeClippingsServiceImpl.prototype.createNewFolderEx = function (aParentFolder, aU
   }
 
   this._createNewFolderHelper(aParentFolder, newNode, aName, aPos, aDontNotify, aOrigin, null);
+  this._log("aeClippingsService.createNewFolderEx(): URI of new folder: " + rv);
   return rv;
 };
 
