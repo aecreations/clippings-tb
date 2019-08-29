@@ -9,6 +9,10 @@
   width: 34em;
 }
 
+#clipping-text {
+    -moz-box-flex: 1;
+}
+
 .ae-clippings-folder {
   list-style-image: url("chrome://clippings/skin/images/folder.svg");
 }
@@ -33,6 +37,7 @@ menu[open="true"] {
 }
 
 #folder-menu-button {
+  -moz-appearance: menulist-button;
   list-style-image: url("chrome://clippings/skin/images/clippings-root.svg");
 }
 

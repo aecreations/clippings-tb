@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://clippings/modules/aeConstants.js");
-ChromeUtils.import("resource://clippings/modules/aeUtils.js");
-ChromeUtils.import("resource://clippings/modules/aeString.js");
-ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
-ChromeUtils.import("resource://clippings/modules/aeCreateClippingHelper.js");
-ChromeUtils.import("resource://clippings/modules/aeInsertTextIntoTextbox.js");
-ChromeUtils.import("resource://clippings/modules/aeClippingLabelPicker.js");
-ChromeUtils.import("resource://clippings/modules/aeClippingsTree.js");
+const {aeConstants} = ChromeUtils.import("resource://clippings/modules/aeConstants.js");
+const {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
+const {aeString} = ChromeUtils.import("resource://clippings/modules/aeString.js");
+const {aeClippingsService} = ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
+const {aeCreateClippingFromText} = ChromeUtils.import("resource://clippings/modules/aeCreateClippingHelper.js");
+const {aeInsertTextIntoTextbox} = ChromeUtils.import("resource://clippings/modules/aeInsertTextIntoTextbox.js");
+const {aeClippingLabelPicker} = ChromeUtils.import("resource://clippings/modules/aeClippingLabelPicker.js");
+const {aeClippingsTree} = ChromeUtils.import("resource://clippings/modules/aeClippingsTree.js");
 
 
 const WINDOWSTATE_MAXIMIZE  = 1;
@@ -36,13 +36,11 @@ var gAltClippingLabelPicker;
 var gClippingsSvc;
 
 let gStatusBar = {
-  set label(aStatusText)
-  {
+  set label(aStatusText) {
     $("app-status").value = aStatusText;
   },
 
-  get label()
-  {
+  get label() {
     return $("app-status").value;
   },
 };
@@ -166,8 +164,8 @@ var dndExtText = null;
 
 function initClippingsListDrag(aEvent)
 { 
-  var index = gClippingsTree.tree.boxObject.getRowAt(aEvent.clientX, 
-						     aEvent.clientY);
+  var index = gClippingsTree.tree.getRowAt(aEvent.clientX, 
+				           aEvent.clientY);
   var uri = gClippingsTree.getURIAtIndex(index);
   var pos = gClippingsSvc.ctrIndexOf(uri);
 
@@ -511,9 +509,9 @@ var gShortcutKey = {
       return;
     }
 
-    var keyDict = gClippingsSvc.getShortcutKeyDict();
+    var keyMap = gClippingsSvc.getShortcutKeyMap();
 
-    if (keyDict.hasKey(key)) {
+    if (keyMap.has(key)) {
       doAlert(gStrBundle.getString("errorShortcutKeyDetail"));
       clippingKey.selectedIndex = this._oldIndex;
       return;
@@ -596,11 +594,22 @@ var gFindBar = {
     return this._isSrchActivated;
   },
 
+  getSearchText: function ()
+  {
+    return $("find-clipping").value;
+  },
+
+  clearSearchText: function ()
+  {
+    $("find-clipping").value = "";
+  },
+
   setSearchResultsUpdateFlag: function ()
   {
     // Invoke this method whenever a search option is changed (filtering,
     // match case).
     this._updateSrchResults = true;
+    this.updateSearch(this.getSearchText());
   },
 
   setFilter: function (aFilter)
@@ -632,7 +641,7 @@ var gFindBar = {
 
     this._isSrchActivated = true;
     var srchFolders = (this._srchFilter == this.FILTER_CLIPPINGS_AND_FLDRS);
-    this._srchResults = gClippingsSvc.findByName(aSearchStr, this._matchCase, srchFolders, {});
+    this._srchResults = gClippingsSvc.findByName(aSearchStr, this._matchCase, srchFolders);
     var numResults = this._srchResults.length;
 
     if (numResults == 0) {
@@ -1132,7 +1141,7 @@ function unload()
 
   let retrySave;
   let doBackup = true;
-  let saveJSON = this.aeUtils.getPref("clippings.datasource.wx_sync.enabled", false);
+  let saveJSON = aeUtils.getPref("clippings.datasource.wx_sync.enabled", false);
 
   do {
     retrySave = false;
@@ -1271,10 +1280,7 @@ doRecovery.FAILSAFE_CREATE_BLANK_DS = 4;
 
 function initReloadMenuItem() 
 {
-  if (aeUtils.PORTABLE_APP_BUILD) {
-    $("reload_menuseparator").style.display = 'none';
-    $("reload_menuitem").style.display = 'none';
-  }
+  // No-op
 }
 
 
@@ -1292,8 +1298,6 @@ function applyUpdatedClippingsMgrPrefs()
     clippingNameElt.removeAttribute("spellcheck");
     clippingTextElt.removeAttribute("spellcheck");
   }
-
-  setStatusBarVisibility();
 }
 
 
@@ -1313,21 +1317,21 @@ function arrangeItemsByDnD()
 
   if (gClippingsSvc.isFolder(selectedURI)) {
     fldrName = gClippingsSvc.getName(selectedURI);
-    let fldrItems = gClippingsSvc.getSubfolderItemsAsJSONString(selectedURI);
+    let fldrItems = gClippingsSvc.getSubfolderItems(selectedURI);
     folders.push({
       uri:  selectedURI,
       name: fldrName,
-      items: JSON.parse(fldrItems)
+      items: fldrItems,
     });
 
     // If the parent of the selected folder is the root folder, then also get
     // the root-level items.
     if (gClippingsSvc.getParent(selectedURI) == gClippingsSvc.kRootFolderURI) {
-      let rootFldrItems = gClippingsSvc.getSubfolderItemsAsJSONString(gClippingsSvc.kRootFolderURI);
+      let rootFldrItems = gClippingsSvc.getSubfolderItems(gClippingsSvc.kRootFolderURI);
       folders.push({
 	uri:  gClippingsSvc.kRootFolderURI,
 	name: rootFldrName,
-	items: JSON.parse(rootFldrItems)
+	items: rootFldrItems,
       });
     }
   }
@@ -1340,11 +1344,11 @@ function arrangeItemsByDnD()
       fldrName = gClippingsSvc.getName(parentURI);
     }
 
-    let fldrItems = gClippingsSvc.getSubfolderItemsAsJSONString(parentURI);
+    let fldrItems = gClippingsSvc.getSubfolderItems(parentURI);
     folders.push({
       uri: parentURI,
       name: fldrName,
-      items: JSON.parse(fldrItems)
+      items: fldrItems,
     });
   }
   
@@ -1359,6 +1363,8 @@ function arrangeItemsByDnD()
   if (dlgArgs.userCancel) {
     return;
   }
+
+  aeUtils.log("clippingsMgr.js: Rearranged items:\n" + JSON.stringify(dlgArgs.rearrangedItems));
   
   for (let i = 0; i < dlgArgs.rearrangedItems.length; i++) {
     let item = dlgArgs.rearrangedItems[i];
@@ -1375,18 +1381,19 @@ function closeNotificationBar()
 }
 
 
-function dataSrcOptions()
-{
-  // Open the extension preferences dialog, with the Data Source pane displayed
-  window.openDialog("chrome://clippings/content/options.xul", "dlg_clippings_datasrc", "chrome,titlebar,toolbar,centerscreen,dialog=yes", "pane-datasource");
-}
-
-
 function clippingsMgrOptions()
 {
-  // Open the extension preferences dialog, with the Clippings Manager pane
-  // displayed.
-  window.openDialog("chrome://clippings/content/options.xul", "dlg_clippings_datasrc", "chrome,titlebar,toolbar,centerscreen,dialog=yes", "pane-clippings-mgr");
+  let dlgURL = "chrome://clippings/content/preferences.xul";
+  let dlgName = "dlg_clippings_prefs";
+  let dlgFeatures = "modal,centerscreen";
+  
+  if (aeUtils.getOS() == "Darwin") {
+    let ww = Cc["@mozilla.org/embedcomp/window-watcher;1"].getService(Ci.nsIWindowWatcher);
+    ww.openWindow(null, dlgURL, dlgName, `${dlgFeatures},dialog=yes,resizable=no`, null);
+  }
+  else {
+    window.openDialog(dlgURL, dlgName, dlgFeatures);
+  }
 }
 
 
@@ -1812,6 +1819,8 @@ function moveToFolderHelper(aItemURI, aSrcFolderURI, aDestFolderURI, aDestItemUR
 
   gClippingsTree.rebuild();
   updateDisplay();
+ 
+  let numRows = gClippingsTree.getRowCount();
 
   if (aSelectMovedItem) {
     gClippingsTree.ensureURIIsVisible(newURI);
@@ -1819,7 +1828,6 @@ function moveToFolderHelper(aItemURI, aSrcFolderURI, aDestFolderURI, aDestItemUR
     gClippingsTree.click();
   }
   else {
-    var numRows = gClippingsTree.getRowCount();
     if (prevIndex == numRows) {  // Moved item was last list item.
       gClippingsTree.selectedIndex = numRows - 1;
       gClippingsTree.ensureIndexIsVisible(numRows - 1);
@@ -1906,7 +1914,7 @@ function saveClippings(aSuppressStatusMsgs, aForceSave, aDoBackup)
   }
 
   let msg = gStrBundle.getString("saveCompleted");
-  let saveJSON = this.aeUtils.getPref("clippings.datasource.wx_sync.enabled", false);
+  let saveJSON = aeUtils.getPref("clippings.datasource.wx_sync.enabled", false);
   try {
     gSaveInProgress = true;
     gClippingsSvc.flushDataSrc(aDoBackup, saveJSON);
@@ -1975,9 +1983,17 @@ function reload()
   }
   catch (e) {
     aeUtils.beep();
-    aeUtils.log("function reload(): Reload failed!\n\n" + e);
+    aeUtils.log("clippingsMgr.js::reload(): Reload failed!\n\n" + e);
     gStatusBar.label = "Reload Failed!";
     return;
+  }
+
+  if (isSyncEnabled()) {
+    gClippingsSvc.refreshSyncedClippings(false);
+
+    // Introduce a forced pause to accommodate the asynchronous update to the
+    // Synced Clippings folder.
+    aeUtils.alertEx(document.title, gStrBundle.getString("updateSyncFldr"));
   }
 
   gClippingsTree.rebuild();
@@ -1999,6 +2015,13 @@ function reload()
     gClippingsTree.ensureIndexIsVisible(currIndex);
     updateDisplay();
   }
+}
+
+
+function isSyncEnabled()
+{
+  let rv = aeUtils.getPref("clippings.datasource.wx_sync.enabled", false);
+  return rv;
 }
 
 
@@ -2186,6 +2209,7 @@ function updateToolsMenu()
 {
   let cmdShowHidePlaceholderBar = $("cmd_togglePlaceholderBar");
   let cmdShowHideDetailsPane = $("cmd_toggleDetailsPane");
+  let cmdShowHideStatusBar = $("cmd_toggleStatusBar");
   let uri = gClippingsTree.selectedURI;
 
   if (!uri || gClippingsSvc.isFolder(uri) || gClippingsSvc.isEmptyClipping(uri)) {
@@ -2199,6 +2223,7 @@ function updateToolsMenu()
 
   cmdShowHidePlaceholderBar.setAttribute("checked", gPlaceholderBar.isActivated());
   cmdShowHideDetailsPane.setAttribute("checked", gClippingDetailsPaneVisible);
+  cmdShowHideStatusBar.setAttribute("checked", !$("status-bar").hidden);
 }
 
 
@@ -2230,13 +2255,18 @@ function toggleClippingDetails()
 }
 
 
+function toggleStatusBar()
+{
+  let statusBar = $("status-bar");
+  let isStatusBarHidden = statusBar.hidden;
+
+  statusBar.hidden = !isStatusBarHidden;
+  aeUtils.setPref("clippings.clipmgr.status_bar", isStatusBarHidden);
+}
+
+
 function insertCustomPlaceholder()
 {
-  if (! isClippingTextAreaFocused()) {
-    aeUtils.beep();
-    return;
-  }
-
   var dlgArgs = {
     CUSTOM: 0,
     AUTO_INCREMENT: 1,
@@ -2258,11 +2288,6 @@ function insertCustomPlaceholder()
 
 function insertAutoIncrementPlaceholder()
 {
-  if (! isClippingTextAreaFocused()) {
-    aeUtils.beep();
-    return;
-  }
-
   var dlgArgs = {
     CUSTOM: 0,
     AUTO_INCREMENT: 1,
@@ -2284,11 +2309,6 @@ function insertAutoIncrementPlaceholder()
 
 function insertPresetPlaceholder(aPresetName)
 {
-  if (! isClippingTextAreaFocused()) {
-    aeUtils.beep();
-    return;
-  }
-
   var placeholder = "";
 
   switch (aPresetName) {
@@ -2324,21 +2344,28 @@ function insertPresetPlaceholder(aPresetName)
 }
 
 
+function insertFormattedDateTimePlaceholder()
+{
+  let dlgArgs = {
+    placeholder: "",
+    userCancel: null
+  };
+
+  window.openDialog("chrome://clippings/content/insertDateTimePlaceholder.xul", "ae_clippings_mgr_ins_dt", "dialog,modal,centerscreen", dlgArgs);
+  
+  if (dlgArgs.userCancel) {
+    return;
+  }
+
+  insertIntoClippingText(dlgArgs.placeholder);
+}
+
+
 function insertIntoClippingText(aInsertedText)
 {
-  var focusedElt = document.commandDispatcher.focusedElement;
-
-  // <textbox multiline="true"> is actually an <html:textarea> element.
-  // Full XBL hierarchy: <textbox> -> <xul:hbox> -> <html:textarea>
-  if (focusedElt.nodeName == "html:textarea" && focusedElt.parentElement.parentElement.id == "clipping-text") {
-    let textbox = focusedElt;
-
-    aeInsertTextIntoTextbox(textbox, aInsertedText);
-  }
-  else {
-    aeUtils.beep();
-    aeUtils.log("The clipping content textarea is not focused!");
-  }
+  let textbox = $("clipping-text");
+  textbox.focus();
+  aeInsertTextIntoTextbox(textbox, aInsertedText);
 }
 
 
@@ -2390,6 +2417,9 @@ function updateDisplay(aSuppressUpdateSelection)
     gClippingsTree.selectedIndex = gCurrentListItemIndex;
     uri = gClippingsTree.selectedURI;
   }
+
+  let isSyncFldr = uri == gClippingsSvc.kSyncFolderURI;
+  $("cmd_delete").setAttribute("disabled", isSyncFldr);
 
   if (gClippingsSvc.isFolder(uri)) {
     clippingName.disabled = (uri == gClippingsSvc.kSyncFolderURI);
@@ -2641,10 +2671,8 @@ function updateTextHelper(aURI, aText, aDestUndoStack)
     return;
   }
 
-  // DEBUGGING
   var name = gClippingsSvc.getName(aURI);
-  // END DEBUGGING
-
+ 
   var state = {action: ACTION_EDITTEXT, uri: aURI, name: name, text: oldText};
   if (aDestUndoStack == UNDO_STACK) {
     gUndoStack.push({action:ACTION_EDITTEXT, uri:aURI, name:name, text:oldText});
@@ -2827,37 +2855,28 @@ function initRestorePopup(aEvent)
     return;
   }
 
-  var restoreMenuPopup = aEvent.target;
-  var chooseBackupMenuItem = $("choose-backup-file");
+  let restoreMenuPopup = aEvent.target;
+  let chooseBackupMenuItem = $("choose-backup-file");
 
   // Refresh the menu by deleting all entries except the "Choose File" command.
-  var rmTarget = restoreMenuPopup.firstChild;
+  let rmTarget = restoreMenuPopup.firstChild;
   while (rmTarget.id != "choose-backup-file") {
     restoreMenuPopup.removeChild(rmTarget);
     rmTarget = restoreMenuPopup.firstChild;
   }
 
-  var backupDict = gClippingsSvc.getBackupFileNamesDict();
-  var backupFileNameCount = {};
-  var backupFileNames = backupDict.getKeys(backupFileNameCount);
-  backupFileNames = backupFileNames.sort();
+  let backupFileNamesMap = gClippingsSvc.getBackupFileNamesMap();
 
-  for (let i = 0; i < backupFileNames.length; i++) {
+  for (const [filename, backupDateTime] of backupFileNamesMap) {
     let menuItem = document.createElement("menuitem");
-    let valueStr = {};
-    try {
-      valueStr = backupDict.getValue(backupFileNames[i]);
-    }
-    catch (e) {}
-    valueStr = valueStr.QueryInterface(Components.interfaces.nsISupportsString);
-    menuItem.setAttribute("label", valueStr.data);
-    menuItem.setAttribute("value", backupFileNames[i]);
+    menuItem.setAttribute("label", backupDateTime);
+    menuItem.setAttribute("value", filename);
     menuItem.addEventListener("command", function (evt) { restoreBackupFile(evt.target.value); }, false);
     restoreMenuPopup.insertBefore(menuItem, chooseBackupMenuItem);
   }
 
-  if (backupFileNames.length > 0) {
-    var separator = document.createElement("menuseparator");
+  if (backupFileNamesMap.length > 0) {
+    let separator = document.createElement("menuseparator");
     restoreMenuPopup.insertBefore(separator, chooseBackupMenuItem);
   }
 }
@@ -3052,7 +3071,7 @@ function initClippingsListPopup()
   $("cmd_cut").setAttribute("disabled", isSyncFldr);
   $("cmd_copy").setAttribute("disabled", isSyncFldr);
   $("move-or-copy-cxt").setAttribute("disabled", isSyncFldr);
-  $("delete-cxt").setAttribute("disabled", isSyncFldr);
+  $("reload-cxt").hidden = !isSyncFldr;
 
   var clippingLabelCxtMenu;
   if (gAltClippingLabelPicker) {
@@ -3407,11 +3426,15 @@ function toggleFindBar()
 
 function userCancel()
 {
-  // Hide the Find Bar if it is visible.
   if (gFindBar.isVisible()) {
-    gFindBar.hide();
-    gClippingsTree.focus();
-    $("find").checked = false;
+    if (gFindBar.getSearchText()) {
+      gFindBar.clearSearchText();
+    }
+    else {
+      gFindBar.hide();
+      gClippingsTree.focus();
+      $("find").checked = false;
+    }
   }
   else {
     aeUtils.beep();
@@ -3421,22 +3444,17 @@ function userCancel()
 
 function showShortcutKeyMinihelp()
 {
-  var keyDict = gClippingsSvc.getShortcutKeyDict();
-  var keys;
-  var keyCount = {};
-  keys = keyDict.getKeys(keyCount);
-  keys = keys.sort();
-  keyCount = keyCount.value;
+  let unsortedKeyMap = gClippingsSvc.getShortcutKeyMap();
+  let keys = [];
 
-  var keyMap = {};
+  unsortedKeyMap.forEach((aValue, aKey, aMap) => { keys.push(aKey) });
+  keys = keys.sort();
+
+  let keyCount = keys.length;
+  let keyMap = {};
 
   for (let i = 0; i < keyCount; i++) {
-    try {
-      var valueStr = keyDict.getValue(keys[i]);
-    }
-    catch (e) {}
-    valueStr = valueStr.QueryInterface(Components.interfaces.nsISupportsString);
-    let clippingURI = valueStr.data;
+    let clippingURI = unsortedKeyMap.get(keys[i]);
     let clippingName = gClippingsSvc.getName(clippingURI);
 
     keyMap[keys[i]] = {
@@ -3445,33 +3463,21 @@ function showShortcutKeyMinihelp()
     };
   }
 
-  var dlgArgs = {
+  let dlgArgs = {
     keyMap:   keyMap,
     keyCount: keyCount,
     showInsertClippingCmd: false
   };
   dlgArgs.printToExtBrowser = aeUtils.getHostAppID() == aeConstants.HOSTAPP_TB_GUID;
 
-  // Position the help window so that it is relative to the Clippings Manager
-  // window.
-  var wndFeatures = aeString.format("top=%d,left=%d,resizable", window.screenY+72, window.screenX+128);
-  var helpWnd = window.openDialog("chrome://clippings/content/shortcutHelp.xul", "clipkey_help", wndFeatures, dlgArgs);
-  helpWnd.focus();
+  window.openDialog("chrome://clippings/content/shortcutHelpDlg.xul", "clipkey_helpdlg", "dialog,modal,centerscreen", dlgArgs);
 }
 
 
 function showHelp() 
 {
   updateCurrentClippingData();
-
-  openHelpDialog(gStrBundle.getString("clipmanHlp"),
-		 gStrBundle.getString("clippingsMgrHelp"));
-}
-
-
-function openHelpDialog(aHelpTitle, aHelpText)
-{
-  window.openDialog("chrome://clippings/content/miniHelp.xul", "ae_minihlp_wnd", "centerscreen,dialog,modal", aHelpTitle, aHelpText);
+  window.openDialog("chrome://clippings/content/hlpClippingsMgr.xul", "ae_clippingsmgr_hlp", "dialog,modal,centerscreen");
 }
 
 

@@ -14,8 +14,7 @@
  xmlns:html="http://www.w3.org/1999/xhtml"
  buttons="accept, cancel"
  buttonlabelaccept="&importButton.label;"
- onload="init()" ondialogaccept="return importClippings()"
- ondialogcancel="return cancel()">
+ onload="init()">
 
   <script type="application/javascript" src="chrome://clippings/content/import.js"/>
 

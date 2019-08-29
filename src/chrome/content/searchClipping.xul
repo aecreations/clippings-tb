@@ -12,13 +12,14 @@
  orient="vertical"
  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
  buttons="cancel"
- onload="initDlg()" ondialogcancel="return cancel()">
+ onload="init()">
 
   <script type="application/javascript" src="chrome://clippings/content/searchClipping.js"/>
 
   <panel id="search-results-popup" noautofocus="true" orient="vertical">
     <richlistbox id="search-results-listbox" flex="1" seltype="single"
-     onkeypress="selectClippingByKeyboard(event)"
+     onkeyup="selectClippingByKeyboard(event)"
+     onkeydown="executePaste(event)"
      onmouseover="selectSearchResult(event)"
      onmouseup="selectClippingByMouse(event)"/>
     <hbox>
@@ -37,8 +38,8 @@
       <description>&clippingSearch.description;</description>
       <separator />
       <textbox id="clipping-search" type="search"
-       onkeypress="handleSearchKeys(event, this.value)"
-       oncommand="updateSearchResults(this.value)"/>
+       onkeyup="handleSearchKeys(event, this.value)"
+       onkeydown="handleTabKey(event)"/>
       <separator class="thin"/>
       <label id="search-status" value=""/>
       <separator class="thin"/>

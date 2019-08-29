@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://clippings/modules/aeUtils.js");
+const {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
 
 
 var gDlgArgs, gStrBundle;
@@ -18,7 +18,7 @@ function $(aID) {
 
 
 
-function initDlg()
+function init()
 {
   gDlgArgs = window.arguments[0].wrappedJSObject;
   gStrBundle = aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
@@ -35,7 +35,7 @@ function initDlg()
     strKey = "selectPromptText";
     promptDeck.selectedIndex = 1;
 
-    var menupopup = $("select-placeholder-value-menu").firstChild;
+    var menupopup = document.createElement("menupopup");
     var selectableValues = gDlgArgs.defaultValue.split("|");
 
     for (let value of selectableValues) {
@@ -44,6 +44,9 @@ function initDlg()
       menuitem.setAttribute("value", value);
       menupopup.appendChild(menuitem);
     }
+    let phValueMenu = $("select-placeholder-value-menu");
+    phValueMenu.appendChild(menupopup);
+    phValueMenu.selectedIndex = 0;
   }
   else {
     strKey = "substPromptText";
@@ -51,17 +54,27 @@ function initDlg()
     $("placeholder-value").value = gDlgArgs.defaultValue;
   }
   promptText.value = gStrBundle.getFormattedString(strKey, [gDlgArgs.varName]);
+
+  document.addEventListener("dialogaccept", aEvent => {
+    if (! accept()) {
+      aEvent.preventDefault();
+    }
+  });
+  document.addEventListener("dialogcancel", aEvent => { cancel() });
 }
 
 
 function accept()
 {
   if (gDlgArgs.selectMode) {
-    let selectedItem = $("select-placeholder-value-menu").selectedItem;
-    if (! selectedItem) {
+    let phValueMenu = $("select-placeholder-value-menu");
+    let selectedIdx = phValueMenu.selectedIndex;
+    if (selectedIdx == -1) {
       aeUtils.beep();
       return false;
     }
+
+    let selectedItem = phValueMenu.getItemAtIndex(selectedIdx);
     gDlgArgs.userInput = selectedItem.value;
   }
   else {

@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://clippings/modules/aeConstants.js");
-ChromeUtils.import("resource://clippings/modules/aeUtils.js");
+const {aeConstants} = ChromeUtils.import("resource://clippings/modules/aeConstants.js");
+const {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
 
 
 const EXPORTED_SYMBOLS = ["aeClippingSubst"];
@@ -59,6 +59,7 @@ aeClippingSubst.processClippingText = function (aClippingInfo, aWnd, aAlwaysUseP
   var rv = "";
   var strBundle = this._strBundle;
   var userAgentStr = this._userAgentStr;
+  var hasFmtDateTime = false;
 
   // Remember the value of the same placeholder that was filled in previously
   var knownTags = {};
@@ -226,6 +227,8 @@ aeClippingSubst.processClippingText = function (aClippingInfo, aWnd, aAlwaysUseP
 
   let date = new Date();
 
+  hasFmtDateTime = (aClippingInfo.text.search(/\$\[DATE\(([AaDdHhKkMmosYLlTZ ,.:\-\/]+)\)\]/) != -1 || aClippingInfo.text.search(/\$\[TIME\(([AaHhKkmsLTZ .:]+)\)\]/) != -1);
+
   rv = aClippingInfo.text.replace(/\$\[DATE\]/gm, date.toLocaleDateString());
   rv = rv.replace(/\$\[TIME\]/gm, date.toLocaleTimeString());
   rv = rv.replace(/\$\[NAME\]/gm, aClippingInfo.name);
@@ -239,9 +242,46 @@ aeClippingSubst.processClippingText = function (aClippingInfo, aWnd, aAlwaysUseP
   // Extended-B, Cyrillic, Hebrew.
   // For normal placeholders, allow {|} chars for optional default values, and
   // within the { and }, allow the same characters as placeholder names, but
-  // including the space, hyphen and period.
-  rv = rv.replace(/\$\[([\w\u0080-\u00FF\u0100-\u017F\u0180-\u024F\u0400-\u04FF\u0590-\u05FF]+)(\{([\w \-\.\u0080-\u00FF\u0100-\u017F\u0180-\u024F\u0400-\u04FF\u0590-\u05FF\|])+\})?\]/gm, fnReplace);
+  // including the space, hyphen, period, parentheses, common currency symbols,
+  // and the following special characters: ?_/!@#%&;,:'"
+  rv = rv.replace(/\$\[([\w\u0080-\u00FF\u0100-\u017F\u0180-\u024F\u0400-\u04FF\u0590-\u05FF]+)(\{([\w \-\.\?_\/\(\)!@#%&;:,'"$£¥€*¡¢\u0080-\u00FF\u0100-\u017F\u0180-\u024F\u0400-\u04FF\u0590-\u05FF\|])+\})?\]/gm, fnReplace);
   rv = rv.replace(/\#\[([a-zA-Z0-9_\u0080-\u00FF\u0100-\u017F\u0180-\u024F\u0400-\u04FF\u0590-\u05FF]+)\]/gm, fnAutoIncrement);
+
+  if (hasFmtDateTime) {
+    let dlgArgs = {
+      dtPlaceholders: [],
+      dtReplaced: [],
+      plchldrType: [],
+    };
+
+    let fmtDateRe = /\$\[DATE\(([AaDdHhKkMmosYLlTZ ,.:\-\/]+)\)\]/g;
+    let fmtDateResult;
+    while ((fmtDateResult = fmtDateRe.exec(aClippingInfo.text)) != null) {
+      dlgArgs.dtPlaceholders.push(fmtDateResult[1]);
+      dlgArgs.plchldrType.push("D");
+    }
+
+    let fmtTimeRe = /\$\[TIME\(([AaHhKkmsLTZ .:]+)\)\]/g;
+    let fmtTimeResult;
+    while ((fmtTimeResult = fmtTimeRe.exec(aClippingInfo.text)) != null) {
+      dlgArgs.dtPlaceholders.push(fmtTimeResult[1]);
+      dlgArgs.plchldrType.push("T");
+    }
+
+    aWnd.openDialog("chrome://clippings/content/processDateTimePlaceholder.xhtml", "ae_clippings_dtplchldrs", "chrome,modal,centerscreen", dlgArgs);
+
+    for (let i = 0; i < dlgArgs.dtPlaceholders.length; i++) {
+      let prefix = "";
+      if (dlgArgs.plchldrType[i] == "D") {
+	prefix = "$[DATE(";
+      }
+      else if (dlgArgs.plchldrType[i] == "T"){
+	prefix = "$[TIME(";
+      }
+      let dtPlchldr = prefix + dlgArgs.dtPlaceholders[i] + ")]";
+      rv = rv.replace(dtPlchldr, dlgArgs.dtReplaced[i]);
+    }
+  }
 
   return rv;
 };

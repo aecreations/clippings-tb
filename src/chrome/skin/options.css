@@ -2,12 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@import url("chrome://messenger/skin/preferences/preferences.css");
+@import url("chrome://global/skin/global.css");
 
-
-prefwindow {
-  min-width: 36em;
-}
 
 separator {
   height: 18px;

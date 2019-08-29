@@ -6,12 +6,12 @@
 // This source file is shared by both new.xul and newFolder.xul
 //
 
-ChromeUtils.import("resource://clippings/modules/aeConstants.js");
-ChromeUtils.import("resource://clippings/modules/aeString.js");
-ChromeUtils.import("resource://clippings/modules/aeUtils.js");
-ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
-ChromeUtils.import("resource://clippings/modules/aeClippingLabelPicker.js");
-ChromeUtils.import("resource://clippings/modules/aeClippingsTree.js");
+const {aeConstants} = ChromeUtils.import("resource://clippings/modules/aeConstants.js");
+const {aeString} = ChromeUtils.import("resource://clippings/modules/aeString.js");
+const {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
+const {aeClippingsService} = ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
+const {aeClippingLabelPicker} = ChromeUtils.import("resource://clippings/modules/aeClippingLabelPicker.js");
+const {aeClippingsTree} = ChromeUtils.import("resource://clippings/modules/aeClippingsTree.js");
 
 
 var gDlgArgs = window.arguments[0].wrappedJSObject;
@@ -76,6 +76,13 @@ function init()
   gFolderTree.showRootFolder = true;
   gFolderTree.build();
 
+  document.addEventListener("dialogaccept", aEvent => {
+    if (! accept()) {
+      aEvent.preventDefault();
+    }
+  });
+  document.addEventListener("dialogcancel", aEvent => { cancel() });
+  
   // newFolder.xul
   if (window.location.href == "chrome://clippings/content/newFolder.xul") {
     gFolderName = $("folder-name");
@@ -90,7 +97,7 @@ function init()
     gClippingKey  = $("clipping-key");
     gCreateAsUnquoted = $("create-as-unquoted");
     gRemoveExtraLineBreaks = $("remove-extra-linebreaks");
-    var app = gStrBundle.getString("pasteIntoBothHostApps");
+    var app = gStrBundle.getString("pasteIntoTb");
     var hint = gStrBundle.getFormattedString("shortcutKeyHint", [app]);
 
     let os = aeUtils.getOS();
@@ -293,17 +300,17 @@ function createFolder()
 // new.xul only
 function updateShortcutKeyAvailability()
 {
-  var msgTxtNode = $("key-conflict-notification").firstChild;
+  let msgTxtNode = $("key-conflict-notification").firstChild;
 
   if (gClippingKey.selectedIndex == 0) {
     msgTxtNode.data = gStrBundle.getString("shortcutKeyNoneAssigned");
     return;
   }
 
-  var selectedKey = gClippingKey.selectedItem.label;
-  var keyDict = gClippingsSvc.getShortcutKeyDict();
+  let selectedKey = gClippingKey.selectedItem.label;
+  let keyMap = gClippingsSvc.getShortcutKeyMap();
 
-  if (keyDict.hasKey(selectedKey)) {
+  if (keyMap.has(selectedKey)) {
     msgTxtNode.data = gStrBundle.getString("shortcutKeyUsed");
   }
   else {
@@ -387,12 +394,12 @@ function accept()
 
     // Shortcut key
     if (gClippingKey.selectedIndex > 0) {
-      var selectedKey = gClippingKey.selectedItem.label;
+      let selectedKey = gClippingKey.selectedItem.label;
 
       // Check if the key is already assigned to another clipping
-      var keyDict = gClippingsSvc.getShortcutKeyDict();
+      let keyMap = gClippingsSvc.getShortcutKeyMap();
 
-      if (keyDict.hasKey(selectedKey)) {
+      if (keyMap.has(selectedKey)) {
 	aeUtils.alertEx(gStrBundle.getString("appName"),
 	   	       gStrBundle.getString("errorShortcutKeyDetail"));
 	gClippingKey.focus();

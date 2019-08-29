@@ -1,5 +1,5 @@
 <!-- General -->
-<!ENTITY clippings.appName "Clippings">
+<!ENTITY clippings.appName "Clippings for Thunderbird">
 
 <!-- Overlay -->
 <!ENTITY clippings.menuLabel "Clippings">
@@ -65,12 +65,15 @@
 <!ENTITY removeAllSrcURLs.label "Remove All">
 <!ENTITY removeAllSrcURLs.accesskey "R">
 <!ENTITY removeAllSrcURLs.description "Remove all saved source web page addresses (URLs) from your clippings.">
+<!ENTITY about.label "About...">
+<!ENTITY about.title "About Clippings">
+<!ENTITY homePgLink "Visit home page">
+<!ENTITY licenseInfoLink "License information">
 
-<!ENTITY showStatusBar.label "Show the status bar">
-<!ENTITY showStatusBar.accesskey "S">
-<!ENTITY clippingsMgrKeys.caption "Clippings Manager Shortcut Keys">
-
-<!-- Clippings Manager shortcut key legend -->
+<!-- Clippings Manager intro and keyboard shortcut legend -->
+<!ENTITY welcClippingsMgr.title "Welcome to Clippings Manager">
+<!ENTITY clippingsMgrHlp "Use Clippings Manager to edit, rename or delete clippings, and organize your collection of clippings into folders.">
+<!ENTITY clippingsMgrKeys.caption "Keyboard Shortcuts">
 <!ENTITY key.del "DEL">
 <!ENTITY key.esc "ESC">
 <!ENTITY key.ctrlF "CTRL+F">
@@ -123,8 +126,6 @@
 <!ENTITY pasteNew.accesskey "P">
 <!ENTITY description.label "Description:">
 <!ENTITY description.accesskey "c">
-<!ENTITY text.label "Text:">
-<!ENTITY text.accesskey "T">
 <!ENTITY clippingText.placeholder "Enter clipping text">
 <!ENTITY import.label "Import...">
 <!ENTITY import.accesskey "I">
@@ -166,6 +167,8 @@
 <!ENTITY placeholderBar.accesskey "P">
 <!ENTITY detailsPane.label "Details Pane">
 <!ENTITY detailsPane.accesskey "D">
+<!ENTITY statusBar.label "Status Bar">
+<!ENTITY statusBar.accesskey "S">
 
 <!ENTITY closeCmd.key "W">
 <!ENTITY forceSaveCmd.key "S">
@@ -182,6 +185,7 @@
 <!ENTITY placeholderUserAgent.label "User Agent">
 <!ENTITY placeholderClippingName.label "Clipping Name">
 <!ENTITY placeholderFolderName.label "Parent Folder Name">
+<!ENTITY placeholderDateTime.label "Formatted Date/Time...">
 <!ENTITY editSrcURL.label "Edit">
 <!ENTITY editSrcURL.accesskey "t">
 
@@ -202,6 +206,7 @@
 <!ENTITY copy.accesskey "C">
 <!ENTITY paste.label "Paste">
 <!ENTITY paste.accesskey "P">
+<!ENTITY shctHlp.tooltip "Shortcut Help">
 
 <!-- Move To Folder dialog -->
 <!ENTITY moveToFolder.title "Move To">
@@ -213,11 +218,13 @@
 <!-- Insert Placeholder dialog -->
 <!ENTITY insertPlaceholder.title "Insert Placeholder">
 <!ENTITY placeholderName.accesskey "N">
-<!ENTITY defaultValue.label "Default value:">
+<!ENTITY placeholderName.placeholder "Letters, numbers, underscores, no spaces">
+<!ENTITY defaultValue.label "Default value (optional):">
 <!ENTITY defaultValue.accesskey "D">
-<!ENTITY defaultValue.placeholder "Optional">
 <!ENTITY defaultValue.description "Separate multiple values with a ''|'' symbol.  Example: red|green|blue">
 <!ENTITY autoIncrement.description "When the clipping is pasted, you will be prompted for the starting numeric value.  The value will automatically increase by one every time the same clipping is pasted, until it is reset from the Clippings context menu.">
+<!ENTITY dateTimePlchldr.title "Insert Date/Time Placeholder">
+<!ENTITY dateTimeFmts.label "Available date/time formats:">
 
 <!-- Import dialog -->
 <!ENTITY import.title "Import Clippings">
@@ -241,8 +248,10 @@
 <!ENTITY includeSrcURLs.accesskey "I">
 
 <!-- New Clipping dialog -->
-<!ENTITY clippingName.label "Name:">
+<!ENTITY clippingName.label "Name of new clipping:">
 <!ENTITY clippingName.accesskey "N">
+<!ENTITY text.label "Text:">
+<!ENTITY text.accesskey "T">
 <!ENTITY saveSourceURL.label "Save the address of the source web page">
 <!ENTITY saveSourceURL.accesskey "S">
 <!ENTITY newClippingsEntry.title "New Clipping">
@@ -251,7 +260,7 @@
 <!ENTITY createIn.accesskey "i">
 <!ENTITY fileHere.label "File Here">
 <!ENTITY chooseAsParent.label "choose this for the parent">
-<!ENTITY folderName.label "Name:">
+<!ENTITY folderName.label "New folder name:">
 <!ENTITY folderName.accesskey "N">
 <!ENTITY createAsSubf.label "Create as a subfolder of:">
 <!ENTITY createAsSubf.accesskey "C">
@@ -292,19 +301,21 @@
 <!ENTITY shortcutHelp.title "Clippings Shortcut Keys">
 <!ENTITY shortcutCol.label "Shortcut Key"> 
 <!ENTITY clippingCol.label "Clipping Name">
-<!ENTITY save.label "Save">
-<!ENTITY save.accesskey "S">
+<!ENTITY save.label "Export To HTML">
+<!ENTITY save.accesskey "E">
 <!ENTITY print.label "Print">
 <!ENTITY print.accesskey "P">
 <!ENTITY close.accesskey "C">
 
 <!-- Placeholder prompt -->
 <!ENTITY pasteClipping.title "Paste Clipping">
+<!ENTITY dtPlchldrPs.label "Processing date/time placeholders...">
 
 <!-- Misc -->
 <!ENTITY okButton.label "OK">
 <!ENTITY cancelButton.label "Cancel">
 <!ENTITY closeButton.label "Close">
 <!ENTITY closeButton.accesskey "C">
+<!ENTITY clippingsHlp.title "Clippings Help">
 <!ENTITY errorNoClipboardContent.desc "Clipboard is empty or does not contain textual data.">
 <!ENTITY wxComing.desc "Clippings 6 is now available!  Click here to learn how to prepare for the upgrade.">

@@ -5,8 +5,8 @@
 const EXPORTED_SYMBOLS = ["aeClippingsTree"];
 
 
-ChromeUtils.import("resource://clippings/modules/aeUtils.js");
-ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
+const {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
+const {aeClippingsService} = ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
 
 
 let aeClippingsTree = {
@@ -61,8 +61,7 @@ class ClippingsTree
   
   build()
   {
-    let clippingsJSONStr = this._clippingsSvc.exportToJSONString();
-    let clippingsJSON = JSON.parse(clippingsJSONStr);
+    let clippingsData = this._clippingsSvc.getAllItemsAsArray();
 
     aeUtils.log("aeClippingsTree.build(): Building Clippings tree");
 
@@ -82,14 +81,14 @@ class ClippingsTree
       rootTreeitem.appendChild(rootTreerow);
 
       let nestedTreechildren = this._doc.createElement("treechildren");
-      this._buildHelper(nestedTreechildren, clippingsJSON);
+      this._buildHelper(nestedTreechildren, clippingsData);
 
       rootTreeitem.appendChild(nestedTreechildren);
       treechildrenRoot.appendChild(rootTreeitem);
       this._tree.appendChild(treechildrenRoot);
     }
     else {
-      this._buildHelper(treechildrenRoot, clippingsJSON);
+      this._buildHelper(treechildrenRoot, clippingsData);
       this._tree.appendChild(treechildrenRoot);
     }
   }
@@ -167,12 +166,12 @@ class ClippingsTree
 
   focus()
   {
-    this._tree.focus();
+    // In Thunderbird 68, this is a no-op.
   }
 
   get selectedIndex()
   {
-    return this._tree.currentIndex;
+    return this._tree.view.selection.currentIndex;
   }
 
   set selectedIndex(aIndex)
@@ -183,7 +182,7 @@ class ClippingsTree
   get selectedURI()
   {
     let rv = "";
-    let idx = this._tree.currentIndex;
+    let idx = this.selectedIndex;
     if (idx != -1) {
       let treeitem = this._tree.view.getItemAtIndex(idx);
       if (treeitem) {
@@ -251,7 +250,7 @@ class ClippingsTree
 
   ensureIndexIsVisible(aIndex)
   {
-    this._tree.treeBoxObject.ensureRowIsVisible(aIndex);    
+    this._tree.ensureRowIsVisible(aIndex);
   }
 
   getRowCount()

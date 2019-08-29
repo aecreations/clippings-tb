@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://clippings/modules/aeUtils.js");
-ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
+const {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
+const {aeClippingsService} = ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;
@@ -14,7 +14,7 @@ const MAX_NAME_LEN = 64;
 var gDlgArgs, gStrBundle;
 var gClippingsSvc;
 
-    
+
 //
 // DOM utility function
 //
@@ -26,7 +26,7 @@ function $(aID)
 
 
 
-function initDlg()
+function init()
 {
   gDlgArgs = window.arguments[0];
   gStrBundle = aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
@@ -37,6 +37,8 @@ function initDlg()
   catch (e) {
     alert(e);
   }
+
+  document.addEventListener("dialogcancel", aEvent => { cancel() });
 }
 
 
@@ -56,18 +58,18 @@ function updateSearchResults(aSearchText)
     return;
   }
 
-  var numMatches = {};
-  var srchResults = gClippingsSvc.findByName(aSearchText, false, false, numMatches);
+  let srchResults = gClippingsSvc.findByName(aSearchText, false, false);
+  let numMatches = srchResults.length;
 
-  if (numMatches.value == 0) {
+  if (numMatches == 0) {
     $("search-status").value = gStrBundle.getString("findBarNotFound");
   }
   else {
-    $("search-status").value = gStrBundle.getFormattedString("findBarMatches", [numMatches.value]);
-    $("num-matches").value = gStrBundle.getFormattedString("findBarMatches", [numMatches.value]);
+    $("search-status").value = gStrBundle.getFormattedString("findBarMatches", [numMatches]);
+    $("num-matches").value = gStrBundle.getFormattedString("findBarMatches", [numMatches]);
 
     // Populate the popup.
-    var max = numMatches.value;
+    var max = numMatches;
     for (let i = 0; i < max; i++) {
       var clippingURI = srchResults[i];
       var name = gClippingsSvc.getName(clippingURI);
@@ -117,16 +119,15 @@ function handleSearchKeys(aEvent, aSearchText)
   // Press 'Down' arrow key: open search box; beep at user if there are no
   // search results.
   if (aEvent.key == "ArrowDown" || aEvent.key == "Down") {
-    // Just beep at the user if there's no search results to display.
     if (aSearchText == "") {
       aeUtils.beep();
       return;
     }
 
-    var numMatches = {};
-    var srchResults = gClippingsSvc.findByName(aSearchText, false, false, numMatches);
+    let srchResults = gClippingsSvc.findByName(aSearchText, false, false);
+    let numMatches = srchResults.length;
 
-    if (numMatches.value == 0) {
+    if (numMatches == 0) {
       aeUtils.beep();
       return;
     }
@@ -135,22 +136,43 @@ function handleSearchKeys(aEvent, aSearchText)
       updateSearchResults($("clipping-search").value);
     }
 
+    // BUG!! Search results listbox doesn't focus if user presses ESC to
+    // close it, then immediately presses the Down key again.
+    aEvent.target.blur();
+    listbox.selectedIndex = 0;
+    listbox.focus();
+  }
+  // Press Tab key: if search results listbox is open, then move the focus to it.
+  else if (aEvent.key == "Tab") {
     listbox.focus();
     listbox.selectedIndex = 0;
   }
-  // Press Tab key: switch to shortcut key mode; if search box is open, then
-  // move the focus to it.
-  else if (aEvent.key == "Tab") {
-    if (srchResultsPopup.state == "closed") {
-      switchToShortcutKeyMode();
+  // Press Escape key: clear the search text.
+  else if (aEvent.key == "Escape") {
+    if (aSearchText) {
+      $("clipping-search").value = "";
+      aEvent.preventDefault();
     }
-    else {
-      listbox.focus();
-      listbox.selectedIndex = 0;
-    }
+  }
+  else {
+    updateSearchResults(aSearchText);
   }
 }
 
+
+function handleTabKey(aEvent)
+{
+  let srchResultsPopup = $("search-results-popup");
+
+  if (aEvent.key == "Tab" && srchResultsPopup.state == "closed") {
+    switchToShortcutKeyMode();
+  }
+  else if (aEvent.key == "Escape") {
+    if ($("clipping-search").value) {
+      aEvent.preventDefault();
+    }
+  }
+}
 
 function switchToShortcutKeyMode()
 {
@@ -179,26 +201,28 @@ function selectClipping()
 
 function selectClippingByKeyboard(aEvent)
 {
+  if (aEvent.key == "ArrowDown" || aEvent.key == "Down") {
+    aeUtils.log("searchClipping.js: 'Down' arrow key was pressed. Selected index of search popup: " + $("search-results-listbox").selectedIndex);
+  }
+  // Press Backspace: user probably wants to correct their input.  Move focus
+  // back to the search box.
+  else if (aEvent.key == "Backspace") {
+    $("clipping-search").focus();
+  }
+  else if (aEvent.key == "Escape") {
+    $("search-results-popup").hidePopup();
+    $("clipping-search").focus();
+    aEvent.preventDefault();
+  }
+}
+
+
+function executePaste(aEvent)
+{
   // Press Enter to select a search result.
   if (aEvent.key == "Enter") {
     aeUtils.log("Search clipping (keyboard selection)");
     selectClipping();
-  }
-  // Press 'Up' arrow key: move focus back to search box, but keep popup open.
-  else if (aEvent.key == "ArrowUp" || aEvent.key == "Up") {
-    if ($("search-results-listbox").selectedIndex == 0) {
-      $("clipping-search").focus();
-    }
-  }
-  // Press Backspace: user probably wants to correct their input.  Move focus
-  // back to the search box.
-  // NOTE: Pressing Esc does the same thing, but also closes the popup.
-  else if (aEvent.key == "Backspace") {
-    $("clipping-search").focus();
-  }
-  // Press Tab (while focus is in the search box): switch to shortcut key mode.
-  else if (aEvent.key == "Tab") {
-    switchToShortcutKeyMode();
   }
 }
 

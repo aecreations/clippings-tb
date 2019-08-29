@@ -1,0 +1,160 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://clippings-laf/skin/options.css" type="text/css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/menulist.css"?>
+
+<!DOCTYPE dialog SYSTEM "chrome://clippings/locale/clippings.dtd">
+
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<dialog id="ae-clippings-preferences"
+ xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+ buttons="extra2,accept,cancel"
+ buttonlabelextra2="&about.label;"
+ onload="init()">
+
+  <script type="application/javascript" src="chrome://messenger/content/customElements.js"/>
+  <script type="application/javascript" src="chrome://clippings/content/preferences.js"></script>
+  
+  <tabbox>
+    <tabs>
+      <tab label="&prefGeneral.label;"/>
+      <tab label="&prefDataSource.label;"/>
+    </tabs>
+    <tabpanels>
+      <tabpanel id="pane-general" orient="vertical">
+	<groupbox>
+	  <caption>&pasteOptions.caption;</caption>
+	  <separator class="ae-separator"/>
+	  
+	  <vbox id="paste-html-vbox">
+	    <label id="paste-html-formatted-clipping" value="&htmlPasteOptions.label;" accesskey="&htmlPasteOptions.accesskey;" control="html-paste-options"/>
+	    <menulist id="html-paste-options" preference="html-paste-pref"> 
+	      <menupopup>
+		<menuitem label="&askMe.label;" value="0"/>
+		<menuitem label="&pasteAsFormatted.label;" value="1"/>
+		<menuitem label="&pasteAsPlain.label;" value="2"/>
+	      </menupopup>
+	    </menulist>
+
+	    <checkbox id="html-auto-line-break" class="indent"
+	     preference="html-auto-line-break-pref"
+	     label="&autoLineBreak.label;" accesskey="&autoLineBreak.accesskey;"/>
+
+	    <description style="word-wrap:break-word;width:32em" class="indent">&htmlPaste.description;</description>
+
+	  </vbox>
+	  <separator class="thin"/>
+	  <checkbox id="use-clipboard" preference="use-clipboard-pref"
+	   label="&useClipboard.label;" accesskey="&useClipboard.accesskey;"/>
+
+	  <checkbox id="enable-shortcut-key" preference="enable-shortcut-key-pref"
+	   oncommand="showChangedPrefMsg();toggleEnableClippings6ShortcutKey()"/>
+	  <checkbox id="enable-clippings6-shortcut-key" class="indent"
+	   preference="enable-clippings6-shortcut-key-pref"
+	   oncommand="showChangedPrefMsg()"/>
+	</groupbox>
+	<separator class="thin"/>
+
+	<groupbox>
+	  <caption>&generalOptions.caption;</caption>
+	  <separator class="ae-separator"/>
+	  
+	  <hbox flex="1">
+	    <checkbox id="check-spelling" flex="1"
+	     preference="check-spelling-pref"
+	     label="&checkSpelling.label;" accesskey="&checkSpelling.accesskey;"/>
+	    <checkbox id="beep-on-errors" flex="1" preference="beep-on-errors-pref"
+	     label="&beepOnErrors.label;" accesskey="&beepOnErrors.accesskey;"/>
+	  </hbox>
+	</groupbox>
+      </tabpanel>
+
+      <tabpanel id="pane-datasource" orient="vertical">
+	<groupbox style="width:33em">
+	  <caption>&dataSrcLocation.caption;</caption>
+	  <separator class="ae-separator"/>
+	  
+	  <hbox>
+	    <radiogroup id="datasrc-location-opt">
+	      <radio id="hostapp-profile-folder"
+		     oncommand="changeDataSrcLocationOptions()"/>
+	      <radio label="&otherLocation.label;" accesskey="&otherLocation.accesskey;"
+		     oncommand="changeDataSrcLocationOptions()"/>
+	    </radiogroup>
+	    <spacer flex="1"/>
+	  </hbox>
+	  <hbox class="indent">
+	    <textbox id="custom-datasrc-path" readonly="true" flex="1"/>
+	    <button id="custom-datasrc-brws"
+	     label="&fileBrowse.label;" accesskey="&fileBrowse.accesskey;"
+	     oncommand="browseDataSrcPath()"/>
+	  </hbox>
+	</groupbox>
+        <separator class="thin"/>
+	<groupbox orient="vertical">
+	  <caption>&syncClippings.caption;</caption>
+	  <separator class="ae-separator"/>
+	  
+	  <hbox>
+	    <checkbox id="sync-clippings" label="&syncClippings.label;"
+	     preference="sync-clippings-pref"
+	     accesskey="&syncClippings.accesskey;"
+	     oncommand="setSyncFilePath()"/>
+	  </hbox>
+	  <vbox class="indent">
+	    <label id="sync-file-path-label" for="sync-file-path"
+	     value="&syncFileLocation.label;"/>
+	    <hbox>
+	      <textbox id="sync-file-path" readonly="true" flex="1"/>
+	      <button id="sync-file-path-brws"
+	       label="&fileBrowse.label;" accesskey="&syncFileLocationBrws.accesskey;"
+	       oncommand="browseSyncFilePath()"/>
+	    </hbox>
+	    <label class="text-link" value="&syncClippingsHlp.label;"
+	     onclick="showSyncClippingsMinihelp()"/>
+	  </vbox>
+	</groupbox>
+
+	<separator class="thin"/>
+	<groupbox orient="vertical">
+	  <caption>&backupFiles.caption;</caption>
+	  <separator class="ae-separator"/>
+	  
+	  <grid flex="1">
+	    <columns>
+	      <column/>
+	      <column/>
+	      <column flex="1"/>
+	      <column/>
+	   </columns>
+
+	    <rows>
+	      <row align="center">   
+		<label value="&maxFiles.label;" accesskey="&maxFiles.accesskey;"
+		 control="max-backup-files"/>
+		<menulist id="max-backup-files" editable="true"
+                 is="menulist-editable">
+		  <menupopup>
+		    <menuitem label="0" value="0"/>
+		    <menuitem label="5" value="5"/>
+		    <menuitem label="10" value="10"/>
+		    <menuitem label="20" value="20"/>
+		    <menuitem label="50" value="50"/>
+		    <menuitem label="100" value="100"/>
+		  </menupopup>
+		</menulist>
+	      </row>
+	    </rows>
+	  </grid>
+	  <hbox>
+	    <button id="show-backup-files" label="&showbkup.label;"
+	     accesskey="&showbkup.accesskey;" oncommand="showBackupFiles()"/>
+	    <spacer flex="1"/>
+	  </hbox>
+	</groupbox>
+      </tabpanel>
+    </tabpanels>
+  </tabbox>
+</dialog>

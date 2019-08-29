@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet type="text/css" href="chrome://global/skin/global.css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/messenger.css"?>
 
 <!DOCTYPE overlay SYSTEM "chrome://clippings/locale/clippings.dtd">
 
@@ -8,43 +9,18 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <dialog id="ae-clippings-paste-options" 
- title="&clippings.appName;"
+ title="&pasteClipping.title;"
  orient="vertical"
  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
  buttons="accept,cancel"
- onload="initDlg()" ondialogaccept="return doOK()"
- ondialogcancel="return doCancel()">
+ onload="init()">
 
-  <script type="application/x-javascript">
-  <![CDATA[
-
-    var dialogArgs = window.arguments[0];
-    var gPasteAs;
-
-
-    function initDlg() 
-    {
-      gPasteAs = document.getElementById("paste-as");
-    }
-
-    function doOK() 
-    {
-      dialogArgs.pasteOption = gPasteAs.selectedIndex;
-      dialogArgs.userCancel = false;
-      return true;
-    }
-
-    function doCancel() 
-    {
-      dialogArgs.userCancel = true;
-      return true;
-    }
-
-  ]]>
-  </script>
+  <script type="application/javascript" src="chrome://clippings/content/pasteOptions.js"/>
 
   <groupbox>
-    <caption label="&pasteClippingAs.label;"/>
+    <hbox class="groupbox-title">
+      <label class="header">&pasteClippingAs.label;</label>
+    </hbox>
 
     <radiogroup id="paste-as">
       <radio id="paste-as-normal" selected="true"

@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://clippings/modules/aeConstants.js");
-ChromeUtils.import("resource://clippings/modules/aeUtils.js");
-ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
+const {aeConstants} = ChromeUtils.import("resource://clippings/modules/aeConstants.js");
+const {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
+const {aeClippingsService} = ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
 
 var gStrBundle;
 var gExportFormatList;
@@ -41,10 +41,11 @@ function init()
   editor.src = "export.html";
   editor.makeEditable("html", false);
 
-  // On Thunderbird, hide the checkbox for including source URLs in RDF export.
-  if (aeUtils.getHostAppID() == aeConstants.HOSTAPP_TB_GUID) {
-    $("include-src-urls").hidden = true;
-  }
+  document.addEventListener("dialogaccept", aEvent => {
+    exportClippings();
+    aEvent.preventDefault();
+  });
+  document.addEventListener("dialogcancel", aEvent => { cancel() });
 }
 
 
@@ -55,44 +56,23 @@ function exportFormatList_click(event)
     formatDesc.removeChild(formatDesc.firstChild);
   }
 
-  var includeSrcURLs = $("include-src-urls");
   var desc;
 
   switch (gExportFormatList.selectedIndex) {
   case 0:
     desc = gStrBundle.getString("clippingsFmtDesc");
-    includeSrcURLs.disabled = false;
-    if (exportFormatList_click.inclSrcURLsChecked) {
-      includeSrcURLs.checked = true;
-      exportFormatList_click.inclSrcURLsChecked = null;
-    }
     break;
 
   case 1:
     desc = gStrBundle.getString("clippingsWxFmtDesc");
-    includeSrcURLs.disabled = false;
-    if (exportFormatList_click.inclSrcURLsChecked) {
-      includeSrcURLs.checked = true;
-      exportFormatList_click.inclSrcURLsChecked = null;
-    }
     break;
 
   case 2:
     desc = gStrBundle.getString("csvFmtDesc");
-    includeSrcURLs.disabled = true;
-    if (includeSrcURLs.checked) {
-      exportFormatList_click.inclSrcURLsChecked = true;
-    }
-    includeSrcURLs.checked = false;
     break;
     
   case 3:
     desc = gStrBundle.getString("htmlFmtDesc");
-    includeSrcURLs.disabled = true;
-    if (includeSrcURLs.checked) {
-      exportFormatList_click.inclSrcURLsChecked = true;
-    }
-    includeSrcURLs.checked = false;
     break;
 
   default:
@@ -102,8 +82,6 @@ function exportFormatList_click(event)
   var textNode = document.createTextNode(desc);
   formatDesc.appendChild(textNode);
 }
-
-exportFormatList_click.inclSrcURLsChecked = null;
 
 
 function exportClippings()
@@ -145,8 +123,6 @@ function exportClippings()
     break;
   }
 
-  let includeSrcURLs = $("include-src-urls");
-
   let fpShownCallback = {
     done: function (aResult) {
       if (aResult == fp.returnCancel) {
@@ -168,7 +144,7 @@ function exportClippings()
           || fileType == gClippingsSvc.FILETYPE_CSV) {
 
 	fnExport = function () { 
-	  gClippingsSvc.exportToFile(url, fileType, includeSrcURLs.checked);
+	  gClippingsSvc.exportToFile(url, fileType, false);
 	};
       }
       // HTML export.

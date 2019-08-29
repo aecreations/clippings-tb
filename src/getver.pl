@@ -1,15 +1,21 @@
-#!/cygdrive/c/Perl/bin/perl.exe
+#!/usr/bin/perl
 
-# Retrieves the version number of the Firefox/Thunderbird extension.
+# Retrieves the version number of the WebExtension.
 # This script must be executed in the same directory as the extension's
-# install manifest file.
+# manifest JSON file.
 
 use POSIX;
-use XML::Simple;
+use JSON;
 
 
-my $install_rdf = XMLin('install.rdf');
-my $ver = $install_rdf->{Description}->{'em:version'};
+local $/;
+
+open(my $fh, '<', 'manifest.json');
+
+my $manifest_json = <$fh>;
+my $manifest = decode_json($manifest_json);
+
+my $ver = $manifest->{version};
 
 # Unstable build for testing
 if ($ver =~ /pre/ || $ver =~ /\+$/) {
@@ -17,7 +23,3 @@ if ($ver =~ /pre/ || $ver =~ /\+$/) {
 }
 
 print $ver;
-
-
-# Equivalent command-line invocation:
-# perl -MXML::Simple -e 'print(XMLin("install.rdf")->{Description}->{"em:version"});'

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://clippings/modules/aeUtils.js");
+const {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
 
 
 var gDlgArgs = window.arguments[0];
@@ -36,6 +36,13 @@ function init()
   }
 
   $("placeholder-name-label").value = gStrBundle.getString(labelKey);
+
+  document.addEventListener("dialogaccept", aEvent => {
+    if (! accept()) {
+      aEvent.preventDefault();
+    }
+  });
+  document.addEventListener("dialogcancel", aEvent => { cancel() });
 }
 
 

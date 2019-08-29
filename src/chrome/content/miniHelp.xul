@@ -8,49 +8,17 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <dialog id="ae-clippings-minihelp" 
- title="&clippings.appName;"
- orient="vertical" style="width:32em"
  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+ xmlns:html="http://www.w3.org/1999/xhtml"
+ title="&clippingsHlp.title;"
+ orient="vertical" style="width:32em"
  buttons="accept"
- onload="initDlg()" ondialogaccept="return doOK()">
+ onload="init()">
 
-  <script type="application/javascript">
-  <![CDATA[
+  <script type="application/javascript" src="chrome://clippings/content/miniHelp.js"/>
 
-    ChromeUtils.import("resource://clippings/modules/aeUtils.js");
+  <label id="hlp-title" class="header" value="" style="margin-bottom:8px"/>
 
-    function initDlg() 
-    {
-      var strBundle = aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
-      var helpStr;
-
-      try {
-        document.title = window.arguments[0];
-      }
-      catch (e) {}
-
-      try {
-        helpStr = window.arguments[1];
-      }
-      catch (e) { 
-        helpStr = strBundle.getString("helpMsg");
-      }
-
-      document.getElementById("minihelp-text").value = helpStr;
-
-      var dlg = document.getElementById("ae-clippings-minihelp");
-      dlg.getButton("accept").focus();
-    }
-
-
-    function doOK() 
-    {
-      return true;
-    }
-
-  ]]>
-  </script>
-
-  <textbox id="minihelp-text" readonly="true" multiline="true" rows="10" />
+  <html:textarea id="minihelp-text" readonly="true" rows="10" style="-moz-box-flex:1"></html:textarea>
 
 </dialog>

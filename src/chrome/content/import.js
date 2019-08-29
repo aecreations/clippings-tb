@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://clippings/modules/aeConstants.js");
-ChromeUtils.import("resource://clippings/modules/aeUtils.js");
-ChromeUtils.import("resource://gre/modules/osfile.jsm")
-ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
+const {aeConstants} = ChromeUtils.import("resource://clippings/modules/aeConstants.js");
+const {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
+const {OS} = ChromeUtils.import("resource://gre/modules/osfile.jsm")
+const {aeClippingsService} = ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
 
 let gDlgArgs, gStrBundle, gClippingsSvc, gImportURL, gImportPath, gImportFile;
 
@@ -38,6 +38,13 @@ function init()
   $("replace-shortcut-keys").checked = gDlgArgs.replaceShortcutKeys;
 
   $("import-file-brws").focus();
+
+  document.addEventListener("dialogaccept", aEvent => {
+    if (! importClippings()) {
+      aEvent.preventDefault();
+    }
+  });
+  document.addEventListener("dialogcancel", aEvent => { cancel() });
 }
 
 

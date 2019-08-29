@@ -116,10 +116,17 @@ spacer.toolbar-separator {
   width: 40px;
 }
 
-toolbarbutton:not(#placeholder-presets) {
+toolbarbutton:not(#placeholder-presets):not(#shortcut-key-minihelp) {
   list-style-image: url("chrome://clippings/skin/images/clippingsMgrToolbar.svg");
+}
+
+#clippings-toolbar > toolbarbutton {
   -moz-box-orient: vertical;
   min-width: 52px;
+}
+
+#placeholder-toolbar > toolbarbutton {
+  -moz-box-orient: horizontal;
 }
 
 /* Workaround to unwanted margin on right of toolbarbutton image on Firefox
@@ -208,6 +215,10 @@ toolbarbutton .toolbarbutton-icon {
   display: none;
 }
 
+#clipping-text {
+    -moz-box-flex: 1;
+}
+
 #find {
   -moz-image-region: rect(0px, 192px, 16px, 176px);
 }
@@ -290,6 +301,10 @@ toolbarbutton .toolbarbutton-icon {
 
 #src-url-edit-cancel:hover {
   -moz-image-region: rect(16px, 320px, 32px, 304px);
+}
+
+#shortcut-key-minihelp {
+    margin-left: 4px;
 }
 
 /* Insert Placeholder toolbar */

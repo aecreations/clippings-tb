@@ -5,8 +5,8 @@
 const EXPORTED_SYMBOLS = ["aeClippingsMenu"];
 
 
-ChromeUtils.import("resource://clippings/modules/aeUtils.js");
-ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
+const {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
+const {aeClippingsService} = ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
 
 
 let aeClippingsMenu = {
@@ -34,11 +34,10 @@ class ClippingsMenu
 
   build()
   {
-    let clippingsJSONStr = this._clippingsSvc.exportToJSONString();
-    let clippingsJSON = JSON.parse(clippingsJSONStr);
+    let clippingsData = this._clippingsSvc.getAllItemsAsArray();
 
     aeUtils.log("aeClippingsMenu.build(): Building Clippings menu");
-    this._buildHelper(this._menuPopupElt, clippingsJSON);
+    this._buildHelper(this._menuPopupElt, clippingsData);
   }
 
   _buildHelper(aMenuPopupElt, aFolderItems)
