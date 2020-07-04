@@ -399,6 +399,11 @@ window.aecreations.clippings = {
     }
 
     this.isClippingsInitialized = true;
+
+    // Thunderbird 78 upgrade warning
+    if (this.util.aeUtils.getPref("clippings.tb78.show_warning", true)) {
+      this.util.aeUtils.openURLInNewTab("chrome://clippings/content/thunderbird78.xhtml");
+    }
   }
 };
 
