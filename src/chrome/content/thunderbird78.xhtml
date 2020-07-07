@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Clippings for Thunderbird</title>
+
+     <link rel="stylesheet" type="text/css" href="chrome://clippings/skin/thunderbird78.css"/>
+  </head>
+
+  <body>
+    <img id="logo" src="chrome://clippings/skin/images/banner.svg"/>
+    <div class="page-options">
+      <label class="hyperlink print-page">Print this page</label>
+    </div>
+
+    <div class="jumbotron-header">
+      <img src="chrome://clippings/skin/images/clippings-warn.png"/>
+      <h1>Important Notice</h1>
+      <h2>Clippings NOT Compatible With Thunderbird 78</h2>
+    </div>
+
+    <main>
+
+      <p><strong>Thunderbird 78</strong> will be the next major release of this email client, and is expected to be released soon.</p>
+
+      <p>At this time, <strong>Clippings will <em>not</em> be compatible with Thunderbird 78</strong>.</p>
+
+      <h3>I want to keep using Clippings.  What should I do?</h3>
+
+      <p>If you want to keep using Clippings for Thunderbird, consider staying on Thunderbird 68.</p>
+
+      <p>To do that, you'll need to <strong>turn off</strong> automatic updates for Thunderbird.  If you don't, your Thunderbird installation may automatically update once Thunderbird 78 is released, which will cause Clippings to stop working.</p>
+
+      <p>Follow these steps:</p>
+
+      <ol>
+	<li>Click the Thunderbird menu (☰ icon) and then select Options &rarr; Options.</li>
+	<li>On the left navigation sidebar, click Advanced.</li>
+	<li>Click on the Update tab, then click the radio button with the title, "Check for updates, but let me choose whether to install them"</li>
+      </ol>
+
+      <h3>But I want to upgrade to the latest version of Thunderbird.  What will happen to Clippings?</h3>
+
+      <p>If you upgrade to Thunderbird 78 when it is released, then Clippings for Thunderbird will <strong>stop working</strong>, and it will no longer be available to use.</p>
+
+      <p>It is strongly recommended that you <strong>export your clippings as soon as possible</strong> so that you have a copy for safekeeping as well as for import to other applications.  To export your clippings, open Clippings Manager, and then click Tools &rarr; Export.</p>
+
+      <p>When exporting, choose both the <strong>Clippings 6</strong> and <strong>CSV (comma-separated values)</strong> formats.</p>
+
+      <p>&raquo; <label id="open-clippings-mgr" class="hyperlink">Go to Clippings Manager</label></p>
+
+      <h3>Need more info?</h3>
+
+      <p>Post a question to the <a href="https://groups.google.com/d/forum/aecreations-help">AE Creations
+      Help and Support forums</a>.</p>
+
+      <div id="page-actions">
+        <div class="row">
+          <input type="checkbox" id="always-show"/><label for="always-show">Always show this page on startup</label>
+        </div>      
+        <div class="row">
+          <button id="close-pg">Close This Page</button>
+        </div>
+      </div>
+    </main>
+
+    <div class="page-options">
+      <label class="hyperlink print-page">Print this page</label>
+    </div>
+  
+    <script src="chrome://clippings/content/thunderbird78.js"></script>
+  </body>
+</html>

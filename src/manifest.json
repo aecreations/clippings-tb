@@ -2,14 +2,15 @@
   "manifest_version": 2,
   "name": "Clippings",
   "description": "Save frequently-entered text for pasting later.",
-  "version": "5.7",
+  "version": "5.7.1",
   "author": "AE Creations",
   "homepage_url": "http://aecreations.sourceforge.net/clippings/",
 
-  "applications": {
+  "browser_specific_settings": {
     "gecko": {
       "id": "clippings-tb@aecreations.github.io",
       "strict_min_version": "68.0",
+      "strict_max_version": "68.*",
       "update_url": "https://aecreations.github.io/updates/update.json"
     }
   },

@@ -28,13 +28,7 @@ function init()
 
   $("homepg-hyperlink").addEventListener("click", aEvent => {
     let url = aEvent.target.getAttribute("href");
-    let mail3PaneWnd = Services.wm.getMostRecentWindow("mail:3pane");
-
-    if (mail3PaneWnd) {
-      let tabmail = mail3PaneWnd.document.getElementById("tabmail");
-      tabmail.openTab("contentTab", { contentPage: url });
-      mail3PaneWnd.focus();
-    }
+    aeUtils.openURLInNewTab(url);
   });
 
   $("license-info-link").addEventListener("click", aEvent => {

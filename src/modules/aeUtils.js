@@ -286,7 +286,19 @@ aeUtils.isElectrolysisEnabled = function ()
   return rv;
 }
 
-  
+
+aeUtils.openURLInNewTab = function (aURL)
+{
+  let mail3PaneWnd = Services.wm.getMostRecentWindow("mail:3pane");
+
+  if (mail3PaneWnd) {
+    let tabmail = mail3PaneWnd.document.getElementById("tabmail");
+    tabmail.openTab("contentTab", { contentPage: aURL });
+    mail3PaneWnd.focus();
+  }
+}
+
+
 aeUtils.getPref = function (aPrefKey, aDefaultValue)
 {
   let prefName = PREFNAME_PREFIX + aPrefKey;
