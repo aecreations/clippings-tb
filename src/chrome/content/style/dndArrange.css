@@ -37,7 +37,7 @@ button, select {
     padding: 3px 3px 3px 18px;
     border: 1px solid #bbb;
     background-color: #eee;
-    background-image: url("chrome://clippings/skin/images/grippy.svg");
+    background-image: url("chrome://clippings/content/img/grippy.svg");
     background-position: left;
     background-size: contain;
     background-repeat: no-repeat;
@@ -53,12 +53,7 @@ button, select {
     cursor: grabbing;
 }
 
-#folder-items > .clipping {
-    /* TO DO: Add clipping icon. */
-}
-
 #folder-items > .folder {
-    /* TO DO: Add folder icon. */
     font-weight: bold;
 }
 

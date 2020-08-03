@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<?xml-stylesheet href="chrome://clippings/skin/about.css" type="text/css"?>
+<?xml-stylesheet href="chrome://clippings/content/style/about.css" type="text/css"?>
 
 <!DOCTYPE window SYSTEM "chrome://clippings/locale/clippings.dtd">
 
@@ -22,7 +22,7 @@
     <separator class="thin" orient="vertical"/>
     <vbox>
       <spacer flex="1"/>
-      <image src="chrome://clippings/skin/images/icon.svg" width="32" height="32"/>
+      <image src="chrome://clippings/content/img/icon.svg" width="32" height="32"/>
       <spacer flex="1"/>
     </vbox>
     <separator class="thin" orient="vertical"/>
