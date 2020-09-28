@@ -1,0 +1,86 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+body {
+    font: message-box;
+    background-color: -moz-dialog;
+    margin: 12px;
+}
+
+button, select {
+    font: message-box;
+}
+
+#dlg-instrxns {
+    max-width: 22em;
+    white-space: normal;
+}
+
+#folder-picker {
+    width: 200px;
+}
+
+#folder-items {
+    width:  100%;
+    max-width: 22em;
+    min-height: 160px;
+    max-height: 160px;
+    overflow-y: auto;
+    margin: 1px;
+    border: 1px solid ThreeDShadow;
+    background-color: #ddd;
+}
+
+#folder-items > div {
+    margin: 1px;
+    padding: 3px 3px 3px 18px;
+    border: 1px solid #bbb;
+    background-color: #eee;
+    background-image: url("chrome://clippings/content/img/grippy.svg");
+    background-position: left;
+    background-size: contain;
+    background-repeat: no-repeat;
+    font-size: 11.5px;
+}
+
+#folder-items > div:hover {
+    cursor: grab;
+}
+
+#folder-items > div:active {
+    background-color: #ccc;
+    cursor: grabbing;
+}
+
+#folder-items > .folder {
+    font-weight: bold;
+}
+
+#folder-items > .dnd-active {
+    color: #fff;
+    background-color: #bbb;
+}
+
+button {
+    margin-left: 6px;
+    margin-bottom: 12px;
+}
+
+.dlg-row {
+    white-space: nowrap;
+    margin-top: 0.2em;
+    margin-bottom: 0.4em;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+#dlg-buttons {
+    margin-top: 1.2em;
+    margin-bottom: 0.5em;
+}
+
+#dlg-buttons #main-btns {
+    float: right;
+    padding-left: 1.5em;
+}

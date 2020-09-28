@@ -1,0 +1,33 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://global/skin/global.css");
+
+
+/* 
+ * Set the same font on both the search textbox and the search results popup
+ * so that the widths of both are the same.
+ */
+#search-results-popup {
+  width: 36em;
+  max-height: 16em;
+  font: message-box;
+}
+
+#search-results-listbox {
+  overflow-x: hidden !important;
+}
+
+.clipping-name {
+  font-weight: bold;
+}
+
+.clipping-text {
+  color: #666666;
+}
+
+#clipping-search {
+  width: 36em;
+  font: message-box;
+}

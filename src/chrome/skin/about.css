@@ -1,0 +1,18 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://global/skin/global.css");
+
+
+.ae-separator {
+    height: 0px !important;
+    border-top: 1px solid threedshadow;
+    border-bottom: 1px solid threedhighlight;
+    margin-top: 2px;
+    margin-bottom: 0.5em;
+}
+
+#ext-name {
+    font-weight: bold;
+}

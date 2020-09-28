@@ -6,13 +6,13 @@ overlay	chrome://messenger/content/messageWindow.xul	chrome://clippings/content/
 resource	clippings	./
 content	clippings	jar:chrome/clippings.jar!/content/
 
-skin	clippings	classic/1.0	jar:chrome/clippings.jar!/skin/
+resource	clippings-laf	classic/1.0	jar:chrome/clippings.jar!/skin/
 
 # Platform-specific styling
-skin	clippings-laf	classic	jar:chrome/clippings.jar!/skin/all/
-skin	clippings-laf	classic	jar:chrome/clippings.jar!/skin/mac/	os=Darwin
-skin	clippings-laf	classic	jar:chrome/clippings.jar!/skin/win/	os=WINNT
+resource	clippings-xlaf	classic	jar:chrome/clippings.jar!/skin/all/
+resource	clippings-xlaf	classic	jar:chrome/clippings.jar!/skin/mac/	os=Darwin
+resource	clippings-xlaf	classic	jar:chrome/clippings.jar!/skin/win/	os=WINNT
 
-style	chrome://global/content/customizeToolbar.xul	chrome://clippings/skin/overlay.css
+#style	chrome://global/content/customizeToolbar.xul	chrome://clippings/skin/overlay.css
 
 locale	clippings	en-US	jar:chrome/clippings.jar!/locale/en-US/
