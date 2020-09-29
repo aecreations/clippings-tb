@@ -18,7 +18,7 @@
   <script type="application/javascript" src="chrome://clippings/content/clippingKey.js"/>
 
   <hbox>
-    <image src="chrome://clippings/skin/images/keyboard-paste.png"/>
+    <image src="chrome://clippings/content/img/keyboard-paste.png"/>
     <description style="font-weight:normal;padding-top:8px;padding-left:4px">&clippingKey.description;</description>
   </hbox>
 

@@ -1,12 +1,3 @@
-resource	clippings-laf	classic/1.0	chrome/skin/
-
-# Platform-specific styling
-resource	clippings-xlaf	classic/1.0	chrome/skin/all/
-resource	clippings-xlaf	classic/1.0	chrome/skin/mac/	os=Darwin
-resource	clippings-xlaf	classic/1.0	chrome/skin/win/	os=WINNT
-
-#style	chrome://global/content/customizeToolbar.xul	chrome://clippings/skin/overlay.css
-
 # Thunderbird
 overlay	chrome://messenger/content/messenger.xul	chrome://clippings/content/tbMessengerOverlay.xul
 overlay	chrome://messenger/content/messengercompose/messengercompose.xul	chrome://clippings/content/tbMsgComposeOverlay.xul
@@ -16,3 +7,6 @@ resource	clippings	./
 content	clippings	chrome/content/
 
 locale	clippings	en-US	chrome/locale/en-US/
+
+# TO DO: This might not be needed anymore.
+#style	chrome://global/content/customizeToolbar.xul	chrome://clippings/skin/overlay.css

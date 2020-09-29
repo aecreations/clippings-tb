@@ -1,0 +1,124 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://global/skin/global.css");
+
+
+#ae-clippings-new {
+  width: 34em;
+}
+
+#clipping-text {
+    -moz-box-flex: 1;
+}
+
+.ae-clippings-folder {
+  list-style-image: url("chrome://clippings/content/img/folder.svg");
+}
+
+menu > .menu-iconic-left, menuitem > .menu-iconic-left {
+  display:  -moz-box;
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+menu[open="true"] {
+  list-style-image: url("chrome://clippings/content/img/folder-open.svg");
+}
+
+.clippings-root {
+  list-style-image: url("chrome://clippings/content/img/clippings-root.svg");
+}
+
+.clippings-root > .menu-iconic-left {
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+#folder-menu-button {
+  -moz-appearance: menulist-button;
+  list-style-image: url("chrome://clippings/content/img/clippings-root.svg");
+}
+
+#folder-menu-button image {
+  padding-right: 3px;
+}
+
+#folder-picker {
+  border: none;
+}
+
+#folder-tree {
+  height: 136px;
+  margin-left: 0;
+  margin-right: 0;
+  border: none;
+}
+
+/* Width of folder picker panel */
+#ae-clippings-new #folder-tree {
+  width: 30em;
+}
+
+#ae-clippings-new-folder #folder-tree {
+  width: 20em;
+}
+
+/* Styling for the folder tree */
+treechildren::-moz-tree-image {
+  padding-right: 3px;
+}
+
+treechildren::-moz-tree-image(container, open) {
+  list-style-image: url("chrome://clippings/content/img/folder-open.svg");
+}
+
+treechildren::-moz-tree-image(container, closed),
+treechildren::-moz-tree-image(leaf) {
+  list-style-image: url("chrome://clippings/content/img/folder.svg");
+}
+
+treechildren::-moz-tree-image(container, root) {
+  list-style-image: url("chrome://clippings/content/img/clippings-root.svg");
+}
+
+treechildren::-moz-tree-image(container, sync) {
+  list-style-image: url("chrome://clippings/content/img/synced-clippings.svg");
+}
+
+#new-folder, #clipping-label, #clipping-label-2 {
+  min-width: 10px;
+  min-height: 16px;
+}
+
+#new-folder {
+  list-style-image: url("chrome://clippings/content/img/clippingsMgrToolbar.svg");
+  -moz-image-region: rect(0px, 104px, 16px, 88px);
+}
+
+#tb-create-options-grid {
+  display: none;  /* Only visible if running in Thunderbird */
+}
+
+#toggle-options {
+  min-width: 10px;
+  min-height: 12px;
+  margin-right: 0;
+  margin-left: 3px;
+}
+
+#toggle-options image {
+  padding-top: 2px;
+  padding-bottom: 0px;
+  padding-left: 1px;
+  padding-right: 0px;
+}
+
+.expand-options {
+  list-style-image: url("chrome://global/skin/icons/expand.png");
+}
+
+.collapse-options {
+  list-style-image: url("chrome://global/skin/icons/collapse.png");
+}

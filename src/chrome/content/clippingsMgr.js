@@ -56,7 +56,7 @@ let gClippingLabelPickerListener = {
 
   selectionChanged: function (aNewLabel)
   {
-    $(this._btnID).image = aeString.format("chrome://clippings/skin/images/%s", gClippingLabelPicker.getIconFileStr(aNewLabel));
+    $(this._btnID).image = aeString.format("chrome://clippings/content/img/%s", gClippingLabelPicker.getIconFileStr(aNewLabel));
   }
 };
 
@@ -2481,11 +2481,11 @@ function updateDisplay(aSuppressUpdateSelection)
       let label = gClippingsSvc.getLabel(uri);
       debugStr += aeString.format("Label: %s", (label || "(none)"));
       updateLabelMenu();
-      labelPickerBtn.image = aeString.format("chrome://clippings/skin/images/%s", gClippingLabelPicker.getIconFileStr(label));
+      labelPickerBtn.image = aeString.format("chrome://clippings/content/img/%s", gClippingLabelPicker.getIconFileStr(label));
     }
     else {
       debugStr += "\nNo label.";
-      labelPickerBtn.image = "chrome://clippings/skin/images/label-none.png";
+      labelPickerBtn.image = "chrome://clippings/content/img/label-none.png";
     }
     aeUtils.log(debugStr);
   }

@@ -1,0 +1,54 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://global/skin/global.css");
+
+
+window {
+  min-width: 32em;
+}
+
+toolbar {
+  border-top: none;
+  border-bottom: none;
+}
+
+toolbarbutton:not(#close) {
+  list-style-image: url("chrome://clippings/content/img/clippingsMgrToolbar.svg");
+}
+
+#insert-clipping {
+  -moz-image-region: rect(0px, 208px, 16px, 192px);
+}
+
+#insert-clipping:hover {
+  -moz-image-region: rect(16px, 208px, 32px, 192px);
+}
+
+#insert-clipping[disabled="true"] {
+  -moz-image-region: rect(48px, 208px, 64px, 192px);
+}
+
+#save {
+  -moz-image-region: rect(0px, 240px, 16px, 224px);
+  margin-right: 0;
+}
+
+#save:hover {
+  -moz-image-region: rect(16px, 240px, 32px, 224px);
+}
+
+#print {
+  -moz-image-region: rect(0px, 256px, 16px, 240px);
+  margin-left: 0;
+}
+
+#print:hover {
+  -moz-image-region: rect(16px, 256px, 32px, 240px);
+}
+
+#close {
+  padding-left: 0px;
+  -moz-appearance: toolbarbutton;
+}

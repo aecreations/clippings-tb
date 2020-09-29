@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<?xml-stylesheet href="resource://clippings-xlaf/clippingsMgr.css" type="text/css"?>
-<?xml-stylesheet href="resource://clippings-xlaf/clippingLabelPalette.css" type="text/css"?>
+<?xml-stylesheet href="chrome://clippings/content/style/clippingsMgr.css" type="text/css"?>
+<?xml-stylesheet href="chrome://clippings/content/style/clippingLabelPalette.css" type="text/css"?>
 
 <!DOCTYPE window SYSTEM "chrome://clippings/locale/clippings.dtd">
 
@@ -384,7 +384,7 @@
       </columns>
       <rows>
 	<row align="center">
-	  <image src="chrome://clippings/skin/images/clippings.png"
+	  <image src="chrome://clippings/content/img/clippings.png"
            style="margin-left:8px;margin-right:4px"/>
 	  <description id="notification-bar-content"></description>
 	  <button id="dismiss-notification" label="&closeButton.label;"
@@ -522,7 +522,7 @@
                   <menuitem label="0"/>
                 </menupopup>
               </menulist>
-              <toolbarbutton id="shortcut-key-minihelp" image="chrome://clippings/skin/images/help.svg"
+              <toolbarbutton id="shortcut-key-minihelp" image="chrome://clippings/content/img/help.svg"
                tooltiptext="&shctHlp.tooltip;" onclick="showShortcutKeyMinihelp()"/>
               <spacer flex="1"/>
 
@@ -533,7 +533,7 @@
               <deck id="clipping-label-deck">
                 <!-- Clipping label picker -->
                 <button id="clipping-label-btn" type="menu"
-                 image="chrome://clippings/skin/images/label-none.png">
+                 image="chrome://clippings/content/img/label-none.png">
                   <menupopup id="clipping-label-menupopup"
                    onpopupshowing="updateLabelMenu()">
                     <menugroup id="clipping-label-menugroup-row-1">
@@ -569,7 +569,7 @@
 
 		<!-- Special clipping label picker widget for Linux -->
                 <button id="clipping-label-btn-2" type="menu"
-                 image="chrome://clippings/skin/images/label-none.png">
+                 image="chrome://clippings/content/img/label-none.png">
                   <menupopup id="clipping-label-menupopup-2">
                     <menuitem class="clipping-label-none"
                      label="&labelNone.tooltip;" type="radio" name="labelcolor"

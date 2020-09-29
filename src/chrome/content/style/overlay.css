@@ -1,0 +1,79 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* 
+ * Integration with host application
+ */
+
+
+menuitem.ae-clippings-clipping {
+  list-style-image: url("chrome://clippings/content/img/clipping.svg");
+}
+
+/* Clipping labels */
+menuitem.ae-clippings-clipping[data-clipping-label="red"] {
+  list-style-image: url("chrome://clippings/content/img/clipping-red.svg");
+}
+
+menuitem.ae-clippings-clipping[data-clipping-label="orange"] {
+  list-style-image: url("chrome://clippings/content/img/clipping-orange.svg");
+}
+
+menuitem.ae-clippings-clipping[data-clipping-label="yellow"] {
+  list-style-image: url("chrome://clippings/content/img/clipping-yellow.svg");
+}
+
+menuitem.ae-clippings-clipping[data-clipping-label="green"] {
+  list-style-image: url("chrome://clippings/content/img/clipping-green.svg");
+}
+
+menuitem.ae-clippings-clipping[data-clipping-label="blue"] {
+  list-style-image: url("chrome://clippings/content/img/clipping-blue.svg");
+}
+
+menuitem.ae-clippings-clipping[data-clipping-label="purple"] {
+  list-style-image: url("chrome://clippings/content/img/clipping-purple.svg");
+}
+
+menuitem.ae-clippings-clipping[data-clipping-label="grey"] {
+  list-style-image: url("chrome://clippings/content/img/clipping-grey.svg");
+}
+
+
+menuitem.ae-clippings-clipping > hbox.menu-iconic-left {
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+menu.ae-clippings-folder-menu {
+  list-style-image: url("chrome://clippings/content/img/folder.svg");
+}
+
+menu.ae-clippings-folder-menu > hbox.menu-iconic-left {
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+menu.ae-clippings-folder-menu[open="true"] {
+  list-style-image: url("chrome://clippings/content/img/folder-open.svg");
+}
+
+menu.ae-clippings-sync-folder,
+menu.ae-clippings-sync-folder[open="true"] {
+  list-style-image: url("chrome://clippings/content/img/synced-clippings.svg");
+}
+
+#ae-clippings-clipboard-alert {
+  padding: 4px;
+}
+
+
+/* Thunderbird integration */
+#ae-clippings-icon {
+  list-style-image: url("chrome://clippings/content/img/clippings16-tb.svg");
+}
+
+#ae-clippings-icon:-moz-drag-over {
+  list-style-image: url("chrome://clippings/content/img/clippings-hilite16.svg");
+}
