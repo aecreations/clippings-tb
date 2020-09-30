@@ -222,62 +222,10 @@ window.aecreations.clippings = {
     this.clippingsSvc.setEmptyClippingString(this.strBundle.getString("emptyClippingLabel"));
     this.clippingsSvc.setSyncedClippingsFolderName(this.strBundle.getString("syncFldrLabel"));
 
-    // Migrate prefs from root to the "extensions." branch
-    let prefsMigrated = this.util.aeUtils.getPref("clippings.migrated_prefs", false);
-    if (! prefsMigrated) {
-      this.pm.aePrefMigrator.migratePrefs();
-      this.util.aeUtils.setPref("clippings.migrated_prefs", true);
-    }
-
-    // Rename backup folder so that it isn't hidden on macOS and Linux.
-    let dataSrcPathURL = this.util.aeUtils.getDataSourcePathURL();
-    let oldBackupDirURL = dataSrcPathURL + this.cnst.aeConstants.OLD_BACKUP_DIR_NAME;
-    let oldBackupDirPath = this.util.aeUtils.getFilePathFromURL(oldBackupDirURL);
-    let oldBkupDir = Components.classes["@mozilla.org/file/local;1"]
-                               .createInstance(Components.interfaces.nsIFile);
-
-    oldBkupDir.initWithPath(oldBackupDirPath);
-    if (oldBkupDir.exists() && oldBkupDir.isDirectory()) {
-      this.util.aeUtils.log(`Detected old backup folder '.clipbak' in "${dataSrcPathURL}" - renaming it to '${this.cnst.aeConstants.BACKUP_DIR_NAME}'`);
-      try {
-        oldBkupDir.renameTo(null, this.cnst.aeConstants.BACKUP_DIR_NAME);
-      }
-      catch (e) {
-        this.util.aeUtils.log(e);
-        this.util.aeUtils.alertEx(this.strBundle.getString("appName"),
-                             this.strBundle.getFormattedString("bkupFldrRenameError", [this.util.aeUtils.getFilePathFromURL(dataSrcPathURL)]));
-      }
-    }
-    
-    // First-run initialization
-    if (this.util.aeUtils.getPref("clippings.first_run", true) == true) {
-      // Starting with Clippings 4.0, the status bar in Clippings Manager will
-      // be hidden by default for new users.  Users upgrading from earlier
-      // versions of Clippings will continue to see the status bar.
-      this.util.aeUtils.setPref("clippings.clipmgr.status_bar", false);
-      
-      this.util.aeUtils.setPref("clippings.first_run", false);
-    }
-
-    // Migration of deprecated common clippings pref (Clippings 4.0+)
-    if (this.util.aeUtils.getPref("clippings.migrate_common_ds_pref", true) == true) {
-      this.legacy.aeClippings3.migrateCommonDataSrcPref();
-      this.util.aeUtils.setPref("clippings.migrate_common_ds_pref", false);
-    }
-
-    // First-run initialization after upgrade from 2.x -> 3.0+
-    if (this.util.aeUtils.getPref("clippings.v3.first_run", true) == true) {
-      this.legacy.aeClippings3.init(this.clippingsSvc, this.strBundle);
-      var initFinished = this.legacy.aeClippings3.startInit();
-      if (initFinished) {
-	this.util.aeUtils.setPref("clippings.v3.first_run", false);
-      }
-    }
-
     let profilePath = this.util.aeUtils.getUserProfileDir().path;
     let dsPath = this.util.aeUtils.getPref("clippings.datasource.location", profilePath);
     
-    // Initialize the datasource in the Clippings XPCOM service
+    // Initialize the datasource in the Clippings JS service
     var err = false;
     var dsURL = this.util.aeUtils.getDataSourcePathURL() + this.cnst.aeConstants.CLIPDAT_FILE_NAME;
     try {
@@ -347,7 +295,7 @@ window.aecreations.clippings = {
       this.clippingsSvc.refreshSyncedClippings(false);
     }
 
-    this.showDialog = !(this.util.aeUtils.getPref("clippings.entries.add_silently", false));
+    this.showDialog = true;
 
     // Place the status bar icon so that it appears as the last item, before
     // the window resizer grippy
