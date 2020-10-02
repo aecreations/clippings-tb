@@ -360,8 +360,6 @@ window.aecreations.clippings.str = ChromeUtils.import("resource://clippings/modu
 window.aecreations.clippings.util = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
 window.aecreations.clippings.svc = ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
 window.aecreations.clippings.hlpr = ChromeUtils.import("resource://clippings/modules/aeCreateClippingHelper.js");
-window.aecreations.clippings.pm = ChromeUtils.import("resource://clippings/modules/aePrefMigrator.js");
-window.aecreations.clippings.legacy = ChromeUtils.import("resource://clippings/modules/aeClippings3.js");
 
 
 //

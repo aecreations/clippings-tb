@@ -782,8 +782,6 @@ window.aecreations.clippings.svc = ChromeUtils.import("resource://clippings/modu
 window.aecreations.clippings.ui = ChromeUtils.import("resource://clippings/modules/aeClippingsMenu.js");
 window.aecreations.clippings.hlpr = ChromeUtils.import("resource://clippings/modules/aeCreateClippingHelper.js");
 window.aecreations.clippings.txt = ChromeUtils.import("resource://clippings/modules/aeClippingSubst.js");
-window.aecreations.clippings.legacy = ChromeUtils.import("resource://clippings/modules/aeClippings3.js");
-window.aecreations.clippings.pm = ChromeUtils.import("resource://clippings/modules/aePrefMigrator.js");
 window.aecreations.clippings.ins = ChromeUtils.import("resource://clippings/modules/aeInsertTextIntoTextbox.js");
 
 
