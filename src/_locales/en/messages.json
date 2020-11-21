@@ -1,0 +1,25 @@
+{
+  "extName": {
+    "message": "Clippings for Thunderbird",
+    "description": "Name of the extension - do NOT translate"
+  },
+
+  "extDesc": {
+    "message": "Save frequently-entered text for pasting later.",
+    "description": "Description of the extension"
+  },
+
+  "extShortName": {
+    "message": "Clippings",
+    "description": "Shorter name of extension - do NOT translate"
+  },
+
+  "extInternalName": {
+    "message": "Clippings/mx",
+    "description": "Internal name of extension - do NOT translate"
+  },
+
+  "msgUnavail": {
+    "message": "The selected action is not available right now."
+  }
+}

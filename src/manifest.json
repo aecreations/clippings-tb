@@ -36,5 +36,7 @@
         "script": "api/WindowListener/implementation.js"
       }
     }
-  }
+  },
+
+  "default_locale": "en"
 }

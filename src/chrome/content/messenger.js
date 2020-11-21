@@ -28,7 +28,8 @@ function onLoad(aActivatedWhileWindowOpen)
   statusbarBtn.setAttribute("tooltiptext", strBundle.getString("appName"));
 
   statusbarBtn.addEventListener("click", aEvent => {
-    aeUtils.alertEx("Clippings for Thunderbird", "The selection action is not available right now.");
+    aeUtils.alertEx(WL.messenger.i18n.getMessage("extName"),
+                    WL.messenger.i18n.getMessage("msgUnavail"));
   });
 
   statusbarpanel.appendChild(statusbarBtn);
