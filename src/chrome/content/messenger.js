@@ -5,10 +5,6 @@
 let {aeConstants} = ChromeUtils.import("resource://clippings/modules/aeConstants.js");
 let {aeString} = ChromeUtils.import("resource://clippings/modules/aeString.js");
 let {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
-//let {aeClippingsService} = ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
-//let {aeCreateClippingHelper} = ChromeUtils.import("resource://clippings/modules/aeCreateClippingHelper.js");
-
-Services.scriptloader.loadSubScript("chrome://clippings/content/tbMessengerOverlay.js", window, "UTF-8");
 
 
 function onLoad(aActivatedWhileWindowOpen)
@@ -23,15 +19,16 @@ function onLoad(aActivatedWhileWindowOpen)
   // Place the status bar icon so that it appears as the last item, before
   // the window resizer grippy
   let statusBar = document.getElementById("status-bar");
-  let statusbarpanel = document.createElement("hbox");
-  let statusbarBtn = document.createElement("toolbarbutton");
+  let statusbarpanel = document.createXULElement("hbox");
+  statusbarpanel.id = "ae-clippings-status";
+  statusbarpanel.className = "statusbarpanel";
+  let statusbarBtn = document.createXULElement("toolbarbutton");
   statusbarBtn.id = "ae-clippings-icon";
   statusbarBtn.setAttribute("context", "ae-clippings-popup");
   statusbarBtn.setAttribute("tooltiptext", strBundle.getString("appName"));
-  //statusbarBtn.setAttribute("tooltiptext", "Clippings");
 
-  statusbarBtn.addEventListener("command", aEvent => {
-    window.aecreations.clippings.openClippingsManager();
+  statusbarBtn.addEventListener("click", aEvent => {
+    aeUtils.alertEx("Clippings for Thunderbird", "The selection action is not available right now.");
   });
 
   statusbarpanel.appendChild(statusbarBtn);

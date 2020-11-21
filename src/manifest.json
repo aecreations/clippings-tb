@@ -21,6 +21,8 @@
 
   "background": {
     "scripts": [
+      "lib/dexie/dexie.min.js",
+      "modules/aeConst.js",
       "background.js"
     ]
   },
