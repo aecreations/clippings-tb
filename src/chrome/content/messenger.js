@@ -27,7 +27,7 @@ function onLoad(aActivatedWhileWindowOpen)
   statusbarBtn.setAttribute("context", "ae-clippings-popup");
   statusbarBtn.setAttribute("tooltiptext", strBundle.getString("appName"));
 
-  statusbarBtn.addEventListener("click", aEvent => {
+  statusbarBtn.addEventListener("command", aEvent => {
     aeUtils.alertEx(WL.messenger.i18n.getMessage("extName"),
                     WL.messenger.i18n.getMessage("msgUnavail"));
   });

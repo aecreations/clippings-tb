@@ -5,11 +5,6 @@
 let {aeConstants} = ChromeUtils.import("resource://clippings/modules/aeConstants.js");
 let {aeString} = ChromeUtils.import("resource://clippings/modules/aeString.js");
 let {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
-let {aeClippingsService} = ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
-//let {aeClippingsMenu} = ChromeUtils.import("resource://clippings/modules/aeClippingsMenu.js");
-//let {aeCreateClippingHelper} = ChromeUtils.import("resource://clippings/modules/aeCreateClippingHelper.js");
-let {aeClippingSubst} = ChromeUtils.import("resource://clippings/modules/aeClippingSubst.js");
-//let {aeInsertTextIntoTextbox} = ChromeUtils.import("resource://clippings/modules/aeInsertTextIntoTextbox.js");
 
 Services.scriptloader.loadSubScript("chrome://clippings/content/tbMsgComposeOverlay.js", window, "UTF-8");
 
@@ -24,15 +19,15 @@ function onLoad(aActivatedWhileWindowOpen)
   WL.injectElements(`
   <commandset id="composeCommands">
     <command id="ae_clippings_manager" 
-     oncommand="window.aecreations.clippings.openClippingsManager()"/>
+     oncommand="window.aecreations.clippings.util.aeUtils.alertEx('Organize Clippings', '${WL.messenger.i18n.getMessage('msgUnavail')}')"/>
     <command id="ae_new_clipping_from_clpbd" 
-     oncommand="window.aecreations.clippings.newFromClipboard()"/>
+     oncommand="window.aecreations.clippings.util.aeUtils.alertEx('New From Clipboard', '${WL.messenger.i18n.getMessage('msgUnavail')}')"/>
     <command id="ae_new_clipping_from_selection"
-     oncommand="window.aecreations.clippings.newFromSelection()"/>
+     oncommand="window.aecreations.clippings.util.aeUtils.alertEx('New From Selection', '${WL.messenger.i18n.getMessage('msgUnavail')}')"/>
     <command id="ae_clippings_show_paste_options" 
-     oncommand="window.aecreations.clippings.toggleShowPasteOptions()"/>
-    <command id="ae_clippings_keyboard_insert" label="Insert Clipping"
-     oncommand="window.aecreations.clippings.keyboardInsertClipping(event)"/>
+     oncommand="window.aecreations.clippings.util.aeUtils.alertEx('Show Quote Options', '${WL.messenger.i18n.getMessage('msgUnavail')}')"/>
+    <command id="ae_clippings_keyboard_insert" label="Paste Clipping"
+     oncommand="window.aecreations.clippings.util.aeUtils.alertEx('Paste Clipping', '${WL.messenger.i18n.getMessage('msgUnavail')}')"/>
   </commandset>
 
   <keyset id="tasksKeys">
@@ -49,10 +44,7 @@ function onLoad(aActivatedWhileWindowOpen)
   </keyset>
 
   <menupopup id="msgComposeContext">
-    <menu id="ae-clippings-menu-1" label="Clippings"
-     datasources="rdf:null"
-     ref="http://clippings.mozdev.org/rdf/user-clippings-v2">
-
+    <menu id="ae-clippings-menu-1" label="Clippings">
       <menupopup id="ae-clippings-popup-1">
         <menuitem id="ae-clippings-add" label="New From Selection..." accesskey="N" command="ae_new_clipping_from_selection"/>
         <menuitem label="Organize Clippings" accesskey="O" command="ae_clippings_manager"/>
@@ -101,7 +93,23 @@ function onLoad(aActivatedWhileWindowOpen)
   
   WL.injectCSS("chrome://clippings/content/style/overlay.css");
 
-  window.aecreations.clippings.initClippings();
+  // Initialize status bar icon.
+  let statusBar = document.getElementById("status-bar");
+  let statusbarpanel = document.createXULElement("hbox");
+  statusbarpanel.id = "ae-clippings-statubarpanel";
+  let statusbarBtn = document.createXULElement("toolbarbutton");
+  statusbarBtn.id = "ae-clippings-icon";
+  statusbarBtn.setAttribute("context", "ae-clippings-popup");
+  statusbarBtn.setAttribute("tooltiptext", strBundle.getString("appName"));
+
+  statusbarBtn.addEventListener("command", aEvent => {
+    aeUtils.alertEx(WL.messenger.i18n.getMessage("extName"),
+                    WL.messenger.i18n.getMessage("msgUnavail"));
+
+  });
+
+  statusbarpanel.appendChild(statusbarBtn);
+  statusBar.insertBefore(statusbarpanel, statusBar.lastChild);
 }
 
 
@@ -113,6 +121,6 @@ function onUnload(aDeactivatedWhileWindowOpen)
   if (! aDeactivatedWhileWindowOpen) {
     return;
   }
-
-  window.aecreations.clippings.unload();
 }
+
+

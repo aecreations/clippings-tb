@@ -549,7 +549,7 @@ window.aecreations.clippings = {
 
     this.strBundle = this.util.aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
     this.txt.aeClippingSubst.init(this.strBundle, navigator.userAgent);
-
+/**
     try {
       this.clippingsSvc = this.svc.aeClippingsService.getService();
     }
@@ -559,12 +559,13 @@ window.aecreations.clippings = {
 
     this.clippingsSvc.setEmptyClippingString(this.strBundle.getString("emptyClippingLabel"));
     this.clippingsSvc.setSyncedClippingsFolderName(this.strBundle.getString("syncFldrLabel"));
-
+**/
     let profilePath = this.util.aeUtils.getUserProfileDir().path;
     let dsPath = this.util.aeUtils.getPref("clippings.datasource.location", profilePath);
     
     // Clippings backup
     var backupDirURL = this.util.aeUtils.getDataSourcePathURL() + this.cnst.aeConstants.BACKUP_DIR_NAME;
+/**
     this.clippingsSvc.setBackupDir(backupDirURL);
     this.clippingsSvc.setMaxBackupFiles(this.util.aeUtils.getPref("clippings.backup.maxfiles", 10));
 
@@ -572,9 +573,9 @@ window.aecreations.clippings = {
     var menu1 = document.getElementById("ae-clippings-menu-1");
     var popup1 = document.getElementById("ae-clippings-popup-1");
     this.initClippingsPopup(popup1, menu1);
-
+**/
     this.util.aeUtils.log(this.str.aeString.format("gClippings.initClippings(): Initializing Clippings integration with host app window: %s", window.location.href));
-
+/**
     // Add null clipping to root folder if there are no items
     if (this.util.aeUtils.getPref("clippings.datasource.process_root", true) == true) {
       this.clippingsSvc.processRootFolder();
@@ -656,7 +657,7 @@ window.aecreations.clippings = {
 	this.util.aeUtils.setPref("clippings.clipmgr.disable_js_window_geometry_persistence", true);
       }
     }
-
+**/
     // Enable/disable Clippings paste using the keyboard.
     let keyEnabled = this.util.aeUtils.getPref("clippings.enable_keyboard_paste", true);
     let keyset = document.getElementById("tasksKeys");
@@ -770,20 +771,25 @@ window.aecreations.clippings = {
 
   unload: function ()
   {
+    /**
     this.clippingsSvc.removeListener(this._clippingsListener);
     this._clippingsListener = null;
+    **/
   }
 };
 
 window.aecreations.clippings.cnst = ChromeUtils.import("resource://clippings/modules/aeConstants.js");
 window.aecreations.clippings.str = ChromeUtils.import("resource://clippings/modules/aeString.js");
 window.aecreations.clippings.util = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
+/**
 window.aecreations.clippings.svc = ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
 window.aecreations.clippings.ui = ChromeUtils.import("resource://clippings/modules/aeClippingsMenu.js");
 window.aecreations.clippings.hlpr = ChromeUtils.import("resource://clippings/modules/aeCreateClippingHelper.js");
+**/
 window.aecreations.clippings.txt = ChromeUtils.import("resource://clippings/modules/aeClippingSubst.js");
+/**
 window.aecreations.clippings.ins = ChromeUtils.import("resource://clippings/modules/aeInsertTextIntoTextbox.js");
-
+**/
 
 //
 // Event handler initialization

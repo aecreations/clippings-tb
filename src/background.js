@@ -85,7 +85,9 @@ function initClippingsDB()
     folders: "++id, name, parentFolderID"
   });
 
-  gClippingsDB.open().catch(aErr => { onError(aErr) });
+  gClippingsDB.open().catch(aErr => {
+    console.error(aErr);
+  });
 }
 
 
