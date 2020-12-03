@@ -14,6 +14,9 @@ let aeConst = {
   HOSTAPP_FX_GUID: "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}",
   HOSTAPP_TB_GUID: "{3550f703-e582-4d05-9a08-453d09bdfdc6}",
 
+  // Maximum number of chars of clipping names.
+  MAX_NAME_LENGTH: 64,
+
   // Native messaging helper app
   SYNC_CLIPPINGS_APP_NAME: "syncClippings",
 

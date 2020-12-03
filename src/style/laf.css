@@ -1,0 +1,241 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* FIXME: This causes a security error in Thunderbird. */
+@import url("chrome://browser/content/extension.css");
+
+
+:root {
+    --color-bkgd: white;
+    --color-default-text: black;
+    --color-disabled-text: rgba(0, 0, 0, 0.40);
+    --color-btn-bkgd: rgba(12, 12, 13, 0.1);
+    --color-btn-hover-bkgd: rgba(12, 12, 13, 0.2);
+    --color-btn-hover-border: rgba(12, 12, 13, 0.1);
+    --color-btn-active-bkgd: rgba(12, 12, 13, 0.3);
+    --color-btn-border: rgba(12, 12, 13, 0.1);
+    --color-btn-text: black;
+    --color-tb-bkgd: -moz-field;
+    --color-tb-border: rgba(12, 12, 13, 0.2);
+    --color-tb-hover-border: rgba(12, 12, 13, 0.3);
+    --color-tb-text: -moz-fieldtext;
+    --color-tb-selection: rgba(10, 132, 255, 0.3);
+    --color-cb-bkgd: #fff;
+    --color-cb-border: #b1b1b1;
+    --color-cb-hover-bkgd: #fbfbfb;
+    --color-cb-active-bkgd: #ebebeb;    
+    --color-hyperlink: #0060df;
+    --color-hyperlink-active: #003eaa;
+    --color-error-text: #d70022;
+
+    --url-dropdown-arrow: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMCAwIDE2IDE2Ij4KICA8cGF0aCBkPSJNOCwxMkwzLDcsNCw2bDQsNCw0LTQsMSwxWiIgZmlsbD0iIzZBNkE2QSIgLz4KPC9zdmc+Cg==");
+
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+	--color-bkgd: #2a2a2e;
+	--color-default-text: #f9f9fa;
+	--color-disabled-text: rgba(249, 249, 250, 0.4);
+	--color-btn-bkgd: #4a4a4f;
+	--color-btn-hover-bkgd: #606060;
+	--color-btn-hover-border: #606060;
+	--color-btn-active-bkgd: #737373;
+	--color-btn-border: #4a4a4f;
+	--color-btn-text: #f9f9fa;
+	--color-tb-bkgd: #0c0c0d;
+	--color-tb-border: #4a4a4f;
+	--color-tb-hover-border: #737373;
+	--color-tb-text: #f9f9fa;
+	--color-tb-selection: rgba(10, 132, 255, 0.75);
+	--color-cb-bkgd: #202023;
+	--color-cb-border: #737373;
+	--color-cb-hover-bkgd: #2a2a2e;
+	--color-cb-active-bkgd: #38383d;
+	--color-hyperlink: #45a1ff;
+	--color-hyperlink-active: #0a84ff;
+	--color-error-text: #ff0039;
+
+	--url-dropdown-arrow: url('data:image/svg+xml;utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 16 16"><g><path style="fill:none;fill-rule:evenodd;stroke:rgb(237,237,240);stroke-width:1.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" d="M 3.5,6.5 8,11 12.5,6.5"/></g></svg>');
+    }
+}
+
+
+a {
+    color: var(--color-hyperlink);
+    text-decoration: none;
+}
+
+a:hover, a:focus {
+    text-decoration: underline;
+}
+
+a:active {
+    color: var(--color-hyperlink-active);
+    text-decoration: underline;
+}
+
+button,
+select.browser-style {
+    border: 1px solid var(--color-btn-border);
+    background-color: var(--color-btn-bkgd);
+    font: caption;
+    color: var(--color-btn-text);
+}
+
+button {
+    padding: 0px 8px;
+    border-radius: 2px;
+    text-align: center;
+}
+
+button[disabled],
+select.browser-style[disabled] {
+    opacity: 0.4;
+}
+
+button.default {
+    border: 1px solid #0060df;
+    background-color: #0060df;
+    color: #fff;
+}
+
+button.browser-style:hover:not(.pressed):not(:disabled):not(.focused),
+select.browser-style:hover:not(.pressed):not(:disabled):not(.focused) {
+    border: 1px solid var(--color-btn-hover-bkgd);
+    background-color: var(--color-btn-hover-bkgd);
+}
+
+button:hover {
+    border-color: var(--color-btn-hover-border);
+    background-color: var(--color-btn-hover-bkgd);
+}
+
+button.default:hover {
+    border: 1px solid #003eaa;
+    background-color: #003eaa;
+}
+
+button:active {
+    border: 1px solid rgba(12, 12, 13, 0.3) !important;
+    background-color: var(--color-btn-active-bkgd);
+}
+
+button.default:active {
+    border: 1px solid #002275;
+    background-color: #002275;
+}
+
+select.browser-style {
+    background-image: var(--url-dropdown-arrow);
+}
+
+select.browser-style:focus,
+select.browser-style:focus > option {
+    color: var(--color-btn-text);
+}
+
+select.browser-style:active {
+    border: 1px solid rgba(12, 12, 13, 0.3) !important;
+    background-color: rgba(12, 12, 13, 0.3) !important;
+}
+
+select:-moz-focusring {
+    outline-style: none;
+}
+
+select:-moz-focusring:not([size]):not(:disabled),
+select.browser-style:-moz-focusring:not([size]):not(:disabled) {
+    border-color: var(--color-bkgd) !important;
+    box-shadow: 0 0 0 2px #61b5ffbf;
+}
+
+input[type="text"],
+input[type="password"],
+textarea {
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="search"],
+textarea {
+    border: 1px solid var(--color-tb-border);
+    background-color: var(--color-tb-bkgd);
+    font: caption;
+    color: var(--color-tb-text);
+}
+
+input[type="text"]:hover,
+input[type="password"]:hover,
+input[type="search"]:hover,
+textarea:hover {
+    border-color: var(--color-tb-hover-border);
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+input[type="search"]:focus,
+textarea:focus {
+    border-color: #0a84ff;
+    box-shadow: 0 0 0 2px #61b5ffbf;
+    transition-duration: 250ms;
+    transition-property: box-shadow;
+}
+
+input[type="text"]:-moz-focusring,
+input[type="password"]:-moz-focusring,
+input[type="number"]:-moz-focusring,
+input[type="search"]:-moz-focusring,
+textarea:-moz-focusring {
+    outline-style: none;
+}
+
+input[type="text"]::selection,
+input[type="password"]::selection,
+input[type="search"]::selection,
+textarea::selection {
+    background-color: var(--color-tb-selection);
+}
+
+.browser-style > input[type="checkbox"] {
+    background-color: var(--color-cb-bkgd);
+    border: 1px solid var(--color-cb-border);
+}
+
+.browser-style > input[type="checkbox"]:hover,
+.browser-style.hover > input[type="checkbox"]:not(:active) {
+    background-color: var(--color-cb-hover-bkgd);
+    border-color: var(--color-cb-border);
+}
+
+.browser-style > input[type="checkbox"]:hover:active,
+.browser-style.pressed > input[type="checkbox"]:not(:active) {
+    background-color: var(--color-cb-active-bkgd);
+}
+
+.browser-style > input[type="checkbox"].checkbox-s {
+    width: 14px;
+    height: 14px;
+}
+
+.browser-style > input[type="checkbox"].checkbox-s:checked {
+    background-image: url("data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIgogICB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiAgIHdpZHRoPSIxNCIKICAgaGVpZ2h0PSIxNCIKICAgdmlld0JveD0iMCAwIDE0IDE0IgogICB2ZXJzaW9uPSIxLjEiPgogIDxwYXRoIGQ9Im0gNi43MDY5MzgzLDEwLjY5NTY5OSBjIC0wLjI2MjkzMzYsMC4zNDMyMjIgLTAuNzg4ODAxLDAuNDI5MDI4IC0xLjEzOTM3OTIsMC4wODU4MSBMIDIuNzYyOTMzNCw4LjAzNTcyMTcgYyAtMC4zNTA1NzgyLC0wLjM0MzIyMjggLTAuMzUwNTc4MiwtMS4wMjk2Njg0IDAsLTEuMzcyODkxMiAwLjM1MDU3ODIsLTAuMzQzMjIyOCAxLjA1MTczNDYsLTAuMzQzMjIyOCAxLjQwMjMxMjgsMCBMIDYuMDA1NzgxOSw4LjQ2NDc1MDIgOS42ODY4NTM3LDMuNDAyMjEzOCBDIDEwLjAzNzQzMiwyLjk3MzE4NTMgMTAuNjUwOTQzLDIuODg3Mzc5NiAxMS4wODkxNjYsMy4xNDQ3OTY3IDExLjUyNzM4OSwzLjQ4ODAxOTUgMTEuNjE1MDM0LDQuMDg4NjU5NCAxMS4zNTIxLDQuNTE3Njg3OSBaIgogICAgIHN0eWxlPSJmaWxsOiNmZmZmZmY7c3Ryb2tlLXdpZHRoOjAuOTk5OTk5OTQiIC8+Cjwvc3ZnPgo=");
+}
+
+label[disabled],
+input[type="text"][disabled],
+.browser-style > input[type="checkbox"][disabled] {
+    opacity: 0.4;
+}
+
+.browser-style > input[type="checkbox"][disabled] + label {
+    color: var(--color-disabled-text);
+}
+
+.error {
+    color: var(--color-error-text);
+}

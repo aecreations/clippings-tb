@@ -22,7 +22,9 @@
   "background": {
     "scripts": [
       "lib/dexie/dexie.min.js",
+      "lib/jquery.js",
       "modules/aeConst.js",
+      "modules/aeListeners.js",
       "background.js"
     ]
   },

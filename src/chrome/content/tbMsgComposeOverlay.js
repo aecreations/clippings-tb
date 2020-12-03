@@ -28,60 +28,25 @@ window.aecreations.clippings = {
   _isErrMenuItemVisible:  false,
   _ds:                    null,
   _menu:                  null,
+  _clippingsMxListener:   null,
 
-
-  // Method handleEvent() effectively makes the Clippings overlay object an
-  // implementation of the EventListener interface; therefore it can be passed
-  // as the listener argument to window.addEventListener() and
-  // window.removeEventListener()
-  handleEvent: function (aEvent)
+  
+  addMxListener: function (aListener)
   {
-    // When this method is invoked, 'this' will not refer to the Clippings
-    // overlay object.
-    var that = window.aecreations.clippings;
-
-    if (aEvent.type == "load") {
-      that.initClippings();
-    }
-    else if (aEvent.type == "unload") {
-      that.unload();
-      window.removeEventListener("load", that, false);
-      window.removeEventListener("unload", that, false);
-
-      var hostAppCxtMenu = document.getElementById("msgComposeContext");
-      hostAppCxtMenu.removeEventListener("popupshowing", 
-					 that._initContextMenuItem,
-					 false);
-    }
+    this._clippingsMxListener = aListener;
   },
 
-
-  //
-  // Drag 'n drop event handlers for Clippings status bar icon
-  //
-
-  statusBarDrop: function (aEvent)
+  removeMxListener: function ()
   {
-    if (! this.dataSrcInitialized) {
-      // The RDF data source has to be initialized if it has not already been
-      // done so, otherwise RDF node creation will fail, and the new
-      // Clippings entry will never be created.
-      // This initialization is done in the code for the Clippings popup
-      // menu's `onpopupshowing' event handler.
-      this.initClippingsPopup(document.getElementById("ae-clippings-popup-1"),
-                              document.getElementById("ae-clippings-menu-1"));
-    }
-
-    var text = aEvent.dataTransfer.getData("text/plain");
-    var result = this.hlpr.aeCreateClippingFromText(this.clippingsSvc, text, null, this.showDialog, window, null, false);
-
-    if (result) {
-      let that = window.aecreations.clippings;
-      window.setTimeout(function () { that.saveClippings(); }, 100);
-    }
+    this._clippingsMxListener = null;
   },
 
+  getMxListener: function ()
+  {
+    return this._clippingsMxListener;
+  },
 
+  
   //
   // Methods invoked by overlay code
   //
@@ -144,11 +109,6 @@ window.aecreations.clippings = {
 
   newFromSelection: function ()
   {
-    if (! this.dataSrcInitialized) {
-      this.initClippingsPopup(document.getElementById("ae-clippings-popup-1"),
-			      document.getElementById("ae-clippings-menu-1"));
-    }
-
     // Must explicitly close the message compose context menu - otherwise it
     // will reappear while the New Clipping dialog is open if the Clippings 
     // submenu needs to be rebuilt.
@@ -157,13 +117,7 @@ window.aecreations.clippings = {
 
     var selection = this.getSelectedText();
     if (selection) {
-      var result = this.hlpr.aeCreateClippingFromText(this.clippingsSvc, selection, null, this.showDialog, window, null, false);
-      if (result) {
-        let that = this;
-	window.setTimeout(function () { 
-          that.saveClippings();
-        }, 1);
-      }
+      this.getMxListener().newClippingDlgRequested(selection);
     }
     else {
       this.alert(this.strBundle.getString("errorNoSelection"));
@@ -173,9 +127,7 @@ window.aecreations.clippings = {
 
   openClippingsManager: function () 
   {
-    var wnd = window.open("chrome://clippings/content/clippingsMgr.xul",
-			  "ae_clippings_wndobj", "chrome,resizable");
-    wnd.focus();
+    this.util.aeUtils.alertEx("Clippings [XUL Overlay]", "The selection action is not available right now.");
   },
 
 
@@ -790,11 +742,4 @@ window.aecreations.clippings.txt = ChromeUtils.import("resource://clippings/modu
 /**
 window.aecreations.clippings.ins = ChromeUtils.import("resource://clippings/modules/aeInsertTextIntoTextbox.js");
 **/
-
-//
-// Event handler initialization
-//
-
-window.addEventListener("load",   window.aecreations.clippings, false);
-window.addEventListener("unload", window.aecreations.clippings, false);
 

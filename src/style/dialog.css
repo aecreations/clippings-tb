@@ -1,0 +1,100 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("laf.css");
+
+
+body {
+    overflow: hidden;
+    margin: 16px;
+    background-color: var(--color-bkgd);
+    color: var(--color-default-text);
+    font-size: 11px;
+}
+
+button {
+    min-width: 88px;
+    min-height: 28px;
+    font-size: 13px !important;
+}
+
+button[disabled] {
+    opacity: 0.4;
+}
+
+fieldset {
+    border-bottom: none;
+    border-left: none;
+    border-right: none;
+}
+
+fieldset > legend {
+    padding-left: 0px;
+    padding-right: 8px;
+    margin-left: -10px;
+}
+
+.hbox, .vbox {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.hbox {
+    flex-flow: row nowrap;
+}
+
+.vbox {
+    flex-flow: column nowrap;
+}
+
+.browser-style > input[type="text"],
+.browser-style > textarea,
+select.browser-style {
+    font-size: 11px;
+}
+
+.browser-style > input[type="text"][disabled],
+.browser-style > input[type="text"][disabled]:hover,
+.browser-style > input[type="text"][readonly],
+.browser-style > input[type="text"][readonly]:hover{
+    border-bottom: 1px dotted;
+}
+
+input[type="checkbox"] {
+    vertical-align: -2px;
+}
+
+input[type="checkbox"] + label {
+    line-height: 1.8em;
+}
+
+.browser-style > input[type="checkbox"] + label::before {
+    width: 14px;
+    height: 14px;
+}
+
+input[type="radio"] {
+    vertical-align: -2px;
+}
+
+input[type="radio"] + label {
+    line-height: 1.8em;
+    margin-right: 1.5em;
+}
+
+.browser-style > input[type="radio"] + label::before {
+    width: 14px;
+    height: 14px;
+}
+
+#dlg-buttons {
+    position: absolute;
+    bottom: 14px;
+    right: 6px;
+    z-index: -1;
+}
+
+#btn-accept, #btn-cancel {
+    margin-right: 10px;
+}

@@ -9,6 +9,20 @@ let {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
 Services.scriptloader.loadSubScript("chrome://clippings/content/tbMsgComposeOverlay.js", window, "UTF-8");
 
 
+let gClippingsMxListener = {
+  _clippings: WL.messenger.extension.getBackgroundPage(),
+
+  newClippingDlgRequested(aClippingContent)
+  {
+    if (! aClippingContent) {
+      return;
+    }
+
+    this._clippings.openNewClippingDlg(aClippingContent);
+  }
+};
+
+
 function onLoad(aActivatedWhileWindowOpen)
 {
   aeUtils.log("Clippings/mx::messengercompose.js: Initializing integration with message compose window.");
@@ -23,7 +37,7 @@ function onLoad(aActivatedWhileWindowOpen)
     <command id="ae_new_clipping_from_clpbd" 
      oncommand="window.aecreations.clippings.util.aeUtils.alertEx('New From Clipboard', '${WL.messenger.i18n.getMessage('msgUnavail')}')"/>
     <command id="ae_new_clipping_from_selection"
-     oncommand="window.aecreations.clippings.util.aeUtils.alertEx('New From Selection', '${WL.messenger.i18n.getMessage('msgUnavail')}')"/>
+     oncommand="window.aecreations.clippings.newFromSelection()"/>
     <command id="ae_clippings_show_paste_options" 
      oncommand="window.aecreations.clippings.util.aeUtils.alertEx('Show Quote Options', '${WL.messenger.i18n.getMessage('msgUnavail')}')"/>
     <command id="ae_clippings_keyboard_insert" label="Paste Clipping"
@@ -103,13 +117,14 @@ function onLoad(aActivatedWhileWindowOpen)
   statusbarBtn.setAttribute("tooltiptext", strBundle.getString("appName"));
 
   statusbarBtn.addEventListener("command", aEvent => {
-    aeUtils.alertEx(WL.messenger.i18n.getMessage("extName"),
-                    WL.messenger.i18n.getMessage("msgUnavail"));
-
+    window.aecreations.clippings.openClippingsManager();
   });
 
   statusbarpanel.appendChild(statusbarBtn);
   statusBar.insertBefore(statusbarpanel, statusBar.lastChild);
+
+  window.aecreations.clippings.addMxListener(gClippingsMxListener);
+  window.aecreations.clippings.initClippings();
 }
 
 
@@ -121,6 +136,9 @@ function onUnload(aDeactivatedWhileWindowOpen)
   if (! aDeactivatedWhileWindowOpen) {
     return;
   }
+
+  window.aecreations.clippings.removeMxListener();
+  window.aecreations.clippings.unload();
 }
 
 

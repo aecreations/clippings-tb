@@ -1,0 +1,275 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("../lib/fancytree/skin-win8/ui.fancytree.min.css");
+@import url("../style/dialog.css");
+@import url("../style/lightbox.css");
+@import url("../style/clippingTree.css");
+@import url("../style/clippingLabelPicker.css");
+
+
+:root {
+    --color-btn-expand-bkgd: #e0e0e1;
+    --color-btn-expand-hover-bkgd: #d7d7db;
+    --color-btn-expand-active-bkgd: #c9c9ca;
+    --color-fldr-tree-popup-bkgd: #fbfbfb;
+    --color-fldr-tree-popup-border: #b1b1b1;
+    --color-fldr-tree-popup-shadow: #8f8f8f;
+    --color-fldr-tree-popup-shadow-darker: #555555;
+    --url-icon-synced-clippings-fldr: url("../img/synced-clippings.svg");
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+	--color-btn-expand-bkgd: #4a4a4f;
+	--color-btn-expand-hover-bkgd: #737373;
+	--color-btn-expand-active-bkgd: #808080;
+	--color-fldr-tree-popup-bkgd: #202023;
+	--color-fldr-tree-popup-border: #737373;
+	--color-fldr-tree-popup-shadow: #2a2a2e;
+	--color-fldr-tree-popup-shadow-darker: #2a2a2e;
+	--url-icon-synced-clippings-fldr: url("../img/synced-clippings-dk.svg");
+    }
+}
+
+
+label {
+    margin-right: 4px;
+}
+
+input[type="text"] {
+    height: 24px;
+}
+
+
+input[type="text"], textarea, select {
+    margin-bottom: 12px !important;
+}
+
+input[type="text"], textarea {
+    width: 100%;
+    margin-top: 4px;
+    font: message-box;
+    font-size: 11px;
+}
+
+input[type="checkbox"] + label {
+    vertical-align: -0.3em
+}
+
+textarea {
+    resize: none;
+}
+
+#new-clipping-fldr-tree-btn {
+    order: 1;
+}
+
+.folder-picker {
+    margin-top: 4px;
+}
+
+.folder-picker-menubtn {
+    width: 100%;
+    padding: 4px 4px 4px 28px;
+    border-radius: 0;
+    background-image: var(--url-dropdown-arrow), url("../img/folder.svg");
+    background-position: calc(100% - 4px) center, 8px;
+    background-repeat: no-repeat;
+    font: caption !important;
+    font-size: 11px !important;
+    text-align: start !important;
+}
+
+.folder-picker-menubtn[value="0"] {
+    background-image: var(--url-dropdown-arrow), url("../img/clippings-root.svg");
+    background-position: calc(100% - 4px) center, 8px;
+    background-repeat: no-repeat;
+}
+
+.folder-picker-menubtn[syncfldr] {
+    background-image: var(--url-dropdown-arrow), var(--url-icon-synced-clippings-fldr);
+    background-position: calc(100% - 4px) center, 8px;
+    background-repeat: no-repeat;
+}
+
+.popup-bkgrd {
+    display: none;
+    position: absolute;
+    top: 0%;
+    left: 0%;
+    width: 100%;
+    height: 100%;
+    background-color: var(--color-fldr-tree-popup-bkgd);
+    z-index: 1003;
+    opacity: 0;
+}
+
+.folder-tree-popup {
+    position: absolute;
+    visibility: hidden;
+    border: 1px solid var(--color-fldr-tree-popup-border);
+    background-color: var(--color-fldr-tree-popup-bkgd);
+    box-shadow: 4px 4px 2px -2px var(--color-fldr-tree-popup-shadow);
+    z-index: 1100;
+}
+
+#new-clipping-fldr-tree-popup {
+    bottom: 12px;
+    left: 16px;
+    width: 350px;
+    height: 151px;
+    margin-top: 0;
+}
+
+#new-folder-dlg-fldr-tree-popup {
+    box-shadow: 4px 4px 2px -2px var(--color-fldr-tree-popup-shadow-darker);
+}
+
+/* This class to be applied to the folder tree popup if the clipping options
+/* is expanded. */
+.new-clipping-fldr-tree-popup-fixpos {
+    bottom: unset !important;
+}
+
+.folder-tree {
+    height: 100%;
+    overflow: auto;
+}
+
+.folder-tree .ae-synced-clippings-fldr > .fancytree-icon {
+    background-image: var(--url-icon-synced-clippings-fldr);
+}
+
+ul.fancytree-container {
+    border: none;
+}
+
+#new-folder-btn {
+    order: 2;
+    
+    min-width: 32px;
+    margin: 0 0 0 4px;
+    background-image: url("../img/newFolder.svg");
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+#clipping-options-groupbox {
+    padding-right: 0;
+}
+
+#clipping-options-groupbox > legend {
+    padding-left: 8px;
+    margin-left: 16px;
+}
+
+#clipping-options {
+    display: none;
+    margin-top: 4px;
+    margin-bottom: 8px;
+    margin-left: 26px;
+}
+
+#btn-expand-options {
+    position: relative;
+    top: -24px;
+    left: -10px;
+    float: left;
+
+    min-width: 26px;
+    min-height: 24px;
+    font: caption;
+    font-size: 11px;
+
+    background-color: var(--color-btn-expand-bkgd);
+    background-image: var(--url-dropdown-arrow);
+    background-position: calc(100% - 4px) center;
+    background-repeat: no-repeat;
+}
+
+#btn-expand-options:hover {
+    background-color: var(--color-btn-expand-hover-bkgd);
+}
+
+#btn-expand-options:active {
+    background-color: var(--color-btn-expand-active-bkgd);
+}
+
+#clipping-options #shct-key-and-label-opts {
+    margin-top: 8px;
+}
+
+#clipping-options #shortcut-key-select {
+    order: 1;
+    flex: 0 1 auto;
+}
+
+#clipping-options #clipping-options-spacer {
+    order: 2;
+    flex: 1 1 auto;
+}
+
+#clipping-options #clipping-label {
+    order: 3;
+    flex: 0 1 auto;
+}
+
+#clipping-key {
+    margin-right: 4px;
+}
+
+#shct-key-tooltip {
+    vertical-align: middle;
+}
+
+#dlg-buttons {
+    z-index: 1;
+}
+
+.lightbox {
+    border-radius: 2px;
+}
+
+#new-folder-dlg {
+    --width: 320px;
+    --height: 174px;
+    top: 64px;
+}
+
+#new-folder-dlg-fldr-tree {
+    margin-top: 0;
+}
+
+#new-folder-dlg-fldr-tree-popup {
+    width: 286px;
+    height: 160px;
+    margin-top: 0;
+    z-index: 1101;
+}
+
+#create-clipping-error-msgbox {
+    --width: 384px;
+    --height: 145px;
+    top: 64px;
+}
+
+#create-clipping-error-msgbox .msgbox-error-icon {
+    float: left;
+    width: 32px;
+    height: 32px;
+    margin-top: 0;
+    margin-right: 12px;
+    background-image: url("../img/warning-64.png");
+    background-size: contain;
+}
+
+#create-clipping-error-msgbox .msgbox-error-icon[os="mac"] {
+    background-image: url("chrome://global/skin/icons/warning-64.png");
+}
+
+#create-clipping-error-msgbox .msgbox-error-msg {
+    margin-left: 44px;
+    color: var(--color-error-text);
+}
