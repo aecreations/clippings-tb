@@ -11,6 +11,7 @@ Services.scriptloader.loadSubScript("chrome://clippings/content/tbMsgComposeOver
 
 let gClippingsMxListener = {
   _clippings: WL.messenger.extension.getBackgroundPage(),
+  _cxtMenuData: null,
 
   newClippingDlgRequested(aClippingContent)
   {
@@ -19,6 +20,20 @@ let gClippingsMxListener = {
     }
 
     this._clippings.openNewClippingDlg(aClippingContent);
+  },
+
+  async clippingsDataRequested()
+  {
+    let rv;
+
+    if (!this._cxtMenuData || this._clippings.isDirty()) {
+      rv = this._cxtMenuData = await this._clippings.getContextMenuData();
+    }
+    else {
+      rv = this._cxtMenuData;
+    }
+
+    return rv;
   }
 };
 

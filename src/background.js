@@ -6,6 +6,11 @@
 let gHostAppName;
 let gHostAppVer;
 let gOS;
+let gClippingsDB;
+let gIsDirty = false;
+let gClippingMenuItemIDMap = {};
+let gFolderMenuItemIDMap = {};
+let gSyncFldrID = null;
 
 let gClippingsListeners = new aeListeners();
 
@@ -187,7 +192,105 @@ function initMessageListeners()
     }
     else if (aRequest.msgID == "close-new-clipping-dlg") {
       gWndIDs.newClipping = null;
+      gIsDirty = true;
     }
+  });
+}
+
+
+function getContextMenuData(aFolderID)
+{
+  function fnSortMenuItems(aItem1, aItem2)
+  {
+    let rv = 0;
+    if ("displayOrder" in aItem1 && "displayOrder" in aItem2) {
+      rv = aItem1.displayOrder - aItem2.displayOrder;
+    }
+    return rv;    
+  }
+
+  if (aFolderID === undefined) {
+    aFolderID = aeConst.ROOT_FOLDER_ID;
+  }
+  
+  let rv = [];
+
+  return new Promise((aFnResolve, aFnReject) => {
+    gClippingsDB.transaction("r", gClippingsDB.folders, gClippingsDB.clippings, () => {
+      gClippingsDB.folders.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
+        let fldrMenuItemID = "ae-clippings-folder-" + aItem.id + "_" + Date.now();
+        gFolderMenuItemIDMap[aItem.id] = fldrMenuItemID;
+
+        let submenuItemData = {
+          id: fldrMenuItemID,
+          title: aItem.name,
+        };
+
+        // Submenu icon
+        let iconPath = "img/folder.svg";
+        if (aItem.id == gSyncFldrID) {
+          iconPath = "img/synced-clippings.svg";
+        }
+
+        submenuItemData.icons = { 16: iconPath };
+
+        if (aItem.displayOrder === undefined) {
+          submenuItemData.displayOrder = 0;
+        }
+        else {
+          submenuItemData.displayOrder = aItem.displayOrder;
+        }
+
+        if (aFolderID != aeConst.ROOT_FOLDER_ID) {
+          let parentFldrMenuItemID = gFolderMenuItemIDMap[aFolderID];
+          submenuItemData.parentId = parentFldrMenuItemID;
+        }
+
+        getContextMenuData(aItem.id).then(aSubmenuData => {
+          aSubmenuData.sort(fnSortMenuItems);
+          submenuItemData.submenuItems = aSubmenuData;
+          rv.push(submenuItemData);
+        });
+
+      }).then(() => {
+        return gClippingsDB.clippings.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
+          let menuItemID = "ae-clippings-clipping-" + aItem.id + "_" + Date.now();
+          gClippingMenuItemIDMap[aItem.id] = menuItemID;
+
+          let menuItemData = {
+            id: menuItemID,
+            title: aItem.name,
+            icons: {
+              16: "img/" + (aItem.label ? `clipping-${aItem.label}.svg` : "clipping.svg")
+            },
+          };
+
+          if (aItem.displayOrder === undefined) {
+            menuItemData.displayOrder = 0;
+          }
+          else {
+            menuItemData.displayOrder = aItem.displayOrder;
+          }
+          
+          if (aFolderID != aeConst.ROOT_FOLDER_ID) {
+            let fldrMenuItemID = gFolderMenuItemIDMap[aFolderID];
+            menuItemData.parentId = fldrMenuItemID;
+          }
+
+          rv.push(menuItemData);
+        });
+      }).then(() => {
+        rv.sort(fnSortMenuItems);
+
+        log("Clippings/mx::getContextMenuData():");
+        log(rv);
+
+        aFnResolve(rv);
+      });
+    }).catch(aErr => {
+      console.error("Clippings/mx::getContextMenuData(): Exception thrown: " + aErr);
+      aFnReject(aErr);
+    });
   });
 }
 
@@ -322,6 +425,22 @@ function getSyncFolderID()
   ***/
 }
 
+
+function isDirty()
+{
+  return gIsDirty;
+}
+
+
+function setDirtyFlag(aFlag)
+{
+  if (aFlag === undefined) {
+    gIsDirty = true
+  }
+  else {
+    gIsDirty = aFlag;
+  }
+}
 
 
 //

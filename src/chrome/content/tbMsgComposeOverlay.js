@@ -48,6 +48,221 @@ window.aecreations.clippings = {
 
   
   //
+  // Browser window and Clippings menu initialization
+  //
+
+  async initClippings()
+  {   
+    // Workaround to this init function being called multiple times
+    if (this.isClippingsInitialized) {
+      return;
+    }
+
+    this.strBundle = this.util.aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
+    this.txt.aeClippingSubst.init(this.strBundle, navigator.userAgent);
+    /**
+    try {
+      this.clippingsSvc = this.svc.aeClippingsService.getService();
+    }
+    catch (e) {
+      this.alert(e);
+    }
+
+    this.clippingsSvc.setEmptyClippingString(this.strBundle.getString("emptyClippingLabel"));
+    this.clippingsSvc.setSyncedClippingsFolderName(this.strBundle.getString("syncFldrLabel"));
+    **/
+    let profilePath = this.util.aeUtils.getUserProfileDir().path;
+    let dsPath = this.util.aeUtils.getPref("clippings.datasource.location", profilePath);
+    
+    // Clippings backup
+    var backupDirURL = this.util.aeUtils.getDataSourcePathURL() + this.cnst.aeConstants.BACKUP_DIR_NAME;
+    /**
+    this.clippingsSvc.setBackupDir(backupDirURL);
+    this.clippingsSvc.setMaxBackupFiles(this.util.aeUtils.getPref("clippings.backup.maxfiles", 10));
+    **/
+    // Initializing data source on Clippings context menus
+    var menu1 = document.getElementById("ae-clippings-menu-1");
+    var popup1 = document.getElementById("ae-clippings-popup-1");
+    await this.initClippingsPopup(popup1, menu1);
+
+    this.util.aeUtils.log(this.str.aeString.format("gClippings.initClippings(): Initializing Clippings integration with host app window: %s", window.location.href));
+    /**
+    // Add null clipping to root folder if there are no items
+    if (this.util.aeUtils.getPref("clippings.datasource.process_root", true) == true) {
+      this.clippingsSvc.processRootFolder();
+      this.util.aeUtils.setPref("clippings.datasource.process_root", false);
+    }
+
+    let syncClippings = this.util.aeUtils.getPref("clippings.datasource.wx_sync.enabled", false);
+    if (syncClippings) {
+      this.util.aeUtils.log("gClippings.initClippings(): Sync Clippings is turned on. Refreshing the Synced Clippings folder.");
+      let syncDirPath = this.util.aeUtils.getPref("clippings.datasource.wx_sync.location", "");
+      if (! syncDirPath) {
+	syncDirPath = this.util.aeUtils.getPref("clippings.datasource.location", "");
+	this.util.aeUtils.setPref("clippings.datasource.wx_sync.location", syncDirPath);
+      }
+      this.util.aeUtils.log("gClippings.initClippings: Sync folder location: " + syncDirPath);
+
+      let syncDirURL = this.util.aeUtils.getURLFromFilePath(syncDirPath);
+      this.clippingsSvc.setSyncDir(syncDirURL);
+      this.clippingsSvc.refreshSyncedClippings(false);
+    }
+    **/
+
+    let composerCxtMenu = document.getElementById("msgComposeContext");
+    composerCxtMenu.addEventListener("popupshowing", aEvent => {
+      this.initContextMenuItem(aEvent);
+    });
+
+    /**
+    let that = this;
+
+    this._clippingsListener = {
+      origin:  that.clippingsSvc.ORIGIN_HOSTAPP,
+
+      dataSrcLocationChanged: function (aDataSrcURL) {
+        var menu = document.getElementById("ae-clippings-menu-1");
+        var popup = document.getElementById("ae-clippings-popup-1");
+
+        // Reinitialize Clippings menu so that it points to the correct
+        // datasource.
+        that.initClippingsPopup(popup, menu);
+      },
+
+      syncLocationChanged: function (aSyncURL) {},
+      newFolderCreated:    function (aFolderURI) {},
+      newClippingCreated:  function (aClippingURI) {},
+      importDone:          function (aNumItems) {}
+    };
+
+    this.clippingsSvc.addListener(this._clippingsListener);
+
+    // Set behaviour of "New Clipping" commands - prompt vs. silent operation
+    this.showDialog = true;
+
+    // Initialize "New From Clipboard" command on status bar icon menu.
+    var ellipsis = this.strBundle.getString("ellipsis");
+    var newFromClpbdCmd = document.getElementById("ae_new_clipping_from_clpbd");
+    newFromClpbdCmd.setAttribute("label",
+				 this.strBundle.getString("newFromClipbd")
+				 + ellipsis);
+
+    // Disable Clippings Manager window persistence via JavaScript if running
+    // on Mac OS X, unless user has explicitly set it.
+    if (this.util.aeUtils.getOS() == "Darwin") {
+      if (! this.util.aeUtils.hasPref("clippings.clipmgr.disable_js_window_geometry_persistence")) {
+	this.util.aeUtils.setPref("clippings.clipmgr.disable_js_window_geometry_persistence", true);
+      }
+    }
+    **/
+    // Enable/disable Clippings paste using the keyboard.
+    let keyEnabled = this.util.aeUtils.getPref("clippings.enable_keyboard_paste", true);
+    let keyset = document.getElementById("tasksKeys");
+    let keyElt = document.getElementById("key_ae_clippings");
+    let keyEltMac = document.getElementById("key_ae_clippings_mac");
+    let keyEltNew = document.getElementById("key_ae_clippings_new");
+    let keyEltNewMac = document.getElementById("key_ae_clippings_new_mac");
+
+    if (!keyEnabled && keyElt) {     
+      keyset.removeChild(keyElt);
+      keyset.removeChild(keyEltMac);
+      keyset.removeChild(keyEltNew);
+      keyset.removeChild(keyEltNewMac);
+    }
+    else {
+      let newKeysEnabled = this.util.aeUtils.getPref("clippings.enable_wx_paste_prefix_key", true);
+      if (! newKeysEnabled) {
+	keyset.removeChild(keyEltNew);
+	keyset.removeChild(keyEltNewMac);
+      }
+    }
+
+    this.isClippingsInitialized = true;
+  },
+
+
+  initContextMenuItem: function (aEvent)
+  {
+    if (aEvent.target.id != "msgComposeContext") {
+      return;
+    }
+
+    let that = this;
+    let clippingsMenu = document.getElementById("ae-clippings-menu-1");
+
+    this.getMxListener().clippingsDataRequested().then(aCxtMenuData => {
+      that._menu.data = aCxtMenuData;
+      that._menu.rebuild();
+
+      var ellipsis = that.showDialog ? that.strBundle.getString("ellipsis") : "";
+      var addEntryCmd = document.getElementById("ae_new_clipping_from_selection");
+      var selection;
+
+      if (clippingsMenu.id == "ae-clippings-menu-1") {
+	selection = that.getSelectedText();
+      }
+      
+      addEntryCmd.setAttribute("disabled", selection == "");
+      addEntryCmd.setAttribute("label", that.strBundle.getString("newFromSelect")
+			       + ellipsis);
+
+      that._initAutoIncrementPlaceholderMenu();
+    });
+  },
+
+
+  initToolbarBtnCxtMenu: function (aEvent)
+  {
+    // No-op
+  },
+
+
+  _initAutoIncrementPlaceholderMenu: function ()
+  {
+    var resetAutoIncrVarsMenuseparator = document.getElementById("reset-auto-increment-vars-separator");
+    var resetAutoIncrVarsMenu = document.getElementById("reset-auto-increment-vars");
+    var autoIncrVarsMenuPopup = document.getElementById("reset-auto-increment-vars-menu-popup");
+    /***
+    // Refresh the menu of auto-increment placeholders.
+    while (autoIncrVarsMenuPopup.firstChild) {
+      autoIncrVarsMenuPopup.removeChild(autoIncrVarsMenuPopup.firstChild);
+    }
+
+    var autoIncrementVars = this.txt.aeClippingSubst.getAutoIncrementVarNames();
+    var numAutoIncrVars = autoIncrementVars.length;
+    if (numAutoIncrVars == 0) {
+    ***/
+      resetAutoIncrVarsMenuseparator.style.display = "none";
+      resetAutoIncrVarsMenu.style.display = "none";
+    /***
+    }
+    else {
+      resetAutoIncrVarsMenuseparator.style.display = "-moz-box";
+      resetAutoIncrVarsMenu.style.display = "-moz-box";
+      for (let i = 0; i < numAutoIncrVars; i++) {
+        var menuItem = document.createElement("menuitem");
+        menuItem.setAttribute("label", "#[" + autoIncrementVars[i] + "]");
+        menuItem.setAttribute("value", autoIncrementVars[i]);
+
+        let that = this;
+        menuItem.addEventListener("command", function (evt) { that.txt.aeClippingSubst.resetAutoIncrementVar(evt.target.value); }, false);
+        autoIncrVarsMenuPopup.appendChild(menuItem);
+      }
+    }
+    ***/
+  },
+
+
+  unload: function ()
+  {
+    /**
+    this.clippingsSvc.removeListener(this._clippingsListener);
+    this._clippingsListener = null;
+    **/
+  },
+
+
+  //
   // Methods invoked by overlay code
   //
 
@@ -138,8 +353,9 @@ window.aecreations.clippings = {
   },
 
 
-  initClippingsPopup: function (aPopup, aMenu) 
+  async initClippingsPopup(aPopup, aMenu) 
   {
+    /**
     var err = false;
     var dsURL = this.util.aeUtils.getDataSourcePathURL() + this.cnst.aeConstants.CLIPDAT_FILE_NAME;
     try {
@@ -210,13 +426,18 @@ window.aecreations.clippings = {
 	this._isErrMenuItemVisible = false;
       }
     }
-
-    this._menu = this.ui.aeClippingsMenu.createInstance(aPopup);
+    **/
+    let cxtMenuData = await this.getMxListener().clippingsDataRequested();
+    this._menu = this.ui.aeClippingsMenu.createInstance(aPopup, cxtMenuData);
     this._menu.menuItemCommand = aEvent => {
-      let clippingURI = aEvent.target.getAttribute("data-clipping-uri");
+      let clippingID = aEvent.target.getAttribute("data-clipping-id");
+      // TO DO: Query Clippings DB to get name and content, as well as
+      // parent folder name for placeholder substitution (if applicable).
+      /**
       let clippingName = this.clippingsSvc.getName(clippingURI);
       let clippingContent = this.clippingsSvc.getText(clippingURI);
-      this.insertClippingText(clippingURI, clippingName, clippingContent);
+      **/
+      this.insertClippingText(clippingID, clippingName, clippingContent);
     };
 
     this._menu.build();
@@ -485,257 +706,16 @@ window.aecreations.clippings = {
 	this.util.aeUtils.alertEx(title, this.strBundle.getString("alertSaveFailed"));
       }
     }
-  },
-
-
-  //
-  // Browser window and Clippings menu initialization
-  //
-
-  initClippings: function ()
-  {   
-    // Workaround to this init function being called multiple times
-    if (this.isClippingsInitialized) {
-      return;
-    }
-
-    this.strBundle = this.util.aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
-    this.txt.aeClippingSubst.init(this.strBundle, navigator.userAgent);
-/**
-    try {
-      this.clippingsSvc = this.svc.aeClippingsService.getService();
-    }
-    catch (e) {
-      this.alert(e);
-    }
-
-    this.clippingsSvc.setEmptyClippingString(this.strBundle.getString("emptyClippingLabel"));
-    this.clippingsSvc.setSyncedClippingsFolderName(this.strBundle.getString("syncFldrLabel"));
-**/
-    let profilePath = this.util.aeUtils.getUserProfileDir().path;
-    let dsPath = this.util.aeUtils.getPref("clippings.datasource.location", profilePath);
-    
-    // Clippings backup
-    var backupDirURL = this.util.aeUtils.getDataSourcePathURL() + this.cnst.aeConstants.BACKUP_DIR_NAME;
-/**
-    this.clippingsSvc.setBackupDir(backupDirURL);
-    this.clippingsSvc.setMaxBackupFiles(this.util.aeUtils.getPref("clippings.backup.maxfiles", 10));
-
-    // Initializing data source on Clippings context menus
-    var menu1 = document.getElementById("ae-clippings-menu-1");
-    var popup1 = document.getElementById("ae-clippings-popup-1");
-    this.initClippingsPopup(popup1, menu1);
-**/
-    this.util.aeUtils.log(this.str.aeString.format("gClippings.initClippings(): Initializing Clippings integration with host app window: %s", window.location.href));
-/**
-    // Add null clipping to root folder if there are no items
-    if (this.util.aeUtils.getPref("clippings.datasource.process_root", true) == true) {
-      this.clippingsSvc.processRootFolder();
-      this.util.aeUtils.setPref("clippings.datasource.process_root", false);
-    }
-
-    let syncClippings = this.util.aeUtils.getPref("clippings.datasource.wx_sync.enabled", false);
-    if (syncClippings) {
-      this.util.aeUtils.log("gClippings.initClippings(): Sync Clippings is turned on. Refreshing the Synced Clippings folder.");
-      let syncDirPath = this.util.aeUtils.getPref("clippings.datasource.wx_sync.location", "");
-      if (! syncDirPath) {
-	syncDirPath = this.util.aeUtils.getPref("clippings.datasource.location", "");
-	this.util.aeUtils.setPref("clippings.datasource.wx_sync.location", syncDirPath);
-      }
-      this.util.aeUtils.log("gClippings.initClippings: Sync folder location: " + syncDirPath);
-
-      let syncDirURL = this.util.aeUtils.getURLFromFilePath(syncDirPath);
-      this.clippingsSvc.setSyncDir(syncDirURL);
-      this.clippingsSvc.refreshSyncedClippings(false);
-    }
-
-    // Attaching event handler to context menu 
-    var hostAppContextMenu = document.getElementById("msgComposeContext");
-    hostAppContextMenu.addEventListener("popupshowing", 
-					this._initContextMenuItem, false);
-
-    let that = this;
-
-    this._clippingsListener = {
-      origin:  that.clippingsSvc.ORIGIN_HOSTAPP,
-
-      dataSrcLocationChanged: function (aDataSrcURL) {
-        var menu = document.getElementById("ae-clippings-menu-1");
-        var popup = document.getElementById("ae-clippings-popup-1");
-
-        // Reinitialize Clippings menu so that it points to the correct
-        // datasource.
-        that.initClippingsPopup(popup, menu);
-      },
-
-      syncLocationChanged: function (aSyncURL) {},
-      newFolderCreated:    function (aFolderURI) {},
-      newClippingCreated:  function (aClippingURI) {},
-      importDone:          function (aNumItems) {}
-    };
-
-    this.clippingsSvc.addListener(this._clippingsListener);
-
-    // Initialize status bar icon.
-    let statusBar = document.getElementById("status-bar");
-    let statusbarpanel = document.createElement("hbox");
-    statusbarpanel.id = "ae-clippings-statubarpanel";
-    let statusbarBtn = document.createElement("toolbarbutton");
-    statusbarBtn.id = "ae-clippings-icon";
-    statusbarBtn.setAttribute("context", "ae-clippings-popup");
-    statusbarBtn.setAttribute("tooltiptext", this.strBundle.getString("appName"));
-
-    statusbarBtn.addEventListener("command", aEvent => {
-      window.aecreations.clippings.openClippingsManager();
-    }, false);
-
-    statusbarpanel.appendChild(statusbarBtn);
-    statusBar.insertBefore(statusbarpanel, statusBar.lastChild);
-    
-    // Set behaviour of "New Clipping" commands - prompt vs. silent operation
-    this.showDialog = true;
-
-    // Initialize "New From Clipboard" command on status bar icon menu.
-    var ellipsis = this.strBundle.getString("ellipsis");
-    var newFromClpbdCmd = document.getElementById("ae_new_clipping_from_clpbd");
-    newFromClpbdCmd.setAttribute("label",
-				 this.strBundle.getString("newFromClipbd")
-				 + ellipsis);
-
-    // Disable Clippings Manager window persistence via JavaScript if running
-    // on Mac OS X, unless user has explicitly set it.
-    if (this.util.aeUtils.getOS() == "Darwin") {
-      if (! this.util.aeUtils.hasPref("clippings.clipmgr.disable_js_window_geometry_persistence")) {
-	this.util.aeUtils.setPref("clippings.clipmgr.disable_js_window_geometry_persistence", true);
-      }
-    }
-**/
-    // Enable/disable Clippings paste using the keyboard.
-    let keyEnabled = this.util.aeUtils.getPref("clippings.enable_keyboard_paste", true);
-    let keyset = document.getElementById("tasksKeys");
-    let keyElt = document.getElementById("key_ae_clippings");
-    let keyEltMac = document.getElementById("key_ae_clippings_mac");
-    let keyEltNew = document.getElementById("key_ae_clippings_new");
-    let keyEltNewMac = document.getElementById("key_ae_clippings_new_mac");
-
-    if (!keyEnabled && keyElt) {     
-      keyset.removeChild(keyElt);
-      keyset.removeChild(keyEltMac);
-      keyset.removeChild(keyEltNew);
-      keyset.removeChild(keyEltNewMac);
-    }
-    else {
-      let newKeysEnabled = this.util.aeUtils.getPref("clippings.enable_wx_paste_prefix_key", true);
-      if (! newKeysEnabled) {
-	keyset.removeChild(keyEltNew);
-	keyset.removeChild(keyEltNewMac);
-      }
-    }
-
-    this.isClippingsInitialized = true;
-  },
-
-
-  // To be invoked only by the `popupshowing' event handler on the host app
-  // context menu.
-  _initContextMenuItem: function (aEvent) {
-    let that = window.aecreations.clippings;
-    if (aEvent.target.id == "msgComposeContext") {
-      that.initContextMenuItem.apply(that, arguments);
-    }
-  },
-
-
-  initContextMenuItem: function (aEvent)
-  {
-    this.util.aeUtils.log("gClippings.initContextMenuItem(): Event target: " + aEvent.target + "; tag name: " + aEvent.target.tagName + "; id = `" + aEvent.target.id + "'");
-
-    var clippingsMenu;
-
-    if (aEvent.target.id == "msgComposeContext") {
-      clippingsMenu = document.getElementById("ae-clippings-menu-1");
-    }
-
-    this._initCxtMenuItem(clippingsMenu);
-  },
-
-
-  _initCxtMenuItem: function (aMenupopup)
-  {
-    this.util.aeUtils.log("gClippings._initCxtMenuItem(): aMenupopup = " + aMenupopup + "; tag name: " + aMenupopup.tagName + "; id = `" + aMenupopup.id + "'");
-
-    this._menu.rebuild();
-
-    var ellipsis = this.showDialog ? this.strBundle.getString("ellipsis") : "";
-    var addEntryCmd = document.getElementById("ae_new_clipping_from_selection");
-    var selection;
-
-    if (aMenupopup.id == "ae-clippings-menu-1") {
-      selection = this.getSelectedText();
-    }
-  
-    addEntryCmd.setAttribute("disabled", selection == "");
-    addEntryCmd.setAttribute("label", this.strBundle.getString("newFromSelect")
-			     + ellipsis);
-
-    this._initAutoIncrementPlaceholderMenu();
-  },
-
-
-  initToolbarBtnCxtMenu: function (aEvent)
-  {
-    // No-op
-  },
-
-
-  _initAutoIncrementPlaceholderMenu: function ()
-  {
-    var resetAutoIncrVarsMenuseparator = document.getElementById("reset-auto-increment-vars-separator");
-    var resetAutoIncrVarsMenu = document.getElementById("reset-auto-increment-vars");
-    var autoIncrVarsMenuPopup = document.getElementById("reset-auto-increment-vars-menu-popup");
-
-    // Refresh the menu of auto-increment placeholders.
-    while (autoIncrVarsMenuPopup.firstChild) {
-      autoIncrVarsMenuPopup.removeChild(autoIncrVarsMenuPopup.firstChild);
-    }
-
-    var autoIncrementVars = this.txt.aeClippingSubst.getAutoIncrementVarNames();
-    var numAutoIncrVars = autoIncrementVars.length;
-    if (numAutoIncrVars == 0) {
-      resetAutoIncrVarsMenuseparator.style.display = "none";
-      resetAutoIncrVarsMenu.style.display = "none";
-    }
-    else {
-      resetAutoIncrVarsMenuseparator.style.display = "-moz-box";
-      resetAutoIncrVarsMenu.style.display = "-moz-box";
-      for (let i = 0; i < numAutoIncrVars; i++) {
-        var menuItem = document.createElement("menuitem");
-        menuItem.setAttribute("label", "#[" + autoIncrementVars[i] + "]");
-        menuItem.setAttribute("value", autoIncrementVars[i]);
-
-        let that = this;
-        menuItem.addEventListener("command", function (evt) { that.txt.aeClippingSubst.resetAutoIncrementVar(evt.target.value); }, false);
-        autoIncrVarsMenuPopup.appendChild(menuItem);
-      }
-    }
-  },
-
-
-  unload: function ()
-  {
-    /**
-    this.clippingsSvc.removeListener(this._clippingsListener);
-    this._clippingsListener = null;
-    **/
   }
 };
 
 window.aecreations.clippings.cnst = ChromeUtils.import("resource://clippings/modules/aeConstants.js");
 window.aecreations.clippings.str = ChromeUtils.import("resource://clippings/modules/aeString.js");
 window.aecreations.clippings.util = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
+window.aecreations.clippings.ui = ChromeUtils.import("resource://clippings/modules/aeClippingsMenu.js");
 /**
 window.aecreations.clippings.svc = ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
-window.aecreations.clippings.ui = ChromeUtils.import("resource://clippings/modules/aeClippingsMenu.js");
+
 window.aecreations.clippings.hlpr = ChromeUtils.import("resource://clippings/modules/aeCreateClippingHelper.js");
 **/
 window.aecreations.clippings.txt = ChromeUtils.import("resource://clippings/modules/aeClippingSubst.js");

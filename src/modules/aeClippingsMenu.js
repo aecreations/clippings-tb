@@ -6,24 +6,23 @@ const EXPORTED_SYMBOLS = ["aeClippingsMenu"];
 
 
 const {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
-const {aeClippingsService} = ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
 
 
 let aeClippingsMenu = {
-  createInstance(aMenuPopupElt)
+  createInstance(aMenuPopupElt, aClippingsMenuData)
   {
-    return new ClippingsMenu(aMenuPopupElt);
+    return new ClippingsMenu(aMenuPopupElt, aClippingsMenuData);
   }
 };
 
 
 class ClippingsMenu
 {
-  constructor(aMenuPopupElt)
+  constructor(aMenuPopupElt, aClippingsMenuData)
   {
     this._menuPopupElt = aMenuPopupElt;
     this._fnMenuItemCmd = function () {};
-    this._clippingsSvc = aeClippingsService.getService();
+    this._clippingsMenuData = aClippingsMenuData;
     this._doc = aMenuPopupElt.ownerDocument;
   }
 
@@ -32,44 +31,47 @@ class ClippingsMenu
     this._fnMenuItemCmd = aFnMenuItemCmd;
   }
 
-  build()
+  set data(aClippingsMenuData)
   {
-    let clippingsData = this._clippingsSvc.getAllItemsAsArray();
-
-    aeUtils.log("aeClippingsMenu.build(): Building Clippings menu");
-    this._buildHelper(this._menuPopupElt, clippingsData);
+    this._clippingsMenuData = aClippingsMenuData;
   }
 
-  _buildHelper(aMenuPopupElt, aFolderItems)
+  build()
   {
-    for (let i = 0; i < aFolderItems.length; i++) {
-      let item = aFolderItems[i];
-      
-      if (item.children) {
+    aeUtils.log("aeClippingsMenu.build(): Building Clippings menu");
+    this._buildHelper(this._menuPopupElt, this._clippingsMenuData);
+  }
+
+  _buildHelper(aMenuPopupElt, aMenuData)
+  {
+    for (let i = 0; i < aMenuData.length; i++) {
+      let item = aMenuData[i];
+
+      if (item.submenuItems) {
         //aeUtils.log("Creating <menu> for folder '" + item.name + "'");
-	let menuElt = this._doc.createElement("menu");
+	let menuElt = this._doc.createXULElement("menu");
 	menuElt.classList.add("menu-iconic", "ae-clippings-folder-menu");
+	/***
 	if (item.uri == this._clippingsSvc.kSyncFolderURI) {
 	  menuElt.classList.add("ae-clippings-sync-folder");
 	}
-	
-	menuElt.setAttribute("label", item.name);
+	***/
+	menuElt.setAttribute("label", item.title);
 
-	let menuPopupElt = this._doc.createElement("menupopup");
-	this._buildHelper(menuPopupElt, item.children);
+	let menuPopupElt = this._doc.createXULElement("menupopup");
+	this._buildHelper(menuPopupElt, item.submenuItems);
 	menuElt.appendChild(menuPopupElt);
         aMenuPopupElt.appendChild(menuElt);
       }
       else {
         //aeUtils.log("Creating <menuitem> for clipping '" + item.name + "'");
-	let menuItemElt = this._doc.createElement("menuitem");
+	let menuItemElt = this._doc.createXULElement("menuitem");
 	menuItemElt.classList.add("menuitem-iconic", "ae-clippings-clipping");
-	menuItemElt.setAttribute("label", item.name);
-	menuItemElt.setAttribute("data-clipping-uri", item.uri);
-        menuItemElt.setAttribute("data-clipping-label", item.label);
+	menuItemElt.setAttribute("label", item.title);
+	menuItemElt.setAttribute("data-clipping-id", item.id);
 	menuItemElt.addEventListener("command", aEvent => {
 	  this._fnMenuItemCmd(aEvent);
-	}, false);
+	});
 
 	aMenuPopupElt.appendChild(menuItemElt);
       }
