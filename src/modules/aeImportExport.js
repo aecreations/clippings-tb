@@ -8,7 +8,7 @@ let aeImportExport = {
 
   CLIPPINGS_JSON_VER: "6.0",
   CLIPPINGS_JSON_VER_WITH_SEQ: "6.1",
-  CLIPPINGS_JSON_CREATED_BY: "Clippings/wx",
+  CLIPPINGS_JSON_CREATED_BY: "Clippings/mx",
   ROOT_FOLDER_ID: 0,
   LAST_SEQ_VALUE: 9999999,
 
