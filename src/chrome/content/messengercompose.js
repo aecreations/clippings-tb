@@ -102,8 +102,7 @@ function onLoad(aActivatedWhileWindowOpen)
     </panel>
 
     <!-- Thunderbird status bar menu -->
-    <menupopup id="ae-clippings-popup" 
-     onpopupshowing="window.aecreations.clippings.initToolbarBtnCxtMenu(event)">
+    <menupopup id="ae-clippings-popup">
       <menuitem label="Organize Clippings" 
        accesskey="O"  default="true" 
        command="ae_clippings_manager"/>

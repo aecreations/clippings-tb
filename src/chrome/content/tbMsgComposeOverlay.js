@@ -211,12 +211,6 @@ window.aecreations.clippings = {
   },
 
 
-  initToolbarBtnCxtMenu: function (aEvent)
-  {
-    // No-op
-  },
-
-
   _initAutoIncrementPlaceholderMenu: function ()
   {
     var resetAutoIncrVarsMenuseparator = document.getElementById("reset-auto-increment-vars-separator");
