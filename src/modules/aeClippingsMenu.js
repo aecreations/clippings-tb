@@ -48,7 +48,6 @@ class ClippingsMenu
       let item = aMenuData[i];
 
       if (item.submenuItems) {
-        //aeUtils.log("Creating <menu> for folder '" + item.name + "'");
 	let menuElt = this._doc.createXULElement("menu");
 	menuElt.classList.add("menu-iconic", "ae-clippings-folder-menu");
 	/***
@@ -64,11 +63,10 @@ class ClippingsMenu
         aMenuPopupElt.appendChild(menuElt);
       }
       else {
-        //aeUtils.log("Creating <menuitem> for clipping '" + item.name + "'");
 	let menuItemElt = this._doc.createXULElement("menuitem");
 	menuItemElt.classList.add("menuitem-iconic", "ae-clippings-clipping");
 	menuItemElt.setAttribute("label", item.title);
-	menuItemElt.setAttribute("data-clipping-id", item.id);
+	menuItemElt.setAttribute("data-clipping-menuitem-id", item.id);
 	menuItemElt.addEventListener("command", aEvent => {
 	  this._fnMenuItemCmd(aEvent);
 	});

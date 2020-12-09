@@ -3,6 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const ROOT_FOLDER_NAME = "clippings-root";
+
 let gHostAppName;
 let gHostAppVer;
 let gOS;
@@ -198,7 +200,7 @@ function initMessageListeners()
 }
 
 
-function getContextMenuData(aFolderID)
+function getContextMenuData(aFolderID = aeConst.ROOT_FOLDER_ID)
 {
   function fnSortMenuItems(aItem1, aItem2)
   {
@@ -209,10 +211,6 @@ function getContextMenuData(aFolderID)
     return rv;    
   }
 
-  if (aFolderID === undefined) {
-    aFolderID = aeConst.ROOT_FOLDER_ID;
-  }
-  
   let rv = [];
 
   return new Promise((aFnResolve, aFnReject) => {
@@ -369,6 +367,53 @@ async function openDlgWnd(aURL, aWndKey, aWndPpty)
   else {
     openDlgWndHelper();
   }
+}
+
+
+function getClipping(aClippingID)
+{
+  return new Promise((aFnResolve, aFnReject) => {
+    gClippingsDB.transaction("r", gClippingsDB.clippings, gClippingsDB.folders, () => {
+      let clipping = null;
+      
+      gClippingsDB.clippings.get(aClippingID).then(aClipping => {
+        if (! aClipping) {
+          throw new Error("Cannot find clipping with ID = " + aClippingID);
+        }
+
+        if (aClipping.parentFolderID == -1) {
+          throw new Error("Attempting to paste a deleted clipping!");
+        }
+
+        clipping = aClipping;
+        log(`Pasting clipping named "${clipping.name}"\nid = ${clipping.id}`);
+        
+        return gClippingsDB.folders.get(aClipping.parentFolderID);
+      }).then(aFolder => {
+        let parentFldrName = "";
+        if (aFolder) {
+          parentFldrName = aFolder.name;
+        }
+        else {
+          parentFldrName = ROOT_FOLDER_NAME;
+        }
+        let clippingInfo = {
+          id: clipping.id,
+          name: clipping.name,
+          text: clipping.content,
+          parentFolderName: parentFldrName
+        };
+
+        log(`Clippings/mx::getClipping(): Retrieved clipping (ID = ${aClippingID}):`);
+        log(clippingInfo);
+        
+        aFnResolve(clippingInfo);
+      });
+    }).catch(aErr => {
+      console.error("Clippings/mx: getClipping(): " + aErr);
+      aFnReject(aErr);
+    });
+  });
 }
 
 

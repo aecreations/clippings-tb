@@ -34,6 +34,13 @@ let gClippingsMxListener = {
     }
 
     return rv;
+  },
+
+  async clippingRequested(aClippingID)
+  {
+    let rv = await this._clippings.getClipping(aClippingID);
+
+    return rv;
   }
 };
 

@@ -336,7 +336,7 @@ window.aecreations.clippings = {
 
   openClippingsManager: function () 
   {
-    this.util.aeUtils.alertEx("Clippings [XUL Overlay]", "The selection action is not available right now.");
+    this.util.aeUtils.alertEx(this.strBundle.getString("appName"), "The selection action is not available right now.");
   },
 
 
@@ -423,15 +423,11 @@ window.aecreations.clippings = {
     **/
     let cxtMenuData = await this.getMxListener().clippingsDataRequested();
     this._menu = this.ui.aeClippingsMenu.createInstance(aPopup, cxtMenuData);
-    this._menu.menuItemCommand = aEvent => {
-      let clippingID = aEvent.target.getAttribute("data-clipping-id");
-      // TO DO: Query Clippings DB to get name and content, as well as
-      // parent folder name for placeholder substitution (if applicable).
-      /**
-      let clippingName = this.clippingsSvc.getName(clippingURI);
-      let clippingContent = this.clippingsSvc.getText(clippingURI);
-      **/
-      this.insertClippingText(clippingID, clippingName, clippingContent);
+    this._menu.menuItemCommand = async (aEvent) => {
+      let menuItemID = aEvent.target.getAttribute("data-clipping-menuitem-id");
+      let clippingID = Number(menuItemID.substring(menuItemID.lastIndexOf("-") + 1, menuItemID.indexOf("_")));
+      let clipping = await this.getMxListener().clippingRequested(clippingID);
+      this.insertClippingText(clipping.id, clipping.name, clipping.text, clipping.parentFolderName);
     };
 
     this._menu.build();
@@ -441,22 +437,20 @@ window.aecreations.clippings = {
   },
 
 
-  insertClippingText: function (aURI, aName, aText) 
+  insertClippingText: function (aID, aName, aText, aParentFolderName) 
   {
     // Must explicitly close the message compose context menu - otherwise it
     // may reappear while the paste options dialog is open.
     var cxtMenu = document.getElementById("msgComposeContext");
     cxtMenu.hidePopup();
 
-    var parentFolderURI = this.clippingsSvc.getParent(aURI);
-    var folderName = this.clippingsSvc.getName(parentFolderURI);
-    var clippingInfo = this.txt.aeClippingSubst.getClippingInfo(aURI, aName, aText,
-                                                            folderName);
-    var clippingText = this.txt.aeClippingSubst.processClippingText(clippingInfo,
-                                                                window);
+    // TO DO: Get rid of placeholder for clipping URI - it was meant for
+    // debugging purposes only and is undocumented.
+    
+    var clippingInfo = this.txt.aeClippingSubst.getClippingInfo(aID, aName, aText, aParentFolderName);
+    var clippingText = this.txt.aeClippingSubst.processClippingText(clippingInfo, window);
     var pasteAsQuotation = false;
-    var overwriteClipboard = this.util.aeUtils.getPref("clippings.use_clipboard", 
-						  false);
+    var overwriteClipboard = this.util.aeUtils.getPref("clippings.use_clipboard", false);
     if (overwriteClipboard) {
       this.util.aeUtils.copyTextToClipboard(clippingText);
     }
@@ -480,7 +474,7 @@ window.aecreations.clippings = {
 
       pasteAsQuotation = dlgArgs.pasteOption == 1;
     }
-
+    
     var contentFrame = document.getElementById("content-frame");
     var editor = contentFrame.getEditor(contentFrame.contentWindow);
 
@@ -535,19 +529,14 @@ window.aecreations.clippings = {
         clippingText = clippingText.replace(/\n/g, "<br>");
       }
     }
-    else {
-      // Composing email without formatting
-      var plainTextEditor = editor.QueryInterface(Components.interfaces.nsIPlaintextEditor);
-    }
 
     if (pasteAsQuotation) {
-      var mailEditor = editor.QueryInterface(Components.interfaces.nsIEditorMailSupport);
       if (gMsgCompose.composeHTML) {
-        mailEditor.insertAsCitedQuotation(clippingText, "", true);
+        editor.insertAsCitedQuotation(clippingText, "", true);
       }
       else {
-	mailEditor.insertAsCitedQuotation(clippingText, "", false);
-        mailEditor.rewrap(true);
+	editor.insertAsCitedQuotation(clippingText, "", false);
+        editor.rewrap(true);
       }
       return;
     }
@@ -556,7 +545,7 @@ window.aecreations.clippings = {
       htmlEditor.insertHTML(clippingText);
     }
     else {
-      plainTextEditor.insertText(clippingText);
+      editor.insertText(clippingText);
     }
   },
 
@@ -713,7 +702,5 @@ window.aecreations.clippings.svc = ChromeUtils.import("resource://clippings/modu
 window.aecreations.clippings.hlpr = ChromeUtils.import("resource://clippings/modules/aeCreateClippingHelper.js");
 **/
 window.aecreations.clippings.txt = ChromeUtils.import("resource://clippings/modules/aeClippingSubst.js");
-/**
 window.aecreations.clippings.ins = ChromeUtils.import("resource://clippings/modules/aeInsertTextIntoTextbox.js");
-**/
 
