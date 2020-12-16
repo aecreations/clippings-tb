@@ -59,6 +59,8 @@ async function initHelper()
     $("#new-clipping-fldr-tree-popup").addClass("new-clipping-fldr-tree-popup-fixpos");
   });
   
+  $("#clipping-text").attr("placeholder", messenger.i18n.getMessage("clipMgrContentHint"));
+  
   messenger.runtime.sendMessage({
     msgID: "init-new-clipping-dlg"
   }).then(aResp => {
@@ -76,7 +78,7 @@ async function initHelper()
   $("#clipping-name").blur(aEvent => {
     let name = aEvent.target.value;
     if (! name) {
-      $("#clipping-name").val(messenger.i18n.getMessage("newFolder"));
+      $("#clipping-name").val(messenger.i18n.getMessage("untitledClipping"));
     }
   });
 
