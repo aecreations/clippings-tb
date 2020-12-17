@@ -349,78 +349,6 @@ window.aecreations.clippings = {
 
   async initClippingsPopup(aPopup, aMenu) 
   {
-    /**
-    var err = false;
-    var dsURL = this.util.aeUtils.getDataSourcePathURL() + this.cnst.aeConstants.CLIPDAT_FILE_NAME;
-    try {
-      this._ds = this.clippingsSvc.getDataSource(dsURL);
-    }
-    catch (e) {
-      if (e.result === undefined) {
-	err = this.strBundle.getString("errorInit");
-      }
-      else {
-	if (e.result == Components.results.NS_ERROR_OUT_OF_MEMORY) {
-	  err = this.strBundle.getString("errorOutOfMemory");
-	}
-	else if (e.result == Components.results.NS_ERROR_FILE_ACCESS_DENIED) {
-	  err = this.str.aeString.format("%s: %s",
-				     this.strBundle.getString("errorAccessDenied"),
-				     this.cnst.aeConstants.CLIPDAT_FILE_NAME);
-	}
-	else if (e.result == Components.results.NS_ERROR_FILE_IS_LOCKED) {
-	  err = this.str.aeString.format("%s: %s",
-				     this.strBundle.getString("errorFileLocked"),
-				     this.cnst.aeConstants.CLIPDAT_FILE_NAME);
-	}
-	else if (e.result == Components.results.NS_ERROR_FILE_TOO_BIG) {
-	  err = this.str.aeString.format("%s: %s",
-				     this.strBundle.getString("errorFileTooBig"),
-				     this.cnst.aeConstants.CLIPDAT_FILE_NAME);
-	}
-	else {
-	  // File is corrupt - open Clippings Manager and perform recovery.
-	  err = 888;
-	}
-      }
-    }
-
-    var errorMenuItem = document.getElementById("ae-clippings-error-menuitem");
-
-    if (err) {
-      // Append a new menu item that lets user see more details of error.
-      if (errorMenuItem) {
-	return;
-      }
-
-      var errorCmd = document.createElement("menuitem");
-      errorCmd.id = "ae-clippings-error-menuitem";
-      errorCmd.setAttribute("label", this.strBundle.getString("errorMenu"));
-      errorCmd.style.fontWeight = "bold";
-
-      var func;
-      let that = this;
-      if (err == 888) {
-	func = function () { that.openClippingsManager() };
-      }
-      else {
-	func = function () {
-	  that.util.aeUtils.alertEx(that.strBundle.getString("appName"), err);
-	};
-      }
-      errorCmd.addEventListener("command", func, false);
-      aPopup.appendChild(errorCmd);
-      this._isErrMenuItemVisible = true;
-      return;
-    }
-    else {
-      // Remove error menu item if error condition no longer exists
-      if (errorMenuItem) {
-	aPopup.removeChild(errorMenuItem);
-	this._isErrMenuItemVisible = false;
-      }
-    }
-    **/
     let cxtMenuData = await this.getMxListener().clippingsDataRequested();
     this._menu = this.ui.aeClippingsMenu.createInstance(aPopup, cxtMenuData);
     this._menu.menuItemCommand = async (aEvent) => {
@@ -466,7 +394,7 @@ window.aecreations.clippings = {
     // clipping should be pasted as normal or quoted text.
     if (this.showPasteOpts) {
       var dlgArgs = { userCancel: null };
-      window.openDialog("chrome://clippings/content/pasteOptions.xul", "ae_clippings_pasteopt_dlg", "chrome,centerscreen,modal", dlgArgs);
+      window.openDialog("chrome://clippings/content/pasteOptions.xhtml", "ae_clippings_pasteopt_dlg", "chrome,centerscreen,modal", dlgArgs);
 
       if (dlgArgs.userCancel) {
         return;

@@ -61,7 +61,7 @@ function onLoad(aActivatedWhileWindowOpen)
     <command id="ae_new_clipping_from_selection"
      oncommand="window.aecreations.clippings.newFromSelection()"/>
     <command id="ae_clippings_show_paste_options" 
-     oncommand="window.aecreations.clippings.util.aeUtils.alertEx('Show Quote Options', '${WL.messenger.i18n.getMessage('msgUnavail')}')"/>
+     oncommand="window.aecreations.clippings.toggleShowPasteOptions()"/>
     <command id="ae_clippings_keyboard_insert" label="Paste Clipping"
      oncommand="window.aecreations.clippings.util.aeUtils.alertEx('Paste Clipping', '${WL.messenger.i18n.getMessage('msgUnavail')}')"/>
   </commandset>
