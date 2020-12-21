@@ -485,8 +485,12 @@ function accept(aEvent)
       numItemsInParent += aNumClippings;
       newClipping.displayOrder = numItemsInParent;
       return gClippingsDB.clippings.add(newClipping);
-
+    /***
     }).then(aNewClippingID => {
+    ***/
+    // TEMPORARY
+    }).then(async (aNewClippingID) => {
+    // END TEMPORARY
       let clippingsListeners = gClippings.getClippingsListeners().getListeners();
       clippingsListeners.forEach(aListener => {
         aListener.newClippingCreated(aNewClippingID, newClipping, aeConst.ORIGIN_HOSTAPP);
@@ -520,6 +524,7 @@ function accept(aEvent)
         log("Clippings/wx::new.js: accept(): Response from the Sync Clippings helper app:");
         log(aMsgResult);
       }
+      ***/
 
       let isClippingsMgrAutoShowDetailsPane = gClippings.getPrefs().clippingsMgrAutoShowDetailsPane;
       
@@ -529,7 +534,7 @@ function accept(aEvent)
           clippingsMgrDetailsPane: true
         });
       }
-      ***/
+
       closeDlg();
       
     }).catch("OpenFailedError", aErr => {

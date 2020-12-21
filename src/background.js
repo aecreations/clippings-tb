@@ -87,10 +87,14 @@ let gWndIDs = {
   newClipping: null,
 };
 
+let gPrefs = null;
+
 
 messenger.runtime.onInstalled.addListener(async (aInstall) => {
   if (aInstall.reason == "install") {
     info("Clippings/mx: MailExtension installed.");
+
+    await setDefaultPrefs();
     await init();
   }
   else if (aInstall.reason == "update") {
@@ -106,9 +110,34 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
 });
 
 
-messenger.runtime.onStartup.addListener(() => {
+async function setDefaultPrefs()
+{
+  let aeClippingsPrefs = {
+    checkSpelling: true,
+    openClippingsMgrInTab: false,
+    clippingsMgrAutoShowDetailsPane: true,
+    clippingsMgrDetailsPane: false,
+    clippingsMgrStatusBar: false,
+    clippingsMgrPlchldrToolbar: false,
+    clippingsMgrMinzWhenInactv: undefined,
+    syncClippings: false,
+    syncFolderID: null,
+    backupFilenameWithDate: true,
+  };
+
+  gPrefs = aeClippingsPrefs;
+
+  await messenger.storage.local.set(aeClippingsPrefs);
+}
+
+
+messenger.runtime.onStartup.addListener(async () => {
+  gPrefs = await messenger.storage.local.get();
+  log("Clippings/mx: Successfully retrieved user preferences:");
+  log(aPrefs);
+
   init();
-})
+});
 
 
 function init()
@@ -184,11 +213,7 @@ function initMessageListeners()
       resp = gNewClipping.get();
 
       if (resp !== null) {
-        // TEMPORARY
-        resp.checkSpelling = true;
-        /***
         resp.checkSpelling = gPrefs.checkSpelling;
-        ***/
         return Promise.resolve(resp);
       }
     }
@@ -448,18 +473,20 @@ function getOS()
   return gOS;
 }
 
-
 function getHostAppName()
 {
   return gHostAppName;
 }
-
 
 function getClippingsListeners()
 {
   return gClippingsListeners;
 }
 
+function getPrefs()
+{
+  return gPrefs;
+}
 
 function getSyncFolderID()
 {
@@ -469,7 +496,6 @@ function getSyncFolderID()
   return gSyncFldrID;
   ***/
 }
-
 
 function isDirty()
 {
