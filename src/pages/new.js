@@ -26,7 +26,7 @@ $(async () => {
   }
   else {
     // gClippingsDB is null if Private Browsing mode is turned on.
-    console.error("Clippings/wx::new.js: Error initializing New Clipping dialog - unable to locate parent browser window.");
+    console.error("Clippings/mx::new.js: Error initializing New Clipping dialog - unable to locate parent browser window.");
     showInitError();
     return;
   }
@@ -65,7 +65,7 @@ async function initHelper()
     msgID: "init-new-clipping-dlg"
   }).then(aResp => {
     if (! aResp) {
-      console.warn("Clippings/wx::new.js: No response was received from the background script!");
+      console.warn("Clippings/mx::new.js: No response was received from the background script!");
       return;
     }
 
@@ -278,7 +278,7 @@ function initDialogs()
       parentFldrID = Number($("#new-folder-dlg-fldr-picker-mnubtn").val());
     }
 
-    log("Clippings/wx::new.js: gNewFolderDlg.onAccept(): parentFldrID = " + parentFldrID);
+    log("Clippings/mx::new.js: gNewFolderDlg.onAccept(): parentFldrID = " + parentFldrID);
 
     let numItemsInParent = 0;  // For calculating display order of new folder.
     let newFolder = {
@@ -512,7 +512,7 @@ function accept(aEvent)
           syncData: aSyncData.userClippingsRoot,
         };
 
-        log("Clippings/wx::new.js: accept(): Sending message 'set-synced-clippings' to the Sync Clippings helper app.  Message data:");
+        log("Clippings/mx::new.js: accept(): Sending message 'set-synced-clippings' to the Sync Clippings helper app.  Message data:");
         log(msg);
         
         return messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
@@ -521,7 +521,7 @@ function accept(aEvent)
 
     }).then(async (aMsgResult) => {
       if (aMsgResult) {
-        log("Clippings/wx::new.js: accept(): Response from the Sync Clippings helper app:");
+        log("Clippings/mx::new.js: accept(): Response from the Sync Clippings helper app:");
         log(aMsgResult);
       }
       ***/
@@ -548,7 +548,7 @@ function accept(aEvent)
       errorMsgBox.showModal();
 
     }).catch(aErr => {
-      console.error("Clippings/wx::new.js: accept(): " + aErr);     
+      console.error("Clippings/mx::new.js: accept(): " + aErr);     
       errorMsgBox.onInit = () => {
         let errMsgElt = $("#create-clipping-error-msgbox > .dlg-content > .msgbox-error-msg");
         let errText = `Error creating clipping: ${aErr}`;
