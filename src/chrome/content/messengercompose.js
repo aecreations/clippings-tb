@@ -9,40 +9,44 @@ let {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
 Services.scriptloader.loadSubScript("chrome://clippings/content/tbMsgComposeOverlay.js", window, "UTF-8");
 
 
-let gClippingsMxListener = {
-  _clippings: WL.messenger.extension.getBackgroundPage(),
-  _cxtMenuData: null,
+let gClippingsMxListener = function () {
+  // Private member variables
+  let _clippings = WL.messenger.extension.getBackgroundPage();
+  let _cxtMenuData = null;
 
-  newClippingDlgRequested(aClippingContent)
-  {
-    if (! aClippingContent) {
-      return;
+  // Public methods
+  return {
+    newClippingDlgRequested(aClippingContent)
+    {
+      if (! aClippingContent) {
+	return;
+      }
+
+      _clippings.openNewClippingDlg(aClippingContent);
+    },
+
+    async clippingsDataRequested()
+    {
+      let rv;
+
+      if (!_cxtMenuData || _clippings.isDirty()) {
+	rv = _cxtMenuData = await _clippings.getContextMenuData();
+      }
+      else {
+	rv = _cxtMenuData;
+      }
+
+      return rv;
+    },
+
+    async clippingRequested(aClippingID)
+    {
+      let rv = await _clippings.getClipping(aClippingID);
+
+      return rv;
     }
-
-    this._clippings.openNewClippingDlg(aClippingContent);
-  },
-
-  async clippingsDataRequested()
-  {
-    let rv;
-
-    if (!this._cxtMenuData || this._clippings.isDirty()) {
-      rv = this._cxtMenuData = await this._clippings.getContextMenuData();
-    }
-    else {
-      rv = this._cxtMenuData;
-    }
-
-    return rv;
-  },
-
-  async clippingRequested(aClippingID)
-  {
-    let rv = await this._clippings.getClipping(aClippingID);
-
-    return rv;
-  }
-};
+  };
+}();
 
 
 function onLoad(aActivatedWhileWindowOpen)
