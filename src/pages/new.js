@@ -71,7 +71,6 @@ async function initHelper()
 
     $("#clipping-name").val(aResp.name).select().focus();
     $("#clipping-text").val(aResp.content).attr("spellcheck", aResp.checkSpelling);
-    $("#save-source-url").prop("checked", aResp.saveSrcURL);
     gSrcURL = aResp.url || "";
   });
 
@@ -446,8 +445,7 @@ function initLabelPicker()
 function isClippingOptionsSet()
 {
   return ($("#clipping-key")[0].selectedIndex != 0
-          || $("#clipping-label-picker").val() != ""
-          || $("#save-source-url")[0].checked);
+          || $("#clipping-label-picker").val() != "");
 }
 
 
@@ -473,7 +471,7 @@ function accept(aEvent)
     parentFolderID: gParentFolderID,
     label,
     displayOrder: 0,
-    sourceURL: ($("#save-source-url")[0].checked ? gSrcURL : ""),
+    sourceURL: "",
   };
 
   gClippingsDB.transaction("rw", gClippingsDB.clippings, gClippingsDB.folders, () => {

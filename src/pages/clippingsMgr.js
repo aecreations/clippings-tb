@@ -637,105 +637,6 @@ let gSearchBox = {
   }
 };
 
-// Source URL editing
-let gSrcURLBar = {
-  init: function ()
-  {
-    $("#src-url-edit-mode").hide();
-    $("#edit-url-btn").click(aEvent => { this.edit() });
-    $("#edit-src-url-ok").attr("title", messenger.i18n.getMessage("btnOK")).click(aEvent => { this.acceptEdit() });
-    $("#edit-src-url-cancel").attr("title", messenger.i18n.getMessage("btnCancel")).click(aEvent => { this.cancelEdit() });
-  },
-
-  show: function ()
-  {
-    $("#source-url-bar").show();
-  },
-
-  hide: function ()
-  {
-    $("#source-url-bar").hide();
-  },
-
-  isVisible: function ()
-  {
-    return ($("#source-url-bar:visible").length > 0);
-  },
-
-  keypress: function (aEvent)
-  {
-
-  },
-
-  edit: function ()
-  {
-    $("#src-url-normal-mode").hide();
-    $("#src-url-edit-mode").show();
-    $("#clipping-src-url-edit").val($("#clipping-src-url > a").text()).select().focus();
-  },
-
-  isEditing: function ()
-  {
-    return ($("#src-url-edit-mode:visible").length > 0);
-  },
-
-  acceptEdit: function ()
-  {
-    let updatedURL = $("#clipping-src-url-edit").val();
-
-    if (updatedURL != "" && updatedURL.search(/^http:\/\//) == -1
-        && updatedURL.search(/^https:\/\//) == -1) {
-
-      if (updatedURL.search(/^www/) != -1) {
-        updatedURL = "http://" + updatedURL;
-        $("#clipping-src-url-edit").val(updatedURL);
-      }
-      else {
-        $("#clipping-src-url-edit").select().focus();
-        return;
-      }
-    }
-    
-    let tree = getClippingsTree();
-    let clippingID = parseInt(tree.activeNode.key);
-    
-    gClippingsSvc.updateClipping(clippingID, {
-      sourceURL: updatedURL
-    }).then(aNumUpdated => {
-      if ($("#clipping-src-url > a").length == 0) {
-        $("#clipping-src-url").html(sanitizeHTML(`<a href="${updatedURL}">${updatedURL}</a>`));
-      }
-      else {
-        if (updatedURL) {
-          $("#clipping-src-url > a").text(updatedURL);
-        }
-        else {
-          $("#clipping-src-url").text(messenger.i18n.getMessage("none"));
-        }
-      }
-      this._dismissSrcURLEditMode();
-
-      if (updatedURL && gSyncedItemsIDs[clippingID + "C"]) {
-        gClippings.pushSyncFolderUpdates().catch(handlePushSyncItemsError);
-      }
-    });
-  },
-
-  cancelEdit: function ()
-  {
-    this._dismissSrcURLEditMode();
-  },
-
-  // Helper
-  _dismissSrcURLEditMode: function ()
-  {
-    $("#src-url-normal-mode").show();
-    $("#src-url-edit-mode").hide();
-    $("#clipping-src-url-edit").val("");
-  }
-};
-
-
 // Shortcut key editing
 let gShortcutKey = {
   _oldKey:   "",
@@ -1757,9 +1658,9 @@ let gCmd = {
     if (! selectedNode) {
       return;
     }
-
+    
     if (! selectedNode.isFolder()) {
-      $("#source-url-bar, #options-bar").toggle();
+      $("#options-bar").toggle();
     }
   },
 
@@ -2168,7 +2069,7 @@ $(async () => {
   }
   else {
     console.error("Error initializing Clippings Manager: Failed to retrieve background page!");
-    $("#clipping-name, #clipping-text, #source-url-bar, #options-bar").hide();
+    $("#clipping-name, #clipping-text, #options-bar").hide();
     showInitError();
     return;
   }
@@ -2208,7 +2109,6 @@ $(async () => {
   initToolbar();
   initInstantEditing();
   gShortcutKey.init();
-  gSrcURLBar.init();
   gClippingLabelPicker.init("#clipping-label-picker");
   initDialogs();
   buildClippingsTree();
@@ -2239,10 +2139,7 @@ $(async () => {
 
 
 // Reloading or closing Clippings Manager window
-$(window).on("beforeunload", () => {
-  // !! BUG !!
-  // In Thunderbird, the "beforeunload" event isn't being invoked at all.
-  // Confirmed that this isn't occurring in Firefox.
+$(window).on("beforeunload", aEvent => {
   console.log("Clippings/mx::clippingsMgr.js: onbeforeunload event");
   
   if (! gIsReloading) {
@@ -2252,10 +2149,10 @@ $(window).on("beforeunload", () => {
   let clippingsListeners = gClippings.getClippingsListeners();
   clippingsListeners.remove(gClippingsListener);
   
-/***
+  /***
   let syncClippingsListeners = gClippings.getSyncClippingsListeners();
   syncClippingsListeners.remove(gSyncClippingsListener);
-***/  
+  ***/  
   gClippings.purgeFolderItems(aeConst.DELETED_ITEMS_FLDR_ID).catch(aErr => {
     console.error("Clippings/mx::clippingsMgr.js: $(window).on('beforeunload'): " + aErr);
   });
@@ -2303,17 +2200,11 @@ $(document).keydown(async (aEvent) => {
     gCmd.redo();
   }
   else if (aEvent.key == "Enter") {
-    if (gSrcURLBar.isEditing()) {
-      gSrcURLBar.acceptEdit();
-    }
     aeDialog.acceptDlgs();
   }
   else if (aEvent.key == "Escape") {
     if (gSearchBox.isActivated()) {
       gSearchBox.reset();
-    }
-    if (gSrcURLBar.isEditing()) {
-      gSrcURLBar.cancelEdit();
     }
     aeDialog.cancelDlgs();
   }
@@ -2392,7 +2283,7 @@ function initToolbar()
 {
   // Show or hide the details pane and status bar.
   if (! gClippings.getPrefs().clippingsMgrDetailsPane) {
-    $("#source-url-bar, #options-bar").hide();
+    $("#options-bar").hide();
   }
   if (! gClippings.getPrefs().clippingsMgrStatusBar) {
     $("#status-bar").hide();
@@ -2562,10 +2453,6 @@ function initToolbar()
         gCmd.exportToFile();
         break;
 
-      case "removeAllSrcURLs":
-        gCmd.removeAllSrcURLs();
-        break;
-
       case "togglePlchldrToolbar":
         gCmd.showHidePlaceholderToolbar();
         break;
@@ -2620,14 +2507,6 @@ function initToolbar()
         }
       },
       separator2: "--------",
-      removeAllSrcURLs: {
-        name: messenger.i18n.getMessage("mnuRemoveAllSrcURLs"),
-        className: "ae-menuitem",
-        disabled: function (aKey, aOpt) {
-          return (gIsClippingsTreeEmpty);
-        }
-      },
-      separator3: "--------",
       showHideSubmenu: {
         name: messenger.i18n.getMessage("mnuShowHide"),
         items: {
@@ -2638,8 +2517,7 @@ function initToolbar()
               return (gIsClippingsTreeEmpty || isFolderSelected());
             },
             icon: function (aOpt, $itemElement, aItemKey, aItem) {
-              if ($("#source-url-bar").css("display") != "none"
-                  && $("#options-bar").css("display") != "none") {
+              if ($("#options-bar").css("display") != "none") {
                 return "context-menu-icon-checked";
               }
             }
@@ -3253,7 +3131,6 @@ function initDialogs()
   gDialogs.exportToFile.FMT_CLIPPINGS_WX = 0;
   gDialogs.exportToFile.FMT_HTML = 1;
   gDialogs.exportToFile.FMT_CSV = 2;
-  gDialogs.exportToFile.inclSrcURLs = false;
   
   gDialogs.exportToFile.onInit = () => {
     let that = gDialogs.exportToFile;
@@ -3263,35 +3140,20 @@ function initDialogs()
       messenger.i18n.getMessage("expFmtCSVDesc"),        // CSV File
     ];
 
-    that.inclSrcURLs = true;
     gSuppressAutoMinzWnd = true;
 
     // Fit text on one line for German locale.
     if (messenger.i18n.getUILanguage() == "de") {
       $("#export-format-list-label").css({ letterSpacing: "-0.15px" });
-      $("#include-src-urls + label").css({ letterSpacing: "-0.4px" });
     }
     
     $("#export-format-list").change(aEvent => {
       let selectedFmtIdx = aEvent.target.selectedIndex;
       $("#format-description").text(fmtDesc[selectedFmtIdx]);
-
-      if (selectedFmtIdx == gDialogs.exportToFile.FMT_CLIPPINGS_WX) {
-        $("#include-src-urls").removeAttr("disabled").prop("checked", that.inclSrcURLs);
-      }
-      else if (selectedFmtIdx == gDialogs.exportToFile.FMT_HTML
-              || selectedFmtIdx == gDialogs.exportToFile.FMT_CSV) {
-        $("#include-src-urls").attr("disabled", "true").prop("checked", false);
-      }
-    });
-
-    $("#include-src-urls").click(aEvent => {
-      that.inclSrcURLs = aEvent.target.checked;
     });
 
     $("#export-format-list")[0].selectedIndex = gDialogs.exportToFile.FMT_CLIPPINGS_WX;
     $("#format-description").text(fmtDesc[gDialogs.exportToFile.FMT_CLIPPINGS_WX]);
-    $("#include-src-urls").prop("checked", that.inclSrcURLs);
   };
 
   gDialogs.exportToFile.onShow = () => {
@@ -3341,9 +3203,7 @@ function initDialogs()
     setStatusBarMsg(messenger.i18n.getMessage("statusExportStart"));
 
     if (selectedFmtIdx == gDialogs.exportToFile.FMT_CLIPPINGS_WX) {
-      let inclSrcURLs = $("#include-src-urls").prop("checked");
-
-      aeImportExport.exportToJSON(inclSrcURLs, false, aeConst.ROOT_FOLDER_ID, excludeSyncFldrID, true).then(aJSONData => {
+      aeImportExport.exportToJSON(false, false, aeConst.ROOT_FOLDER_ID, excludeSyncFldrID, true).then(aJSONData => {
         let blobData = new Blob([aJSONData], { type: "application/json;charset=utf-8"});
 
         saveToFile(blobData, aeConst.CLIPPINGS_EXPORT_FILENAME);
@@ -4211,7 +4071,7 @@ function setEmptyClippingsState()
   var rv;
   rv = [{ title: messenger.i18n.getMessage("clipMgrNoItems"), key: "0" }];
   gIsClippingsTreeEmpty = true;
-  $("#clipping-name, #clipping-text, #placeholder-toolbar, #source-url-bar, #options-bar").hide();
+  $("#clipping-name, #clipping-text, #placeholder-toolbar, #options-bar").hide();
   $("#intro-content").show();
   
   return rv;
@@ -4230,7 +4090,7 @@ function unsetEmptyClippingsState()
 
   let prefs = gClippings.getPrefs();
   if (prefs.clippingsMgrDetailsPane) {
-    $("#source-url-bar, #options-bar").show();
+    $("#options-bar").show();
   }
   if (prefs.clippingsMgrPlchldrToolbar) {
     $("#placeholder-toolbar").show();
@@ -4296,7 +4156,7 @@ function isFolderSelected()
 function updateDisplay(aEvent, aData)
 {
   if (gIsClippingsTreeEmpty) {
-    $("#source-url-bar, #options-bar").hide();
+    $("#options-bar").hide();
     setStatusBarMsg(messenger.i18n.getMessage("clipMgrStatusBar", "0"));
     return;
   }
@@ -4314,10 +4174,6 @@ function updateDisplay(aEvent, aData)
     setStatusBarMsg();
   }
 
-  if (gSrcURLBar.isEditing()) {
-    gSrcURLBar.cancelEdit();
-  }
-  
   let selectedItemID = parseInt(aData.node.key);
 
   if (aData.node.isFolder()) {
@@ -4325,7 +4181,7 @@ function updateDisplay(aEvent, aData)
       $("#clipping-name").val(aResult.name);
       $("#clipping-text").val("").hide();
 
-      $("#source-url-bar, #options-bar, #placeholder-toolbar").hide();
+      $("#options-bar, #placeholder-toolbar").hide();
       $("#clipping-src-url").text("");
       let shortcutKeyMenu = $("#clipping-key")[0];
       shortcutKeyMenu.selectedIndex = 0;
@@ -4351,22 +4207,11 @@ function updateDisplay(aEvent, aData)
       $("#clipping-text").val(aResult.content).show();
 
       if (gClippings.getPrefs().clippingsMgrDetailsPane) {
-        $("#source-url-bar, #options-bar").show();
+        $("#options-bar").show();
       }
 
       if (gClippings.getPrefs().clippingsMgrPlchldrToolbar) {
         $("#placeholder-toolbar").show();
-      }
-      
-      if (aResult.sourceURL) {
-        $("#clipping-src-url").html(sanitizeHTML(`<a href="${aResult.sourceURL}">${aResult.sourceURL}</a>`));
-        $("#clipping-src-url > a").click(async (aEvent) => {
-          aEvent.preventDefault();
-          gCmd.gotoURL(aEvent.target.textContent);
-        });
-      }
-      else {
-        $("#clipping-src-url").text(messenger.i18n.getMessage("none"));
       }
       
       let shortcutKeyMenu = $("#clipping-key")[0];
