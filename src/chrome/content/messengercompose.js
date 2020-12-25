@@ -25,6 +25,11 @@ let gClippingsMxListener = function () {
       _clippings.openNewClippingDlg(aClippingContent);
     },
 
+    openingClippingsManager()
+    {
+      _clippings.openClippingsManager(false);
+    },
+
     async clippingsDataRequested()
     {
       let rv;
@@ -59,7 +64,7 @@ function onLoad(aActivatedWhileWindowOpen)
   WL.injectElements(`
   <commandset id="composeCommands">
     <command id="ae_clippings_manager" 
-     oncommand="window.aecreations.clippings.util.aeUtils.alertEx('Organize Clippings', '${WL.messenger.i18n.getMessage('msgUnavail')}')"/>
+     oncommand="window.aecreations.clippings.openClippingsManager()"/>
     <command id="ae_new_clipping_from_clpbd" 
      oncommand="window.aecreations.clippings.util.aeUtils.alertEx('New From Clipboard', '${WL.messenger.i18n.getMessage('msgUnavail')}')"/>
     <command id="ae_new_clipping_from_selection"

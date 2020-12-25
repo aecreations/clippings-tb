@@ -13,6 +13,7 @@ let gIsDirty = false;
 let gClippingMenuItemIDMap = {};
 let gFolderMenuItemIDMap = {};
 let gSyncFldrID = null;
+let gClippingsMgrRootFldrReseq = false;
 
 let gClippingsListeners = new aeListeners();
 
@@ -52,7 +53,81 @@ let gClippingsListener = {
     rebuildContextMenu();
   },
 
-  // TO DO: Additional listener methods.
+  clippingChanged: function (aID, aData, aOldData)
+  {
+    if (this._isClippingsMgrDnDInProgress) {
+      return;
+    }
+    
+    log("Clippings/mx: gClippingsListener.clippingChanged()");
+
+    if (aData.name != aOldData.name || aData.parentFolderID != aOldData.parentFolderID
+       || aData.label != aOldData.label) {
+      rebuildContextMenu();
+    }
+  },
+
+  folderChanged: function (aID, aData, aOldData)
+  {
+    if (this._isClippingsMgrDnDInProgress) {
+      return;
+    }
+
+    log("Clippings/mx: gClippingsListener.folderChanged()");
+
+    if ("isSync" in aOldData) {
+      log("The Synced Clippings folder is being converted to a normal folder. Ignoring DB changes.");
+      return;
+    }
+    
+    if (aData.parentFolderID == aOldData.parentFolderID) {
+      updateContextMenuForFolder(aID);
+    }
+    else {
+      rebuildContextMenu();
+    }
+  },
+
+  clippingDeleted: function (aID, aOldData) {},
+  folderDeleted: function (aID, aOldData) {},
+
+  copyStarted: function ()
+  {
+    this._isCopying = true;
+  },
+  
+  copyFinished: function (aItemCopyID)
+  {
+    this._isCopying = false;
+    rebuildContextMenu();
+  },
+
+  dndMoveStarted: function ()
+  {
+    this._isClippingsMgrDnDInProgress = true;
+  },
+
+  dndMoveFinished: function ()
+  {
+    this._isClippingsMgrDnDInProgress = false;
+  },
+  
+  importStarted: function ()
+  {
+    log("Clippings/mx: gClippingsListener.importStarted()");
+    this._isImporting = true;
+  },
+
+  importFinished: function (aIsSuccess)
+  {
+    log("Clippings/mx: gClippingsListener.importFinished()");
+    this._isImporting = false;
+
+    if (aIsSuccess) {
+      log("Import was successful - proceeding to rebuild Clippings menu.");
+      rebuildContextMenu();
+    }
+  },
 };
 
 
@@ -114,7 +189,6 @@ async function setDefaultPrefs()
 {
   let aeClippingsPrefs = {
     checkSpelling: true,
-    openClippingsMgrInTab: false,
     clippingsMgrAutoShowDetailsPane: true,
     clippingsMgrDetailsPane: false,
     clippingsMgrStatusBar: false,
@@ -146,15 +220,15 @@ function init()
 
   initClippingsDB();
 
-  let getMsngrInfo = messenger.runtime.getBrowserInfo();
+  let getMsgrInfo = messenger.runtime.getBrowserInfo();
   let getPlatInfo = messenger.runtime.getPlatformInfo();
 
-  Promise.all([getMsngrInfo, getPlatInfo]).then(aResults => {
-    let msngr = aResults[0];
+  Promise.all([getMsgrInfo, getPlatInfo]).then(aResults => {
+    let msgr = aResults[0];
     let platform = aResults[1];
     
-    gHostAppName = msngr.name;
-    gHostAppVer = msngr.version;
+    gHostAppName = msgr.name;
+    gHostAppVer = msgr.version;
     log(`Clippings/mx: Host app: ${gHostAppName} (version ${gHostAppVer})`);
 
     gOS = platform.os;
@@ -222,6 +296,15 @@ function initMessageListeners()
       gIsDirty = true;
     }
   });
+}
+
+
+async function getShortcutKeyPrefixStr()
+{
+  // TO DO: Finish implementation.
+
+  // TEMPORARY
+  return "ALT+SHIFT+Y";
 }
 
 
@@ -318,9 +401,21 @@ function getContextMenuData(aFolderID = aeConst.ROOT_FOLDER_ID)
 }
 
 
+function updateContextMenuForFolder(aUpdatedFolderID)
+{
+  let id = Number(aUpdatedFolderID);
+  gClippingsDB.folders.get(id).then(aResult => {
+    let menuItemID = gFolderMenuItemIDMap[id];
+    if (menuItemID) {
+      gIsDirty = true;
+    }
+  });
+}
+
+
 function rebuildContextMenu()
 {
-  // TO DO: Finish implementation.
+  gIsDirty = true;
 }
 
 
@@ -344,6 +439,48 @@ function createClippingNameFromText(aText)
   rv = (newlineIdx == -1) ? clipName : clipName.substring(0, newlineIdx);
 
   return rv;
+}
+
+
+async function openClippingsManager(aBackupMode)
+{
+  let clippingsMgrURL = messenger.runtime.getURL("pages/clippingsMgr.html");
+
+  let msgrWnd = await messenger.windows.getCurrent();
+  clippingsMgrURL += "?openerWndID=" + msgrWnd.id;
+
+  if (aBackupMode) {
+    clippingsMgrURL += "&backupMode=1";
+  }
+  
+  async function openClippingsMgrHelper()
+  {
+    let wndInfo = {
+      url: clippingsMgrURL,
+      type: "detached_panel",
+      width: 750, height: 400,
+      left:  64,  top: 128,
+    };
+
+    let wnd = await messenger.windows.create(wndInfo);
+    gWndIDs.clippingsMgr = wnd.id;
+  }
+  
+  if (gWndIDs.clippingsMgr) {
+    try {
+      await messenger.windows.get(gWndIDs.clippingsMgr);
+      messenger.windows.update(gWndIDs.clippingsMgr, { focused: true });
+    }
+    catch (e) {
+      // Handle dangling ref to previously-closed Clippings Manager window
+      // because it was closed before it finished initializing.
+      gWndIDs.clippingsMgr = null;
+      openClippingsMgrHelper();
+    }
+  }
+  else {
+    openClippingsMgrHelper();
+  }
 }
 
 
@@ -497,11 +634,20 @@ function getSyncFolderID()
   ***/
 }
 
+function isClippingsMgrRootFldrReseq()
+{
+  return gClippingsMgrRootFldrReseq;
+}
+
+function setClippingsMgrRootFldrReseq(aReseqOnReload)
+{
+  gClippingsMgrRootFldrReseq = aReseqOnReload;
+}
+
 function isDirty()
 {
   return gIsDirty;
 }
-
 
 function setDirtyFlag(aFlag)
 {

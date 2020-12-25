@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title data-i18n="clippingsMgrWndTitle"></title>
+
+    <link rel="stylesheet" href="chrome://browser/content/extension.css"/>
+    <link rel="stylesheet" href="clippingsMgr.css"/>
+  </head>
+
+  <body>
+    <div id="banner">
+      <span id="banner-msg"></span>
+    </div>
+
+    <div id="toolbar" class="hbox">
+      <button id="new-clipping" class="toolbar-button toolbar-button-labelled" data-i18n="tbNewClipping"></button>
+      <button id="new-folder" class="toolbar-button toolbar-button-labelled" data-i18n="tbNewFolder"></button>
+      <button id="move" class="toolbar-button"></button>
+      <button id="delete" class="toolbar-button"></button>
+      <button id="undo" class="toolbar-button"></button>
+      <span id="spacer-1" class="spacer"></span>
+      <button id="clippings-mgr-options" class="toolbar-button toolbar-button-labelled"
+       data-i18n="tbTools"></button>
+      <span id="spacer-2" class="spacer"></span>
+      <div id="search-clippings-and-folders">
+	<input type="search" id="search-box"/>
+	<div id="clear-search"></div>
+      </div>
+    </div>
+    
+    <div id="content" class="hbox">
+
+      <div id="clippings-tree"></div>
+      <div id="tree-splitter"></div>
+      <div id="item-properties" class="vbox browser-style">
+	<div id="intro-content">
+	  <h3 data-i18n="clipMgrIntroHdg"></h3>
+	  <p data-i18n="clipMgrIntroDesc"></p>
+	  <h4 data-i18n="clipMgrIntroKeybHdg"></h4>
+	  <table id="intro-shortcut-key-tbl" class="shortcut-key-tbl"></table>
+	</div>
+
+	<input type="text" id="clipping-name"/>
+	<textarea id="clipping-text" class="browser-style"></textarea>
+
+	<div id="placeholder-toolbar" class="hbox">
+          <label data-i18n="labelInsPlchldr"></label>
+	  <button id="plchldr-presets" class="toolbar-button" data-i18n="tbPlchldrPresets"></button>
+	  <button id="custom-plchldr" class="toolbar-button toolbar-button-labelled"
+	   data-i18n="tbPlchldrCustom"></button>
+	  <button id="auto-incr-plchldr" class="toolbar-button toolbar-button-labelled"
+	   data-i18n="tbPlchldrNumeric"></button>
+        </div>
+	
+	<!-- Source URL -->
+	<div id="source-url-bar" class="hbox">
+	  <label id="src-url-label" data-i18n="labelSrcURL"></label>
+	  <div id="source-url-deck">
+	    <div id="src-url-normal-mode" class="hbox">
+   	      <div id="clipping-src-url" data-i18n="none"></div>
+              <button id="edit-url-btn" class="browser-style" data-i18n="btnEditSrcURL"></button>
+	    </div>
+	    <div id="src-url-edit-mode" class="hbox">
+  	      <input type="text" id="clipping-src-url-edit" value=""/>
+	      <button id="edit-src-url-ok" class="browser-style"></button>
+	      <button id="edit-src-url-cancel" class="browser-style"></button>
+	    </div>
+	  </div>
+	</div>
+
+	<!-- Shortcut key -->
+	<div id="options-bar" class="hbox">
+	  <div id="shortcut-key-select">
+	    <label for="clipping-key" data-i18n="labelShortcutKey"></label>
+	    <select id="clipping-key" class="browser-style">
+	      <option data-i18n="none"></option>
+	      <option>A</option>
+	      <option>B</option>
+	      <option>C</option>
+	      <option>D</option>
+	      <option>E</option>
+	      <option>F</option>
+	      <option>G</option>
+	      <option>H</option>
+	      <option>I</option>
+	      <option>J</option>
+	      <option>K</option>
+	      <option>L</option>
+	      <option>M</option>
+	      <option>N</option>
+	      <option>O</option>
+	      <option>P</option>
+	      <option>Q</option>
+	      <option>R</option>
+	      <option>S</option>
+	      <option>T</option>
+	      <option>U</option>
+	      <option>V</option>
+	      <option>W</option>
+	      <option>X</option>
+	      <option>Y</option>
+	      <option>Z</option>
+	      <option>1</option>
+	      <option>2</option>
+	      <option>3</option>
+	      <option>4</option>
+	      <option>5</option>
+	      <option>6</option>
+	      <option>7</option>
+	      <option>8</option>
+	      <option>9</option>
+	      <option>0</option>
+	    </select>
+	    <button id="show-shortcut-list" class="toolbar-button"></button>
+	  </div>  <!-- #shortcut-key-select -->
+	  
+	  <div id="options-bar-spacer" class="spacer"></div>
+	  <div id="clipping-label">
+	    <label for="clipping-label-picker" data-i18n="labelLabel"></label>
+	    <select id="clipping-label-picker" class="browser-style">
+	      <option value="" data-i18n="none"></option>
+	      <option value="red" data-i18n="labelRed"></option>
+	      <option value="orange" data-i18n="labelOrange"></option>
+	      <option value="yellow" data-i18n="labelYellow"></option>
+	      <option value="green" data-i18n="labelGreen"></option>
+	      <option value="blue" data-i18n="labelBlue"></option>
+	      <option value="purple" data-i18n="labelPurple"></option>
+	      <option value="grey" data-i18n="labelGrey"></option>
+	    </select>
+	  </div>
+	</div> <!-- #options-bar -->
+      </div>   <!-- #item-properties -->
+      
+    </div> <!-- #content -->
+
+    <div id="status-bar" class="hbox">
+      <span id="status-bar-msg"></span>
+    </div>
+
+    <!-- Popup panels -->
+    <div id="panel-bkgrd-ovl" class="panel-bkgrd"></div>      
+    <div id="all-src-urls-removed-confirm-msgbar" class="msgbar panel">
+      <div class="msgbar-icon"></div>
+      <div class="msgbar-content" data-i18n="clipMgrRemoveSrcURLsConfirm"></div>
+      <div class="msgbar-dismiss dlg-accept"></div>
+    </div>
+
+    <div id="no-undo-msgbar" class="msgbar panel">
+      <div class="msgbar-icon"></div>
+      <div class="msgbar-content" data-i18n="clipMgrNoUndo"></div>
+      <div class="msgbar-dismiss dlg-accept"></div>
+    </div>
+
+    <div id="no-redo-msgbar" class="msgbar panel">
+      <div class="msgbar-icon"></div>
+      <div class="msgbar-content" data-i18n="clipMgrNoRedo"></div>
+      <div class="msgbar-dismiss dlg-accept"></div>
+    </div>
+
+    <div id="clipping-missing-src-url-msgbar" class="msgbar panel">
+      <div class="msgbar-icon"></div>
+      <div class="msgbar-content" data-i18n="clipMgrNoSrcURL"></div>
+      <div class="msgbar-dismiss dlg-accept"></div>
+    </div>
+
+    <!-- Dialog boxes -->
+    <div id="lightbox-bkgrd-ovl" class="lightbox-bkgrd"></div>
+    <div id="shortcut-list-dlg" class="lightbox">
+      <p class="hlp-hdr" data-i18n="clipMgrShortcutKeyHelpHdg"></p>
+      <p id="shortcut-instrxns"></p>
+      <div id="shortcut-list-content"></div>    
+      <div class="dlg-btns hbox">
+        <button id="export-shct-list" data-i18n="exportHTML"></button>
+	<span id="shortcut-list-btns-spacer"></span>
+	<button class="dlg-accept default" data-i18n="btnClose"></button>
+      </div>
+    </div>
+
+    <div id="shortcut-key-conflict-msgbox" class="lightbox">
+      <div class="msgbox-icon" style="margin-top:8px"></div>
+      <p data-i18n="clipMgrShortcutKeyAssigned"></p>
+      <div class="dlg-btns">
+	<button class="dlg-accept default" data-i18n="btnOK"></button>
+      </div>
+    </div>
+
+    <div id="custom-placeholder-dlg" class="lightbox">
+      <div class="dlg-content">
+	<div class="row">
+	<label for="custom-plchldr-name" data-i18n="labelCustPlchldrName"></label>
+	<input type="text" id="custom-plchldr-name" required
+	 pattern="[a-zA-Z0-9_\u0080-\u00FF\u0100-\u017F\u0180-\u024F\u0400-\u04FF\u0590-\u05FF]+"/>
+	</div>
+	<div class="row">
+  	  <label for="custom-plchldr-default-val" data-i18n="labelCustPlchldrVal"></label>
+  	  <input type="text" id="custom-plchldr-default-val"/>
+        </div>
+	<p data-i18n="custPlchldrValDesc"></p>
+      </div>
+      <div class="dlg-btns">
+	<button class="dlg-accept default" data-i18n="btnOK"></button>
+        <button class="dlg-cancel" data-i18n="btnCancel"></button>
+      </div>
+    </div>
+
+    <div id="numeric-placeholder-dlg" class="lightbox">      
+      <div class="dlg-content">
+        <div class="row">
+  	  <label data-i18n="labelNumPlchldrName"></label>
+	  <input type="text" id="numeric-plchldr-name" required
+ 	   pattern="[a-zA-Z0-9_\u0080-\u00FF\u0100-\u017F\u0180-\u024F\u0400-\u04FF\u0590-\u05FF]+"/>
+        </div>
+	<p data-i18n="numPlchldrDesc"></p>
+      </div>
+      <div class="dlg-btns">
+	<button class="dlg-accept default" data-i18n="btnOK"></button>
+        <button class="dlg-cancel" data-i18n="btnCancel"></button>
+      </div>
+    </div>
+
+    <div id="insert-date-time-placeholder-dlg" class="lightbox">
+      <div class="dlg-content browser-style">
+	<label for="date-time-format-list" data-i18n="dateTimeFmts"></label>
+        <select id="date-time-format-list" size="12"></select>
+      </div>
+      <div class="dlg-btns">
+	<button class="dlg-accept default" data-i18n="btnOK"></button>
+        <button class="dlg-cancel" data-i18n="btnCancel"></button>
+      </div>
+    </div>
+
+    <div id="import-dlg" class="lightbox">
+      <div class="dlg-content browser-style">
+        <label id="import-clippings-label" data-i18n="labelSelImportFile"></label>
+	<div id="import-clippings-filepicker" class="hbox browser-style">
+	  <input type="text" id="import-clippings-file-path" readonly="true"/>
+	  <label id="import-clippings-file-upload-btn" for="import-clippings-file-upload"
+	   data-i18n="btnBrowse"></label>
+	  <input type="file" id="import-clippings-file-upload" accept=".rdf, .json"/>
+	</div>
+	<div id="import-clippings-replc-shct-keys-checkbox" class="browser-style">
+	  <input type="checkbox" id="import-clippings-replc-shct-keys" checked="true"/><label for="import-clippings-replc-shct-keys" data-i18n="cbImportReplcShctKeys"></label>
+	  <br/>
+	</div>
+	<div id="restore-backup-warning">
+	  <div class="warning-icon"></div>
+	  <p data-i18n="warnBackupOverwrite"></p>
+        </div>
+	<progress id="import-progress-bar"></progress>
+	<div id="import-error"></div>
+      </div>
+      <div class="dlg-btns">
+	<button id="import-dlg-action-btn" class="dlg-accept default" disabled="true"
+	 data-i18n="btnImport"></button>
+	<button class="dlg-cancel" data-i18n="btnCancel"></button>
+      </div>
+    </div>
+
+    <div id="import-confirm-msgbox" class="lightbox">
+      <div class="msgbox-icon"></div>
+      <p class="msgbox-content"></p>
+      <div class="dlg-btns">
+	<button class="dlg-accept default" data-i18n="btnReload"></button>
+      </div>
+    </div>
+
+    <div id="export-dlg" class="lightbox">
+      <div class="dlg-content browser-style">
+	<label id="export-format-list-label" data-i18n="labelSelExportFmt"></label>
+	<select id="export-format-list" size="3">
+	  <option value="0" data-i18n="expFmtClippings6"></option>
+	  <option value="1" data-i18n="expFmtHTMLDoc"></option>
+	  <option value="2" data-i18n="expFmtCSV"></option>
+	</select>
+	<fieldset>
+	  <legend data-i18n="expFmtDescHdg"></legend>
+	  <p id="format-description" class="desc"></p>
+	</fieldset>
+	<input type="checkbox" id="include-src-urls" checked="true"/><label for="include-src-urls" data-i18n="cbExpInclSrcURLs"></label>
+      </div>
+      <div class="dlg-btns">
+        <button class="dlg-accept default" data-i18n="btnExport"></button>
+        <button class="dlg-cancel" data-i18n="btnCancel"></button>
+      </div>
+    </div>
+
+    <div id="export-confirm-msgbox" class="lightbox">
+      <div class="msgbox-icon"></div>
+      <p class="msgbox-content"></p>
+      <div class="dlg-btns">
+	<button class="dlg-accept default" data-i18n="btnOK"></button>
+      </div>
+    </div>
+
+    <div id="backup-confirm-msgbox" class="lightbox">
+      <div class="msgbox-icon"></div>
+      <p class="msgbox-content"></p>
+      <div class="dlg-btns">
+	<button class="dlg-accept default" data-i18n="btnOK"></button>
+      </div>
+    </div>
+
+    <div id="reload-sync-fldr-msgbox" class="lightbox">
+      <div class="msgbox-icon"></div>
+      <p class="msgbox-content" data-i18n="syncReloadAck"></p>
+      <div class="dlg-btns">
+	<button class="dlg-accept default" data-i18n="btnReload"></button>
+      </div>
+    </div>
+
+    <div id="remove-all-source-urls-dlg" class="lightbox">
+      <div class="dlg-content browser-style">
+	<div class="msgbox-icon"></div>
+	<p data-i18n="clipMgrWarnRemoveSrcURLs"></p>
+      </div>	  
+      <div class="dlg-btns">
+        <button class="dlg-btn-yes" data-i18n="btnYes"></button>
+        <button class="dlg-accept default" data-i18n="btnNo"></button>
+      </div>
+    </div>
+
+    <div id="move-sync-fldr-msgbox" class="lightbox">
+      <div class="dlg-content browser-style">
+        <div class="msgbox-icon"></div>
+        <p class="msgbox-content" data-i18n="moveSyncFldr"></p>
+      </div>
+      <div class="dlg-btns">
+	<button class="dlg-accept default" data-i18n="btnOK"></button>
+      </div>
+    </div>
+
+    <div id="delete-sync-fldr-msgbox" class="lightbox">
+      <div class="dlg-content browser-style">
+        <div class="msgbox-icon"></div>
+        <p class="msgbox-content" data-i18n="deleteSyncFldr"></p>
+      </div>
+      <div class="dlg-btns">
+	<button class="dlg-accept default" data-i18n="btnOK"></button>
+      </div>
+    </div>
+
+    <div id="move-dlg" class="lightbox">
+      <div class="dlg-content browser-style">
+	<label id="move-to-label" for="move-to-fldr-tree"></label>
+	<div id="move-to-fldr-tree"></div>
+	
+	<input type="checkbox" id="copy-instead-of-move"/><label for="copy-instead-of-move" data-i18n="cbCreateCopy"></label>
+	<div id="move-error"></div>
+      </div>
+      <div class="dlg-btns">
+        <button id="move-dlg-action-btn" class="dlg-accept default"
+	 data-i18n="btnMove"></button>
+        <button class="dlg-cancel" data-i18n="btnCancel"></button>
+      </div>
+    </div>
+
+    <div id="init-error-msgbox" class="lightbox">
+      <div class="dlg-content browser-style">
+	<div class="msgbox-icon"></div>
+	<p class="msgbox-error-msg"></p>
+      </div>
+      <div class="dlg-btns">
+        <button class="dlg-accept default" data-i18n="btnOK"></button>
+      </div>
+    </div>
+
+    <div id="sync-error-msgbox" class="lightbox">
+      <div class="dlg-content browser-style">
+	<div class="msgbox-icon"></div>
+	<p class="msgbox-error-msg"></p>
+      </div>
+      <div class="dlg-btns">
+        <button class="dlg-accept default" data-i18n="btnOK"></button>
+      </div>
+    </div>
+
+    <div id="mini-help-dlg" class="lightbox">
+      <div class="dlg-content browser-style">
+	<p class="hlp-hdr" data-i18n="clippingsMgrWndTitle"></p>
+	<p data-i18n="clipMgrIntroDesc"></p>
+	<fieldset>
+	  <legend data-i18n="clipMgrIntroKeybHdg"></legend>
+	  <table id="mini-help-shortcut-key-tbl" class="shortcut-key-tbl"></table>
+        </fieldset>
+      </div>
+      <div class="dlg-btns">
+	<button class="dlg-accept default" data-i18n="btnClose"></button>
+      </div>
+    </div>
+
+    <div id="show-only-synced-items-reminder" class="lightbox">
+      <div class="dlg-content browser-style">
+        <div class="msgbox-info-icon"></div>
+        <p data-i18n="clipMgrShowOnlySyncItemsRem"></p>
+      </div>
+      <div class="dlg-btns">
+	<button class="dlg-accept default" data-i18n="btnOK"></button>
+      </div>
+    </div>
+
+    <div id="generic-msg-box" class="lightbox">
+      <div class="msgbox-icon"></div>
+      <p data-i18n="msgUnknown"></p>
+      <div class="dlg-btns">
+	<button class="dlg-accept default" data-i18n="btnOK"></button>
+      </div>
+    </div>
+    
+    <script src="../lib/jquery.js"></script>
+    <script src="../lib/purify.min.js"></script>
+    <script src="../lib/fancytree/jquery.fancytree-all-deps.min.js"></script>
+    <script src="../lib/fancytree/jquery.fancytree.dnd5.js"></script>
+    <script src="../lib/fancytree/jquery.fancytree.filter.js"></script>
+    <script src="../lib/rdflib.js"></script>
+    <script src="../lib/contextMenu/jquery.ui.position.min.js"></script>
+    <script src="../lib/contextMenu/jquery.contextMenu.min.js"></script>
+    <script src="../lib/simpledrag.js"></script>
+    <script src="../lib/moment.min.js"></script>
+    <script src="../modules/aeConst.js"></script>
+    <script src="../modules/aeImportExport.js"></script>
+    <script src="../modules/aeDialog.js"></script>
+    <script src="../modules/aeFolderPicker.js"></script>
+    <script src="../modules/aeI18n.js"></script>
+    <script src="clippingsMgr.js"></script>
+  </body>
+</html>

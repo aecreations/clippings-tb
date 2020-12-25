@@ -336,7 +336,7 @@ window.aecreations.clippings = {
 
   openClippingsManager: function () 
   {
-    this.util.aeUtils.alertEx(this.strBundle.getString("appName"), "The selection action is not available right now.");
+    this.getMxListener().openingClippingsManager();
   },
 
 
