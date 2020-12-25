@@ -162,6 +162,17 @@ let gWndIDs = {
   newClipping: null,
 };
 
+let gDefaultPrefs = {
+  checkSpelling: true,
+  clippingsMgrAutoShowDetailsPane: true,
+  clippingsMgrDetailsPane: false,
+  clippingsMgrStatusBar: false,
+  clippingsMgrPlchldrToolbar: false,
+  clippingsMgrMinzWhenInactv: undefined,
+  syncClippings: false,
+  syncFolderID: null,
+  backupFilenameWithDate: true,
+}
 let gPrefs = null;
 
 
@@ -187,26 +198,13 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
 
 async function setDefaultPrefs()
 {
-  let aeClippingsPrefs = {
-    checkSpelling: true,
-    clippingsMgrAutoShowDetailsPane: true,
-    clippingsMgrDetailsPane: false,
-    clippingsMgrStatusBar: false,
-    clippingsMgrPlchldrToolbar: false,
-    clippingsMgrMinzWhenInactv: undefined,
-    syncClippings: false,
-    syncFolderID: null,
-    backupFilenameWithDate: true,
-  };
-
-  gPrefs = aeClippingsPrefs;
-
-  await messenger.storage.local.set(aeClippingsPrefs);
+  gPrefs = gDefaultPrefs;
+  await messenger.storage.local.set(gDefaultPrefs);
 }
 
 
 messenger.runtime.onStartup.addListener(async () => {
-  gPrefs = await messenger.storage.local.get();
+  gPrefs = await messenger.storage.local.get(gDefaultPrefs);
   log("Clippings/mx: Successfully retrieved user preferences:");
   log(aPrefs);
 
@@ -234,7 +232,27 @@ function init()
     gOS = platform.os;
     log("Clippings/mx: OS: " + gOS);
 
+    if (gPrefs.clippingsMgrMinzWhenInactv === undefined) {
+      gPrefs.clippingsMgrMinzWhenInactv = (gOS == "linux");
+    }
+
     initMessageListeners();
+
+    messenger.storage.onChanged.addListener((aChanges, aAreaName) => {
+      let changedPrefs = Object.keys(aChanges);
+
+      for (let pref of changedPrefs) {
+        gPrefs[pref] = aChanges[pref].newValue;
+        /***
+        if (pref == "autoIncrPlcHldrStartVal") {
+          aeClippingSubst.setAutoIncrementStartValue(aChanges[pref].newValue);
+        }
+        else if (gPrefs.pasteShortcutKeyPrefix && !isDirectSetKeyboardShortcut()) {
+          setShortcutKeyPrefix(gPrefs.pasteShortcutKeyPrefix);
+        }
+        ***/
+      }
+    });
     
     messenger.WindowListener.registerDefaultPrefs("defaults/preferences/prefs.js");
 
