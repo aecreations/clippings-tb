@@ -174,6 +174,8 @@ let gDefaultPrefs = {
   backupFilenameWithDate: true,
 }
 let gPrefs = null;
+let gIsInitialized = false;
+let gSetDisplayOrderOnRootItems = false;
 
 
 messenger.runtime.onInstalled.addListener(async (aInstall) => {
@@ -221,7 +223,7 @@ function init()
   let getMsgrInfo = messenger.runtime.getBrowserInfo();
   let getPlatInfo = messenger.runtime.getPlatformInfo();
 
-  Promise.all([getMsgrInfo, getPlatInfo]).then(aResults => {
+  Promise.all([getMsgrInfo, getPlatInfo]).then(async (async (aResults) => {
     let msgr = aResults[0];
     let platform = aResults[1];
     
@@ -254,6 +256,11 @@ function init()
       }
     });
     
+    if (gSetDisplayOrderOnRootItems) {
+      await setDisplayOrderOnRootItems();
+      log("Clippings/mx: Display order on root folder items have been set.");
+    }
+
     messenger.WindowListener.registerDefaultPrefs("defaults/preferences/prefs.js");
 
     messenger.WindowListener.registerChromeUrl([
@@ -274,7 +281,8 @@ function init()
     );
     
     messenger.WindowListener.startListening();
-    
+
+    gIsInitialized = true;
     log("Clippings/mx: MailExtension initialization complete.");    
   });
 }
@@ -290,6 +298,59 @@ function initClippingsDB()
 
   gClippingsDB.open().catch(aErr => {
     console.error(aErr);
+  });
+}
+
+
+async function setDisplayOrderOnRootItems()
+{
+  let seq = 1;
+
+  gClippingsDB.transaction("rw", gClippingsDB.clippings, gClippingsDB.folders, () => {
+    gClippingsDB.folders.where("parentFolderID").equals(aeConst.ROOT_FOLDER_ID).each((aItem, aCursor) => {
+      log(`Clippings/mx: setDisplayOrderOnRootItems(): Folder "${aItem.name}" (id=${aItem.id}): display order = ${seq}`);
+      let numUpd = gClippingsDB.folders.update(aItem.id, { displayOrder: seq++ });
+
+    }).then(() => {
+      return gClippingsDB.clippings.where("parentFolderID").equals(aeConst.ROOT_FOLDER_ID).each((aItem, aCursor) => {
+        log(`Clippings/mx: setDisplayOrderOnRootItems(): Clipping "${aItem.name}" (id=${aItem.id}): display order = ${seq}`);
+        let numUpd = gClippingsDB.clippings.update(aItem.id, { displayOrder: seq++ });
+      });
+
+    }).then(() => {
+      Promise.resolve();
+    });     
+
+  }).catch(aErr => {
+    console.error("Clippings/mx: setDisplayOrderOnRootItems(): " + aErr);
+    Promise.reject(aErr);
+  });
+}
+
+
+async function purgeFolderItems(aFolderID, aKeepFolder)
+{
+  gClippingsDB.transaction("rw", gClippingsDB.clippings, gClippingsDB.folders, () => {
+    gClippingsDB.folders.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
+      purgeFolderItems(aItem.id, false).then(() => {});
+
+    }).then(() => {
+      if (!aKeepFolder && aFolderID != aeConst.DELETED_ITEMS_FLDR_ID) {
+        log("Clippings/mx: purgeFolderItems(): Deleting folder: " + aFolderID);
+        return gClippingsDB.folders.delete(aFolderID);
+      }
+      return null;
+      
+    }).then(() => {
+      return gClippingsDB.clippings.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
+        log("Clippings/mx: purgeFolderItems(): Deleting clipping: " + aItem.id);
+        gClippingsDB.clippings.delete(aItem.id);
+      });
+    }).then(() => {
+      Promise.resolve();
+    });
+  }).catch(aErr => {
+    Promise.reject(aErr);
   });
 }
 
