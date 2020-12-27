@@ -2707,7 +2707,6 @@ function initDialogs()
     $("#clipping-key")[0].selectedIndex = gShortcutKey.getPrevSelectedIndex();
   };
 
-  gDialogs.clippingMissingSrcURL = new aeDialog("#clipping-missing-src-url-msgbar");
   gDialogs.noUndoNotify = new aeDialog("#no-undo-msgbar");
   gDialogs.noRedoNotify = new aeDialog("#no-redo-msgbar");
 
@@ -3276,12 +3275,6 @@ function initDialogs()
     });
   });
 
-  gDialogs.removeAllSrcURLsConfirm = new aeDialog("#all-src-urls-removed-confirm-msgbar");
-  gDialogs.removeAllSrcURLsConfirm.onInit = () => {
-    // Reselect the selected tree node to force a call to updateDisplay().
-    getClippingsTree().reactivate(true);
-  };
-
   gDialogs.reloadSyncFolder = new aeDialog("#reload-sync-fldr-msgbox");
   gDialogs.reloadSyncFolder.onAfterAccept = () => {
     window.location.reload();
@@ -3707,24 +3700,6 @@ function buildClippingsTree()
           gCmd.deleteClippingOrFolder(gCmd.UNDO_STACK);
           break;
           
-        case "gotoSrcURL":
-          let tree = getClippingsTree();
-          let selectedNode = tree.activeNode;
-          if (!selectedNode || selectedNode.isFolder()) {
-            return;
-          }
-
-          let clippingID = parseInt(selectedNode.key);
-          gClippingsDB.clippings.get(clippingID).then(async (aClipping) => {
-            let srcURL = aClipping.sourceURL;
-            if (srcURL == "") {
-              gDialogs.clippingMissingSrcURL.openPopup();
-              return;
-            }
-            gCmd.gotoURL(srcURL);
-          });
-          break;
-
         case "labelNone":
           setLabel("");
           break;
@@ -3775,18 +3750,6 @@ function buildClippingsTree()
 
             let folderID = parseInt(selectedNode.key);
             return (folderID == gClippings.getSyncFolderID());
-          }
-        },
-        gotoSrcURL: {
-          name: messenger.i18n.getMessage("mnuGoToSrcURL"),
-          className: "ae-menuitem",
-          visible: function (aItemKey, aOpt) {
-            let tree = getClippingsTree();
-            let selectedNode = tree.activeNode;
-            if (!selectedNode || selectedNode.isFolder()) {
-              return false;
-            }
-            return true;
           }
         },
         labelSubmenu: {
