@@ -223,7 +223,7 @@ function init()
   let getMsgrInfo = messenger.runtime.getBrowserInfo();
   let getPlatInfo = messenger.runtime.getPlatformInfo();
 
-  Promise.all([getMsgrInfo, getPlatInfo]).then(async (async (aResults) => {
+  Promise.all([getMsgrInfo, getPlatInfo]).then(async (aResults) => {
     let msgr = aResults[0];
     let platform = aResults[1];
     
