@@ -57,6 +57,30 @@
     }
 }
 
+html,
+body {
+  background: transparent;
+  box-sizing: border-box;
+  color: #222426;
+  cursor: default;
+  display: flex;
+  flex-direction: column;
+  font: caption;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+}
+
+body * {
+  box-sizing: border-box;
+  text-align: start;
+}
+
+.browser-style {
+  appearance: none;
+  margin-bottom: 6px;
+  text-align: left;
+}
 
 a {
     color: var(--color-hyperlink);
@@ -121,10 +145,6 @@ button:active {
 button.default:active {
     border: 1px solid #002275;
     background-color: #002275;
-}
-
-select.browser-style {
-    background-image: var(--url-dropdown-arrow);
 }
 
 select.browser-style:focus,
