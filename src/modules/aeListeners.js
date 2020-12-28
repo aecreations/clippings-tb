@@ -8,21 +8,22 @@ class aeListeners
 {
   constructor()
   {
-    this._listeners = [];
+    this._listeners = new Set();
   }
 
   add(aNewListener)
   {
-    this._listeners.push(aNewListener);
+    this._listeners.add(aNewListener);
   }
 
   remove(aTargetListener)
   {
-    this._listeners = this._listeners.filter(aListener => aListener != aTargetListener);
+    this._listeners.delete(aTargetListener);
   }
 
   getListeners()
   {
-    return this._listeners;
+    let rv = Array.from(this._listeners);
+    return rv;
   }
 }
