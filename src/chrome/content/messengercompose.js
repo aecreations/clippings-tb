@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let {aeConstants} = ChromeUtils.import("resource://clippings/modules/aeConstants.js");
-let {aeString} = ChromeUtils.import("resource://clippings/modules/aeString.js");
 let {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
 
 Services.scriptloader.loadSubScript("chrome://clippings/content/tbMsgComposeOverlay.js", window, "UTF-8");
@@ -64,7 +62,7 @@ function onLoad(aActivatedWhileWindowOpen)
     <command id="ae_clippings_manager" 
      oncommand="window.aecreations.clippings.openClippingsManager()"/>
     <command id="ae_new_clipping_from_clpbd" 
-     oncommand="window.aecreations.clippings.util.aeUtils.alertEx('New From Clipboard', '${WL.messenger.i18n.getMessage('msgUnavail')}')"/>
+     oncommand="window.aecreations.clippings.newFromClipboard()"/>
     <command id="ae_new_clipping_from_selection"
      oncommand="window.aecreations.clippings.newFromSelection()"/>
     <command id="ae_clippings_show_paste_options" 

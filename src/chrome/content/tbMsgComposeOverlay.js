@@ -269,16 +269,6 @@ window.aecreations.clippings = {
 
   newFromClipboard: function () 
   {
-    if (! this.dataSrcInitialized) {
-      // The RDF data source has to be initialized if it has not already been
-      // done so, otherwise RDF node creation will fail, and the new Clippings
-      // entry will never be created.
-      // This initialization is done in the code for the Clippings popup menu's
-      // `onpopupshowing' event handler.
-      this.initClippingsPopup(document.getElementById("ae-clippings-popup-1"),
-			      document.getElementById("ae-clippings-menu-1"));
-    }
-
     var txt = this.util.aeUtils.getTextFromClipboard();
     if (! txt) {
       var clippingsBtn = document.getElementById("ae-clippings-icon");
@@ -287,13 +277,7 @@ window.aecreations.clippings = {
       return;
     }
 
-    var result = this.hlpr.aeCreateClippingFromText(this.clippingsSvc, txt, null, this.showDialog, window, null, false);
-    if (result) {
-      let that = this;
-      window.setTimeout(function () { 
-        that.saveClippings();
-      }, 1);
-    }
+    this.getMxListener().newClippingDlgOpened(txt);
   },
 
 
