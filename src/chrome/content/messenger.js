@@ -2,9 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let {aeConstants} = ChromeUtils.import("resource://clippings/modules/aeConstants.js");
-let {aeString} = ChromeUtils.import("resource://clippings/modules/aeString.js");
 let {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
+
+Services.scriptloader.loadSubScript("chrome://clippings/content/tbMessengerOverlay.js", window, "UTF-8");
+
+
+let gClippingsMxListener = {
+  clippingsManagerWndOpened()
+  {
+    let clippings = WL.messenger.extension.getBackgroundPage();
+    clippings.openClippingsManager(false);
+  }
+};
 
 
 function onLoad(aActivatedWhileWindowOpen)
@@ -28,12 +37,14 @@ function onLoad(aActivatedWhileWindowOpen)
   statusbarBtn.setAttribute("tooltiptext", strBundle.getString("appName"));
 
   statusbarBtn.addEventListener("command", aEvent => {
-    aeUtils.alertEx(WL.messenger.i18n.getMessage("extName"),
-                    WL.messenger.i18n.getMessage("msgUnavail"));
+    window.aecreations.clippings.openClippingsManager();
   });
 
   statusbarpanel.appendChild(statusbarBtn);
   statusBar.insertBefore(statusbarpanel, statusBar.lastChild);
+
+  window.aecreations.clippings.addMxListener(gClippingsMxListener);
+  window.aecreations.clippings.initClippings();
 }
 
 
@@ -46,5 +57,5 @@ function onUnload(aDeactivatedWhileWindowOpen)
     return;
   }
 
-  //...
+  window.aecreations.clippings.removeMxListener();
 }
