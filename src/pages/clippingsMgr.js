@@ -37,8 +37,8 @@ let gClippingsSvc = {
   async createClipping(aClippingData)
   {
     let newClippingID = await gClippingsDB.clippings.add(aClippingData);
-    let clippingsListeners = gClippings.getClippingsListeners().getListeners();
-    clippingsListeners.forEach(aListener => {
+    let clpgsLstrs = gClippings.getClippingsListeners();
+    clpgsLstrs.forEach(aListener => {
       aListener.newClippingCreated(newClippingID, aClippingData, aeConst.ORIGIN_CLIPPINGS_MGR);
     });
 
@@ -48,8 +48,8 @@ let gClippingsSvc = {
   async createFolder(aFolderData)
   {
     let newFolderID = await gClippingsDB.folders.add(aFolderData);
-    let clippingsListeners = gClippings.getClippingsListeners().getListeners();
-    clippingsListeners.forEach(aListener => {
+    let clpgsLstrs = gClippings.getClippingsListeners();
+    clpgsLstrs.forEach(aListener => {
       aListener.newFolderCreated(newFolderID, aFolderData, aeConst.ORIGIN_CLIPPINGS_MGR);
     });
 
@@ -74,8 +74,8 @@ let gClippingsSvc = {
       }
     }        
 
-    let clippingsListeners = gClippings.getClippingsListeners().getListeners();
-    clippingsListeners.forEach(aListener => {
+    let clpgsLstrs = gClippings.getClippingsListeners();
+    clpgsLstrs.forEach(aListener => {
       aListener.clippingChanged(aClippingID, newClipping, aOldClipping);
     });
 
@@ -100,8 +100,8 @@ let gClippingsSvc = {
       }
     }        
 
-    let clippingsListeners = gClippings.getClippingsListeners().getListeners();
-    clippingsListeners.forEach(aListener => {
+    let clpgsLstrs = gClippings.getClippingsListeners();
+    clpgsLstrs.forEach(aListener => {
       aListener.folderChanged(aFolderID, newFolder, aOldFolder);
     });
 
@@ -112,8 +112,8 @@ let gClippingsSvc = {
   {
     await gClippingsDB.clippings.delete(aClippingID);
 
-    let clippingsListeners = gClippings.getClippingsListeners().getListeners();
-    clippingsListeners.forEach(aListener => {
+    let clpgsLstrs = gClippings.getClippingsListeners();
+    clpgsLstrs.forEach(aListener => {
       aListener.clippingDeleted(aClippingID);    
     });
   },
@@ -122,8 +122,8 @@ let gClippingsSvc = {
   {
     await gClippingsDB.folders.delete(aFolderID);
 
-    let clippingsListeners = gClippings.getClippingsListeners().getListeners();
-    clippingsListeners.forEach(aListener => {
+    let clpgsLstrs = gClippings.getClippingsListeners();
+    clpgsLstrs.forEach(aListener => {
       aListener.folderDeleted(aFolderID);
     });
   }
@@ -1262,8 +1262,8 @@ let gCmd = {
     
     this.recentAction = this.ACTION_COPYTOFOLDER;
 
-    let clippingsListeners = gClippings.getClippingsListeners().getListeners();
-    clippingsListeners.forEach(aListener => {
+    let clpgsLstrs = gClippings.getClippingsListeners();
+    clpgsLstrs.forEach(aListener => {
       aListener.copyStarted();
     });
 
@@ -1304,7 +1304,7 @@ let gCmd = {
         }).catch(handlePushSyncItemsError);
       }
 
-      clippingsListeners.forEach(aListener => {
+      clpgsLstrs.forEach(aListener => {
         aListener.copyFinished(newFldrID);
       });
     }).catch(aErr => {
@@ -2096,9 +2096,8 @@ $(async () => {
     }
   }
 
-  let clippingsListeners = gClippings.getClippingsListeners();
   gClippingsListener.origin = aeConst.ORIGIN_CLIPPINGS_MGR;
-  clippingsListeners.add(gClippingsListener);
+  gClippings.addClippingsListener(gClippingsListener);
 
   let prefs = gClippings.getPrefs();
   gSyncFolderID = prefs.syncFolderID;
@@ -2146,8 +2145,8 @@ $(window).on("beforeunload", aEvent => {
     messenger.runtime.sendMessage({ msgID: "close-clippings-mgr-wnd" });
   }
 
-  let clippingsListeners = gClippings.getClippingsListeners();
-  clippingsListeners.remove(gClippingsListener);
+  let clpgsLstrs = gClippings.getClippingsListeners();
+  clpgsLstrs.remove(gClippingsListener);
   
   /***
   let syncClippingsListeners = gClippings.getSyncClippingsListeners();
@@ -3027,7 +3026,7 @@ function initDialogs()
   };
   gDialogs.importFromFile.onAccept = aEvent => {
     let that = gDialogs.importFromFile;
-    let clippingsListeners = gClippings.getClippingsListeners().getListeners();
+    let clpgsLstrs = gClippings.getClippingsListeners();
    
     function importFile(aAppendItems)
     {
@@ -3060,7 +3059,7 @@ function initDialogs()
           $("#import-progress-bar").hide();
           console.error(e);
           $("#import-error").text(messenger.i18n.getMessage("importError")).show();
-          clippingsListeners.forEach(aListener => { aListener.importFinished(false) });
+          clpgsLstrs.forEach(aListener => { aListener.importFinished(false) });
 
           return;
         }
@@ -3089,7 +3088,7 @@ function initDialogs()
       gClippingsDB.transaction("rw", gClippingsDB.clippings, gClippingsDB.folders, () => {
         log("Clippings/mx::clippingsMgr.js: gDialogs.importFromFile.onAccept(): Starting restore from backup file.\nDeleting all clippings and folders (except the 'Synced Clippings' folder, if Sync Clippings turned on).");
 
-        clippingsListeners.forEach(aListener => { aListener.importStarted() });       
+        clpgsLstrs.forEach(aListener => { aListener.importStarted() });       
 	gCmd.recentAction = gCmd.ACTION_RESTORE_BACKUP;
 
         gClippingsDB.folders.each((aItem, aCursor) => {
@@ -3120,7 +3119,7 @@ function initDialogs()
     else {
       info("Clippings/mx::clippingsMgr.js: Import dialog mode: Import File");
       gCmd.recentAction = gCmd.ACTION_IMPORT;
-      clippingsListeners.forEach(aListener => { aListener.importStarted() });
+      clpgsLstrs.forEach(aListener => { aListener.importStarted() });
       
       importFile(true);
     }
@@ -3245,8 +3244,8 @@ function initDialogs()
     $("#import-confirm-msgbox > .msgbox-content").text(aMessage);
   };
   gDialogs.importConfirmMsgBox.onAfterAccept = () => {
-    let clippingsListeners = gClippings.getClippingsListeners().getListeners();
-    clippingsListeners.forEach(aListener => { aListener.importFinished(true) });
+    let clpgsLstrs = gClippings.getClippingsListeners();
+    clpgsLstrs.forEach(aListener => { aListener.importFinished(true) });
     window.location.reload();
   };
 
@@ -3532,7 +3531,7 @@ function buildClippingsTree()
           }
 
           let parentNode = aNode.getParent();
-          let clippingsListeners = gClippings.getClippingsListeners().getListeners();
+          let clpgsLstrs = gClippings.getClippingsListeners();
           
           if (aData.otherNode) {           
             let newParentID = aeConst.ROOT_FOLDER_ID;
@@ -3561,7 +3560,7 @@ function buildClippingsTree()
               return;
             }
 
-            clippingsListeners.forEach(aListener => {
+            clpgsLstrs.forEach(aListener => {
               aListener.dndMoveStarted();
             });
 
@@ -3606,7 +3605,7 @@ function buildClippingsTree()
             
             gCmd.updateDisplayOrder(oldParentID, destUndoStack, undoInfo, !isReordering).then(() => {
               if (isReordering) {
-                clippingsListeners.forEach(aListener => {
+                clpgsLstrs.forEach(aListener => {
                   aListener.dndMoveFinished();
                 });
                 return;
@@ -3617,7 +3616,7 @@ function buildClippingsTree()
                 aNode.setExpanded();
               }
 
-              clippingsListeners.forEach(aListener => {
+              clpgsLstrs.forEach(aListener => {
                 aListener.dndMoveFinished();
               });
 	    });

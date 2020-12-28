@@ -326,7 +326,7 @@ window.aecreations.clippings = {
 
     var selection = this.getSelectedText();
     if (selection) {
-      this.getMxListener().newClippingDlgRequested(selection);
+      this.getMxListener().newClippingDlgOpened(selection);
     }
     else {
       this.alert(this.strBundle.getString("errorNoSelection"));
@@ -336,7 +336,7 @@ window.aecreations.clippings = {
 
   openClippingsManager: function () 
   {
-    this.getMxListener().openingClippingsManager();
+    this.getMxListener().clippingsManagerWndOpened();
   },
 
 

@@ -10,13 +10,11 @@ Services.scriptloader.loadSubScript("chrome://clippings/content/tbMsgComposeOver
 
 
 let gClippingsMxListener = function () {
-  // Private member variables
   let _clippings = WL.messenger.extension.getBackgroundPage();
   let _cxtMenuData = null;
 
-  // Public methods
   return {
-    newClippingDlgRequested(aClippingContent)
+    newClippingDlgOpened(aClippingContent)
     {
       if (! aClippingContent) {
 	return;
@@ -25,7 +23,7 @@ let gClippingsMxListener = function () {
       _clippings.openNewClippingDlg(aClippingContent);
     },
 
-    openingClippingsManager()
+    clippingsManagerWndOpened()
     {
       _clippings.openClippingsManager(false);
     },

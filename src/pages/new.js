@@ -325,8 +325,8 @@ function initDialogs()
         
         that.resetTree();
 
-        let clippingsListeners = gClippings.getClippingsListeners().getListeners();
-        clippingsListeners.forEach(aListener => {
+        let clipgsLstrs = gClippings.getClippingsListeners();
+        clipgsLstrs.forEach(aListener => {
           aListener.newFolderCreated(aFldrID, newFolder, aeConst.ORIGIN_HOSTAPP);
         });
         
@@ -489,8 +489,8 @@ function accept(aEvent)
     // TEMPORARY
     }).then(async (aNewClippingID) => {
     // END TEMPORARY
-      let clippingsListeners = gClippings.getClippingsListeners().getListeners();
-      clippingsListeners.forEach(aListener => {
+      let clipgsLstrs = gClippings.getClippingsListeners();
+      clipgsLstrs.forEach(aListener => {
         aListener.newClippingCreated(aNewClippingID, newClipping, aeConst.ORIGIN_HOSTAPP);
       });
       /***

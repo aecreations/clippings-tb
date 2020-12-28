@@ -696,7 +696,12 @@ function getHostAppName()
 
 function getClippingsListeners()
 {
-  return gClippingsListeners;
+  return gClippingsListeners.getListeners();
+}
+
+function addClippingsListener(aListener)
+{
+  gClippingsListeners.add(aListener);
 }
 
 function getPrefs()
