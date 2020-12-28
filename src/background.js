@@ -450,6 +450,10 @@ function getContextMenuData(aFolderID = aeConst.ROOT_FOLDER_ID)
             },
           };
 
+          if (aItem.label) {
+            menuItemData.label = aItem.label;
+          }
+
           if (aItem.displayOrder === undefined) {
             menuItemData.displayOrder = 0;
           }

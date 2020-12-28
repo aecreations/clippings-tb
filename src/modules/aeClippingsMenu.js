@@ -71,6 +71,10 @@ class ClippingsMenu
 	  this._fnMenuItemCmd(aEvent);
 	});
 
+	if ("label" in item) {
+	  menuItemElt.setAttribute("data-clipping-label", item.label);
+	}
+
 	aMenuPopupElt.appendChild(menuItemElt);
       }
     }
