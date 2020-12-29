@@ -18,15 +18,10 @@ else {
 }
 
 window.aecreations.clippings = {
-  dataSrcInitialized:     false,
   isClippingsInitialized: false,
   showDialog:             true,
   showPasteOpts:          false,
-  clippingsSvc:           null,
   strBundle:              null,
-  _clippingsListener:     null,
-  _isErrMenuItemVisible:  false,
-  _ds:                    null,
   _menu:                  null,
   _clippingsMxListener:   null,
 
@@ -344,7 +339,6 @@ window.aecreations.clippings = {
 
     this._menu.build();
     
-    this.dataSrcInitialized = true;
     this.util.aeUtils.log("gClippings.initClippingsPopup(): Data source initialization completed.");
   },
 

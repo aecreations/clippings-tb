@@ -1313,101 +1313,90 @@ let gCmd = {
     });
   },
   
-  editFolderNameIntrl: function (aFolderID, aName, aDestUndoStack)
+  async editFolderNameIntrl(aFolderID, aName, aDestUndoStack)
   {
-    let that = this;
+    let oldName = "";
     
-    return new Promise((aFnResolve, aFnReject) => {
-      let oldName = "";
-      
-      gClippingsDB.folders.get(aFolderID).then(aFolder => {
-        oldName = aFolder.name;
+    gClippingsDB.folders.get(aFolderID).then(aFolder => {
+      oldName = aFolder.name;
 
-        if (aName == oldName) {
-          return 0;
-        }
+      if (aName == oldName) {
+        return 0;
+      }
 
-	that.recentAction = that.ACTION_EDITNAME;
-        return gClippingsSvc.updateFolder(aFolderID, { name: aName }, aFolder);
+      this.recentAction = this.ACTION_EDITNAME;
+      return gClippingsSvc.updateFolder(aFolderID, { name: aName }, aFolder);
 
-      }).then(aNumUpd => {
-        if (aNumUpd && aDestUndoStack == that.UNDO_STACK) {
-          that.undoStack.push({
-            action: that.ACTION_EDITNAME,
-            id: aFolderID,
-            name: aName,
-            oldName,
-            itemType: that.ITEMTYPE_FOLDER
-          });
-        }
+    }).then(aNumUpd => {
+      if (aNumUpd && aDestUndoStack == this.UNDO_STACK) {
+        this.undoStack.push({
+          action: this.ACTION_EDITNAME,
+          id: aFolderID,
+          name: aName,
+          oldName,
+          itemType: this.ITEMTYPE_FOLDER
+        });
+      }
 
-        if (gSyncedItemsIDs[aFolderID + "F"]) {
-          gClippings.pushSyncFolderUpdates().then(() => {
-            aFnResolve();
-          }).catch(aErr => {
-            handlePushSyncItemsError(aErr);
-          });
-        }
-        else {
-          aFnResolve();
-        }
-      }).catch(aErr => {
-        console.error("Clippings/mx::clippingsMgr.js: gCmd.editFolderNameIntrl(): " + aErr);
-        aFnReject(aErr);
-      });
+      if (gSyncedItemsIDs[aFolderID + "F"]) {
+        gClippings.pushSyncFolderUpdates().then(() => {
+          Promise.resolve();
+        }).catch(aErr => {
+          handlePushSyncItemsError(aErr);
+        });
+      }
+      else {
+        Promise.resolve();
+      }
+    }).catch(aErr => {
+      console.error("Clippings/mx::clippingsMgr.js: gCmd.editFolderNameIntrl(): " + aErr);
+      Promise.reject(aErr);
     });
   },
 
-  editClippingNameIntrl: function (aClippingID, aName, aDestUndoStack)
+  async editClippingNameIntrl(aClippingID, aName, aDestUndoStack)
   {
-    let that = this;
+    let oldName = "";
     
-    return new Promise((aFnResolve, aFnReject) => {
-      let oldName = "";
-      
-      gClippingsDB.clippings.get(aClippingID).then(aClipping => {
-        oldName = aClipping.name;
+    gClippingsDB.clippings.get(aClippingID).then(aClipping => {
+      oldName = aClipping.name;
 
-        if (aName == oldName) {
-          return 0;
-        }
+      if (aName == oldName) {
+        return 0;
+      }
 
-	that.recentAction = that.ACTION_EDITNAME;
-        return gClippingsSvc.updateClipping(aClippingID, { name: aName }, aClipping);
+      this.recentAction = this.ACTION_EDITNAME;
+      return gClippingsSvc.updateClipping(aClippingID, { name: aName }, aClipping);
 
-      }).then(aNumUpd => {
-        if (aNumUpd && aDestUndoStack == that.UNDO_STACK) {
-          that.undoStack.push({
-            action: that.ACTION_EDITNAME,
-            id: aClippingID,
-            name: aName,
-            oldName,
-            itemType: that.ITEMTYPE_CLIPPING
-          });
-        }
+    }).then(aNumUpd => {
+      if (aNumUpd && aDestUndoStack == this.UNDO_STACK) {
+        this.undoStack.push({
+          action: this.ACTION_EDITNAME,
+          id: aClippingID,
+          name: aName,
+          oldName,
+          itemType: this.ITEMTYPE_CLIPPING
+        });
+      }
 
-        if (gSyncedItemsIDs[aClippingID + "C"]) {
-          gClippings.pushSyncFolderUpdates().then(() => {
-            aFnResolve();
-          }).catch(aErr => {
-            handlePushSyncItemsError(aErr);
-          });
-        }
-        else {
-          aFnResolve();
-        }
-      }).catch(aErr => {
-        console.error("Clippings/mx::clippingsMgr.js: gCmd.editClippingNameIntrl(): " + aErr);
-        aFnReject(aErr);
-      });
+      if (gSyncedItemsIDs[aClippingID + "C"]) {
+        gClippings.pushSyncFolderUpdates().then(() => {
+          Promise.resolve();
+        }).catch(aErr => {
+          handlePushSyncItemsError(aErr);
+        });
+      }
+      else {
+        Promise.resolve();
+      }
+    }).catch(aErr => {
+      console.error("Clippings/mx::clippingsMgr.js: gCmd.editClippingNameIntrl(): " + aErr);
+      Promise.reject(aErr);
     });
   },
 
-  editClippingContentIntrl: function (aClippingID, aContent, aDestUndoStack)
+  async editClippingContentIntrl(aClippingID, aContent, aDestUndoStack)
   {
-    let that = this;
-    
-    return new Promise((aFnResolve, aFnReject) => {
       let oldContent = "";
       
       gClippingsDB.clippings.get(aClippingID).then(aClipping => {
@@ -1417,35 +1406,34 @@ let gCmd = {
           return 0;
         }
 
-	that.recentAction = that.ACTION_EDITCONTENT;
+	this.recentAction = this.ACTION_EDITCONTENT;
         return gClippingsSvc.updateClipping(aClippingID, { content: aContent }, aClipping);
 
       }).then(aNumUpd => {
-        if (aNumUpd && aDestUndoStack == that.UNDO_STACK) {
-          that.undoStack.push({
-            action: that.ACTION_EDITCONTENT,
+        if (aNumUpd && aDestUndoStack == this.UNDO_STACK) {
+          this.undoStack.push({
+            action: this.ACTION_EDITCONTENT,
             id: aClippingID,
             content: aContent,
             oldContent,
-            itemType: that.ITEMTYPE_CLIPPING
+            itemType: this.ITEMTYPE_CLIPPING
           });
         }
 
         if (gSyncedItemsIDs[aClippingID + "C"]) {
           gClippings.pushSyncFolderUpdates().then(() => {
-            aFnResolve();
+            Promise.resolve();
           }).catch(aErr => {
             handlePushSyncItemsError(aErr);
           });
         }
         else {
-          aFnResolve();
+          Promise.resolve();
         }
       }).catch(aErr => {
         console.error("Clippings/mx::clippingsMgr.js: gCmd.editClippingContentIntrl(): " + aErr);
-        aFnReject(aErr);
+        Promise.reject(aErr);
       });
-    });
   },
   
   setLabelIntrl: function (aClippingID, aLabel, aDestUndoStack)
@@ -2012,7 +2000,7 @@ let gCmd = {
   {
     return new Promise((aFnResolve, aFnReject) => {
       gClippingsDB.transaction("rw", gClippingsDB.clippings, gClippingsDB.folders, () => {
-	gClippingsDB.folders.where("parentFolderID").equals(aSrcFldrID).each((aItem, aCursor) => {
+        gClippingsDB.folders.where("parentFolderID").equals(aSrcFldrID).each((aItem, aCursor) => {
           let folderCpy = {
             name: aItem.name,
             parentFolderID: aTargFldrID,
@@ -2027,7 +2015,7 @@ let gCmd = {
             this._copyFolderHelper(aItem.id, aNewSubFldrID);
           });
 
-	}).then(() => {
+        }).then(() => {
           return gClippingsDB.clippings.where("parentFolderID").equals(aSrcFldrID).each((aItem, aCursor) => {
             let clippingCpy = {
               name: aItem.name,
@@ -2047,12 +2035,12 @@ let gCmd = {
               });
             });
           });
-	}).then(() => {
+        }).then(() => {
 	  aFnResolve();
-	});
+        });
       }).catch(aErr => {
-	console.error("Clippings/mx::clippingsMgr.js: gCmd._copyFolderHelper(): " + aErr);
-	aFnReject(aErr);
+        console.error("Clippings/mx::clippingsMgr.js: gCmd._copyFolderHelper(): " + aErr);
+        aFnReject(aErr);
       });
     });
   }
@@ -3449,428 +3437,427 @@ function getClippingsTree()
 }
 
 
-function buildClippingsTree()
+async function buildClippingsTree()
 {
   let treeData = [];
-  
-  buildClippingsTreeHelper(aeConst.ROOT_FOLDER_ID).then(aTreeData => {
-    if (aTreeData.length == 0) {
-      treeData = setEmptyClippingsState();
-    }
-    else {
-      treeData = aTreeData;
-    }
+  try {
+    treeData = await buildClippingsTreeHelper(aeConst.ROOT_FOLDER_ID); 
+  }
+  catch (e) {
+    console.error("clippingsMgr.js::buildClippingsTree(): %s", e);
+    showInitError();
+    return;
+  }
 
-    $("#clippings-tree").fancytree({
-      extensions: ["dnd5", "filter"],
+  if (treeData.length == 0) {
+    treeData = setEmptyClippingsState();
+  }
 
-      debugLevel: 0,
-      autoScroll: true,
-      source: treeData,
-      selectMode: 1,
-      icon: (gIsClippingsTreeEmpty ? false : true),
+  $("#clippings-tree").fancytree({
+    extensions: ["dnd5", "filter"],
 
-      init: function (aEvent, aData) {
-        let rootNode = aData.tree.getRootNode();
-        if (rootNode.children.length > 0 && !gIsClippingsTreeEmpty) {
-          rootNode.children[0].setActive();
+    debugLevel: 0,
+    autoScroll: true,
+    source: treeData,
+    selectMode: 1,
+    icon: (gIsClippingsTreeEmpty ? false : true),
+
+    init: function (aEvent, aData) {
+      let rootNode = aData.tree.getRootNode();
+      if (rootNode.children.length > 0 && !gIsClippingsTreeEmpty) {
+        rootNode.children[0].setActive();
+      }
+    },
+
+    activate: function (aEvent, aData) {
+      log("Clippings/mx::clippingsMgr.js: Activate event fired on clippings tree");
+      updateDisplay(aEvent, aData);
+    },
+
+    async dblclick(aEvent, aData) {
+      log("Clippings/mx::clippingsMgr.js: Double-click event fired on clippings tree");
+      updateDisplay(aEvent, aData);
+
+      if (aData.targetType == "title" || aData.targetType == "icon") {
+        if (! aData.node.isFolder()) {
+          let clippingID = parseInt(aData.node.key);
+          gCmd.pasteClipping(clippingID);
         }
+      }
+    },
+
+    dnd5: {
+      autoExpandMS: 1000,
+      preventRecursiveMoves: true,
+      preventVoidMoves: true,
+      scroll: true,
+
+      dragStart: function (aNode, aData) {
+        gReorderedTreeNodeNextSibling = aNode.getNextSibling();
+        return true;
       },
 
-      activate: function (aEvent, aData) {
-        log("Clippings/mx::clippingsMgr.js: Activate event fired on clippings tree");
-        updateDisplay(aEvent, aData);
+      dragEnd: function (aNode, aData) {
+        gReorderedTreeNodeNextSibling = null;
       },
 
-      async dblclick(aEvent, aData) {
-        log("Clippings/mx::clippingsMgr.js: Double-click event fired on clippings tree");
-        updateDisplay(aEvent, aData);
-
-        if (aData.targetType == "title" || aData.targetType == "icon") {
-          if (! aData.node.isFolder()) {
-            let clippingID = parseInt(aData.node.key);
-            gCmd.pasteClipping(clippingID);
-          }
+      dragEnter: function (aNode, aData) {
+        if (! aNode.isFolder()) {
+          // Prevent attempt to drop a node into a non-folder node; in such a
+          // case, only allow reordering of nodes.
+          return ["before", "after"];
         }
+        
+        aData.dataTransfer.dropEffect = "move";
+        return true;
       },
 
-      dnd5: {
-        autoExpandMS: 1000,
-        preventRecursiveMoves: true,
-        preventVoidMoves: true,
-        scroll: true,
+      dragDrop: function (aNode, aData) {
+        if (gIsClippingsTreeEmpty) {
+          return;
+        }
 
-        dragStart: function (aNode, aData) {
-          gReorderedTreeNodeNextSibling = aNode.getNextSibling();
-          return true;
-        },
+        // Prevent dropping into a non-folder node.
+        if (!aNode.isFolder() && aData.hitMode == "over") {
+          return;
+        }
 
-        dragEnd: function (aNode, aData) {
-          gReorderedTreeNodeNextSibling = null;
-        },
+        let parentNode = aNode.getParent();
+        let clpgsLstrs = gClippings.getClippingsListeners();
+        
+        if (aData.otherNode) {           
+          let newParentID = aeConst.ROOT_FOLDER_ID;
 
-        dragEnter: function (aNode, aData) {
-          if (! aNode.isFolder()) {
-            // Prevent attempt to drop a node into a non-folder node; in such a
-            // case, only allow reordering of nodes.
-            return ["before", "after"];
+          if (aNode.isFolder() && aData.hitMode == "over") {
+            newParentID = parseInt(aNode.key);
           }
-          
-          aData.dataTransfer.dropEffect = "move";
-          return true;
-        },
+          else {
+            newParentID = (parentNode.isRootNode() ? aeConst.ROOT_FOLDER_ID : parseInt(parentNode.key));
+          }
 
-        dragDrop: function (aNode, aData) {
-          if (gIsClippingsTreeEmpty) {
+          let oldParentID;
+          if (aData.otherNode.getParent().isRootNode()) {
+            oldParentID = aeConst.ROOT_FOLDER_ID;
+          }
+          else {
+            oldParentID = parseInt(aData.otherNode.getParent().key);
+          }
+
+          let id = parseInt(aData.otherNode.key);
+          let prefs = gClippings.getPrefs();
+
+          if (prefs.syncClippings && id == prefs.syncFolderID
+              && newParentID != aeConst.ROOT_FOLDER_ID) {
+            warn("The Synced Clippings folder cannot be moved.");
             return;
           }
 
-          // Prevent dropping into a non-folder node.
-          if (!aNode.isFolder() && aData.hitMode == "over") {
-            return;
+          clpgsLstrs.forEach(aListener => {
+            aListener.dndMoveStarted();
+          });
+
+          aData.otherNode.moveTo(aNode, aData.hitMode);
+          
+          log(`Clippings/mx::clippingsMgr.js::#clippings-tree.dnd5.dragDrop(): ID of moved clipping or folder: ${id}\nID of old parent folder: ${oldParentID}\nID of new parent folder: ${newParentID}`);
+
+          let isReordering = false;
+
+          if (newParentID == oldParentID) {
+            log(`It appears that the node (key = ${aData.otherNode.key}) was just reordered, as it was moved within the same folder. Rebuilding Clippings context menu.`);
+            isReordering = true;
+          }
+          else {
+            if (aData.otherNode.isFolder()) {
+              gCmd.moveFolderIntrl(id, newParentID, gCmd.UNDO_STACK);
+            }
+            else {
+              gCmd.moveClippingIntrl(id, newParentID, gCmd.UNDO_STACK);
+            }
           }
 
-          let parentNode = aNode.getParent();
-          let clpgsLstrs = gClippings.getClippingsListeners();
+          log("Clippings/mx::clippingsMgr.js::#clippings-tree.dnd5.dragDrop(): Updating display order");
+          let destUndoStack = null;
+          let undoInfo = null;
           
-          if (aData.otherNode) {           
-            let newParentID = aeConst.ROOT_FOLDER_ID;
-
-            if (aNode.isFolder() && aData.hitMode == "over") {
-              newParentID = parseInt(aNode.key);
-            }
-            else {
-              newParentID = (parentNode.isRootNode() ? aeConst.ROOT_FOLDER_ID : parseInt(parentNode.key));
-            }
-
-            let oldParentID;
-            if (aData.otherNode.getParent().isRootNode()) {
-              oldParentID = aeConst.ROOT_FOLDER_ID;
-            }
-            else {
-              oldParentID = parseInt(aData.otherNode.getParent().key);
-            }
-
-            let id = parseInt(aData.otherNode.key);
-            let prefs = gClippings.getPrefs();
-
-            if (prefs.syncClippings && id == prefs.syncFolderID
-                && newParentID != aeConst.ROOT_FOLDER_ID) {
-              warn("The Synced Clippings folder cannot be moved.");
-              return;
-            }
-
-            clpgsLstrs.forEach(aListener => {
-              aListener.dndMoveStarted();
-            });
-
-            aData.otherNode.moveTo(aNode, aData.hitMode);
+          if (isReordering) {
+            let nextSiblingNode = gReorderedTreeNodeNextSibling;
+            destUndoStack = gCmd.UNDO_STACK;
             
-            log(`Clippings/mx::clippingsMgr.js::#clippings-tree.dnd5.dragDrop(): ID of moved clipping or folder: ${id}\nID of old parent folder: ${oldParentID}\nID of new parent folder: ${newParentID}`);
-
-            let isReordering = false;
-
-            if (newParentID == oldParentID) {
-              log(`It appears that the node (key = ${aData.otherNode.key}) was just reordered, as it was moved within the same folder. Rebuilding Clippings context menu.`);
-              isReordering = true;
-            }
-            else {
-              if (aData.otherNode.isFolder()) {
-                gCmd.moveFolderIntrl(id, newParentID, gCmd.UNDO_STACK);
-              }
-              else {
-                gCmd.moveClippingIntrl(id, newParentID, gCmd.UNDO_STACK);
-              }
-            }
-
-            log("Clippings/mx::clippingsMgr.js::#clippings-tree.dnd5.dragDrop(): Updating display order");
-            let destUndoStack = null;
-            let undoInfo = null;
-            
+            undoInfo = {
+              action: gCmd.ACTION_CHANGEPOSITION,
+              id: parseInt(aData.otherNode.key),
+              nodeKey: aData.otherNode.key,
+              parentFolderID: newParentID,
+              itemType: (aNode.folder ? gCmd.ITEMTYPE_FOLDER : gCmd.ITEMTYPE_CLIPPING),
+              nextSiblingNodeKey: (nextSiblingNode ? nextSiblingNode.key : null),
+            };
+            log("Clippings/mx::clippingsMgr.js: Saving undo info for clipping/folder reordering:");
+            log(undoInfo);
+          }
+          
+          gCmd.updateDisplayOrder(oldParentID, destUndoStack, undoInfo, !isReordering).then(() => {
             if (isReordering) {
-              let nextSiblingNode = gReorderedTreeNodeNextSibling;
-              destUndoStack = gCmd.UNDO_STACK;
-              
-              undoInfo = {
-                action: gCmd.ACTION_CHANGEPOSITION,
-                id: parseInt(aData.otherNode.key),
-                nodeKey: aData.otherNode.key,
-                parentFolderID: newParentID,
-                itemType: (aNode.folder ? gCmd.ITEMTYPE_FOLDER : gCmd.ITEMTYPE_CLIPPING),
-                nextSiblingNodeKey: (nextSiblingNode ? nextSiblingNode.key : null),
-              };
-              log("Clippings/mx::clippingsMgr.js: Saving undo info for clipping/folder reordering:");
-              log(undoInfo);
-            }
-            
-            gCmd.updateDisplayOrder(oldParentID, destUndoStack, undoInfo, !isReordering).then(() => {
-              if (isReordering) {
-                clpgsLstrs.forEach(aListener => {
-                  aListener.dndMoveFinished();
-                });
-                return;
-              }
-              return gCmd.updateDisplayOrder(newParentID, null, null, false);
-            }).then(() => {
-	      if (newParentID != oldParentID) {
-                aNode.setExpanded();
-              }
-
               clpgsLstrs.forEach(aListener => {
                 aListener.dndMoveFinished();
               });
-	    });
-          }
-          else {
-            // Dropping a non-node.
-            let dndData = aData.dataTransfer.getData("text");
-
-            if (! dndData) {
-              log("Clippings/mx::clippingsMgr.js: #clippings-tree.dnd5.dragDrop(): Non-node was dropped into tree.  Unable to process its data; ignoring.");
               return;
             }
-            
-            log("Clippings/mx::clippingsMgr.js: #clippings-tree.dnd5.dragDrop(): Non-node was dropped into tree.  Textual content detected.");
-            
-            aData.dataTransfer.effect = "copy";
-
-            let parentID = aeConst.ROOT_FOLDER_ID;
-            if (aNode.isFolder() && aData.hitMode == "over") {
-              parentID = parseInt(aNode.key);
-            }
-            else {
-              parentID = parentNode.isRootNode() ? aeConst.ROOT_FOLDER_ID : parseInt(parentNode.key);
-            }
-
-            let clipName = gClippings.createClippingNameFromText(dndData);
-            let clipContent = dndData;
-
-            gCmd.newClippingWithContent(parentID, clipName, clipContent, gCmd.UNDO_STACK);
-	    
-            if (aNode.isFolder()) {
+            return gCmd.updateDisplayOrder(newParentID, null, null, false);
+          }).then(() => {
+	    if (newParentID != oldParentID) {
               aNode.setExpanded();
             }
-          }
+
+            clpgsLstrs.forEach(aListener => {
+              aListener.dndMoveFinished();
+            });
+	  });
         }
-      },
+        else {
+          // Dropping a non-node.
+          let dndData = aData.dataTransfer.getData("text");
 
-      filter: {
-        autoExpand: true,
-        counter: false,
-        highlight: true,
-        mode: "hide"
-      }
-    });
-
-    setStatusBarMsg(gIsClippingsTreeEmpty ? messenger.i18n.getMessage("clipMgrStatusBar", "0") : null);
-
-    // Context menu for the clippings tree.
-    $.contextMenu({
-      selector: "#clippings-tree > ul.ui-fancytree > li",
-
-      events: {
-        show: function (aOpts) {
-          return (! gIsClippingsTreeEmpty);
-        }
-      },
-      
-      callback: function (aItemKey, aOpt, aRootMenu, aOriginalEvent) {
-        function setLabel(aLabel) {
-          let tree = getClippingsTree();
-          let selectedNode = tree.activeNode;
-          if (!selectedNode || selectedNode.isFolder()) {
+          if (! dndData) {
+            log("Clippings/mx::clippingsMgr.js: #clippings-tree.dnd5.dragDrop(): Non-node was dropped into tree.  Unable to process its data; ignoring.");
             return;
           }
+          
+          log("Clippings/mx::clippingsMgr.js: #clippings-tree.dnd5.dragDrop(): Non-node was dropped into tree.  Textual content detected.");
+          
+          aData.dataTransfer.effect = "copy";
 
-          let clippingID = parseInt(selectedNode.key);
-          gCmd.setLabelIntrl(clippingID, aLabel, gCmd.UNDO_STACK);
-        }
-        
-        switch (aItemKey) {
-	case "reloadSyncFolder":
-	  gCmd.reloadSyncFolder();
-	  break;
+          let parentID = aeConst.ROOT_FOLDER_ID;
+          if (aNode.isFolder() && aData.hitMode == "over") {
+            parentID = parseInt(aNode.key);
+          }
+          else {
+            parentID = parentNode.isRootNode() ? aeConst.ROOT_FOLDER_ID : parseInt(parentNode.key);
+          }
+
+          let clipName = gClippings.createClippingNameFromText(dndData);
+          let clipContent = dndData;
+
+          gCmd.newClippingWithContent(parentID, clipName, clipContent, gCmd.UNDO_STACK);
 	  
-        case "moveOrCopy":
-          gCmd.moveClippingOrFolder();
-          break;
-          
-        case "deleteItem":
-          gCmd.deleteClippingOrFolder(gCmd.UNDO_STACK);
-          break;
-          
-        case "labelNone":
-          setLabel("");
-          break;
-          
-        case "labelRed":
-        case "labelOrange":
-        case "labelYellow":
-        case "labelGreen":
-        case "labelBlue":
-        case "labelPurple":
-        case "labelGrey":
-          setLabel(aItemKey.substr(5).toLowerCase());
-          break;
+          if (aNode.isFolder()) {
+            aNode.setExpanded();
+          }
+        }
+      }
+    },
 
-        default:
-          window.alert("The selected action is not available right now.");
-          break;
+    filter: {
+      autoExpand: true,
+      counter: false,
+      highlight: true,
+      mode: "hide"
+    }
+  });
+
+  setStatusBarMsg(gIsClippingsTreeEmpty ? messenger.i18n.getMessage("clipMgrStatusBar", "0") : null);
+
+  // Context menu for the clippings tree.
+  $.contextMenu({
+    selector: "#clippings-tree > ul.ui-fancytree > li",
+
+    events: {
+      show: function (aOpts) {
+        return (! gIsClippingsTreeEmpty);
+      }
+    },
+    
+    callback: function (aItemKey, aOpt, aRootMenu, aOriginalEvent) {
+      function setLabel(aLabel) {
+        let tree = getClippingsTree();
+        let selectedNode = tree.activeNode;
+        if (!selectedNode || selectedNode.isFolder()) {
+          return;
+        }
+
+        let clippingID = parseInt(selectedNode.key);
+        gCmd.setLabelIntrl(clippingID, aLabel, gCmd.UNDO_STACK);
+      }
+      
+      switch (aItemKey) {
+      case "reloadSyncFolder":
+	gCmd.reloadSyncFolder();
+	break;
+	
+      case "moveOrCopy":
+        gCmd.moveClippingOrFolder();
+        break;
+        
+      case "deleteItem":
+        gCmd.deleteClippingOrFolder(gCmd.UNDO_STACK);
+        break;
+        
+      case "labelNone":
+        setLabel("");
+        break;
+        
+      case "labelRed":
+      case "labelOrange":
+      case "labelYellow":
+      case "labelGreen":
+      case "labelBlue":
+      case "labelPurple":
+      case "labelGrey":
+        setLabel(aItemKey.substr(5).toLowerCase());
+        break;
+
+      default:
+        window.alert("The selected action is not available right now.");
+        break;
+      }
+    },
+    
+    items: {
+      reloadSyncFolder: {
+        name: messenger.i18n.getMessage("mnuReloadSyncFldr"),
+        className: "ae-menuitem",
+        visible: function (aItemKey, aOpt) {
+          let tree = getClippingsTree();
+          let selectedNode = tree.activeNode;
+          
+          if (!selectedNode || !selectedNode.isFolder()) {
+            return false;
+          }
+
+          let folderID = parseInt(selectedNode.key);
+          return (folderID == gClippings.getSyncFolderID());
         }
       },
-      
-      items: {
-        reloadSyncFolder: {
-          name: messenger.i18n.getMessage("mnuReloadSyncFldr"),
-          className: "ae-menuitem",
-          visible: function (aItemKey, aOpt) {
-            let tree = getClippingsTree();
-            let selectedNode = tree.activeNode;
-            
-            if (!selectedNode || !selectedNode.isFolder()) {
-              return false;
-            }
 
-            let folderID = parseInt(selectedNode.key);
-            return (folderID == gClippings.getSyncFolderID());
+      moveOrCopy: {
+        name: messenger.i18n.getMessage("mnuMoveOrCopy"),
+        className: "ae-menuitem",
+        disabled: function (aKey, aOpt) {
+          let tree = getClippingsTree();
+          let selectedNode = tree.activeNode;
+
+          if (! selectedNode) {
+            return false;
           }
+
+          let folderID = parseInt(selectedNode.key);
+          return (folderID == gClippings.getSyncFolderID());
+        }
+      },
+      labelSubmenu: {
+        name: messenger.i18n.getMessage("mnuEditLabel"),
+        visible: function (aItemKey, aOpt) {
+          return (! isFolderSelected());
         },
-
-        moveOrCopy: {
-          name: messenger.i18n.getMessage("mnuMoveOrCopy"),
-          className: "ae-menuitem",
-          disabled: function (aKey, aOpt) {
-            let tree = getClippingsTree();
-            let selectedNode = tree.activeNode;
-
-            if (! selectedNode) {
-              return false;
+        items: {
+          labelNone: {
+            name: messenger.i18n.getMessage("none"),
+            className: "ae-menuitem",
+            icon: function (aOpt, $itemElement, aItemKey, aItem) {
+              if (gClippingLabelPicker.selectedLabel == "") {
+                return "context-menu-icon-checked";
+              }
             }
-
-            let folderID = parseInt(selectedNode.key);
-            return (folderID == gClippings.getSyncFolderID());
-          }
-        },
-        labelSubmenu: {
-          name: messenger.i18n.getMessage("mnuEditLabel"),
-          visible: function (aItemKey, aOpt) {
-            return (! isFolderSelected());
           },
-          items: {
-            labelNone: {
-              name: messenger.i18n.getMessage("none"),
-              className: "ae-menuitem",
-              icon: function (aOpt, $itemElement, aItemKey, aItem) {
-                if (gClippingLabelPicker.selectedLabel == "") {
-                  return "context-menu-icon-checked";
-                }
+          labelRed: {
+            name: messenger.i18n.getMessage("labelRed"),
+            className: "ae-menuitem clipping-label-red",
+            icon: function (aOpt, $itemElement, aItemKey, aItem) {
+              if (gClippingLabelPicker.selectedLabel == aItemKey.substr(5).toLowerCase()) {
+                return "context-menu-icon-checked";
               }
-            },
-            labelRed: {
-              name: messenger.i18n.getMessage("labelRed"),
-              className: "ae-menuitem clipping-label-red",
-              icon: function (aOpt, $itemElement, aItemKey, aItem) {
-                if (gClippingLabelPicker.selectedLabel == aItemKey.substr(5).toLowerCase()) {
-                  return "context-menu-icon-checked";
-                }
-              }
-            },
-            labelOrange: {
-              name: messenger.i18n.getMessage("labelOrange"),
-              className: "ae-menuitem clipping-label-orange",
-              icon: function (aOpt, $itemElement, aItemKey, aItem) {
-                if (gClippingLabelPicker.selectedLabel == aItemKey.substr(5).toLowerCase()) {
-                  return "context-menu-icon-checked";
-                }
-              }
-            },
-            labelYellow: {
-              name: messenger.i18n.getMessage("labelYellow"),
-              className: "ae-menuitem clipping-label-yellow",
-              icon: function (aOpt, $itemElement, aItemKey, aItem) {
-                if (gClippingLabelPicker.selectedLabel == aItemKey.substr(5).toLowerCase()) {
-                  return "context-menu-icon-checked";
-                }
-              }
-            },
-            labelGreen: {
-              name: messenger.i18n.getMessage("labelGreen"),
-              className: "ae-menuitem clipping-label-green",
-              icon: function (aOpt, $itemElement, aItemKey, aItem) {
-                if (gClippingLabelPicker.selectedLabel == aItemKey.substr(5).toLowerCase()) {
-                  return "context-menu-icon-checked";
-                }
-              }
-            },
-            labelBlue: {
-              name: messenger.i18n.getMessage("labelBlue"),
-              className: "ae-menuitem clipping-label-blue",
-              icon: function (aOpt, $itemElement, aItemKey, aItem) {
-                if (gClippingLabelPicker.selectedLabel == aItemKey.substr(5).toLowerCase()) {
-                  return "context-menu-icon-checked";
-                }
-              }
-            },
-            labelPurple: {
-              name: messenger.i18n.getMessage("labelPurple"),
-              className: "ae-menuitem clipping-label-purple",
-              icon: function (aOpt, $itemElement, aItemKey, aItem) {
-                if (gClippingLabelPicker.selectedLabel == aItemKey.substr(5).toLowerCase()) {
-                  return "context-menu-icon-checked";
-                }
-              }
-            },
-            labelGrey: {
-              name: messenger.i18n.getMessage("labelGrey"),
-              className: "ae-menuitem clipping-label-grey",
-              icon: function (aOpt, $itemElement, aItemKey, aItem) {
-                if (gClippingLabelPicker.selectedLabel == aItemKey.substr(5).toLowerCase()) {
-                  return "context-menu-icon-checked";
-                }
-              }
-            },
-          }
-        },
-        separator0: "--------",
-        deleteItem: {
-          name: messenger.i18n.getMessage("tbDelete"),
-          className: "ae-menuitem",
-          disabled: function (aKey, aOpt) {
-            let tree = getClippingsTree();
-            let selectedNode = tree.activeNode;
-
-            if (! selectedNode) {
-              return false;
             }
+          },
+          labelOrange: {
+            name: messenger.i18n.getMessage("labelOrange"),
+            className: "ae-menuitem clipping-label-orange",
+            icon: function (aOpt, $itemElement, aItemKey, aItem) {
+              if (gClippingLabelPicker.selectedLabel == aItemKey.substr(5).toLowerCase()) {
+                return "context-menu-icon-checked";
+              }
+            }
+          },
+          labelYellow: {
+            name: messenger.i18n.getMessage("labelYellow"),
+            className: "ae-menuitem clipping-label-yellow",
+            icon: function (aOpt, $itemElement, aItemKey, aItem) {
+              if (gClippingLabelPicker.selectedLabel == aItemKey.substr(5).toLowerCase()) {
+                return "context-menu-icon-checked";
+              }
+            }
+          },
+          labelGreen: {
+            name: messenger.i18n.getMessage("labelGreen"),
+            className: "ae-menuitem clipping-label-green",
+            icon: function (aOpt, $itemElement, aItemKey, aItem) {
+              if (gClippingLabelPicker.selectedLabel == aItemKey.substr(5).toLowerCase()) {
+                return "context-menu-icon-checked";
+              }
+            }
+          },
+          labelBlue: {
+            name: messenger.i18n.getMessage("labelBlue"),
+            className: "ae-menuitem clipping-label-blue",
+            icon: function (aOpt, $itemElement, aItemKey, aItem) {
+              if (gClippingLabelPicker.selectedLabel == aItemKey.substr(5).toLowerCase()) {
+                return "context-menu-icon-checked";
+              }
+            }
+          },
+          labelPurple: {
+            name: messenger.i18n.getMessage("labelPurple"),
+            className: "ae-menuitem clipping-label-purple",
+            icon: function (aOpt, $itemElement, aItemKey, aItem) {
+              if (gClippingLabelPicker.selectedLabel == aItemKey.substr(5).toLowerCase()) {
+                return "context-menu-icon-checked";
+              }
+            }
+          },
+          labelGrey: {
+            name: messenger.i18n.getMessage("labelGrey"),
+            className: "ae-menuitem clipping-label-grey",
+            icon: function (aOpt, $itemElement, aItemKey, aItem) {
+              if (gClippingLabelPicker.selectedLabel == aItemKey.substr(5).toLowerCase()) {
+                return "context-menu-icon-checked";
+              }
+            }
+          },
+        }
+      },
+      separator0: "--------",
+      deleteItem: {
+        name: messenger.i18n.getMessage("tbDelete"),
+        className: "ae-menuitem",
+        disabled: function (aKey, aOpt) {
+          let tree = getClippingsTree();
+          let selectedNode = tree.activeNode;
 
-            let folderID = parseInt(selectedNode.key);
-            return (folderID == gClippings.getSyncFolderID());
+          if (! selectedNode) {
+            return false;
           }
+
+          let folderID = parseInt(selectedNode.key);
+          return (folderID == gClippings.getSyncFolderID());
         }
       }
-    });
-
-    let prefs = gClippings.getPrefs();
-    if (prefs.syncClippings) {
-      gReloadSyncFldrBtn.show();
-      $(".ae-synced-clippings-fldr").parent().addClass("ae-synced-clippings");
-
-      if (prefs.cxtMenuSyncItemsOnly) {
-        $("#clippings-tree").addClass("cxt-menu-show-sync-items-only");
-      }
     }
-
-    if (gClippings.isClippingsMgrRootFldrReseq()) {
-      // This should only be performed after Clippings Manager is reloaded
-      // following an import.
-      gCmd.updateDisplayOrder(aeConst.ROOT_FOLDER_ID, null, null, true);
-      gClippings.setClippingsMgrRootFldrReseq(false);
-    }
-    
-  }).catch(aErr => {
-    console.error("clippingsMgr.js::buildClippingsTree(): %s", aErr.message);
-    showInitError();
   });
+
+  let prefs = gClippings.getPrefs();
+  if (prefs.syncClippings) {
+    gReloadSyncFldrBtn.show();
+    $(".ae-synced-clippings-fldr").parent().addClass("ae-synced-clippings");
+
+    if (prefs.cxtMenuSyncItemsOnly) {
+      $("#clippings-tree").addClass("cxt-menu-show-sync-items-only");
+    }
+  }
+
+  if (gClippings.isClippingsMgrRootFldrReseq()) {
+    // This should only be performed after Clippings Manager is reloaded
+    // following an import.
+    gCmd.updateDisplayOrder(aeConst.ROOT_FOLDER_ID, null, null, true);
+    gClippings.setClippingsMgrRootFldrReseq(false);
+  }
 }
 
 
@@ -3880,7 +3867,7 @@ function buildClippingsTreeHelper(aFolderID)
 
   return new Promise((aFnResolve, aFnReject) => {
     gClippingsDB.transaction("r", gClippingsDB.folders, gClippingsDB.clippings, () => {
-      gClippingsDB.folders.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
+      gClippingsDB.folders.where("parentFolderID").equals(aFolderID).each(async (aItem, aCursor) => {
         let folderNode = {
           key: aItem.id + "F",
           title: sanitizeTreeNodeTitle(DEBUG_TREE ? `${aItem.name} [key=${aItem.id}F]` : aItem.name),
@@ -3898,10 +3885,9 @@ function buildClippingsTreeHelper(aFolderID)
           folderNode.displayOrder = aItem.displayOrder;
         }
         
-        buildClippingsTreeHelper(aItem.id).then(aChildNodes => {
-          folderNode.children = aChildNodes;
-          rv.push(folderNode);
-        });
+        let childNodes = await buildClippingsTreeHelper(aItem.id);
+        folderNode.children = childNodes;
+        rv.push(folderNode);
       }).then(() => {
         return gClippingsDB.clippings.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
           let clippingNode = {
@@ -3940,45 +3926,41 @@ function buildClippingsTreeHelper(aFolderID)
 }
 
 
-function initSyncItemsIDLookupList()
+async function initSyncItemsIDLookupList()
 {
-  function initSyncItemsIDLookupListHelper(aFolderID)
+  async function initSyncItemsIDLookupListHelper(aFolderID)
   {
-    return new Promise((aFnResolve, aFnReject) => {
-      gClippingsDB.transaction("r", gClippingsDB.clippings, gClippingsDB.folders, () => {
-        gClippingsDB.folders.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
-          gSyncedItemsIDs[aItem.id + "F"] = 1;
-          initSyncItemsIDLookupListHelper(aItem.id);
-          
-        }).then(() => {
-          return gClippingsDB.clippings.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
-            gSyncedItemsIDs[aItem.id + "C"] = 1;
-          });
-
-        }).then(() => {
-          aFnResolve();
+    gClippingsDB.transaction("r", gClippingsDB.clippings, gClippingsDB.folders, () => {
+      gClippingsDB.folders.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
+        gSyncedItemsIDs[aItem.id + "F"] = 1;
+        initSyncItemsIDLookupListHelper(aItem.id);
+        
+      }).then(() => {
+        return gClippingsDB.clippings.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
+          gSyncedItemsIDs[aItem.id + "C"] = 1;
         });
-      }).catch(aErr => {
-        aFnReject(aErr);
+
+      }).then(() => {
+        Promise.resolve();
       });
-    });    
+    }).catch(aErr => {
+      Promise.reject(aErr);
+    });
   }
   // END nested helper function
 
-  return new Promise((aFnResolve, aFnReject) => {
-    let prefs = gClippings.getPrefs();
-    if (! prefs.syncClippings) {
-      aFnResolve();
-    }
+  let prefs = gClippings.getPrefs();
+  if (! prefs.syncClippings) {
+    Promise.resolve();
+  }
 
-    // Include the ID of the root Synced Clippings folder.
-    gSyncedItemsIDs[prefs.syncFolderID + "F"] = 1;
+  // Include the ID of the root Synced Clippings folder.
+  gSyncedItemsIDs[prefs.syncFolderID + "F"] = 1;
 
-    initSyncItemsIDLookupListHelper(prefs.syncFolderID).then(() => {
-      aFnResolve();
-    }).catch(aErr => {
-      aFnReject(aErr);
-    });
+  initSyncItemsIDLookupListHelper(prefs.syncFolderID).then(() => {
+    Promise.resolve();
+  }).catch(aErr => {
+    Promise.reject(aErr);
   });
 }
 

@@ -419,7 +419,7 @@ function getContextMenuData(aFolderID = aeConst.ROOT_FOLDER_ID)
 
         submenuItemData.icons = { 16: iconPath };
 
-        if (aItem.displayOrder === undefined) {
+        if (! ("displayOrder" in aItem)) {
           submenuItemData.displayOrder = 0;
         }
         else {
@@ -445,16 +445,13 @@ function getContextMenuData(aFolderID = aeConst.ROOT_FOLDER_ID)
           let menuItemData = {
             id: menuItemID,
             title: aItem.name,
-            icons: {
-              16: "img/" + (aItem.label ? `clipping-${aItem.label}.svg` : "clipping.svg")
-            },
           };
 
           if (aItem.label) {
             menuItemData.label = aItem.label;
           }
 
-          if (aItem.displayOrder === undefined) {
+          if (! ("displayOrder" in aItem)) {
             menuItemData.displayOrder = 0;
           }
           else {
@@ -746,6 +743,15 @@ function setDirtyFlag(aFlag)
     gIsDirty = aFlag;
   }
 }
+
+
+//
+// Catch any unhandled promise rejections from 3rd-party libs
+//
+
+window.addEventListener("unhandledrejection", aEvent => {
+  aEvent.preventDefault();
+});
 
 
 //
