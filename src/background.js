@@ -368,24 +368,6 @@ function getContextMenuData(aFolderID = aeConst.ROOT_FOLDER_ID)
 }
 
 
-function updateContextMenuForFolder(aUpdatedFolderID)
-{
-  let id = Number(aUpdatedFolderID);
-  gClippingsDB.folders.get(id).then(aResult => {
-    let menuItemID = gFolderMenuItemIDMap[id];
-    if (menuItemID) {
-      gIsDirty = true;
-    }
-  });
-}
-
-
-function rebuildContextMenu()
-{
-  gIsDirty = true;
-}
-
-
 function createClippingNameFromText(aText)
 {
   let rv = "";
@@ -590,6 +572,11 @@ function getClippingsListeners()
 function addClippingsListener(aListener)
 {
   gClippingsListeners.add(aListener);
+}
+
+function removeClippingsListener(aListener)
+{
+  gClippingsListeners.remove(aListener);
 }
 
 function getPrefs()

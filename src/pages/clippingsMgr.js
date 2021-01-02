@@ -2133,8 +2133,7 @@ $(window).on("beforeunload", aEvent => {
     messenger.runtime.sendMessage({ msgID: "close-clippings-mgr-wnd" });
   }
 
-  let clpgsLstrs = gClippings.getClippingsListeners();
-  clpgsLstrs.remove(gClippingsListener);
+  gClippings.removeClippingsListener(gClippingsListener);
   
   /***
   let syncClippingsListeners = gClippings.getSyncClippingsListeners();
