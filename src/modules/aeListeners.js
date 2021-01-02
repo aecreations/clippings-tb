@@ -23,7 +23,19 @@ class aeListeners
 
   getListeners()
   {
-    let rv = Array.from(this._listeners);
+    let rv = [];
+
+    for (let o of this._listeners) {
+      try {
+        let origin = o.origin;
+      }
+      catch (e) {
+        // Skip dead objects.
+        continue;
+      }
+      rv.push(o);
+    }
+
     return rv;
   }
 }
