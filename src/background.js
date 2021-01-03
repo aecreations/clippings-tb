@@ -95,7 +95,7 @@ async function setDefaultPrefs()
 messenger.runtime.onStartup.addListener(async () => {
   gPrefs = await messenger.storage.local.get(gDefaultPrefs);
   log("Clippings/mx: Successfully retrieved user preferences:");
-  log(aPrefs);
+  log(gPrefs);
 
   init();
 });
