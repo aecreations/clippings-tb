@@ -29,8 +29,8 @@
     "scripts": [
       "lib/dexie/dexie.min.js",
       "lib/jquery.js",
-      "modules/aeConst.js",
-      "modules/aeListeners.js",
+      "scripts/aeConst.js",
+      "scripts/aeListeners.js",
       "background.js"
     ]
   },

@@ -462,7 +462,7 @@ let aeImportExport = function () {
       return rv;
     },
     
-    async getShortcutKeyListHTML(aIsFullHTMLDoc)
+    getShortcutKeyListHTML(aIsFullHTMLDoc)
     {
       let rv = "";
       let htmlSrc = "";
@@ -482,57 +482,58 @@ let aeImportExport = function () {
       }
       htmlSrc += `<thead><tr><th>${_shctKeyColHdr}</th><th>${_clipNameColHdr}</th></tr></thead><tbody>`;
 
-      let shctKeyMap = {};
-      try {
-	shctKeyMap = await this._getShortcutKeyMap();
-      }
-      catch (e) {
-	console.error("aeImportExport.getShortcutKeyListHTML(): " + aErr);
-	aFnReject(aErr);
-      }
-      
-      for (let shctKey in shctKeyMap) {
-        if (aIsFullHTMLDoc) {
-          htmlSrc += "<tr>";
-        }
-        else {
-          htmlSrc += `<tr data-id="${aShctKeyMap[shctKey].id}">`;
-        }
-        htmlSrc += `<td>${shctKey}</td><td>${aShctKeyMap[shctKey].name}</td></tr>\n`;
-      }
+      return new Promise((aFnResolve, aFnReject) => {
+	this._getShortcutKeyMap().then(aShctKeyMap => {
+	  for (let shctKey in aShctKeyMap) {
+            if (aIsFullHTMLDoc) {
+              htmlSrc += "<tr>";
+            }
+            else {
+              htmlSrc += `<tr data-id="${aShctKeyMap[shctKey].id}">`;
+            }
+            htmlSrc += `<td>${shctKey}</td><td>${aShctKeyMap[shctKey].name}</td></tr>\n`;
+	  }
 
-      htmlSrc += "</tbody></table>";
-      if (aIsFullHTMLDoc) {
-        htmlSrc += "\n</body></html>";
-      }
+	  htmlSrc += "</tbody></table>";
+	  if (aIsFullHTMLDoc) {
+            htmlSrc += "\n</body></html>";
+	  }
 
-      rv = htmlSrc;
-      aFnResolve(rv);
+	  rv = htmlSrc;
+	  aFnResolve(rv);
+	});
+      });
     },
 
-    async _getShortcutKeysToClippingIDs()
+    _getShortcutKeysToClippingIDs()
     {
       let rv = {};
 
-      await _db.clippings.where("shortcutKey").notEqual("").each((aItem, aCursor) => {
-	rv[aItem.shortcutKey] = aItem.id;
+      return new Promise((aFnResolve, aFnReject) => {
+	_db.clippings.where("shortcutKey").notEqual("").each((aItem, aCursor) => {
+	  rv[aItem.shortcutKey] = aItem.id;
+
+	}).then(() => {
+	  aFnResolve(rv);
+	});
       });
-      
-      return rv;
     },
 
-    async _getShortcutKeyMap()
+    _getShortcutKeyMap()
     {
       let rv = {};
       
-      await _db.clippings.where("shortcutKey").notEqual("").each((aItem, aCursor) => {
-	rv[aItem.shortcutKey] = {
-	  id: aItem.id,
-	  name: aItem.name
-	};
+      return new Promise((aFnResolve, aFnReject) => {
+	_db.clippings.where("shortcutKey").notEqual("").each((aItem, aCursor) => {
+	  rv[aItem.shortcutKey] = {
+	    id: aItem.id,
+	    name: aItem.name
+	  };
+	  
+	}).then(() => {
+	  aFnResolve(rv);
+	});
       });
-      
-      return rv;
     },
 
     _escapeHTML(aStr)
