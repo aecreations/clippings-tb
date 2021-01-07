@@ -198,8 +198,3 @@ window.aecreations.clippings = {
 
 window.aecreations.clippings.cnst = ChromeUtils.import("resource://clippings/modules/aeConstants.js");
 window.aecreations.clippings.util = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
-/***
-window.aecreations.clippings.str = ChromeUtils.import("resource://clippings/modules/aeString.js");
-window.aecreations.clippings.svc = ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
-window.aecreations.clippings.hlpr = ChromeUtils.import("resource://clippings/modules/aeCreateClippingHelper.js");
-***/
