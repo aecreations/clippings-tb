@@ -148,12 +148,12 @@ function init()
       log("Clippings/mx: Display order on root folder items have been set.");
     }
 
-    messenger.WindowListener.registerDefaultPrefs("defaults/preferences/prefs.js");
+    messenger.WindowListener.registerDefaultPrefs("legacy/defaults/preferences/prefs.js");
 
     messenger.WindowListener.registerChromeUrl([
-      ["content",  "clippings", "chrome/content/"],
-      ["locale",   "clippings", "en-US", "chrome/locale/en-US/"],
-      ["resource", "clippings", "./"]
+      ["content",  "clippings", "legacy/chrome/content/"],
+      ["locale",   "clippings", "en-US", "legacy/chrome/locale/en-US/"],
+      ["resource", "clippings", "legacy/"]
     ]);
 /**
     messenger.WindowListener.registerOptionsPage("chrome://clippings/content/preferences.xul");
