@@ -17,6 +17,119 @@ let gClippingsMgrRootFldrReseq = false;
 
 let gClippingsListeners = new aeListeners();
 
+let gClippingsListener = {
+  _isImporting: false,
+  _isCopying: false,
+  _isClippingsMgrDnDInProgress: false,
+  origin: null,
+
+  newClippingCreated: function (aID, aData, aOrigin)
+  {
+    if (this._isCopying) {
+      log("Clippings/mx: gClippingsListener.newClippingCreated(): Copying in progress; ignoring DB changes.");
+      return;
+    }
+
+    if (gIsReloadingSyncFldr) {
+      log("Clippings/mx: gClippingsListener.newClippingCreated(): The Synced Clippings folder is being reloaded. Ignoring DB changes.");
+      return;
+    }
+
+    rebuildContextMenu();
+  },
+
+  newFolderCreated: function (aID, aData, aOrigin)
+  {
+    if (this._isCopying) {
+      log("Clippings/mx: gClippingsListener.newFolderCreated(): Copying in progress; ignoring DB changes.");
+      return;
+    }
+
+    if (gIsReloadingSyncFldr || "isSync" in aData) {
+      log("Clippings/mx: gClippingsListener.newFolderCreated(): The Synced Clippings folder is being reloaded. Ignoring DB changes.");
+      return;
+    }
+
+    rebuildContextMenu();
+  },
+
+  clippingChanged: function (aID, aData, aOldData)
+  {
+    if (this._isClippingsMgrDnDInProgress) {
+      return;
+    }
+
+    log("Clippings/mx: gClippingsListener.clippingChanged()");
+
+    if (aData.name != aOldData.name || aData.parentFolderID != aOldData.parentFolderID
+       || aData.label != aOldData.label) {
+      rebuildContextMenu();
+    }
+  },
+
+  folderChanged: function (aID, aData, aOldData)
+  {
+    if (this._isClippingsMgrDnDInProgress) {
+      return;
+    }
+
+    log("Clippings/mx: gClippingsListener.folderChanged()");
+
+    if ("isSync" in aOldData) {
+      log("The Synced Clippings folder is being converted to a normal folder. Ignoring DB changes.");
+      return;
+    }
+
+    if (aData.parentFolderID == aOldData.parentFolderID) {
+      updateContextMenuForFolder(aID);
+    }
+    else {
+      rebuildContextMenu();
+    }
+  },
+
+  clippingDeleted: function (aID, aOldData) {},
+  folderDeleted: function (aID, aOldData) {},
+
+  copyStarted: function ()
+  {
+    this._isCopying = true;
+  },
+
+  copyFinished: function (aItemCopyID)
+  {
+    this._isCopying = false;
+    rebuildContextMenu();
+  },
+
+  dndMoveStarted: function ()
+  {
+    this._isClippingsMgrDnDInProgress = true;
+  },
+
+  dndMoveFinished: function ()
+  {
+    this._isClippingsMgrDnDInProgress = false;
+  },
+
+  importStarted: function ()
+  {
+    log("Clippings/mx: gClippingsListener.importStarted()");
+    this._isImporting = true;
+  },
+
+  importFinished: function (aIsSuccess)
+  {
+    log("Clippings/mx: gClippingsListener.importFinished()");
+    this._isImporting = false;
+
+    if (aIsSuccess) {
+      log("Import was successful - proceeding to rebuild Clippings menu.");
+      rebuildContextMenu();
+    }
+  },
+};
+
 let gNewClipping = {
   _name: null,
   _content: null,
@@ -365,6 +478,24 @@ function getContextMenuData(aFolderID = aeConst.ROOT_FOLDER_ID)
       aFnReject(aErr);
     });
   });
+}
+
+
+function updateContextMenuForFolder(aUpdatedFolderID)
+{
+  let id = Number(aUpdatedFolderID);
+  gClippingsDB.folders.get(id).then(aResult => {
+    let menuItemID = gFolderMenuItemIDMap[id];
+    if (menuItemID) {
+      gIsDirty = true;
+    }
+  });
+}
+
+
+function rebuildContextMenu()
+{
+  gIsDirty = true;
 }
 
 
