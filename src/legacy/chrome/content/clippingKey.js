@@ -3,22 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
-const {aeClippingsService} = ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
 
 var gDlgArgs;
-var gClippingsSvc;
 
 
 function initWnd()
 {
   gDlgArgs = window.arguments[0];
-
-  try {
-    gClippingsSvc = aeClippingsService.getService();
-  }
-  catch (e) {
-    aeUtils.log("clippingKey.js::initWnd(): Error retrieving Clippings service: " + e);
-  }
 }
 
 
@@ -32,8 +23,12 @@ function processKeyPress(aEvent)
     gDlgArgs.switchModes = true;
  }
   else if (aEvent.key == "Tab") {
+    // TEMPORARY
+    /***
     gDlgArgs.action = gDlgArgs.ACTION_SEARCH_CLIPPING;
     gDlgArgs.switchModes = true;
+    ***/
+    // END TEMPORARY
   }
   else if (aEvent.key == "Escape" || aEvent.key == "Esc") {
     gDlgArgs.switchModes = false;
@@ -44,18 +39,15 @@ function processKeyPress(aEvent)
 
     aeUtils.log(`clippingKey.js::processKeyPress(): Key pressed: '${key}'`);
 
-    let keyMap = gClippingsSvc.getShortcutKeyMap();
-
-    if (! keyMap.has(key)) {
+    if (gDlgArgs.keyMap.has(key)) {
+      gDlgArgs.clippingID = gDlgArgs.keyMap.get(key).id;
+      gDlgArgs.switchModes = false;
+      gDlgArgs.userCancel = false;
+    }
+    else {
       aeUtils.beep();
       gDlgArgs.userCancel = true;
-      window.close();
-      return;
     }
-
-    gDlgArgs.clippingURI = keyMap.get(key);
-    gDlgArgs.switchModes = false;
-    gDlgArgs.userCancel = false;
   }
 
   window.close();
@@ -70,10 +62,4 @@ function cancel()
   gDlgArgs.userCancel = true;
   gDlgArgs.switchModes = false;
   window.close();
-}
-
-
-function unload()
-{
-
 }

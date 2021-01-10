@@ -6,8 +6,6 @@ const {FileUtils} = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
 const {aeConstants} = ChromeUtils.import("resource://clippings/modules/aeConstants.js");
 const {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
 const {aeString} = ChromeUtils.import("resource://clippings/modules/aeString.js");
-const {aeClippingsService} = ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
-
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;
@@ -34,15 +32,17 @@ function init()
 
   var treeChildren = $("grid-content");
 
-  for (let key in keyMap) {
-    var treeItem = document.createElement("treeitem");
-    var treeRow = document.createElement("treerow");
-    var treeCellShortcutKey = document.createElement("treecell");
-    var treeCellClippingName = document.createElement("treecell");
+  for (let key of keyMap.keys()) {
+    var treeItem = document.createXULElement("treeitem");
+    var treeRow = document.createXULElement("treerow");
+    var treeCellShortcutKey = document.createXULElement("treecell");
+    var treeCellClippingName = document.createXULElement("treecell");
      
     treeCellShortcutKey.setAttribute("label", key);
-    treeCellClippingName.setAttribute("label", keyMap[key].name);
-    treeCellClippingName.setAttribute("value", keyMap[key].uri);
+
+    let clippingInfo = keyMap.get(key);
+    treeCellClippingName.setAttribute("label", clippingInfo.name);
+    treeCellClippingName.setAttribute("value", clippingInfo.id);
 
     treeRow.appendChild(treeCellShortcutKey);
     treeRow.appendChild(treeCellClippingName);
@@ -94,25 +94,19 @@ function selectClipping()
 }
 
 
-function insertClipping()
+async function insertClipping()
 {
   if (! gDlgArgs.showInsertClippingCmd) {
     return;
   }
 
-  var shortcutListTreeView = $("shortcut-map-grid").view;
-  var selectedIndex = shortcutListTreeView.selection.currentIndex;
-  var selectedItem = shortcutListTreeView.getItemAtIndex(selectedIndex);
-  var selectedURI = selectedItem.firstChild.childNodes[1].getAttribute("value");
+  let shortcutListTreeView = $("shortcut-map-grid").view;
+  let selectedIndex = shortcutListTreeView.selection.currentIndex;
+  let selectedItem = shortcutListTreeView.getItemAtIndex(selectedIndex);
+  let selectedID = selectedItem.firstChild.childNodes[1].getAttribute("value");
 
-  var clippingsSvc = aeClippingsService.getService();
-  var name = clippingsSvc.getName(selectedURI);
-  var text = clippingsSvc.getText(selectedURI);
-
-  aeUtils.log(aeString.format("URI of selected clipping: %s, name: %s", selectedURI, name, text));
-
-  var hostAppWnd = aeUtils.getRecentHostAppWindow();
-  hostAppWnd.aecreations.clippings.insertClippingText(selectedURI, name, text);
+  let hostAppWnd = aeUtils.getRecentHostAppWindow();
+  await hostAppWnd.aecreations.clippings.insertClipping(Number(selectedID));
 
   window.close();
 }
@@ -132,6 +126,11 @@ function save()
 
 function outputShortcutList(aOutputMode)
 {
+  // TEMPORARY
+  window.alert("The selected action is not available right now.");
+  return;
+  // END TEMPORARY
+  
   if (! gIsShortcutKeyHelpContentGenerated) {
     generateShortcutKeyHelpContent();
     gIsShortcutKeyHelpContentGenerated = true;

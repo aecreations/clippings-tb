@@ -528,6 +528,27 @@ function getClipping(aClippingID)
 }
 
 
+function getShortcutKeyMap()
+{
+  let rv = new Map();
+  
+  return new Promise((aFnResolve, aFnReject) => {
+    gClippingsDB.clippings.where("shortcutKey").notEqual("").each((aItem, aCursor) => {
+      let key = aItem.shortcutKey;
+      let value = {
+        id: aItem.id,
+        name: aItem.name,
+        text: aItem.content,
+      };
+      rv.set(key, value);
+
+    }).then(() => {
+      aFnResolve(rv);
+    });
+  });
+}
+
+
 //
 // Utility functions
 //

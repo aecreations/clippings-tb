@@ -45,6 +45,13 @@ let gClippingsMxListener = function () {
       let rv = await _clippings.getClipping(aClippingID);
 
       return rv;
+    },
+
+    async shortcutKeyMapRequested()
+    {
+      let rv = await _clippings.getShortcutKeyMap();
+
+      return rv;
     }
   };
 }();
@@ -68,7 +75,7 @@ function onLoad(aActivatedWhileWindowOpen)
     <command id="ae_clippings_show_paste_options" 
      oncommand="window.aecreations.clippings.toggleShowPasteOptions()"/>
     <command id="ae_clippings_keyboard_insert" label="Paste Clipping"
-     oncommand="window.aecreations.clippings.util.aeUtils.alertEx('Paste Clipping', '${WL.messenger.i18n.getMessage('msgUnavail')}')"/>
+     oncommand="window.aecreations.clippings.keyboardInsertClipping()"/>
   </commandset>
 
   <keyset id="tasksKeys">
@@ -77,11 +84,10 @@ function onLoad(aActivatedWhileWindowOpen)
     <key id="key_ae_clippings_new" key="y"
      modifiers="alt shift" command="ae_clippings_keyboard_insert"/>
     
-    <!-- For Mac OS X -->
+    <!-- For macOS -->
     <key id="key_ae_clippings_mac" key="v"
      modifiers="alt meta" command="ae_clippings_keyboard_insert"/>
-    <key id="key_ae_clippings_new_mac" key="y"
-     modifiers="meta shift" command="ae_clippings_keyboard_insert"/>
+     <!-- Cannot use Command+Shift+Y - already assigned -->
   </keyset>
 
   <menupopup id="msgComposeContext">

@@ -333,8 +333,7 @@ window.aecreations.clippings = {
     this._menu.menuItemCommand = async (aEvent) => {
       let menuItemID = aEvent.target.getAttribute("data-clipping-menuitem-id");
       let clippingID = Number(menuItemID.substring(menuItemID.lastIndexOf("-") + 1, menuItemID.indexOf("_")));
-      let clipping = await this.getMxListener().clippingRequested(clippingID);
-      this.insertClippingText(clipping.id, clipping.name, clipping.text, clipping.parentFolderName);
+      await this.insertClipping(clippingID);
     };
 
     this._menu.build();
@@ -343,20 +342,22 @@ window.aecreations.clippings = {
   },
 
 
-  insertClippingText: function (aID, aName, aText, aParentFolderName) 
+  async insertClipping(aID)
   {
     // Must explicitly close the message compose context menu - otherwise it
     // may reappear while the paste options dialog is open.
     var cxtMenu = document.getElementById("msgComposeContext");
     cxtMenu.hidePopup();
 
-    // TO DO: Get rid of placeholder for clipping URI - it was meant for
-    // debugging purposes only and is undocumented.
-    
-    var clippingInfo = this.txt.aeClippingSubst.getClippingInfo(aID, aName, aText, aParentFolderName);
+    let clipping = await this.getMxListener().clippingRequested(aID);
+
+    var clippingInfo = this.txt.aeClippingSubst.getClippingInfo(
+      aID, clipping.name, clipping.text, clipping.parentFolderName
+    );
     var clippingText = this.txt.aeClippingSubst.processClippingText(clippingInfo, window);
     var pasteAsQuotation = false;
     var overwriteClipboard = this.util.aeUtils.getPref("clippings.use_clipboard", false);
+
     if (overwriteClipboard) {
       this.util.aeUtils.copyTextToClipboard(clippingText);
     }
@@ -364,7 +365,7 @@ window.aecreations.clippings = {
     // Paste clipping into subject line
     var focusedElt = document.commandDispatcher.focusedElement;
     if (focusedElt instanceof HTMLInputElement) {
-      let textbox = focusedElt;
+      var textbox = focusedElt;
       this.ins.aeInsertTextIntoTextbox(textbox, clippingText);
     }
 
@@ -471,62 +472,64 @@ window.aecreations.clippings = {
   },
 
 
-  keyboardInsertClipping: function (aEvent)
+  async keyboardInsertClipping(aEvent)
   {
-    this._menu.rebuild();
+    function sortKeyMap(aKeyMap)
+    {
+      let rv = new Map();
+      let keys = [];
+
+      aKeyMap.forEach((aValue, aKey, aMap) => { keys.push(aKey) });
+      keys = keys.sort();
+
+      for (let i = 0; i < keys.length; i++) {
+	let clippingInfo = aKeyMap.get(keys[i]);
+	rv.set(keys[i], clippingInfo);
+      }
+
+      return rv;
+    }
     
-    var dlgArgs = {
+    this._menu.rebuild();
+
+    let dlgArgs = {
       SHORTCUT_KEY_HELP: 0,
       ACTION_SHORTCUT_KEY: 1,
       ACTION_SEARCH_CLIPPING: 2,
       action: null,
       switchModes: null,
-      clippingURI: null,
+      clippingID: null,
+      keyMap: null,
+      keyCount: null,
       userCancel: null
     };
 
+    let unsortedKeyMap = await this.getMxListener().shortcutKeyMapRequested();
+    let keyMap = sortKeyMap(unsortedKeyMap);
+
+    dlgArgs.keyMap = keyMap;
+    dlgArgs.keyCount = keyMap.size;
+    
     // Remember the last mode (shortcut key or search clipping by name).
     dlgArgs.action = this.util.aeUtils.getPref("clippings.paste_shortcut_mode", dlgArgs.ACTION_SHORTCUT_KEY);
 
     do {
       if (dlgArgs.action == dlgArgs.SHORTCUT_KEY_HELP) {
-        let unsortedKeyMap = this.clippingsSvc.getShortcutKeyMap();
-        let keys = [];
+	dlgArgs.printToExtBrowser = true;
+	dlgArgs.showInsertClippingCmd = true;
 
-	unsortedKeyMap.forEach((aValue, aKey, aMap) => { keys.push(aKey) });
-        keys = keys.sort();
-
-        let keyCount = keys.length;
-        let keyMap = {};
-
-        for (let i = 0; i < keyCount; i++) {
-          let clippingURI = unsortedKeyMap.get(keys[i]);
-          let clippingName = this.clippingsSvc.getName(clippingURI);
-
-          keyMap[keys[i]] = {
-	    name: clippingName,
-	    uri:  clippingURI
-          };
-        }
-
-        let dlgArgs = {
-          printToExtBrowser: true,
-          keyMap:   keyMap,
-	  keyCount: keyCount,
-          showInsertClippingCmd: true
-        };
-
-        let dlg = window.openDialog("chrome://clippings/content/shortcutHelp.xul", "clipkey_help", "centerscreen,resizable", dlgArgs);
+        window.openDialog("chrome://clippings/content/shortcutHelp.xhtml",
+			  "clipkey_help", "centerscreen,resizable", dlgArgs);
         this.util.aeUtils.log("Clippings: end of shortcut help action");
         return;
       }
       else if (dlgArgs.action == dlgArgs.ACTION_SHORTCUT_KEY) {
-        let dlg = window.openDialog("chrome://clippings/content/clippingKey.xul",
-                                    "clipkey_dlg", "modal,centerscreen", dlgArgs);
+        window.openDialog("chrome://clippings/content/clippingKey.xhtml",
+                          "clipkey_dlg", "modal,centerscreen", dlgArgs);
       }
       else if (dlgArgs.action == dlgArgs.ACTION_SEARCH_CLIPPING) {
-        let dlg = window.openDialog("chrome://clippings/content/searchClipping.xul",
-                                    "clipsrch_dlg", "modal,centerscreen", dlgArgs);
+        window.openDialog("chrome://clippings/content/searchClipping.xhtml",
+                          "clipsrch_dlg", "modal,centerscreen", dlgArgs);
       }
     } while (dlgArgs.switchModes && !dlgArgs.userCancel);
 
@@ -534,66 +537,8 @@ window.aecreations.clippings = {
       return;
     }
 
-    if (dlgArgs.clippingURI) {
-      this.insertClippingText(dlgArgs.clippingURI,
-                              this.clippingsSvc.getName(dlgArgs.clippingURI),
-                              this.clippingsSvc.getText(dlgArgs.clippingURI));
-    }
-  },
-
-
-  saveClippings: function () 
-  {
-    let title = this.strBundle.getString("appName");
-    let saveJSON = this.util.aeUtils.getPref("clippings.datasource.wx_sync.enabled", false);
-    try {
-      this.clippingsSvc.flushDataSrc(true, saveJSON);
-    }
-    catch (e) {
-      if (e.result === undefined) {
-	this.util.aeUtils.alertEx(title, this.strBundle.getString("alertSaveFailed"));
-	return;
-      }
-    
-      if (e.result == Components.results.NS_ERROR_NOT_INITIALIZED) {
-	this.util.aeUtils.alertEx(title, this.strBundle.getString("errorSaveFailedDSNotInitialized"));
-      }
-      else if (e.result == Components.results.NS_ERROR_OUT_OF_MEMORY) {
-	this.util.aeUtils.alertEx(title, this.strBundle.getString("errorOutOfMemory"));
-      }
-      else if (e.result == Components.results.NS_ERROR_FILE_ACCESS_DENIED) {
-	let msg = this.str.aeString.format("%s: %s",
-			        this.strBundle.getString("errorAccessDenied"),
-			        this.cnst.aeConstants.CLIPDAT_FILE_NAME);
-	this.util.aeUtils.alertEx(title, msg);
-      }
-      else if (e.result == Components.results.NS_ERROR_FILE_IS_LOCKED) {
-	let msg = this.str.aeString.format("%s: %s",
-			        this.strBundle.getString("errorFileLocked"),
-			        this.cnst.aeConstants.CLIPDAT_FILE_NAME);
-	this.util.aeUtils.alertEx(title, msg);
-      }
-      else if (e.result == Components.results.NS_ERROR_FILE_TOO_BIG) {
-	let msg = this.str.aeString.format("%s: %s",
-			        this.strBundle.getString("errorFileTooBig"),
-			        this.cnst.aeConstants.CLIPDAT_FILE_NAME);
-	this.util.aeUtils.alertEx(title, msg);
-      }
-      else if (e.result == Components.results.NS_ERROR_FILE_READ_ONLY) {
-	let msg = this.str.aeString.format("%s: %s",
-			        this.strBundle.getString("errorFileReadOnly"),
-			        this.cnst.aeConstants.CLIPDAT_FILE_NAME);
-	this.util.aeUtils.alertEx(title, msg);
-      }
-      else if (e.result == Components.results.NS_ERROR_FILE_DISK_FULL) {
-	let msg = this.str.aeString.format("%s: %s",
-			        this.strBundle.getString("errorDiskFull"),
-			        this.cnst.aeConstants.CLIPDAT_FILE_NAME);
-	this.util.aeUtils.alertEx(title, msg);
-      }
-      else {
-	this.util.aeUtils.alertEx(title, this.strBundle.getString("alertSaveFailed"));
-      }
+    if (dlgArgs.clippingID) {
+      this.insertClipping(dlgArgs.clippingID);
     }
   }
 };
