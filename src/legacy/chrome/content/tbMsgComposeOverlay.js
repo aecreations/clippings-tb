@@ -394,7 +394,10 @@ window.aecreations.clippings = {
       if (hasHTMLTags) {
         var pasteAsRichText;
         if (! hasRestrictedHTMLTags) {
-          var showHTMLPasteOpts = this.util.aeUtils.getPref("clippings.html_paste", 0);
+	  // TEMPORARY
+          var showHTMLPasteOpts = this.cnst.aeConstants.HTMLPASTE_AS_HTML;//this.util.aeUtils.getPref("clippings.html_paste", 0);
+	  // END TEMPORARY
+	  
           if (showHTMLPasteOpts == this.cnst.aeConstants.HTMLPASTE_ASK_THE_USER) {
             var dlgArgs = { userCancel: null, pasteAsRichText: null };
             window.openDialog("chrome://clippings/content/htmlClipping.xul", "htmlClipping_dlg", "chrome,modal,centerscreen", dlgArgs);
