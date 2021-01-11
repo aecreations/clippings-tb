@@ -387,6 +387,28 @@ async function getShortcutKeyPrefixStr()
 }
 
 
+function getClippingSearchData()
+{
+  let rv = [];
+  
+  return new Promise((aFnResolve, aFnReject) => {
+    gClippingsDB.clippings.where("parentFolderID").notEqual(aeConst.DELETED_ITEMS_FLDR_ID)
+      .each((aItem, aCursor) => {
+        rv.push({
+          clippingID: aItem.id,
+          name: aItem.name,
+          text: aItem.content,
+        });
+      }).then(() => {
+        log("Clippings/mx: getClippingSearchData()");
+        log(rv);
+        
+        aFnResolve(rv);
+      });
+  });
+}
+
+
 function getContextMenuData(aFolderID = aeConst.ROOT_FOLDER_ID)
 {
   function fnSortMenuItems(aItem1, aItem2)

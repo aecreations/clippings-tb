@@ -52,6 +52,13 @@ let gClippingsMxListener = function () {
       let rv = await _clippings.getShortcutKeyMap();
 
       return rv;
+    },
+
+    async clippingSearchDataRequested()
+    {
+      let rv = await _clippings.getClippingSearchData();
+
+      return rv;
     }
   };
 }();

@@ -504,6 +504,7 @@ window.aecreations.clippings = {
       clippingID: null,
       keyMap: null,
       keyCount: null,
+      srchData: null,
       userCancel: null
     };
 
@@ -512,6 +513,7 @@ window.aecreations.clippings = {
 
     dlgArgs.keyMap = keyMap;
     dlgArgs.keyCount = keyMap.size;
+    dlgArgs.srchData = await this.getMxListener().clippingSearchDataRequested();
     
     // Remember the last mode (shortcut key or search clipping by name).
     dlgArgs.action = this.util.aeUtils.getPref("clippings.paste_shortcut_mode", dlgArgs.ACTION_SHORTCUT_KEY);

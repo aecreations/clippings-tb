@@ -3,16 +3,31 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
-const {aeClippingsService} = ChromeUtils.import("resource://clippings/modules/aeClippingsService.js");
-
-const Cc = Components.classes;
-const Ci = Components.interfaces;
 
 // Truncate clipping name in the search result popup at this number of char's.
 const MAX_NAME_LEN = 64;
 
-var gDlgArgs, gStrBundle;
-var gClippingsSvc;
+let gDlgArgs, gStrBundle;
+
+let gClippingsSvc = {
+  _srchData: [],
+
+  initSearch(aClippingSearchData)
+  {
+    this._srchData = aClippingSearchData;
+  },
+
+  findByName(aSearchText, aMatchCase)
+  {
+    let rv = [];
+    let reFlags = aMatchCase ? "" : "i";
+    let regExp = new RegExp(aSearchText, reFlags);
+
+    rv = this._srchData.filter(aClipping => aClipping.name.search(regExp) != -1);
+
+    return rv;
+  },
+};
 
 
 //
@@ -31,12 +46,15 @@ function init()
   gDlgArgs = window.arguments[0];
   gStrBundle = aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
 
-  try {
-    gClippingsSvc = aeClippingsService.getService();
-  }
-  catch (e) {
-    alert(e);
-  }
+  gClippingsSvc.initSearch(gDlgArgs.srchData);
+
+  let srchTextbox = $("clipping-search");
+  srchTextbox.addEventListener("keyup", aEvent => {
+    handleSearchKeys(aEvent, aEvent.target.value);
+  });
+  srchTextbox.addEventListener("keydown", aEvent => {
+    handleTabKey(aEvent);
+  });
 
   document.addEventListener("dialogcancel", aEvent => { cancel() });
 }
@@ -58,7 +76,7 @@ function updateSearchResults(aSearchText)
     return;
   }
 
-  let srchResults = gClippingsSvc.findByName(aSearchText, false, false);
+  let srchResults = gClippingsSvc.findByName(aSearchText);
   let numMatches = srchResults.length;
 
   if (numMatches == 0) {
@@ -71,21 +89,21 @@ function updateSearchResults(aSearchText)
     // Populate the popup.
     var max = numMatches;
     for (let i = 0; i < max; i++) {
-      var clippingURI = srchResults[i];
-      var name = gClippingsSvc.getName(clippingURI);
-      var text = gClippingsSvc.getText(clippingURI);
+      var clippingID = srchResults[i].clippingID;
+      var name = srchResults[i].name;
+      var text = srchResults[i].text;
       
       // Truncate name and text
       var originalLen = name.length;
       name = name.substr(0, MAX_NAME_LEN);
       name += (originalLen > name.length ? " ..." : "");
 
-      var listitem = document.createElement("richlistitem");
+      var listitem = document.createXULElement("richlistitem");
       listitem.setAttribute("orient", "vertical");
-      listitem.setAttribute("value", clippingURI);
+      listitem.setAttribute("value", clippingID);
 
-      var nameElt = document.createElement("label");
-      var textElt = document.createElement("label");
+      var nameElt = document.createXULElement("label");
+      var textElt = document.createXULElement("label");
       nameElt.setAttribute("class", "clipping-name");
       nameElt.setAttribute("value", name);
       textElt.setAttribute("class", "clipping-text");
@@ -184,11 +202,11 @@ function switchToShortcutKeyMode()
 
 function selectClipping()
 {
-  var clippingURI = $("search-results-listbox").value;
+  var clippingID = $("search-results-listbox").value;
 
   $("search-results-popup").hidePopup();
 
-  gDlgArgs.clippingURI = clippingURI;
+  gDlgArgs.clippingID = Number(clippingID);
   gDlgArgs.switchModes = false;
   gDlgArgs.userCancel = false;
 

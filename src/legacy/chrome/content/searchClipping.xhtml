@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
+<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 <?xml-stylesheet href="chrome://clippings/content/style/searchClipping.css" type="text/css"?>
 
 <!DOCTYPE dialog SYSTEM "chrome://clippings/locale/clippings.dtd">
@@ -11,6 +12,7 @@
  title="&pasteClipping.title;"
  orient="vertical"
  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+ xmlns:html="http://www.w3.org/1999/xhtml"
  buttons="cancel"
  onload="init()">
 
@@ -37,9 +39,7 @@
       <separator class="thin"/>
       <description>&clippingSearch.description;</description>
       <separator />
-      <textbox id="clipping-search" type="search"
-       onkeyup="handleSearchKeys(event, this.value)"
-       onkeydown="handleTabKey(event)"/>
+      <html:input type="search" id="clipping-search"/>
       <separator class="thin"/>
       <label id="search-status" value=""/>
       <separator class="thin"/>

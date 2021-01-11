@@ -23,12 +23,8 @@ function processKeyPress(aEvent)
     gDlgArgs.switchModes = true;
  }
   else if (aEvent.key == "Tab") {
-    // TEMPORARY
-    /***
     gDlgArgs.action = gDlgArgs.ACTION_SEARCH_CLIPPING;
     gDlgArgs.switchModes = true;
-    ***/
-    // END TEMPORARY
   }
   else if (aEvent.key == "Escape" || aEvent.key == "Esc") {
     gDlgArgs.switchModes = false;
