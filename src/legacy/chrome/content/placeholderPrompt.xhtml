@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
 <!DOCTYPE dialog SYSTEM "chrome://clippings/locale/clippings.dtd">
 
@@ -11,6 +12,7 @@
  title="&pasteClipping.title;"
  orient="vertical"
  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+ xmlns:html="http://www.w3.org/1999/xhtml"
  buttons="accept,cancel"
  onload="init()">
 
@@ -28,7 +30,7 @@
       <separator />
       <deck id="prompt-deck">
         <vbox id="text-prompt">
-          <textbox id="placeholder-value" size="64"/>
+          <html:input type="text" id="placeholder-value" size="64"/>
 	</vbox>
 	<vbox id="select-prompt">
           <menulist id="select-placeholder-value-menu" style="height:2em"></menulist>

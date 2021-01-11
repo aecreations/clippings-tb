@@ -35,11 +35,11 @@ function init()
     strKey = "selectPromptText";
     promptDeck.selectedIndex = 1;
 
-    var menupopup = document.createElement("menupopup");
+    var menupopup = document.createXULElement("menupopup");
     var selectableValues = gDlgArgs.defaultValue.split("|");
 
     for (let value of selectableValues) {
-      var menuitem = document.createElement("menuitem");
+      var menuitem = document.createXULElement("menuitem");
       menuitem.setAttribute("label", value);
       menuitem.setAttribute("value", value);
       menupopup.appendChild(menuitem);
