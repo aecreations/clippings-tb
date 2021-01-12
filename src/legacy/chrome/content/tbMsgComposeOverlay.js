@@ -394,13 +394,11 @@ window.aecreations.clippings = {
       if (hasHTMLTags) {
         var pasteAsRichText;
         if (! hasRestrictedHTMLTags) {
-	  // TEMPORARY
-          var showHTMLPasteOpts = this.cnst.aeConstants.HTMLPASTE_AS_HTML;//this.util.aeUtils.getPref("clippings.html_paste", 0);
-	  // END TEMPORARY
+          var showHTMLPasteOpts = this.util.aeUtils.getPref("clippings.html_paste", 0);
 	  
           if (showHTMLPasteOpts == this.cnst.aeConstants.HTMLPASTE_ASK_THE_USER) {
             var dlgArgs = { userCancel: null, pasteAsRichText: null };
-            window.openDialog("chrome://clippings/content/htmlClipping.xul", "htmlClipping_dlg", "chrome,modal,centerscreen", dlgArgs);
+            window.openDialog("chrome://clippings/content/htmlClipping.xhtml", "htmlClipping_dlg", "chrome,modal,centerscreen", dlgArgs);
 	      
             if (dlgArgs.userCancel) {
               return;
