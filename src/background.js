@@ -5,14 +5,16 @@
 
 const ROOT_FOLDER_NAME = "clippings-root";
 
+let gClippingsDB;
 let gHostAppName;
 let gHostAppVer;
 let gOS;
-let gClippingsDB;
 let gIsDirty = false;
 let gClippingMenuItemIDMap = {};
 let gFolderMenuItemIDMap = {};
 let gSyncFldrID = null;
+let gBackupRemIntervalID = null;
+let gForceShowFirstTimeBkupNotif = false;
 let gClippingsMgrRootFldrReseq = false;
 
 let gClippingsListeners = new aeListeners();
@@ -171,6 +173,9 @@ let gDefaultPrefs = {
   clippingsMgrMinzWhenInactv: undefined,
   syncClippings: false,
   syncFolderID: null,
+  lastBackupRemDate: null,
+  backupRemFirstRun: true,
+  backupRemFrequency: aeConst.BACKUP_REMIND_WEEKLY,
   backupFilenameWithDate: true,
 }
 let gPrefs = null;
@@ -245,17 +250,21 @@ function init()
 
       for (let pref of changedPrefs) {
         gPrefs[pref] = aChanges[pref].newValue;
-        /***
-        if (pref == "autoIncrPlcHldrStartVal") {
-          aeClippingSubst.setAutoIncrementStartValue(aChanges[pref].newValue);
-        }
-        else if (gPrefs.pasteShortcutKeyPrefix && !isDirectSetKeyboardShortcut()) {
-          setShortcutKeyPrefix(gPrefs.pasteShortcutKeyPrefix);
-        }
-        ***/
       }
     });
     
+    if (gPrefs.backupRemFirstRun && !gPrefs.lastBackupRemDate) {
+      messenger.storage.local.set({
+        lastBackupRemDate: new Date().toString(),
+      });
+    }
+
+    // Check in 5 minutes whether to show backup reminder notification.
+    window.setTimeout(
+      async (aEvent) => { showBackupNotification() },
+      aeConst.BACKUP_REMINDER_DELAY_MS
+    );
+
     if (gSetDisplayOrderOnRootItems) {
       await setDisplayOrderOnRootItems();
       log("Clippings/mx: Display order on root folder items have been set.");
@@ -521,6 +530,108 @@ function rebuildContextMenu()
 }
 
 
+async function showBackupNotification()
+{
+  if (gPrefs.backupRemFrequency == aeConst.BACKUP_REMIND_NEVER) {
+    return;
+  }
+
+  let today = new Date();
+  let lastBackupRemDate = new Date(gPrefs.lastBackupRemDate);
+  let diff = new aeDateDiff(today, lastBackupRemDate);
+  let numDays = 0;
+
+  switch (gPrefs.backupRemFrequency) {
+  case aeConst.BACKUP_REMIND_DAILY:
+    numDays = 1;
+    break;
+
+  case aeConst.BACKUP_REMIND_TWODAYS:
+    numDays = 2;
+    break;
+
+  case aeConst.BACKUP_REMIND_THREEDAYS:
+    numDays = 3;
+    break;
+
+  case aeConst.BACKUP_REMIND_FIVEDAYS:
+    numDays = 5;
+    break;
+
+  case aeConst.BACKUP_REMIND_TWOWEEKS:
+    numDays = 14;
+    break;
+
+  case aeConst.BACKUP_REMIND_MONTHLY:
+    numDays = 30;
+    break;
+
+  case aeConst.BACKUP_REMIND_WEEKLY:
+  default:
+    numDays = 7;
+    break;
+  }
+
+  if (diff.days >= numDays || gForceShowFirstTimeBkupNotif) {
+    if (gPrefs.backupRemFirstRun) {
+      info("Clippings/mx: showBackupNotification(): Showing first-time backup reminder.");
+
+      await messenger.notifications.create(aeConst.NOTIFY_BACKUP_REMIND_FIRSTRUN_ID, {
+        type: "basic",
+        title: messenger.i18n.getMessage("backupNotifyTitle"),
+        message: messenger.i18n.getMessage("backupNotifyFirstMsg"),
+        iconUrl: "img/icon.svg",
+      });
+
+      await messenger.storage.local.set({
+        backupRemFirstRun: false,
+        backupRemFrequency: aeConst.BACKUP_REMIND_WEEKLY,
+        lastBackupRemDate: new Date().toString(),
+      });
+
+      if (gForceShowFirstTimeBkupNotif) {
+        setBackupNotificationInterval();
+        gForceShowFirstTimeBkupNotif = false;
+      }
+    }
+    else {
+      info("Clippings/mx: showBackupNotification(): Last backup reminder: " + gPrefs.lastBackupRemDate);
+
+      await messenger.notifications.create(aeConst.NOTIFY_BACKUP_REMIND_ID, {
+        type: "basic",
+        title: messenger.i18n.getMessage("backupNotifyTitle"),
+        message: messenger.i18n.getMessage("backupNotifyMsg"),
+        iconUrl: "img/icon.svg",
+      });
+
+      clearBackupNotificationInterval();
+      setBackupNotificationInterval();
+      messenger.storage.local.set({ lastBackupRemDate: new Date().toString() });
+    }
+  }
+  else {
+    clearBackupNotificationInterval();
+    setBackupNotificationInterval();
+  }
+}   
+
+
+function setBackupNotificationInterval()
+{
+  log("Clippings/mx: Setting backup notification interval (every 24 hours).");
+  gBackupRemIntervalID = window.setInterval(showBackupNotification, aeConst.BACKUP_REMINDER_INTERVAL_MS);
+}
+
+
+function clearBackupNotificationInterval()
+{
+  if (gBackupRemIntervalID) {
+    window.clearInterval(gBackupRemIntervalID);
+    gBackupRemIntervalID = null;
+  }
+}
+
+
 function createClippingNameFromText(aText)
 {
   let rv = "";
@@ -599,6 +710,13 @@ function openNewClippingDlg(aNewClippingContent)
     height = 420;
   }
   openDlgWnd(url, "newClipping", { type: "detached_panel", width: 428, height });
+}
+
+
+function openBackupDlg()
+{
+  let url = messenger.runtime.getURL("pages/backup.html");
+  openDlgWnd(url, "backupFirstRun", { type: "detached_panel", width: 590, height: 410 });
 }
 
 
@@ -792,6 +910,24 @@ function setDirtyFlag(aFlag)
   }
 }
 
+
+//
+// Click event listener for notifications
+//
+
+messenger.notifications.onClicked.addListener(aNotifID => {
+  if (aNotifID == aeConst.NOTIFY_BACKUP_REMIND_ID) {
+    // Open Clippings Manager in backup mode.
+    openClippingsManager(true);
+  }
+  else if (aNotifID == aeConst.NOTIFY_BACKUP_REMIND_FIRSTRUN_ID) {
+    openBackupDlg();
+  }
+  else if (aNotifID == aeConst.NOTIFY_SYNC_HELPER_UPDATE) {
+    messenger.tabs.create({ url: gSyncClippingsHelperDwnldPgURL });
+  }
+});
+  
 
 //
 // Catch any unhandled promise rejections from 3rd-party libs
