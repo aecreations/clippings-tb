@@ -30,6 +30,7 @@
     "scripts": [
       "lib/dexie/dexie.min.js",
       "lib/jquery.js",
+      "legacy/shims/preferences.js",
       "scripts/aeConst.js",
       "scripts/aeListeners.js",
       "scripts/aeDateDiff.js",
@@ -44,6 +45,14 @@
         "scopes": ["addon_parent"],
         "paths": [["WindowListener"]],
         "script": "api/WindowListener/implementation.js"
+      }
+    },
+    "LegacyPrefs": {
+      "schema": "api/LegacyPrefs/schema.json",
+      "parent": {
+        "scopes": ["addon_parent"],
+        "paths": [["LegacyPrefs"]],
+        "script": "api/LegacyPrefs/implementation.js"
       }
     }
   },

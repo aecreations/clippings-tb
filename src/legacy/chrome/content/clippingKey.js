@@ -15,9 +15,6 @@ function initWnd()
 
 function processKeyPress(aEvent)
 {
-  // Remember the paste shortcut mode for next time.
-  aeUtils.setPref("clippings.paste_shortcut_mode", gDlgArgs.ACTION_SHORTCUT_KEY);
-
   if (aEvent.key == "F1") {
     gDlgArgs.action = gDlgArgs.SHORTCUT_KEY_HELP;
     gDlgArgs.switchModes = true;
@@ -52,9 +49,6 @@ function processKeyPress(aEvent)
 
 function cancel()
 {
-  // Remember the paste shortcut mode for next time, even if user cancelled.
-  aeUtils.setPref("clippings.paste_shortcut_mode", gDlgArgs.ACTION_SHORTCUT_KEY);
-
   gDlgArgs.userCancel = true;
   gDlgArgs.switchModes = false;
   window.close();

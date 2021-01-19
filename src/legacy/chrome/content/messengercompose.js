@@ -4,8 +4,10 @@
 
 let {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
 
-Services.scriptloader.loadSubScript("chrome://clippings/content/tbMsgComposeOverlay.js", window, "UTF-8");
-
+Services.scriptloader.loadSubScript("chrome://clippings/content/tbMsgComposeOverlay.js",
+				    window, "UTF-8");
+Services.scriptloader.loadSubScript("resource://clippings/shims/preferences.js",
+				    window.aecreations.clippings, "UTF-8");
 
 let gClippingsMxListener = function () {
   let _clippings = WL.messenger.extension.getBackgroundPage();
@@ -64,12 +66,13 @@ let gClippingsMxListener = function () {
 }();
 
 
-function onLoad(aActivatedWhileWindowOpen)
+async function onLoad(aActivatedWhileWindowOpen)
 {
-  aeUtils.log("Clippings/mx::messengercompose.js: Initializing integration with message compose window.");
-  
   let strBundle = aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
 
+  window.aecreations.clippings.messenger = WL.messenger;
+  await window.aecreations.clippings.preferences.init();
+  
   // TO DO: Avoid hard-coding UI strings.
   WL.injectElements(`
   <commandset id="composeCommands">

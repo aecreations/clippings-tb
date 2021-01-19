@@ -210,9 +210,6 @@ function selectClipping()
   gDlgArgs.switchModes = false;
   gDlgArgs.userCancel = false;
 
-  // Remember the paste shortcut mode for next time.
-  aeUtils.setPref("clippings.paste_shortcut_mode", gDlgArgs.ACTION_SEARCH_CLIPPING);
-
   window.close();
 }
 
@@ -256,9 +253,6 @@ function selectClippingByMouse(aEvent)
 
 function cancel()
 {
-  // Remember the paste shortcut mode for next time, even if user cancelled.
-  aeUtils.setPref("clippings.paste_shortcut_mode", gDlgArgs.ACTION_SEARCH_CLIPPING);
-
   gDlgArgs.userCancel = true;
   gDlgArgs.switchModes = false;
   return true;

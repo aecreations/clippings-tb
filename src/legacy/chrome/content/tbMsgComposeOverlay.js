@@ -65,15 +65,15 @@ window.aecreations.clippings = {
 
     this.clippingsSvc.setEmptyClippingString(this.strBundle.getString("emptyClippingLabel"));
     this.clippingsSvc.setSyncedClippingsFolderName(this.strBundle.getString("syncFldrLabel"));
-    **/
+
     let profilePath = this.util.aeUtils.getUserProfileDir().path;
-    let dsPath = this.util.aeUtils.getPref("clippings.datasource.location", profilePath);
+    let dsPath = this.preferences.getPref("clippings.datasource.location", profilePath);
     
     // Clippings backup
     var backupDirURL = this.util.aeUtils.getDataSourcePathURL() + this.cnst.aeConstants.BACKUP_DIR_NAME;
-    /**
+
     this.clippingsSvc.setBackupDir(backupDirURL);
-    this.clippingsSvc.setMaxBackupFiles(this.util.aeUtils.getPref("clippings.backup.maxfiles", 10));
+    this.clippingsSvc.setMaxBackupFiles(this.preferences.getPref("clippings.backup.maxfiles", 10));
     **/
     // Initializing data source on Clippings context menus
     var menu1 = document.getElementById("ae-clippings-menu-1");
@@ -83,18 +83,18 @@ window.aecreations.clippings = {
     this.util.aeUtils.log(this.str.aeString.format("gClippings.initClippings(): Initializing Clippings integration with host app window: %s", window.location.href));
     /**
     // Add null clipping to root folder if there are no items
-    if (this.util.aeUtils.getPref("clippings.datasource.process_root", true) == true) {
+    if (this.preferences.getPref("clippings.datasource.process_root", true) == true) {
       this.clippingsSvc.processRootFolder();
-      this.util.aeUtils.setPref("clippings.datasource.process_root", false);
+      this.preferences.setPref("clippings.datasource.process_root", false);
     }
 
-    let syncClippings = this.util.aeUtils.getPref("clippings.datasource.wx_sync.enabled", false);
+    let syncClippings = this.preferences.getPref("clippings.datasource.wx_sync.enabled", false);
     if (syncClippings) {
       this.util.aeUtils.log("gClippings.initClippings(): Sync Clippings is turned on. Refreshing the Synced Clippings folder.");
-      let syncDirPath = this.util.aeUtils.getPref("clippings.datasource.wx_sync.location", "");
+      let syncDirPath = this.preferences.getPref("clippings.datasource.wx_sync.location", "");
       if (! syncDirPath) {
-	syncDirPath = this.util.aeUtils.getPref("clippings.datasource.location", "");
-	this.util.aeUtils.setPref("clippings.datasource.wx_sync.location", syncDirPath);
+	syncDirPath = this.preferences.getPref("clippings.datasource.location", "");
+	this.preferences.setPref("clippings.datasource.wx_sync.location", syncDirPath);
       }
       this.util.aeUtils.log("gClippings.initClippings: Sync folder location: " + syncDirPath);
 
@@ -146,12 +146,12 @@ window.aecreations.clippings = {
     // on Mac OS X, unless user has explicitly set it.
     if (this.util.aeUtils.getOS() == "Darwin") {
       if (! this.util.aeUtils.hasPref("clippings.clipmgr.disable_js_window_geometry_persistence")) {
-	this.util.aeUtils.setPref("clippings.clipmgr.disable_js_window_geometry_persistence", true);
+	this.preferences.setPref("clippings.clipmgr.disable_js_window_geometry_persistence", true);
       }
     }
     **/
     // Enable/disable Clippings paste using the keyboard.
-    let keyEnabled = this.util.aeUtils.getPref("clippings.enable_keyboard_paste", true);
+    let keyEnabled = this.preferences.getPref("keyboardPaste", true);
     let keyset = document.getElementById("tasksKeys");
     let keyElt = document.getElementById("key_ae_clippings");
     let keyEltMac = document.getElementById("key_ae_clippings_mac");
@@ -165,7 +165,7 @@ window.aecreations.clippings = {
       keyset.removeChild(keyEltNewMac);
     }
     else {
-      let newKeysEnabled = this.util.aeUtils.getPref("clippings.enable_wx_paste_prefix_key", true);
+      let newKeysEnabled = this.preferences.getPref("wxPastePrefixKey", true);
       if (! newKeysEnabled) {
 	keyset.removeChild(keyEltNew);
 	keyset.removeChild(keyEltNewMac);
@@ -356,11 +356,6 @@ window.aecreations.clippings = {
     );
     var clippingText = this.txt.aeClippingSubst.processClippingText(clippingInfo, window);
     var pasteAsQuotation = false;
-    var overwriteClipboard = this.util.aeUtils.getPref("clippings.use_clipboard", false);
-
-    if (overwriteClipboard) {
-      this.util.aeUtils.copyTextToClipboard(clippingText);
-    }
     
     // Paste clipping into subject line
     var focusedElt = document.commandDispatcher.focusedElement;
@@ -394,7 +389,7 @@ window.aecreations.clippings = {
       if (hasHTMLTags) {
         var pasteAsRichText;
         if (! hasRestrictedHTMLTags) {
-          var showHTMLPasteOpts = this.util.aeUtils.getPref("clippings.html_paste", 0);
+          var showHTMLPasteOpts = this.preferences.getPref("htmlPaste", this.cnst.aeConstants.HTMLPASTE_ASK_THE_USER);
 	  
           if (showHTMLPasteOpts == this.cnst.aeConstants.HTMLPASTE_ASK_THE_USER) {
             var dlgArgs = { userCancel: null, pasteAsRichText: null };
@@ -431,7 +426,7 @@ window.aecreations.clippings = {
         }
       }
 
-      var autoLineBreak = this.util.aeUtils.getPref("clippings.html_auto_line_break", true);
+      var autoLineBreak = this.preferences.getPref("autoLineBreak", true);
       var hasLineBreakTags = clippingText.search(/<br|<p/i) != -1;
       if (autoLineBreak && !hasLineBreakTags) {
         clippingText = clippingText.replace(/\n/g, "<br>");
@@ -499,6 +494,7 @@ window.aecreations.clippings = {
       ACTION_SEARCH_CLIPPING: 2,
       action: null,
       switchModes: null,
+      lastMode: null,
       clippingID: null,
       keyMap: null,
       keyCount: null,
@@ -514,7 +510,7 @@ window.aecreations.clippings = {
     dlgArgs.srchData = await this.getMxListener().clippingSearchDataRequested();
     
     // Remember the last mode (shortcut key or search clipping by name).
-    dlgArgs.action = this.util.aeUtils.getPref("clippings.paste_shortcut_mode", dlgArgs.ACTION_SHORTCUT_KEY);
+    dlgArgs.action = this.preferences.getPref("pastePromptAction", dlgArgs.ACTION_SHORTCUT_KEY);
 
     do {
       if (dlgArgs.action == dlgArgs.SHORTCUT_KEY_HELP) {
@@ -523,7 +519,8 @@ window.aecreations.clippings = {
 
         window.openDialog("chrome://clippings/content/shortcutHelp.xhtml",
 			  "clipkey_help", "centerscreen,resizable", dlgArgs);
-        this.util.aeUtils.log("Clippings: end of shortcut help action");
+
+	this.preferences.setPref("pastePromptAction", dlgArgs.ACTION_SHORTCUT_KEY);
         return;
       }
       else if (dlgArgs.action == dlgArgs.ACTION_SHORTCUT_KEY) {
@@ -535,6 +532,9 @@ window.aecreations.clippings = {
                           "clipsrch_dlg", "modal,centerscreen", dlgArgs);
       }
     } while (dlgArgs.switchModes && !dlgArgs.userCancel);
+
+    // Remember the paste shortcut mode for next time.
+    this.preferences.setPref("pastePromptAction", dlgArgs.action);
 
     if (dlgArgs.userCancel) {
       return;
@@ -552,4 +552,3 @@ window.aecreations.clippings.util = ChromeUtils.import("resource://clippings/mod
 window.aecreations.clippings.ui = ChromeUtils.import("resource://clippings/modules/aeClippingsMenu.js");
 window.aecreations.clippings.txt = ChromeUtils.import("resource://clippings/modules/aeClippingSubst.js");
 window.aecreations.clippings.ins = ChromeUtils.import("resource://clippings/modules/aeInsertTextIntoTextbox.js");
-
