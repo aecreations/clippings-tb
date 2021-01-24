@@ -167,7 +167,7 @@ let gWndIDs = {
 let gDefaultPrefs = {
   htmlPaste: aeConst.HTMLPASTE_AS_FORMATTED,
   autoLineBreak: true,
-  autoIncrPlcHldrStartVal: 0,
+  autoIncrPlchldrStartVal: 0,
   keyboardPaste: true,
   wxPastePrefixKey: true,
   checkSpelling: true,
