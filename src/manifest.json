@@ -38,6 +38,12 @@
     ]
   },
 
+  "options_ui": {
+    "page": "pages/options.html",
+    "open_in_tab": true,
+    "browser_style": true
+  },
+  
   "experiment_apis": {
     "WindowListener": {
       "schema": "api/WindowListener/schema.json",

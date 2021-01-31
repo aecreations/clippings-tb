@@ -843,7 +843,11 @@
   },
 
   "prefsShortcutMode": {
-    "message": "Activate shortcut key mode by pressing these keys:"
+    "message": "Activate shortcut key mode by pressing CTRL+ALT+V"
+  },
+
+  "prefsShortcutModeNew": {
+    "message": "Also use shortcut prefix keys ALT+SHIFT+Y"
   },
 
   "prefsShortcutKeyNote": {
