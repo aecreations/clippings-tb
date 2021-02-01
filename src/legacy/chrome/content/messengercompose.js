@@ -6,14 +6,22 @@ let {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
 
 Services.scriptloader.loadSubScript("chrome://clippings/content/tbMsgComposeOverlay.js",
 				    window, "UTF-8");
-Services.scriptloader.loadSubScript("resource://clippings/shims/preferences.js",
-				    window.aecreations.clippings, "UTF-8");
 
 let gClippingsMxListener = function () {
   let _clippings = WL.messenger.extension.getBackgroundPage();
   let _cxtMenuData = null;
 
   return {
+    prefsRequested()
+    {
+      return _clippings.getPrefs();
+    },
+
+    async prefsChanged(aPrefs)
+    {
+      await _clippings.setPrefs(aPrefs);
+    },
+    
     newClippingDlgOpened(aClippingContent)
     {
       if (! aClippingContent) {
@@ -70,9 +78,6 @@ async function onLoad(aActivatedWhileWindowOpen)
 {
   let strBundle = aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
 
-  window.aecreations.clippings.messenger = WL.messenger;
-  await window.aecreations.clippings.preferences.init();
-  
   // TO DO: Avoid hard-coding UI strings.
   WL.injectElements(`
   <commandset id="composeCommands">

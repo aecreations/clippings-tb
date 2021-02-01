@@ -1614,8 +1614,8 @@ let gCmd = {
   
   showHidePlaceholderToolbar: function ()
   {
-    let currSetting = preferences.getPref("clippingsMgrPlchldrToolbar", false);
-    preferences.setPref("clippingsMgrPlchldrToolbar", !currSetting);
+    let currSetting = gClippings.getPrefs().clippingsMgrPlchldrToolbar;
+    messenger.storage.local.set({ clippingsMgrPlchldrToolbar: !currSetting });
     
     if (gIsClippingsTreeEmpty) {
       return;
@@ -1634,11 +1634,8 @@ let gCmd = {
   
   showHideDetailsPane: function ()
   {
-    log("gCmd.showHideDetailsPane(): Changing pref");
-    let currSetting = preferences.getPref("clippingsMgrDetailsPane", false);
-    preferences.setPref("clippingsMgrDetailsPane", !currSetting);
-
-    log(`currSetting = ${currSetting}; new setting: ${preferences.getPref("clippingsMgrDetailsPane",false)}`);
+    let currSetting = gClippings.getPrefs().clippingsMgrDetailsPane;
+    messenger.storage.local.set({ clippingsMgrDetailsPane: !currSetting });
 
     if (gIsClippingsTreeEmpty) {
       return;
@@ -1661,7 +1658,7 @@ let gCmd = {
     let isVisible = $("#status-bar").css("display") != "none";
     recalcContentAreaHeight(isVisible);
     
-    preferences.setPref("clippingsMgrStatusBar", isVisible);
+    messenger.storage.local.set({ clippingsMgrStatusBar: isVisible });
   },
   
   async toggleMaximize()
@@ -1677,16 +1674,13 @@ let gCmd = {
 
   toggleMinimizeWhenInactive: function ()
   {
-    let currSetting = preferences.getPref("clippingsMgrMinzWhenInactv", undefined);
-    preferences.setPref("clippingsMgrMinzWhenInactv", !currSetting);
+    let currSetting = gClippings.getPrefs().clippingsMgrMinzWhenInactv;
+    messenger.storage.local.set({ clippingsMgrMinzWhenInactv: !currSetting });
   },
   
   openExtensionPrefs: function ()
   {
-    window.alert(messenger.i18n.getMessage("msgUnavail"));
-    /***
     messenger.runtime.openOptionsPage();
-    ***/
   },
   
   backup: function ()
@@ -1697,9 +1691,9 @@ let gCmd = {
     setStatusBarMsg(messenger.i18n.getMessage("statusSavingBkup"));
 
     let excludeSyncFldrID = null;
-    let syncClippings = preferences.getPref("syncClippings", false);
-    if (syncClippings) {
-      excludeSyncFldrID = preferences.getPref("syncFolderID", null);
+    let prefs = gClippings.getPrefs();
+    if (prefs.syncClippings) {
+      excludeSyncFldrID = prefs.syncFolderID;
     }
 
     let blobData;
@@ -2075,25 +2069,24 @@ $(async () => {
     $("#status-bar").css({ backgroundImage: "none" });
   }
 
-  await preferences.init();
-  
   let wndURL = new URL(window.location.href);
   gOpenerWndID = Number(wndURL.searchParams.get("openerWndID"));
   gIsBackupMode = wndURL.searchParams.get("backupMode") || false;
   
   gIsMaximized = false;
 
+  let prefs = gClippings.getPrefs();
+
   if (DEBUG_WND_ACTIONS) {
-    let clippingsMgrMinzWhenInactv = preferences.getPref("clippingsMgrMinzWhenInactv", undefined);
-    if (clippingsMgrMinzWhenInactv === undefined) {
-      preferences.setPref("clippingsMgrMinzWhenInactv", true);
+    if (prefs.clippingsMgrMinzWhenInactv === undefined) {
+      messenger.storage.local.set({ clippingsMgrMinzWhenInactv: true });
     }
   }
 
   gClippingsListener.origin = aeConst.ORIGIN_CLIPPINGS_MGR;
   gClippings.addClippingsListener(gClippingsListener);
 
-  gSyncFolderID = preferences.getPref("syncFolderID", null);
+  gSyncFolderID = prefs.syncFolderID;
   /***
   let syncClippingsListeners = gClippings.getSyncClippingsListeners();
   syncClippingsListeners.add(gSyncClippingsListener);
@@ -2113,12 +2106,10 @@ $(async () => {
     gCmd.backup();
   }
   else {
-    let syncClippings = preferences.getPref("syncClippings", false);
-    let cxtMenuSyncItemsOnly = preferences.getPref("cxtMenuSyncItemsOnly", false);
-    let clippingsMgrShowSyncItemsOnlyRem = preferences.getPref("clippingsMgrShowSyncItemsOnlyRem", true);
-    if (syncClippings && cxtMenuSyncItemsOnly && clippingsMgrShowSyncItemsOnlyRem) {
+    if (prefs.syncClippings && prefs.cxtMenuSyncItemsOnly
+        && prefs.clippingsMgrShowSyncItemsOnlyRem) {
       gDialogs.showOnlySyncedItemsReminder.showModal();
-      preferences.setPref("clippingsMgrShowSyncItemsOnlyRem", false);
+      messenger.storage.local.set({ clippingsMgrShowSyncItemsOnlyRem: false });
     }
   }
   
@@ -2261,8 +2252,7 @@ $(window).on("click", aEvent => {
 
 $(window).on("blur", aEvent => {
   if (gOS == "linux" || DEBUG_WND_ACTIONS) {
-    let clippingsMgrMinzWhenInactv = preferences.getPref("clippingsMgrMinzWhenInactv", undefined);
-    if (clippingsMgrMinzWhenInactv && !gSuppressAutoMinzWnd) {
+    if (gClippings.getPrefs().clippingsMgrMinzWhenInactv && !gSuppressAutoMinzWnd) {
       let updWndInfo = { state: "minimized" };
       messenger.windows.update(messenger.windows.WINDOW_ID_CURRENT, updWndInfo);
     }
@@ -2276,14 +2266,14 @@ $(window).on("blur", aEvent => {
 
 function initToolbar()
 {
+  let prefs = gClippings.getPrefs();
+  
   // Show or hide the details pane and status bar.
-  let clippingsMgrDetailsPane = preferences.getPref("clippingsMgrDetailsPane", false);
-  if (! clippingsMgrDetailsPane) {
+  if (! prefs.clippingsMgrDetailsPane) {
     $("#options-bar").hide();
   }
 
-  let clippingsMgrStatusBar = preferences.getPref("clippingsMgrStatusBar", false);
-  if (! clippingsMgrStatusBar) {
+  if (! prefs.clippingsMgrStatusBar) {
     $("#status-bar").hide();
     recalcContentAreaHeight($("#status-bar").css("display") != "none");
   }
@@ -2562,8 +2552,7 @@ function initToolbar()
           return (gOS == "linux" || DEBUG_WND_ACTIONS);
         },
         icon: function (aKey, aOpt) {
-          let clippingsMgrMinzWhenInactv = preferences.getPref("clippingsMgrMinzWhenInactv", undefined);
-          if (clippingsMgrMinzWhenInactv) {
+          if (gClippings.getPrefs().clippingsMgrMinzWhenInactv) {
             return "context-menu-icon-checked";
           }
         }
@@ -2626,7 +2615,7 @@ function initInstantEditing()
       let content = aEvent.target.value;
       gCmd.editClippingContentIntrl(id, content, gCmd.UNDO_STACK);
     }
-  }).attr("spellcheck", preferences.getPref("checkSpelling", true));
+  }).attr("spellcheck", gClippings.getPrefs().checkSpelling);
 }
 
 
@@ -3191,10 +3180,10 @@ function initDialogs()
       });
     }
 
+    let prefs = gClippings.getPrefs();
     let excludeSyncFldrID = null;
-    let syncClippings = preferences.getPref("syncClippings", false);
-    if (syncClippings) {
-      excludeSyncFldrID = preferences.getPref("syncFolderID", null);
+    if (prefs.syncClippings) {
+      excludeSyncFldrID = prefs.syncFolderID;
     }
     
     let selectedFmtIdx = $("#export-format-list")[0].selectedIndex;
@@ -3556,10 +3545,9 @@ async function buildClippingsTree()
           }
 
           let id = parseInt(aData.otherNode.key);
-          let syncClippings = preferences.getPref("syncClippings", false);
-          let syncFolderID = preferences.getPref("syncFolderID", null);
-
-          if (syncClippings && id == syncFolderID && newParentID != aeConst.ROOT_FOLDER_ID) {
+          let prefs = gClippings.getPrefs();
+          if (prefs.syncClippings && id == prefs.syncFolderID
+              && newParentID != aeConst.ROOT_FOLDER_ID) {
             warn("The Synced Clippings folder cannot be moved.");
             return;
           }
@@ -3854,12 +3842,12 @@ async function buildClippingsTree()
     }
   });
 
-  let syncClippings = preferences.getPref("syncClippings", false);
-  if (syncClippings) {
+  let prefs = gClippings.getPrefs();
+  if (prefs.syncClippings) {
     gReloadSyncFldrBtn.show();
     $(".ae-synced-clippings-fldr").parent().addClass("ae-synced-clippings");
 
-    if (preferences.getPref("cxtMenuSyncItemsOnly", false)) {
+    if (prefs.cxtMenuSyncItemsOnly) {
       $("#clippings-tree").addClass("cxt-menu-show-sync-items-only");
     }
   }
@@ -3961,13 +3949,13 @@ async function initSyncItemsIDLookupList()
   }
   // END nested helper function
 
-  let syncClippings = preferences.getPref("syncClippings", false);
-  if (! syncClippings) {
+  let prefs = gClippings.getPrefs();
+  if (! prefs.syncClippings) {
     Promise.resolve();
   }
 
   // Include the ID of the root Synced Clippings folder.
-  let syncFolderID = preferences.getPref("syncFolderID", null);
+  let syncFolderID = prefs.syncFolderID;
   gSyncedItemsIDs[syncFolderID + "F"] = 1;
 
   initSyncItemsIDLookupListHelper(syncFolderID).then(() => {
@@ -4045,10 +4033,12 @@ function unsetEmptyClippingsState()
   $("#intro-content").hide();
   $("#clipping-name, #clipping-text").show();
 
-  if (preferences.getPref("clippingsMgrDetailsPane", false)) {
+  let prefs = gClippings.getPrefs();
+
+  if (prefs.clippingsMgrDetailsPane) {
     $("#options-bar").show();
   }
-  if (preferences.getPref("clippingsMgrPlchldrToolbar", false)) {
+  if (prefs.clippingsMgrPlchldrToolbar) {
     $("#placeholder-toolbar").show();
   }
 }
@@ -4130,6 +4120,7 @@ function updateDisplay(aEvent, aData)
     setStatusBarMsg();
   }
 
+  let prefs = gClippings.getPrefs();
   let selectedItemID = parseInt(aData.node.key);
 
   if (aData.node.isFolder()) {
@@ -4144,8 +4135,7 @@ function updateDisplay(aEvent, aData)
 
       $("#item-properties").addClass("folder-only");
 
-      let syncClippings = preferences.getPref("syncClippings", false);
-      if (syncClippings && selectedItemID == gClippings.getSyncFolderID()) {
+      if (prefs.syncClippings && selectedItemID == gClippings.getSyncFolderID()) {
         // Prevent renaming of the Synced Clippings folder.
         $("#clipping-name").attr("disabled", "true");
       }
@@ -4162,11 +4152,11 @@ function updateDisplay(aEvent, aData)
       $("#clipping-name").val(aResult.name);
       $("#clipping-text").val(aResult.content).show();
 
-      if (preferences.getPref("clippingsMgrDetailsPane", false)) {
+      if (prefs.clippingsMgrDetailsPane) {
         $("#options-bar").show();
       }
 
-      if (preferences.getPref("clippingsMgrPlchldrToolbar", false)) {
+      if (prefs.clippingsMgrPlchldrToolbar) {
         $("#placeholder-toolbar").show();
       }
       

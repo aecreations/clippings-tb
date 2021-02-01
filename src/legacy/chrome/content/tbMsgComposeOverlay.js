@@ -67,13 +67,13 @@ window.aecreations.clippings = {
     this.clippingsSvc.setSyncedClippingsFolderName(this.strBundle.getString("syncFldrLabel"));
 
     let profilePath = this.util.aeUtils.getUserProfileDir().path;
-    let dsPath = this.preferences.getPref("clippings.datasource.location", profilePath);
+    let dsPath = this.util.aeUtils.getPref("clippings.datasource.location", profilePath);
     
     // Clippings backup
     var backupDirURL = this.util.aeUtils.getDataSourcePathURL() + this.cnst.aeConstants.BACKUP_DIR_NAME;
 
     this.clippingsSvc.setBackupDir(backupDirURL);
-    this.clippingsSvc.setMaxBackupFiles(this.preferences.getPref("clippings.backup.maxfiles", 10));
+    this.clippingsSvc.setMaxBackupFiles(this.util.aeUtils.getPref("clippings.backup.maxfiles", 10));
     **/
     // Initializing data source on Clippings context menus
     var menu1 = document.getElementById("ae-clippings-menu-1");
@@ -83,18 +83,18 @@ window.aecreations.clippings = {
     this.util.aeUtils.log(this.str.aeString.format("gClippings.initClippings(): Initializing Clippings integration with host app window: %s", window.location.href));
     /**
     // Add null clipping to root folder if there are no items
-    if (this.preferences.getPref("clippings.datasource.process_root", true) == true) {
+    if (this.util.aeUtils.getPref("clippings.datasource.process_root", true) == true) {
       this.clippingsSvc.processRootFolder();
-      this.preferences.setPref("clippings.datasource.process_root", false);
+      this.util.aeUtils.setPref("clippings.datasource.process_root", false);
     }
 
-    let syncClippings = this.preferences.getPref("clippings.datasource.wx_sync.enabled", false);
+    let syncClippings = this.util.aeUtils.getPref("clippings.datasource.wx_sync.enabled", false);
     if (syncClippings) {
       this.util.aeUtils.log("gClippings.initClippings(): Sync Clippings is turned on. Refreshing the Synced Clippings folder.");
-      let syncDirPath = this.preferences.getPref("clippings.datasource.wx_sync.location", "");
+      let syncDirPath = this.util.aeUtils.getPref("clippings.datasource.wx_sync.location", "");
       if (! syncDirPath) {
-	syncDirPath = this.preferences.getPref("clippings.datasource.location", "");
-	this.preferences.setPref("clippings.datasource.wx_sync.location", syncDirPath);
+	syncDirPath = this.util.aeUtils.getPref("clippings.datasource.location", "");
+	this.util.aeUtils.setPref("clippings.datasource.wx_sync.location", syncDirPath);
       }
       this.util.aeUtils.log("gClippings.initClippings: Sync folder location: " + syncDirPath);
 
@@ -146,12 +146,14 @@ window.aecreations.clippings = {
     // on Mac OS X, unless user has explicitly set it.
     if (this.util.aeUtils.getOS() == "Darwin") {
       if (! this.util.aeUtils.hasPref("clippings.clipmgr.disable_js_window_geometry_persistence")) {
-	this.preferences.setPref("clippings.clipmgr.disable_js_window_geometry_persistence", true);
+	this.util.aeUtils.setPref("clippings.clipmgr.disable_js_window_geometry_persistence", true);
       }
     }
     **/
+    let prefs = this.getMxListener().prefsRequested();
+    
     // Enable/disable Clippings paste using the keyboard.
-    let keyEnabled = this.preferences.getPref("keyboardPaste", true);
+    let keyEnabled = prefs.keyboardPaste;
     let keyset = document.getElementById("tasksKeys");
     let keyElt = document.getElementById("key_ae_clippings");
     let keyEltMac = document.getElementById("key_ae_clippings_mac");
@@ -165,7 +167,7 @@ window.aecreations.clippings = {
       keyset.removeChild(keyEltNewMac);
     }
     else {
-      let newKeysEnabled = this.preferences.getPref("wxPastePrefixKey", true);
+      let newKeysEnabled = prefs.wxPastePrefixKey;
       if (! newKeysEnabled) {
 	keyset.removeChild(keyEltNew);
 	keyset.removeChild(keyEltNewMac);
@@ -349,7 +351,9 @@ window.aecreations.clippings = {
     var cxtMenu = document.getElementById("msgComposeContext");
     cxtMenu.hidePopup();
 
-    let clipping = await this.getMxListener().clippingRequested(aID);
+    let mxListener = this.getMxListener();
+    let clipping = await mxListener.clippingRequested(aID);
+    let prefs = mxListener.prefsRequested();
 
     var clippingInfo = this.txt.aeClippingSubst.getClippingInfo(
       aID, clipping.name, clipping.text, clipping.parentFolderName
@@ -389,7 +393,7 @@ window.aecreations.clippings = {
       if (hasHTMLTags) {
         var pasteAsRichText;
         if (! hasRestrictedHTMLTags) {
-          var showHTMLPasteOpts = this.preferences.getPref("htmlPaste", this.cnst.aeConstants.HTMLPASTE_ASK_THE_USER);
+          var showHTMLPasteOpts = prefs.htmlPaste;
 	  
           if (showHTMLPasteOpts == this.cnst.aeConstants.HTMLPASTE_ASK_THE_USER) {
             var dlgArgs = { userCancel: null, pasteAsRichText: null };
@@ -426,7 +430,7 @@ window.aecreations.clippings = {
         }
       }
 
-      var autoLineBreak = this.preferences.getPref("autoLineBreak", true);
+      var autoLineBreak = prefs.autoLineBreak;
       var hasLineBreakTags = clippingText.search(/<br|<p/i) != -1;
       if (autoLineBreak && !hasLineBreakTags) {
         clippingText = clippingText.replace(/\n/g, "<br>");
@@ -502,15 +506,18 @@ window.aecreations.clippings = {
       userCancel: null
     };
 
-    let unsortedKeyMap = await this.getMxListener().shortcutKeyMapRequested();
+    let mxListener = this.getMxListener();
+    let unsortedKeyMap = await mxListener.shortcutKeyMapRequested();
     let keyMap = sortKeyMap(unsortedKeyMap);
 
     dlgArgs.keyMap = keyMap;
     dlgArgs.keyCount = keyMap.size;
-    dlgArgs.srchData = await this.getMxListener().clippingSearchDataRequested();
+    dlgArgs.srchData = await mxListener.clippingSearchDataRequested();
+
+    let prefs = mxListener.prefsRequested();
     
     // Remember the last mode (shortcut key or search clipping by name).
-    dlgArgs.action = this.preferences.getPref("pastePromptAction", dlgArgs.ACTION_SHORTCUT_KEY);
+    dlgArgs.action = prefs.pastePromptAction;
 
     do {
       if (dlgArgs.action == dlgArgs.SHORTCUT_KEY_HELP) {
@@ -520,7 +527,7 @@ window.aecreations.clippings = {
         window.openDialog("chrome://clippings/content/shortcutHelp.xhtml",
 			  "clipkey_help", "centerscreen,resizable", dlgArgs);
 
-	this.preferences.setPref("pastePromptAction", dlgArgs.ACTION_SHORTCUT_KEY);
+	await mxListener.prefsChanged({ pastePromptAction: dlgArgs.ACTION_SHORTCUT_KEY });
         return;
       }
       else if (dlgArgs.action == dlgArgs.ACTION_SHORTCUT_KEY) {
@@ -534,7 +541,7 @@ window.aecreations.clippings = {
     } while (dlgArgs.switchModes && !dlgArgs.userCancel);
 
     // Remember the paste shortcut mode for next time.
-    this.preferences.setPref("pastePromptAction", dlgArgs.action);
+    await mxListener.prefsChanged({ pastePromptAction: dlgArgs.action });
 
     if (dlgArgs.userCancel) {
       return;

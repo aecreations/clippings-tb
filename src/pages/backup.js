@@ -11,11 +11,9 @@ $(async () => {
   gClippings = messenger.extension.getBackgroundPage();
 
   if (! gClippings) {
-    throw new Error("Clippings/mx::backup.js: Failed to retrieve parent browser window!");
+    throw new Error("Clippings/mx::backup.js: Failed to retrieve parent application window!");
   }
 
-  await preferences.init();
-  
   // Reset backup notification interval timer so that it fires 24 hours after
   // displaying this first-time backup dialog.
   gClippings.clearBackupNotificationInterval();
@@ -32,38 +30,47 @@ $(async () => {
   
   $("#btn-close").click(aEvent => { closeDlg() });
 
-  let backupRemFrequency = preferences.getPref("backupRemFrequency", aeConst.BACKUP_REMIND_WEEKLY);
-  $("#backup-reminder").prop("checked", (backupRemFrequency != aeConst.BACKUP_REMIND_NEVER)).click(aEvent => {
+  let prefs = await messenger.storage.local.get();
+  $("#backup-reminder").prop("checked", (prefs.backupRemFrequency != aeConst.BACKUP_REMIND_NEVER)).click(aEvent => {
+    let setPrefs;
+    
     if (aEvent.target.checked) {
       $("#backup-reminder-freq").prop("disabled", false);
-      preferences.setPref("backupRemFrequency", Number($("#backup-reminder-freq").val()));
-      preferences.setPref("backupRemFirstRun", false);
-      preferences.setPref("lastBackupRemDate", new Date().toString());
+      setPrefs = messenger.storage.local.set({
+        backupRemFrequency: Number($("#backup-reminder-freq").val()),
+        backupRemFirstRun: false,
+        lastBackupRemDate: new Date().toString(),
+      });
     }
     else {
       $("#backup-reminder-freq").prop("disabled", true);
-      preferences.setPref("backupRemFrequency", aeConst.BACKUP_REMIND_NEVER);
+      setPrefs = messenger.storage.local.set({
+	backupRemFrequency: aeConst.BACKUP_REMIND_NEVER,
+      });
     }
 
-    gClippings.clearBackupNotificationInterval();
-    if (aEvent.target.checked) {
-      gClippings.setBackupNotificationInterval();
-    }
+    setPrefs.then(() => {
+      gClippings.clearBackupNotificationInterval();
+      if (aEvent.target.checked) {
+	gClippings.setBackupNotificationInterval();
+      }
+    });
   });
 
-  if (backupRemFrequency == aeConst.BACKUP_REMIND_NEVER) {
+  if (prefs.backupRemFrequency == aeConst.BACKUP_REMIND_NEVER) {
     // Set to default interval.
     $("#backup-reminder-freq").val(aeConst.BACKUP_REMIND_WEEKLY).prop("disabled", true);
   }
   else {
-    $("#backup-reminder-freq").val(backupRemFrequency);
+    $("#backup-reminder-freq").val(prefs.backupRemFrequency);
   }
 
   $("#backup-reminder-freq").change(async (aEvent) => {
-    preferences.setPref("backupRemFrequency", Number(aEvent.target.value));
-    preferences.setPref("backupRemFirstRun", false);
-    preferences.setPref("lastBackupRemDate", new Date().toString());
-
+    await messenger.storage.local.set({
+      backupRemFrequency: Number(aEvent.target.value),
+      backupRemFirstRun: false,
+      lastBackupRemDate: new Date().toString(),
+    });
     gClippings.clearBackupNotificationInterval();
     gClippings.setBackupNotificationInterval();
   });
@@ -81,7 +88,7 @@ $(async () => {
 
 function closeDlg()
 {
-  messenger.windows.remove(browser.windows.WINDOW_ID_CURRENT);
+  messenger.windows.remove(messenger.windows.WINDOW_ID_CURRENT);
 }
 
 

@@ -34,8 +34,6 @@ $(async () => {
 
 async function init()
 {
-  await preferences.init();
-  
   let os = gClippings.getOS();
 
   if (os == "mac") {
@@ -59,10 +57,10 @@ async function init()
 
   initDialogs();
 
-  let syncClippings = preferences.getPref("syncClippings", false);
+  let prefs = gClippings.getPrefs();
 
   $("#toggle-sync").click(async (aEvent) => {
-    if (syncClippings) {
+    if (prefs.syncClippings) {
       gDialogs.turnOffSync.showModal();
     }
     else {
@@ -129,47 +127,42 @@ async function init()
     }
   });
 
-  let htmlPaste = preferences.getPref("htmlPaste", aeConst.HTMLPASTE_AS_FORMATTED);
-  $("#html-paste-options").val(htmlPaste).change(aEvent => {
-    preferences.setPref("htmlPaste", aEvent.target.value);
+  $("#html-paste-options").val(prefs.htmlPaste).change(aEvent => {
+    setPref({ htmlPaste: aEvent.target.value });
   });
 
-  let autoLineBreak = preferences.getPref("autoLineBreak", true);
-  $("#html-auto-line-break").attr("checked", autoLineBreak).click(aEvent => {
-    preferences.setPref("autoLineBreak", aEvent.target.checked);
+  $("#html-auto-line-break").attr("checked", prefs.autoLineBreak).click(aEvent => {
+    setPref({ autoLineBreak: aEvent.target.checked });
   });
 
-  let keyboardPaste = preferences.getPref("keyboardPaste", true);
-  $("#enable-shortcut-key").attr("checked", keyboardPaste).click(aEvent => {
-    preferences.setPref("keyboardPaste", aEvent.target.checked);
+  $("#enable-shortcut-key").attr("checked", prefs.keyboardPaste).click(aEvent => {
+    setPref({ keyboardPaste: aEvent.target.checked });
   });
 
-  let autoIncrPlchldrStartVal = preferences.getPref("autoIncrPlchldrStartVal", 0);
-  $("#auto-inc-plchldrs-start-val").val(autoIncrPlchldrStartVal).click(aEvent => {
-    preferences.setPref("autoIncrPlchldrStartVal", aEvent.target.valueAsNumber);
+  $("#auto-inc-plchldrs-start-val").val(prefs.autoIncrPlchldrStartVal).click(aEvent => {
+    setPref({ autoIncrPlchldrStartVal: aEvent.target.valueAsNumber });
   });
 
-  let checkSpelling = preferences.getPref("checkSpelling", true);
-  $("#check-spelling").attr("checked", checkSpelling).click(aEvent => {
-    preferences.setPref("checkSpelling", aEvent.target.checked);
+  $("#check-spelling").attr("checked", prefs.checkSpelling).click(aEvent => {
+    setPref({ checkSpelling: aEvent.target.checked });
   });
 
-  let backupFilenameWithDate = preferences.getPref("backupFilenameWithDate", true);
-  $("#backup-filename-with-date").attr("checked", backupFilenameWithDate).click(aEvent => {
-    preferences.setPref("backupFilenameWithDate", aEvent.target.checked);
+  $("#backup-filename-with-date").attr("checked", prefs.backupFilenameWithDate).click(aEvent => {
+    setPref({ backupFilenameWithDate: aEvent.target.checked });
   });
 
-  let backupRemFrequency = preferences.getPref("backupRemFrequency", aeConst.BACKUP_REMIND_WEEKLY);
-  $("#backup-reminder").prop("checked", (backupRemFrequency != aeConst.BACKUP_REMIND_NEVER)).click(async (aEvent) => {
+  $("#backup-reminder").prop("checked", (prefs.backupRemFrequency != aeConst.BACKUP_REMIND_NEVER)).click(async (aEvent) => {
     if (aEvent.target.checked) {
       $("#backup-reminder-freq").prop("disabled", false);
-      preferences.setPref("backupRemFrequency", Number($("#backup-reminder-freq").val()));
-      preferences.setPref("backupRemFirstRun", false);
-      preferences.setPref("lastBackupRemDate", new Date().toString());
+      setPref({
+        backupRemFrequency: Number($("#backup-reminder-freq").val()),
+        backupRemFirstRun: false,
+        lastBackupRemDate: new Date().toString(),
+      });
     }
     else {
       $("#backup-reminder-freq").prop("disabled", true);
-      preferences.setPref("backupRemFrequency", aeConst.BACKUP_REMIND_NEVER);
+      setPref({ backupRemFrequency: aeConst.BACKUP_REMIND_NEVER });
     }
 
     gClippings.clearBackupNotificationInterval();
@@ -178,24 +171,26 @@ async function init()
     }
   });
 
-  if (backupRemFrequency == aeConst.BACKUP_REMIND_NEVER) {
+  if (prefs.backupRemFrequency == aeConst.BACKUP_REMIND_NEVER) {
     // Set to default interval.
     $("#backup-reminder-freq").val(aeConst.BACKUP_REMIND_WEEKLY).prop("disabled", true);
   }
   else {
-    $("#backup-reminder-freq").val(backupRemFrequency);
+    $("#backup-reminder-freq").val(prefs.backupRemFrequency);
   }
   
   $("#backup-reminder-freq").change(async (aEvent) => {
-    preferences.setPref("backupRemFrequency", Number(aEvent.target.value));
-    preferences.setPref("backupRemFirstRun", false);
-    preferences.setPref("lastBackupRemDate", new Date().toString());
+    setPref({
+      backupRemFrequency: Number(aEvent.target.value),
+      backupRemFirstRun: false,
+      lastBackupRemDate: new Date().toString(),
+    });
 
     gClippings.clearBackupNotificationInterval();
     gClippings.setBackupNotificationInterval();
   });   
 
-  if (syncClippings) {
+  if (prefs.syncClippings) {
     $("#sync-settings").show();
     $("#sync-status").addClass("sync-status-on").text(messenger.i18n.getMessage("syncStatusOn"));
     $("#toggle-sync").text(messenger.i18n.getMessage("syncTurnOff"));
@@ -235,6 +230,12 @@ async function init()
 }
 
 
+function setPref(aPref)
+{
+  messenger.storage.local.set(aPref);
+}
+
+
 function initDialogs()
 {
   let osName = gClippings.getOS();
@@ -265,11 +266,10 @@ function initDialogs()
     sendNativeMsg.then(aResp => {
       console.info("Sync Clippings helper app version: " + aResp.appVersion);
 
-      let syncHelperCheckUpdates = preferences.getPref("syncHelperCheckUpdates", true);
-      $("#sync-helper-app-update-check").prop("checked", syncHelperCheckUpdates);
-
-      let cxtMenuSyncItemsOnly = preferences.getPref("cxtMenuSyncItemsOnly", false);
-      $("#show-only-sync-items").prop("checked", cxtMenuSyncItemsOnly);
+      let prefs = gClippings.getPrefs();
+      
+      $("#sync-helper-app-update-check").prop("checked", prefs.syncHelperCheckUpdates);
+      $("#show-only-sync-items").prop("checked", prefs.cxtMenuSyncItemsOnly);
 
       gDialogs.syncClippings.oldShowSyncItemsOpt = $("#show-only-sync-items").prop("checked");
 
@@ -337,8 +337,10 @@ function initDialogs()
       return;
     }
 
-    preferences.setPref("syncHelperCheckUpdates", $("#sync-helper-app-update-check").prop("checked"));
-    preferences.setPref("cxtMenuSyncItemsOnly", $("#show-only-sync-items").prop("checked"));
+    setPref({
+      syncHelperCheckUpdates: $("#sync-helper-app-update-check").prop("checked"),
+      cxtMenuSyncItemsOnly: $("#show-only-sync-items").prop("checked"),
+    });
 
     let rebuildClippingsMenu = $("#show-only-sync-items").prop("checked") != gDialogs.syncClippings.oldShowSyncItemsOpt;
 
@@ -359,8 +361,10 @@ function initDialogs()
 	  if (gIsActivatingSyncClippings) {
             // Don't do the following if Sync Clippings was already turned on
             // and no changes to settings were made.
-            preferences.setPref("syncClippings", true);
-            preferences.setPref("clippingsMgrShowSyncItemsOnlyRem", true);
+            setPref({
+              syncClippings: true,
+              clippingsMgrShowSyncItemsOnlyRem: true,
+            });
 
             $("#sync-settings").show();
             $("#toggle-sync").text(messenger.i18n.getMessage("syncTurnOff"));
@@ -410,7 +414,7 @@ function initDialogs()
     that.close();
 
     gClippings.enableSyncClippings(false).then(aOldSyncFldrID => {
-      preferences.setPref("syncClippings", false);
+      setPref({ syncClippings: false });
       $("#sync-settings").hide();
       $("#toggle-sync").text(messenger.i18n.getMessage("syncTurnOn"));
       $("#sync-status").removeClass("sync-status-on").text(messenger.i18n.getMessage("syncStatusOff"));
@@ -484,8 +488,9 @@ function initDialogs()
     sendNativeMsg.then(aResp => {
       $("#about-dlg > .dlg-content #diag-info #sync-ver").text(aResp.appVersion);     
 
-      let syncClippings = preferences.getPref("syncClippings", false);
-      if (syncClippings) {
+      let prefs = gClippings.getPrefs();
+
+      if (prefs.syncClippings) {
         let msg = { msgID: "get-sync-file-info" };
         return messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
       }

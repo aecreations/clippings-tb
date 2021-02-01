@@ -164,26 +164,6 @@ let gWndIDs = {
   clippingsMgr: null,
 };
 
-let gDefaultPrefs = {
-  htmlPaste: aeConst.HTMLPASTE_AS_FORMATTED,
-  autoLineBreak: true,
-  autoIncrPlchldrStartVal: 0,
-  keyboardPaste: true,
-  wxPastePrefixKey: true,
-  checkSpelling: true,
-  pastePromptAction: aeConst.PASTEACTION_SHORTCUT_KEY,
-  clippingsMgrAutoShowDetailsPane: true,
-  clippingsMgrDetailsPane: false,
-  clippingsMgrStatusBar: false,
-  clippingsMgrPlchldrToolbar: false,
-  clippingsMgrMinzWhenInactv: undefined,
-  syncClippings: false,
-  syncFolderID: null,
-  lastBackupRemDate: null,
-  backupRemFirstRun: true,
-  backupRemFrequency: aeConst.BACKUP_REMIND_WEEKLY,
-  backupFilenameWithDate: true,
-}
 let gPrefs = null;
 let gIsInitialized = false;
 let gSetDisplayOrderOnRootItems = false;
@@ -212,16 +192,38 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
 
 async function setDefaultPrefs()
 {
-  gPrefs = gDefaultPrefs;
-  await preferences.init(gDefaultPrefs);
+  let defaultPrefs = {
+    htmlPaste: aeConst.HTMLPASTE_AS_FORMATTED,
+    autoLineBreak: true,
+    autoIncrPlchldrStartVal: 0,
+    keyboardPaste: true,
+    wxPastePrefixKey: true,
+    checkSpelling: true,
+    pastePromptAction: aeConst.PASTEACTION_SHORTCUT_KEY,
+    clippingsMgrAutoShowDetailsPane: true,
+    clippingsMgrDetailsPane: false,
+    clippingsMgrStatusBar: false,
+    clippingsMgrPlchldrToolbar: false,
+    clippingsMgrMinzWhenInactv: undefined,
+    syncClippings: false,
+    syncFolderID: null,
+    lastBackupRemDate: null,
+    backupRemFirstRun: true,
+    backupRemFrequency: aeConst.BACKUP_REMIND_WEEKLY,
+    backupFilenameWithDate: true,
+  };
+  
+  gPrefs = defaultPrefs;
+  await browser.storage.local.set(defaultPrefs);
 }
 
 
 messenger.runtime.onStartup.addListener(async () => {
-  await preferences.init();
-
-  log("Clippings/mx: Successfully retrieved user preferences using shim API:");
-  log(preferences._userPrefs);
+  log("Clippings/mx: Initializing Clippings during browser startup.");
+  
+  gPrefs = await browser.storage.local.get();
+  log("Clippings/mx: Successfully retrieved user preferences:");
+  log(gPrefs);
 
   init();
 });
@@ -247,16 +249,24 @@ function init()
     gOS = platform.os;
     log("Clippings/mx: OS: " + gOS);
 
-    if (preferences.getPref("clippingsMgrMinzWhenInactv", undefined) === undefined) {
-      preferences.setPref("clippingsMgrMinzWhenInactv", (gOS == "linux"));
+    if (gPrefs.clippingsMgrMinzWhenInactv === undefined) {
+      gPrefs.clippingsMgrMinzWhenInactv = (gOS == "linux");
     }
 
     initMessageListeners();
 
-    let backupRemFirstRun = preferences.getPref("backupRemFirstRun", true);
-    let lastBackupRemDate = preferences.getPref("lastBackupRemDate", null);
-    if (backupRemFirstRun && !lastBackupRemDate) {
-      preferences.setPref("lastBackupRemDate", new Date().toString());
+    browser.storage.onChanged.addListener((aChanges, aAreaName) => {
+      let changedPrefs = Object.keys(aChanges);
+
+      for (let pref of changedPrefs) {
+        gPrefs[pref] = aChanges[pref].newValue;
+      }
+    });
+
+    if (gPrefs.backupRemFirstRun && !gPrefs.lastBackupRemDate) {
+      messenger.storage.local.set({
+        lastBackupRemDate: new Date().toString(),
+      });
     }
 
     // Check in 5 minutes whether to show backup reminder notification.
@@ -375,7 +385,7 @@ function initMessageListeners()
       resp = gNewClipping.get();
 
       if (resp !== null) {
-        resp.checkSpelling = preferences.getPref("checkSpelling", true);
+        resp.checkSpelling = gPrefs.checkSpelling;
         return Promise.resolve(resp);
       }
     }
@@ -532,17 +542,16 @@ function rebuildContextMenu()
 
 async function showBackupNotification()
 {
-  let backupRemFrequency = preferences.getPref("backupRemFrequency", aeConst.BACKUP_REMIND_WEEKLY);
-  if (backupRemFrequency == aeConst.BACKUP_REMIND_NEVER) {
+  if (gPrefs.backupRemFrequency == aeConst.BACKUP_REMIND_NEVER) {
     return;
   }
 
   let today = new Date();
-  let lastBackupRemDate = new Date(preferences.getPref("lastBackupRemDate", null));
+  let lastBackupRemDate = new Date(gPrefs.lastBackupRemDate);
   let diff = new aeDateDiff(today, lastBackupRemDate);
   let numDays = 0;
 
-  switch (backupRemFrequency) {
+  switch (gPrefs.backupRemFrequency) {
   case aeConst.BACKUP_REMIND_DAILY:
     numDays = 1;
     break;
@@ -574,8 +583,7 @@ async function showBackupNotification()
   }
 
   if (diff.days >= numDays || gForceShowFirstTimeBkupNotif) {
-    let backupRemFirstRun = preferences.getPref("backupRemFirstRun", true);
-    if (backupRemFirstRun) {
+    if (gPrefs.backupRemFirstRun) {
       info("Clippings/mx: showBackupNotification(): Showing first-time backup reminder.");
 
       await messenger.notifications.create(aeConst.NOTIFY_BACKUP_REMIND_FIRSTRUN_ID, {
@@ -585,9 +593,11 @@ async function showBackupNotification()
         iconUrl: "img/icon.svg",
       });
 
-      preferences.setPref("backupRemFirstRun", false);
-      preferences.setPref("backupRemFrequency", aeConst.BACKUP_REMIND_WEEKLY);
-      preferences.setPref("lastBackupRemDate", new Date().toString());
+      await messenger.storage.local.set({
+        backupRemFirstRun: false,
+        backupRemFrequency: aeConst.BACKUP_REMIND_WEEKLY,
+        lastBackupRemDate: new Date().toString(),
+      });
 
       if (gForceShowFirstTimeBkupNotif) {
         setBackupNotificationInterval();
@@ -596,7 +606,7 @@ async function showBackupNotification()
     }
     else {
       info("Clippings/mx: showBackupNotification(): Last backup reminder: "
-           + preferences.getPref("lastBackupRemDate", null));
+           + gPrefs.lastBackupRemDate);
 
       await messenger.notifications.create(aeConst.NOTIFY_BACKUP_REMIND_ID, {
         type: "basic",
@@ -607,7 +617,10 @@ async function showBackupNotification()
 
       clearBackupNotificationInterval();
       setBackupNotificationInterval();
-      preferences.setPref("lastBackupRemDate", new Date().toString());
+
+      await messenger.storage.local.set({
+        lastBackupRemDate: new Date().toString(),
+      });
     }
   }
   else {
@@ -870,6 +883,16 @@ function addClippingsListener(aListener)
 function removeClippingsListener(aListener)
 {
   gClippingsListeners.remove(aListener);
+}
+
+function getPrefs()
+{
+  return gPrefs;
+}
+
+async function setPrefs(aPrefs)
+{
+  await messenger.storage.local.set(aPrefs);
 }
 
 function getSyncFolderID()

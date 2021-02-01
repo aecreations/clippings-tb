@@ -39,8 +39,6 @@ $(async () => {
     return;
   };
 
-  await preferences.init();
-
   $("#btn-expand-options").click(async (aEvent) => {
     let height = WNDH_OPTIONS_EXPANDED;
     if (gClippings.getOS() == "win") {
@@ -449,6 +447,8 @@ function isClippingOptionsSet()
 
 function accept(aEvent)
 {
+  let prefs = gClippings.getPrefs();
+  
   let shortcutKeyMenu = $("#clipping-key")[0];
   let shortcutKey = "";
 
@@ -492,7 +492,7 @@ function accept(aEvent)
         aListener.newClippingCreated(aNewClippingID, newClipping, aeConst.ORIGIN_HOSTAPP);
       });
       /***
-      if (preferences.getPref("syncClippings", false)) {
+      if (prefs.syncClippings) {
         let syncFldrID = gClippings.getSyncFolderID();
         aeImportExport.setDatabase(gClippingsDB);
         
@@ -525,10 +525,11 @@ function accept(aEvent)
       // Move this into the "onchange" event handler for the label and shortcut
       // key drop-down menus, and in the "onclick" event handler for the
       // checkbox options.
-      let isClippingsMgrAutoShowDetailsPane = preferences.getPref("clippingsMgrAutoShowDetailsPane", true);
-      if (isClippingsMgrAutoShowDetailsPane && isClippingOptionsSet()) {
-        preferences.setPref("clippingsMgrAutoShowDetailsPane", false);
-        preferences.setPref("clippingsMgrDetailsPane", true);
+      if (prefs.isClippingsMgrAutoShowDetailsPane && isClippingOptionsSet()) {
+        messenger.storage.local.set({
+          clippingsMgrAutoShowDetailsPane: false,
+          clippingsMgrDetailsPane: true,
+        });
       }
       // END TO DO
 
