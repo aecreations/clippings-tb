@@ -45,7 +45,7 @@ aeClippingSubst.getClippingInfo = function (aURI, aName, aText, aParentFolderNam
 };
 
 
-aeClippingSubst.processClippingText = function (aClippingInfo, aWnd)
+aeClippingSubst.processClippingText = function (aClippingInfo, aWnd, aAutoIncrPlchldrStartVal)
 {
   if ((/^\[NOSUBST\]/.test(aClippingInfo.name))) {
     return aClippingInfo.text;
@@ -138,33 +138,15 @@ aeClippingSubst.processClippingText = function (aClippingInfo, aWnd)
   };
 
   var fnAutoIncrement = function (aMatch, aP1) {
+    let rv;
     let varName = aP1;
 
     if (varName in that._autoIncrementVars) {
-      return ++that._autoIncrementVars[varName];
+      rv = ++that._autoIncrementVars[varName];
     }
-
-    var defaultValue = 0;
-    var rv = "";    
-    var dlgArgs = {
-      varName:       varName,
-      userInput:     "",
-      defaultValue:  defaultValue,
-      autoIncrementMode: true,
-      selectMode:    false,
-      userCancel:    null
-    };
-    dlgArgs.wrappedJSObject = dlgArgs;
-
-    do {
-      that._openDialog(aWnd, "chrome://clippings/content/placeholderPrompt.xhtml", "ae_placeholder_prmpt", "modal,centerscreen", dlgArgs);
-      if (dlgArgs.userCancel || dlgArgs.userInput == "") {
-        return "";
-      }
-    } while (isNaN(dlgArgs.userInput));
-
-    that._autoIncrementVars[varName] = dlgArgs.userInput;
-    rv = dlgArgs.userInput;
+    else {
+      rv = that._autoIncrementVars[varName] = aAutoIncrPlchldrStartVal;
+    }
 
     return rv;
   };

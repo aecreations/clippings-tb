@@ -358,7 +358,8 @@ window.aecreations.clippings = {
     var clippingInfo = this.txt.aeClippingSubst.getClippingInfo(
       aID, clipping.name, clipping.text, clipping.parentFolderName
     );
-    var clippingText = this.txt.aeClippingSubst.processClippingText(clippingInfo, window);
+    var clippingText = this.txt.aeClippingSubst.processClippingText(clippingInfo, window,
+								    prefs.autoIncrPlchldrStartVal);
     var pasteAsQuotation = false;
     
     // Paste clipping into subject line
