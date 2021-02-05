@@ -842,20 +842,12 @@
     "message": "An HTML-formatted clipping will always be pasted as plain text if pasting into a plain textbox, or if the clipping contains restricted tags such as <script>, <applet>, <object>, <iframe>, etc."
   },
 
-  "prefsShortcutMode": {
-    "message": "Activate shortcut key mode by pressing CTRL+ALT+V"
+  "prefsShctMode": {
+    "message": "Activate shortcut key mode by pressing $1"
   },
 
-  "prefsShortcutModeNew": {
-    "message": "Also use shortcut prefix keys ALT+SHIFT+Y"
-  },
-
-  "prefsShortcutKeyNote": {
-    "message": "Some of the available keyboard shortcuts may already be assigned to <a href=\"https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly\" class=\"hyperlink\">Firefox commands</a> or other add\u2011ons."
-  },
-
-  "prefsOutsideShct": {
-    "message": "To change the keyboard shortcut, go to Manage Extension Shortcuts in Add-ons Manager."
+  "prefsShctModeNew": {
+    "message": "Also use alternate keys $1"
   },
 
   "prefsDefaultNumPlchldrStart": {

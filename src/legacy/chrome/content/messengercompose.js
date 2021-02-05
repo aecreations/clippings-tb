@@ -102,7 +102,6 @@ async function onLoad(aActivatedWhileWindowOpen)
     <!-- For macOS -->
     <key id="key_ae_clippings_mac" key="v"
      modifiers="alt meta" command="ae_clippings_keyboard_insert"/>
-     <!-- Cannot use Command+Shift+Y - already assigned -->
   </keyset>
 
   <menupopup id="msgComposeContext">

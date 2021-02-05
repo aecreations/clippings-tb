@@ -161,18 +161,6 @@ progress {
     margin-top: 4px;
 }
 
-#shortcut-key-prefix-modifiers {
-    vertical-align: middle;
-}
-
-#shortcut-key-selector {
-    display: none;
-}
-
-#shortcut-key-note {
-    margin-top: 4px;
-}
-
 #auto-inc-plchldrs-start-val {
     width: 64px;
 }

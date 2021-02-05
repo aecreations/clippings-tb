@@ -36,28 +36,34 @@ async function init()
 {
   let os = gClippings.getOS();
 
+  let keyCtrl  = messenger.i18n.getMessage("keyCtrl");
+  let keyAlt   = messenger.i18n.getMessage("keyAlt");
+  let keyShift = messenger.i18n.getMessage("keyShift");
+  let shctModeKeys = `${keyCtrl}+${keyAlt}+V`;
+  let shctModeKeysNew = `${keyAlt}+${keyShift}+Y`;
+  
   if (os == "mac") {
-    // TO DO: Mac-specific keys for shortcut mode.
+    let keyOption = messenger.i18n.getMessage("keyOption");
+    let keyCmd = messenger.i18n.getMessage("keyCommand");
+    shctModeKeys = `${keyOption}${keyCmd}V`;
+    
+    // Cannot use Cmd+Shift+Y - already assigned to a composer command.
+    $("#shct-new-label").css({ display: "none" });
   }
 
-  // Fit text on one line for various locales.
-  if (os != "mac") {
-    let lang = messenger.i18n.getUILanguage();
-    if (lang == "de") {
-      $("#enable-shortcut-key-label").css({ fontSize: "13px", letterSpacing: "-0.25px" });
-      $("#shortcut-key-prefix-modifiers").css({ fontSize: "13px", letterSpacing: "-0.25px" });
-    }
-    else if (lang == "es-ES") {
-      $("#enable-shortcut-key-label").css({ fontSize: "13px", letterSpacing: "-0.46px" });
-      $("#shortcut-key-prefix-modifiers").css({ fontSize: "13px", letterSpacing: "-0.46px" });     
-    }
+  $("#shct-label").text(messenger.i18n.getMessage("prefsShctMode", shctModeKeys));
+  $("#shct-new-label").text(messenger.i18n.getMessage("prefsShctModeNew", shctModeKeysNew));
+
+  let prefs = gClippings.getPrefs();
+
+  if (! prefs.keyboardPaste) {
+    $("#shortcut-key-new").prop("disabled", true);
+    $("#shct-new-label").attr("disabled", true);
   }
-  
+
   $("#sync-intro").html(sanitizeHTML(messenger.i18n.getMessage("syncIntro")));
 
   initDialogs();
-
-  let prefs = gClippings.getPrefs();
 
   $("#toggle-sync").click(async (aEvent) => {
     if (prefs.syncClippings) {
@@ -135,8 +141,23 @@ async function init()
     setPref({ autoLineBreak: aEvent.target.checked });
   });
 
-  $("#enable-shortcut-key").attr("checked", prefs.keyboardPaste).click(aEvent => {
-    setPref({ keyboardPaste: aEvent.target.checked });
+  $("#shortcut-key").attr("checked", prefs.keyboardPaste).click(aEvent => {
+    let shortcutCb = aEvent.target;
+    setPref({ keyboardPaste: shortcutCb.checked });
+
+    if (os != "mac") {
+      $("#shortcut-key-new").prop("disabled", !shortcutCb.checked);
+      $("#shct-new-label").attr("disabled", !shortcutCb.checked);
+
+      if (! shortcutCb.checked) {
+        $("#shortcut-key-new").prop("checked", false);
+        setPref({ wxPastePrefixKey: false });
+      }
+    }
+  });
+
+  $("#shortcut-key-new").attr("checked", prefs.wxPastePrefixKey).click(aEvent => {
+    setPref({ wxPastePrefixKey: aEvent.target.checked });
   });
 
   $("#auto-inc-plchldrs-start-val").val(prefs.autoIncrPlchldrStartVal).click(aEvent => {
