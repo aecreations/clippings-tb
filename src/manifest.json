@@ -21,6 +21,7 @@
 
   "permissions": [
     "downloads",
+    "nativeMessaging",
     "notifications",
     "storage",
     "unlimitedStorage"

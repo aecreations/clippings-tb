@@ -225,20 +225,6 @@ async function init()
   $("#sync-settings").click(aEvent => {
     gDialogs.syncClippings.showModal();
   });
-  /***
-      $("#browse-sync-fldr").click(aEvent => {
-      let msg = { msgID: "sync-dir-folder-picker" };
-      let sendNativeMsg = messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
-
-      sendNativeMsg.then(aResp => {
-      if (aResp.syncFilePath) {
-      $("#sync-fldr-curr-location").val(aResp.syncFilePath);
-      }
-      }).catch(aErr => {
-      window.alert("The Sync Clippings helper app responded with an error.\n\n" + aErr);
-      });
-      });
-  ***/
   
   $("#show-sync-help").click(aEvent => {
     gDialogs.syncClippingsHelp.showModal();
@@ -503,7 +489,6 @@ function initDialogs()
     }
   };
   gDialogs.about.onShow = () => {
-/***
     let msg = { msgID: "get-app-version" };
     let sendNativeMsg = messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
     sendNativeMsg.then(aResp => {
@@ -550,7 +535,6 @@ function initDialogs()
       diagDeck.children("#sync-diag-loading").hide();
       diagDeck.children("#sync-diag").show();
     });
-***/
   };
   
   gDialogs.syncClippingsHelp = new aeDialog("#sync-clippings-help-dlg");
