@@ -2078,7 +2078,7 @@ $(async () => {
   let prefs = gClippings.getPrefs();
 
   if (DEBUG_WND_ACTIONS) {
-    if (prefs.clippingsMgrMinzWhenInactv === undefined) {
+    if (prefs.clippingsMgrMinzWhenInactv === null) {
       messenger.storage.local.set({ clippingsMgrMinzWhenInactv: true });
     }
   }
