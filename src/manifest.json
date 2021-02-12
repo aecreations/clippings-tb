@@ -34,6 +34,7 @@
       "scripts/aeConst.js",
       "scripts/aeListeners.js",
       "scripts/aeDateDiff.js",
+      "scripts/aeImportExport.js",
       "background.js"
     ]
   },
@@ -51,6 +52,14 @@
         "scopes": ["addon_parent"],
         "paths": [["WindowListener"]],
         "script": "api/WindowListener/implementation.js"
+      }
+    },
+    "aeClippingsLegacy": {
+      "schema": "api/aeClippingsLegacy/schema.json",
+      "parent": {
+	"scopes": ["addon_parent"],
+        "paths": [["aeClippingsLegacy"]],
+        "script": "api/aeClippingsLegacy/implementation.js"
       }
     }
   },

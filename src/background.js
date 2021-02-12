@@ -16,6 +16,7 @@ let gSyncFldrID = null;
 let gBackupRemIntervalID = null;
 let gForceShowFirstTimeBkupNotif = false;
 let gClippingsMgrRootFldrReseq = false;
+let gMigrateLegacyData = false;
 
 let gClippingsListeners = new aeListeners();
 
@@ -174,16 +175,20 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
     info("Clippings/mx: MailExtension installed.");
 
     await setDefaultPrefs();
-    await init();
+    init();
   }
   else if (aInstall.reason == "update") {
     let oldVer = aInstall.previousVersion;
     let currVer = messenger.runtime.getManifest().version;
     log(`Clippings/mx: Upgrading from version ${oldVer} to ${currVer}`);
 
-    // TO DO: Check if Clippings was previously installed.
-    // If so, migrate Clippings data from clippings.json, and migrate user prefs
-    // using the LegacyPrefs API.
+    gPrefs = await browser.storage.local.get();
+
+    if (! hasSantaBarbaraPrefs()) {
+      await setDefaultPrefs();
+      await migrateLegacyPrefs();
+      gMigrateLegacyData = true;
+    }
 
     init();
   }
@@ -204,7 +209,7 @@ async function setDefaultPrefs()
     clippingsMgrDetailsPane: false,
     clippingsMgrStatusBar: false,
     clippingsMgrPlchldrToolbar: false,
-    clippingsMgrMinzWhenInactv: undefined,
+    clippingsMgrMinzWhenInactv: null,
     syncClippings: false,
     syncFolderID: null,
     lastBackupRemDate: null,
@@ -215,6 +220,87 @@ async function setDefaultPrefs()
   
   gPrefs = defaultPrefs;
   await browser.storage.local.set(defaultPrefs);
+}
+
+
+function hasSantaBarbaraPrefs()
+{
+  // Version 6.0
+  return gPrefs.hasOwnProperty("htmlPaste");
+}
+
+
+async function migrateLegacyPrefs()
+{
+  log("Clippings/mx: migrateLegacyPrefs()");
+
+  let htmlPaste = await messenger.aeClippingsLegacy.getPref(
+    "extensions.aecreations.clippings.html_paste", 0
+  );
+  let autoLineBreak = await messenger.aeClippingsLegacy.getPref(
+    "extensions.aecreations.clippings.html_auto_line_break", true
+  );
+  let keyboardPaste = await messenger.aeClippingsLegacy.getPref(
+    "extensions.aecreations.clippings.enable_keyboard_paste", true
+  );
+  let wxPastePrefixKey = await messenger.aeClippingsLegacy.getPref(
+    "extensions.aecreations.clippings.enable_wx_paste_prefix_key", true
+  );
+  let pastePromptAction = await messenger.aeClippingsLegacy.getPref(
+    "extensions.aecreations.clippings.paste_shortcut_mode", 1
+  );
+  let checkSpelling = await messenger.aeClippingsLegacy.getPref(
+    "extensions.aecreations.clippings.check_spelling", true
+  );
+  let clippingsMgrDetailsPane = await messenger.aeClippingsLegacy.getPref(
+    "extensions.aecreations.clippings.clipmgr.details_pane", false
+  );
+  let clippingsMgrPlchldrToolbar = await messenger.aeClippingsLegacy.getPref(
+    "extensions.aecreations.clippings.clipmgr.placeholder_toolbar", false
+  );
+  let clippingsMgrStatusBar = await messenger.aeClippingsLegacy.getPref(
+    "extensions.aecreations.clippings.clipmgr.status_bar", true
+  );
+
+  log(`Pref values:\nhtmlPaste = ${htmlPaste}\nautoLineBreak = ${autoLineBreak}\nkeyboardPaste = ${keyboardPaste}\nwxPastePrefixKey = ${wxPastePrefixKey}\npastePromptAction = ${pastePromptAction}\ncheckSpelling = ${checkSpelling}\nclippingsMgrDetailsPane = ${clippingsMgrDetailsPane}\nclippingsMgrPlchldrToolbar = ${clippingsMgrPlchldrToolbar}\nclippingsMgrStatusBar = ${clippingsMgrStatusBar}`);
+
+  // The option to ask the user when pasting a formatted clipping is no longer
+  // available - change default to always paste as rich text.
+  if (htmlPaste == aeConst.HTMLPASTE_ASK_THE_USER) {
+    htmlPaste = aeConst.HTMLPASTE_AS_FORMATTED;
+  }
+  
+  messenger.storage.local.set({
+    htmlPaste, autoLineBreak, keyboardPaste, wxPastePrefixKey, pastePromptAction,
+    checkSpelling, clippingsMgrDetailsPane, clippingsMgrPlchldrToolbar,
+    clippingsMgrStatusBar
+  });
+
+  // Reset legacy prefs to remove them.
+  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.html_paste");
+  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.html_auto_line_break");
+  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.enable_keyboard_paste");
+  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.enable_wx_paste_prefix_key");
+  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.paste_shortcut_mode");
+  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.tb78.show_warning");
+  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.beep_on_error");
+  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.first_run");
+  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.v3.first_run");
+  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.datasource.location");
+  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.datasource.process_root");
+  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.datasource.wx_sync.enabled");
+  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.datasource.wx_sync.location");
+  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.clipmgr.first_run");
+  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.clipmgr.wnd_position");
+  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.clipmgr.wnd_size");
+  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.clipmgr.is_maximized");
+  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.clipmgr.status_bar");
+  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.clipmgr.placeholder_toolbar");
+  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.clipmgr.details_pane");
+  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.use_clipboard");
+  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.migrate_common_ds_pref");
+  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.migrated_prefs");
+  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.check_spelling");
 }
 
 
@@ -229,12 +315,17 @@ messenger.runtime.onStartup.addListener(async () => {
 });
 
 
-function init()
+async function init()
 {
   info("Clippings/mx: Initializing integration of MailExtension with host app...");
 
   initClippingsDB();
+  aeImportExport.setDatabase(gClippingsDB);
 
+  if (gMigrateLegacyData) {
+    await migrateClippingsData();
+   }
+  
   let getMsgrInfo = messenger.runtime.getBrowserInfo();
   let getPlatInfo = messenger.runtime.getPlatformInfo();
 
@@ -249,7 +340,7 @@ function init()
     gOS = platform.os;
     log("Clippings/mx: OS: " + gOS);
 
-    if (gPrefs.clippingsMgrMinzWhenInactv === undefined) {
+    if (gPrefs.clippingsMgrMinzWhenInactv === null) {
       gPrefs.clippingsMgrMinzWhenInactv = (gOS == "linux");
     }
 
@@ -276,8 +367,16 @@ function init()
     );
 
     if (gSetDisplayOrderOnRootItems) {
-      await setDisplayOrderOnRootItems();
-      log("Clippings/mx: Display order on root folder items have been set.");
+      if (gMigrateLegacyData) {
+        window.setTimeout(async () => {
+          await setDisplayOrderOnRootItems();
+          log("Clippings/mx: Display order on root folder items have been set (after data source migration).");
+        }, 3000);
+      }
+      else {
+        await setDisplayOrderOnRootItems();
+        log("Clippings/mx: Display order on root folder items have been set.");
+      }
     }
 
     messenger.WindowListener.registerDefaultPrefs("legacy/defaults/preferences/prefs.js");
@@ -318,6 +417,19 @@ function initClippingsDB()
   gClippingsDB.open().catch(aErr => {
     console.error(aErr);
   });
+}
+
+
+async function migrateClippingsData()
+{
+  let clippingsData = await messenger.aeClippingsLegacy.getClippingsFromJSONFile();
+
+  if (clippingsData === null) {
+    throw new Error("Failed to retrieve data from clippings.json - file not found");
+  }
+  
+  log("Clippings/mx: migrateClippingsData(): Migrating clippings from legacy data source");    
+  aeImportExport.importFromJSON(clippingsData, true, false);
 }
 
 
