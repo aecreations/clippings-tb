@@ -61,7 +61,7 @@ async function init()
     $("#shct-new-label").attr("disabled", true);
   }
 
-  $("#sync-intro").html(sanitizeHTML(messenger.i18n.getMessage("syncIntro")));
+  $("#sync-intro").html(sanitizeHTML(messenger.i18n.getMessage("syncIntroTB")));
 
   initDialogs();
 

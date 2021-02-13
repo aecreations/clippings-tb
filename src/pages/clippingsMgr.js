@@ -2703,13 +2703,13 @@ function initDialogs()
     gClippings.getShortcutKeyPrefixStr().then(aKeybPasteKeys => {
       if (! that.isInitialized) {
         let shctPrefixKey = 0;
-        $("#shortcut-instrxns").text(messenger.i18n.getMessage("clipMgrShortcutHelpInstrxn", aKeybPasteKeys));
+        $("#shortcut-instrxns").text(messenger.i18n.getMessage("clipMgrShortcutHelpInstrxnTB", aKeybPasteKeys));
         let extVer = messenger.runtime.getManifest().version;
         
         aeImportExport.setL10nStrings({
           shctTitle: messenger.i18n.getMessage("expHTMLTitle"),
           hostAppInfo: messenger.i18n.getMessage("expHTMLHostAppInfo", [extVer, gClippings.getHostAppName()]),
-          shctKeyInstrxns: messenger.i18n.getMessage("expHTMLShctKeyInstrxn"),
+          shctKeyInstrxns: messenger.i18n.getMessage("expHTMLShctKeyInstrxnTB"),
 	  shctKeyCustNote: messenger.i18n.getMessage("expHTMLShctKeyCustNote"),
           shctKeyColHdr: messenger.i18n.getMessage("expHTMLShctKeyCol"),
           clippingNameColHdr: messenger.i18n.getMessage("expHTMLClipNameCol"),

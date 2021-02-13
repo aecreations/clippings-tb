@@ -271,6 +271,10 @@
     "message": "To quickly paste this clipping into a web page textbox in Firefox, press $1 followed by the shortcut key."
   },
 
+  "shctKeyHintTB": {
+    "message": "To quickly paste this clipping into a message in Thunderbird, press $1 followed by the shortcut key."
+  },
+
   "shortcutKeyAssigned": {
     "message": "'$1' is already assigned"
   },
@@ -328,6 +332,10 @@
 
   "expHTMLShctKeyInstrxn": {
     "message": "To paste a clipping into a web page textbox in Firefox, press ALT+SHIFT+Y (Command+Shift+Y on macOS), then the shortcut key."
+  },
+
+  "expHTMLShctKeyInstrxnTB": {
+    "message": "To paste a clipping into a message in Thunderbird, press CTRL+ALT+V (Command+Option+V on macOS), then the shortcut key."
   },
 
   "expHTMLShctKeyCustNote": {
@@ -616,6 +624,10 @@
     "message": "To paste a clipping from the list below into a web page textbox in Firefox, press $1, then the shortcut key."
   },
 
+  "clipMgrShortcutHelpInstrxnTB": {
+    "message": "To paste a clipping from the list below into a message in Thunderbird, press $1, then the shortcut key."
+  },
+  
   "clipMgrShortcutKeyAssigned": {
     "message": "The selected shortcut key has already been assigned to another clipping.  Please select a different shortcut key."
   },
@@ -729,7 +741,7 @@
   },
 
   "expFmtClippings6Desc": {
-    "message": "The default format for backing up and exchanging Clippings data with other users or multiple computers.  Requires Clippings 5.5 or newer installed."
+    "message": "The default format for backing up and exchanging Clippings data with other users or multiple computers."
   },
 
   "expFmtHTMLDoc": {
@@ -842,6 +854,10 @@
     "message": "An HTML-formatted clipping will always be pasted as plain text if pasting into a plain textbox, or if the clipping contains restricted tags such as <script>, <applet>, <object>, <iframe>, etc."
   },
 
+  "prefsShortcutMode": {
+    "message": "Activate shortcut key mode by pressing these keys:"
+  },
+
   "prefsShctMode": {
     "message": "Activate shortcut key mode by pressing $1"
   },
@@ -850,6 +866,14 @@
     "message": "Also use alternate keys $1"
   },
 
+  "prefsShortcutKeyNote": {
+    "message": "Some of the available keyboard shortcuts may already be assigned to <a href=\"https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly\" class=\"hyperlink\">Firefox commands</a> or other add\u2011ons."
+  },
+
+  "prefsOutsideShct": {
+    "message": "To change the keyboard shortcut, go to Manage Extension Shortcuts in Add-ons Manager."
+  },
+  
   "prefsDefaultNumPlchldrStart": {
     "message": "Default starting value for auto-incrementing placeholders:"
   },
@@ -966,6 +990,10 @@
     "message": "You can synchronize your clippings with Thunderbird or other Firefox installations by putting the clippings you want to share into a special \u201cSynced Clippings\u201d folder.  The synchronized clippings will be saved in a file on your system.  Requires the <a href=\"http://aecreations.sourceforge.net/clippings/sync.php\" class=\"hyperlink\">Sync Clippings</a> helper app."
   },
 
+  "syncIntroTB": {
+    "message": "You can synchronize your clippings with Firefox or other Thunderbird installations by putting the clippings you want to share into a special \u201cSynced Clippings\u201d folder.  The synchronized clippings will be saved in a file on your system.  Requires the <a href=\"http://aecreations.sourceforge.net/clippings/sync.php\" class=\"hyperlink\">Sync Clippings</a> helper app."
+  },
+
   "syncLearnMore": {
     "message": "Learn more about Sync Clippings."
   },
@@ -1035,6 +1063,10 @@
 
   "syncFileDirDesc": {
     "message": "Your Sync Clippings data is stored in this file location.  If you are synchronizing with Thunderbird and want to change the sync file location, you must also change the sync file location in Clippings preferences in Thunderbird to match."
+  },
+
+  "syncFileDirDescTB": {
+    "message": "Your Sync Clippings data is stored in this file location.  If you are synchronizing with Firefox and want to change the sync file location, you must also change the sync file location in Clippings preferences in Firefox to match."
   },
 
   "errSyncConxn": {
