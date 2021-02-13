@@ -14,6 +14,8 @@ let gClippingMenuItemIDMap = {};
 let gFolderMenuItemIDMap = {};
 let gSyncFldrID = null;
 let gBackupRemIntervalID = null;
+let gIsReloadingSyncFldr = false;
+let gSyncClippingsHelperDwnldPgURL;
 let gForceShowFirstTimeBkupNotif = false;
 let gClippingsMgrRootFldrReseq = false;
 let gMigrateLegacyData = false;
@@ -133,6 +135,58 @@ let gClippingsListener = {
   },
 };
 
+let gSyncClippingsListeners = new aeListeners();
+
+let gSyncClippingsListener = {
+  onActivate(aSyncFolderID) {},
+
+  onDeactivate(aOldSyncFolderID)
+  {
+    log("Clippings/mx: gSyncClippingsListener.onDeactivate()");
+
+    if (gPrefs.cxtMenuSyncItemsOnly) {
+      return;
+    }
+  },
+
+  onAfterDeactivate(aRemoveSyncFolder, aOldSyncFolderID)
+  {
+    function resetCxtMenuSyncItemsOnlyOpt(aRebuildCxtMenu) {
+      if (gPrefs.cxtMenuSyncItemsOnly) {
+        messenger.storage.local.set({ cxtMenuSyncItemsOnly: false });
+      }
+      if (aRebuildCxtMenu) {
+        rebuildContextMenu();
+      }
+    }
+
+    log("Clippings/mx: gSyncClippingsListeners.onAfterDeactivate(): Remove Synced Clippings folder: " + aRemoveSyncFolder);
+
+    if (aRemoveSyncFolder) {
+      log(`Removing old Synced Clippings folder (ID = ${aOldSyncFolderID})`);
+      purgeFolderItems(aOldSyncFolderID, false).then(() => {
+        resetCxtMenuSyncItemsOnlyOpt(true);
+      });
+    }
+    else {
+      resetCxtMenuSyncItemsOnlyOpt();
+    }
+  },
+
+  onReloadStart()
+  {
+    log("Clippings/mx: gSyncClippingsListeners.onReloadStart()");
+    gIsReloadingSyncFldr = true;
+  },
+  
+  onReloadFinish()
+  {
+    log("Clippings/mx: gSyncClippingsListeners.onReloadFinish(): Rebuilding Clippings menu");
+    gIsReloadingSyncFldr = false;
+    rebuildContextMenu();
+  },
+};
+
 let gNewClipping = {
   _name: null,
   _content: null,
@@ -182,7 +236,7 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
     let currVer = messenger.runtime.getManifest().version;
     log(`Clippings/mx: Upgrading from version ${oldVer} to ${currVer}`);
 
-    gPrefs = await browser.storage.local.get();
+    gPrefs = await messenger.storage.local.get();
 
     if (! hasSantaBarbaraPrefs()) {
       await setDefaultPrefs();
@@ -212,6 +266,10 @@ async function setDefaultPrefs()
     clippingsMgrMinzWhenInactv: null,
     syncClippings: false,
     syncFolderID: null,
+    cxtMenuSyncItemsOnly: false,
+    clippingsMgrShowSyncItemsOnlyRem: true,
+    syncHelperCheckUpdates: true,
+    lastSyncHelperUpdChkDate: null,
     lastBackupRemDate: null,
     backupRemFirstRun: true,
     backupRemFrequency: aeConst.BACKUP_REMIND_WEEKLY,
@@ -219,7 +277,7 @@ async function setDefaultPrefs()
   };
   
   gPrefs = defaultPrefs;
-  await browser.storage.local.set(defaultPrefs);
+  await messenger.storage.local.set(defaultPrefs);
 }
 
 
@@ -307,7 +365,7 @@ async function migrateLegacyPrefs()
 messenger.runtime.onStartup.addListener(async () => {
   log("Clippings/mx: Initializing Clippings during browser startup.");
   
-  gPrefs = await browser.storage.local.get();
+  gPrefs = await messenger.storage.local.get();
   log("Clippings/mx: Successfully retrieved user preferences:");
   log(gPrefs);
 
@@ -344,9 +402,11 @@ async function init()
       gPrefs.clippingsMgrMinzWhenInactv = (gOS == "linux");
     }
 
+    gSyncClippingsListeners.add(gSyncClippingsListener);
+
     initMessageListeners();
 
-    browser.storage.onChanged.addListener((aChanges, aAreaName) => {
+    messenger.storage.onChanged.addListener((aChanges, aAreaName) => {
       let changedPrefs = Object.keys(aChanges);
 
       for (let pref of changedPrefs) {
@@ -365,6 +425,11 @@ async function init()
       async (aEvent) => { showBackupNotification() },
       aeConst.BACKUP_REMINDER_DELAY_MS
     );
+
+    if (gPrefs.syncClippings && gPrefs.syncHelperCheckUpdates) {
+      // Check for updates to Sync Clippings Helper native app in 10 minutes.
+      window.setTimeout(showSyncHelperUpdateNotification, aeConst.SYNC_HELPER_CHECK_UPDATE_DELAY_MS);
+    }
 
     if (gSetDisplayOrderOnRootItems) {
       if (gMigrateLegacyData) {
@@ -456,6 +521,138 @@ async function setDisplayOrderOnRootItems()
     console.error("Clippings/mx: setDisplayOrderOnRootItems(): " + aErr);
     Promise.reject(aErr);
   });
+}
+
+
+async function enableSyncClippings(aIsEnabled)
+{
+  if (aIsEnabled) {
+    log("Clippings/mx: enableSyncClippings(): Turning ON");
+
+    if (gSyncFldrID === null) {
+      log("Clippings/mx: enableSyncClippings(): Creating the Synced Clippings folder."); 
+      let syncFldr = {
+        name: messenger.i18n.getMessage("syncFldrName"),
+        parentFolderID: aeConst.ROOT_FOLDER_ID,
+        displayOrder: 0,
+        isSync: true,
+      };
+      try {
+        gSyncFldrID = await gClippingsDB.folders.add(syncFldr);
+      }
+      catch (e) {
+        console.error("Clippings/mx: enableSyncClippings(): Failed to create the Synced Clipping folder: " + e);
+      }
+
+      await messenger.storage.local.set({ syncFolderID: gSyncFldrID });
+      log("Clippings/mx: enableSyncClippings(): Synced Clippings folder ID: " + gSyncFldrID);
+      return gSyncFldrID;
+    }
+  }
+  else {
+    log("Clippings/mx: enableSyncClippings(): Turning OFF");
+    let oldSyncFldrID = gSyncFldrID;
+
+    let numUpd = await gClippingsDB.folders.update(gSyncFldrID, { isSync: undefined });
+    await messenger.storage.local.set({ syncFolderID: null });
+    gSyncFldrID = null;
+    return oldSyncFldrID;
+  }
+}
+
+
+// TO DO: Make this an asynchronous function.
+// This can only be done after converting aeImportExport.importFromJSON()
+// to an asynchronous method.
+function refreshSyncedClippings(aRebuildClippingsMenu)
+{
+  log("Clippings/mx: refreshSyncedClippings(): Retrieving synced clippings from the Sync Clippings helper app...");
+
+  let msg = { msgID: "get-synced-clippings" };
+  let getSyncedClippings = messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
+  let syncJSONData = "";
+
+  getSyncedClippings.then(aResp => {
+    if (aResp) {
+      syncJSONData = aResp;
+    }
+    else {
+      throw new Error("Clippings/mx: refreshSyncedClippings(): Response data from native app is invalid");
+    }
+    
+    if (gSyncFldrID === null) {
+      log("Clippings/mx: The Synced Clippings folder is missing. Creating it...");
+      let syncFldr = {
+        name: messenger.i18n.getMessage("syncFldrName"),
+        parentFolderID: aeConst.ROOT_FOLDER_ID,
+        displayOrder: 0,
+      };
+      
+      return gClippingsDB.folders.add(syncFldr);
+    }
+
+    log("Clippings/mx: refreshSyncedClippings(): Synced Clippings folder ID: " + gSyncFldrID);
+    return gSyncFldrID;
+
+  }).then(aSyncFldrID => {
+    if (gSyncFldrID === null) {
+      gSyncFldrID = aSyncFldrID;
+      log("Clippings/mx: Synced Clippings folder ID: " + gSyncFldrID);
+      return messenger.storage.local.set({ syncFolderID: gSyncFldrID });
+    }
+      
+    gSyncClippingsListeners.getListeners().forEach(aListener => { aListener.onReloadStart() });
+
+    log("Clippings/mx: Purging existing items in the Synced Clippings folder...");
+    return purgeFolderItems(gSyncFldrID, true);
+
+  }).then(() => {
+    log("Clippings/mx: Importing clippings data from sync file...");
+
+    // Method aeImportExport.importFromJSON() is asynchronous, so the import
+    // may not yet be finished when this function has finished executing!
+    aeImportExport.setDatabase(gClippingsDB);
+    aeImportExport.importFromJSON(syncJSONData, false, false, gSyncFldrID);
+
+    window.setTimeout(function () {
+      gSyncClippingsListeners.getListeners().forEach(aListener => { aListener.onReloadFinish() });
+    }, gPrefs.afterSyncFldrReloadDelay);
+    
+  }).catch(aErr => {
+    console.error("Clippings/mx: refreshSyncedClippings(): " + aErr);
+    if (aErr == aeConst.SYNC_ERROR_CONXN_FAILED) {
+      showSyncErrorNotification();
+    }
+  });
+}
+
+
+async function pushSyncFolderUpdates()
+{
+  if (!gPrefs.syncClippings || gSyncFldrID === null) {
+    throw new Error("Sync Clippings is not turned on!");
+  }
+  
+  let syncData = await aeImportExport.exportToJSON(true, true, gSyncFldrID, false, true);
+  let msg = {
+    msgID: "set-synced-clippings",
+    syncData: syncData.userClippingsRoot,
+  };
+
+  info("Clippings/mx: pushSyncFolderUpdates(): Pushing Synced Clippings folder updates to the Sync Clippings helper app. Message data:");
+  log(msg);
+
+  let msgResult;
+  try {
+    msgResult = await messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
+  }
+  catch (e) {
+    console.error("Clippings/mx: pushSyncFolderUpdates(): " + e);
+    throw e;
+  }
+
+  log("Clippings/mx: pushSyncFolderUpdates(): Response from native app:");
+  log(msgResult);
 }
 
 
@@ -567,6 +764,7 @@ function getContextMenuData(aFolderID = aeConst.ROOT_FOLDER_ID)
         // Submenu icon
         let iconPath = "img/folder.svg";
         if (aItem.id == gSyncFldrID) {
+          submenuItemData.isSync = true;
           iconPath = "img/synced-clippings.svg";
         }
 
@@ -754,6 +952,60 @@ function clearBackupNotificationInterval()
   if (gBackupRemIntervalID) {
     window.clearInterval(gBackupRemIntervalID);
     gBackupRemIntervalID = null;
+  }
+}
+
+
+function showSyncHelperUpdateNotification()
+{
+  if (!gPrefs.syncClippings || !gPrefs.syncHelperCheckUpdates) {
+    return;
+  }
+
+  let today, lastUpdateCheck, diff;
+  if (gPrefs.lastSyncHelperUpdChkDate) {
+    today = new Date();
+    lastUpdateCheck = new Date(gPrefs.lastSyncHelperUpdChkDate);
+    diff = new aeDateDiff(today, lastUpdateCheck);
+  }
+
+  if (!gPrefs.lastSyncHelperUpdChkDate || diff.days >= aeConst.SYNC_HELPER_CHECK_UPDATE_FREQ_DAYS) {
+    let currVer = "";
+    let msg = { msgID: "get-app-version" };
+    let sendNativeMsg = messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
+    sendNativeMsg.then(aResp => {
+      currVer = aResp.appVersion;
+      log("Clippings/mx: showSyncHelperUpdateNotification(): Current version of the Sync Clippings Helper app: " + currVer);
+      return fetch(aeConst.SYNC_HELPER_CHECK_UPDATE_URL);
+
+    }).then(aFetchResp => {
+      if (aFetchResp.ok) {       
+        return aFetchResp.json();
+      }
+      throw new Error("Unable to retrieve Sync Clippings Helper update info - network response was not ok");
+
+    }).then(aUpdateInfo => {
+      if (versionCompare(currVer, aUpdateInfo.latestVersion) < 0) {
+        info(`Clippings/mx: showSyncHelperUpdateNotification(): Found a newer version of Sync Clippings Helper!  Current version: ${currVer}; new version found: ${aUpdateInfo.latestVersion}\nDisplaying user notification.`);
+        
+        gSyncClippingsHelperDwnldPgURL = aUpdateInfo.downloadPageURL;
+        return messenger.notifications.create(aeConst.NOTIFY_SYNC_HELPER_UPDATE, {
+          type: "basic",
+          title: messenger.i18n.getMessage("syncUpdateTitle"),
+          message: messenger.i18n.getMessage("syncUpdateMsg"),
+          iconUrl: "img/syncClippingsApp.svg",
+        });
+      }
+      else {
+        return null;
+      }
+
+    }).then(aNotifID => {
+      messenger.storage.local.set({ lastSyncHelperUpdChkDate: new Date().toString() });
+      
+    }).catch(aErr => {
+      console.error("Clippings/mx: showSyncHelperUpdateNotification(): Unable to check for updates to the Sync Clippings Helper app at this time.\n" + aErr);
+    });
   }
 }
 
@@ -997,6 +1249,11 @@ function removeClippingsListener(aListener)
   gClippingsListeners.remove(aListener);
 }
 
+function getSyncClippingsListeners()
+{
+  return gSyncClippingsListeners;
+}
+
 function getPrefs()
 {
   return gPrefs;
@@ -1009,11 +1266,7 @@ async function setPrefs(aPrefs)
 
 function getSyncFolderID()
 {
-  // TEMPORARY
-  return -11;
-  /***
   return gSyncFldrID;
-  ***/
 }
 
 function isClippingsMgrRootFldrReseq()

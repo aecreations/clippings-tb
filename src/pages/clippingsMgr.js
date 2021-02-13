@@ -2087,10 +2087,10 @@ $(async () => {
   gClippings.addClippingsListener(gClippingsListener);
 
   gSyncFolderID = prefs.syncFolderID;
-  /***
+
   let syncClippingsListeners = gClippings.getSyncClippingsListeners();
   syncClippingsListeners.add(gSyncClippingsListener);
-  ***/
+
   initToolbar();
   initInstantEditing();
   gShortcutKey.init();
@@ -2098,9 +2098,7 @@ $(async () => {
   initDialogs();
   buildClippingsTree();
   initTreeSplitter();
-  /***
   initSyncItemsIDLookupList();
-  ***/
   
   if (gIsBackupMode) {
     gCmd.backup();
@@ -2134,10 +2132,9 @@ $(window).on("beforeunload", aEvent => {
 
   gClippings.removeClippingsListener(gClippingsListener);
   
-  /***
   let syncClippingsListeners = gClippings.getSyncClippingsListeners();
   syncClippingsListeners.remove(gSyncClippingsListener);
-  ***/  
+
   gClippings.purgeFolderItems(aeConst.DELETED_ITEMS_FLDR_ID).catch(aErr => {
     console.error("Clippings/mx::clippingsMgr.js: $(window).on('beforeunload'): " + aErr);
   });

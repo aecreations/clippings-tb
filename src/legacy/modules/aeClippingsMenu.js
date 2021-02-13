@@ -50,11 +50,11 @@ class ClippingsMenu
       if (item.submenuItems) {
 	let menuElt = this._doc.createXULElement("menu");
 	menuElt.classList.add("menu-iconic", "ae-clippings-folder-menu");
-	/***
-	if (item.uri == this._clippingsSvc.kSyncFolderURI) {
+
+	if (("isSync" in item) && item.isSync) {
 	  menuElt.classList.add("ae-clippings-sync-folder");
 	}
-	***/
+
 	menuElt.setAttribute("label", item.title);
 
 	let menuPopupElt = this._doc.createXULElement("menupopup");
