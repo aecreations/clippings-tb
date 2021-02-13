@@ -36,12 +36,12 @@ let gClippingsMxListener = function () {
       _clippings.openClippingsManager(false);
     },
 
-    async clippingsDataRequested()
+    async clippingsMenuDataRequested(aRootFldrID)
     {
       let rv;
 
       if (!_cxtMenuData || _clippings.isDirty()) {
-	rv = _cxtMenuData = await _clippings.getContextMenuData();
+	rv = _cxtMenuData = await _clippings.getContextMenuData(aRootFldrID);
       }
       else {
 	rv = _cxtMenuData;

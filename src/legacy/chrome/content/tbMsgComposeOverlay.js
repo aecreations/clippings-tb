@@ -185,9 +185,11 @@ window.aecreations.clippings = {
     }
 
     let that = this;
+    let mxListener = this.getMxListener();
+    let prefs = mxListener.prefsRequested();
     let clippingsMenu = document.getElementById("ae-clippings-menu-1");
-
-    this.getMxListener().clippingsDataRequested().then(aCxtMenuData => {
+    
+    mxListener.clippingsMenuDataRequested(this._getMnuRootFldrID(prefs)).then(aCxtMenuData => {
       that._menu.data = aCxtMenuData;
       that._menu.rebuild();
 
@@ -205,6 +207,19 @@ window.aecreations.clippings = {
 
       that._initAutoIncrementPlaceholderMenu();
     });
+  },
+
+
+  _getMnuRootFldrID: function (aPrefs)
+  {
+    const ROOT_FOLDER_ID = 0;
+    
+    let rv;
+    let prefs = aPrefs || this.getMxListener().prefsRequested();
+
+    rv = prefs.cxtMenuSyncItemsOnly ? prefs.syncFolderID : ROOT_FOLDER_ID;
+
+    return rv;
   },
 
 
@@ -330,7 +345,10 @@ window.aecreations.clippings = {
 
   async initClippingsPopup(aPopup, aMenu) 
   {
-    let cxtMenuData = await this.getMxListener().clippingsDataRequested();
+    let mxListener = this.getMxListener();
+    let prefs = mxListener.prefsRequested();
+    let cxtMenuData = await mxListener.clippingsMenuDataRequested(this._getMnuRootFldrID(prefs));
+    
     this._menu = this.ui.aeClippingsMenu.createInstance(aPopup, cxtMenuData);
     this._menu.menuItemCommand = async (aEvent) => {
       let menuItemID = aEvent.target.getAttribute("data-clipping-menuitem-id");
