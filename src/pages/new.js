@@ -481,17 +481,13 @@ function accept(aEvent)
       numItemsInParent += aNumClippings;
       newClipping.displayOrder = numItemsInParent;
       return gClippingsDB.clippings.add(newClipping);
-    /***
+
     }).then(aNewClippingID => {
-    ***/
-    // TEMPORARY
-    }).then(async (aNewClippingID) => {
-    // END TEMPORARY
       let clipgsLstrs = gClippings.getClippingsListeners();
       clipgsLstrs.forEach(aListener => {
         aListener.newClippingCreated(aNewClippingID, newClipping, aeConst.ORIGIN_HOSTAPP);
       });
-      /***
+
       if (prefs.syncClippings) {
         let syncFldrID = gClippings.getSyncFolderID();
         aeImportExport.setDatabase(gClippingsDB);
@@ -519,7 +515,6 @@ function accept(aEvent)
         log("Clippings/mx::new.js: accept(): Response from the Sync Clippings helper app:");
         log(aMsgResult);
       }
-      ***/
 
       // TO DO:
       // Move this into the "onchange" event handler for the label and shortcut
