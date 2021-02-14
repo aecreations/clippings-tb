@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title data-i18n="migrnStatusTitle"></title>
+
+    <link rel="stylesheet" type="text/css" href="migrationStatus.css"/>
+  </head>
+
+  <body class="deck">
+    <div id="content-migrn-success-deck" class="deck-content">
+      <div id="content-migrn-success" class="content-flexbox">
+	<div class="icon">
+	  <div id="success-icon" class="msg-icon"></div>
+	</div>
+	<div class="content">
+	  <p id="success-msg" data-i18n="migrnStatusSuccess"></p>
+	  <p class="other-actions">
+	    <button id="open-clippings-mgr" data-i18n="clippingsMgrWndTitle"></button>
+	  </p>
+	</div>
+      </div>
+    </div> <!-- /content-migrn-success-deck -->
+
+    <div id="content-migrn-fail-deck" class="deck-content">
+      <div id="content-migrn-fail" class="content-flexbox">
+	<div class="icon">
+	  <div id="fail-icon" class="msg-icon"></div>
+	</div>
+	<div class="content">
+	  <p id="fail-msg" data-i18n="migrnStatusFail"></p>
+	  <p class="detail" data-i18n="migrnFailDetail"></p>
+
+	  <p class="other-actions">
+	    <button id="save-legacy-data" data-i18n="migrnSaveData"></button>
+	    <span id="save-confirm-msg" data-i18n="saveConfirm"></span>
+	  </p>	
+	</div>
+      </div>
+    </div> <!-- /content-migrn-fail-deck -->
+
+    <div id="dlg-buttons">
+      <button id="btn-cancel" data-i18n="btnClose"></button>
+    </div>
+
+    <script src="../lib/jquery.js"></script>
+    <script src="../scripts/aeConst.js"></script>
+    <script src="../scripts/aeI18n.js"></script>
+    <script src="migrationStatus.js"></script>
+  </body>
+</html>

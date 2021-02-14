@@ -65,6 +65,30 @@
     "message": "Browse…"
   },
 
+  "migrnStatusTitle": {
+    "message": "Clippings Migration Status"
+  },
+
+  "migrnStatusSuccess": {
+    "message": "Your clippings have been successfully migrated."
+  },
+
+  "migrnStatusFail": {
+    "message": "Sorry, an error occurred while Clippings was trying to migrate your data."
+  },
+
+  "migrnFailDetail": {
+    "message": "Click Save Clippings to save a copy of your data."
+  },
+
+  "migrnSaveData": {
+    "message": "Save Clippings"
+  },
+
+  "saveConfirm": {
+    "message": "Saved."
+  },
+
   "pasteTitle": {
     "message": "Paste Clipping",
     "description": "Title bar text of keyboard paste dialog"

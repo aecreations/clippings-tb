@@ -1,0 +1,83 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("../style/dialog.css");
+
+
+body {
+    font-size: 13px;
+}
+
+.deck-content {
+    display: none;
+}
+
+.content-flexbox {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    align-content: center;
+    align-items: flex-start;
+}
+
+.content-flexbox > .icon {
+    order: 1;
+    flex: 0 1 auto;
+    align-self: auto;
+}
+
+.content-flexbox > .content {
+    order: 2;
+    flex: 1 1 auto;
+    align-self: auto;
+}
+
+.icon > .msg-icon {
+    width: 48px;
+    height: 48px;
+    margin-top: 4px;
+    margin-right: 12px;
+    background-size: contain;
+}
+
+.detail, .other-actions {
+    margin-left: 4px;
+}
+
+#success-icon {
+    background-image: url("../img/success.svg");
+}
+
+#fail-icon {
+    background-image: url("../img/error.svg");
+}
+
+#success-msg, #fail-msg {
+    min-height: 48px;
+    margin-top: 4px;
+    margin-left: 4px;
+    padding: 12px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+#success-msg {
+    background-color: #edf9ff;
+    color: black;
+}
+
+#fail-msg {
+    background-color: #ffd2d2;
+    color: black;   
+}
+
+#save-confirm-msg {
+    visibility: hidden;
+    margin-left: 8px;
+    color: #006504;
+}
+
+#dlg-buttons {
+    z-index: 1;
+}

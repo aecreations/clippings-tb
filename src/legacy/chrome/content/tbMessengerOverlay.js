@@ -45,7 +45,7 @@ window.aecreations.clippings = {
   // Browser window and Clippings menu initialization
   //
 
-  initClippings: function ()
+  async initClippings()
   {  
     // Workaround to this init function being called multiple times.
     if (this.isClippingsInitialized) {
@@ -176,6 +176,8 @@ window.aecreations.clippings = {
       }
     }
     **/
+    window.setTimeout(() => { this.getMxListener().legacyDataMigrationVerified() }, 3000);
+
     this.isClippingsInitialized = true;
   },
 

@@ -268,12 +268,15 @@ async function setDefaultPrefs()
     syncFolderID: null,
     cxtMenuSyncItemsOnly: false,
     clippingsMgrShowSyncItemsOnlyRem: true,
-    syncHelperCheckUpdates: true,
-    lastSyncHelperUpdChkDate: null,
     lastBackupRemDate: null,
     backupRemFirstRun: true,
     backupRemFrequency: aeConst.BACKUP_REMIND_WEEKLY,
+    afterSyncFldrReloadDelay: 3000,
+    syncHelperCheckUpdates: true,
+    lastSyncHelperUpdChkDate: null,
     backupFilenameWithDate: true,
+    legacyDataMigrnSuccess: null,
+    showLegacyDataMigrnStatus: null,
   };
   
   gPrefs = defaultPrefs;
@@ -487,14 +490,32 @@ function initClippingsDB()
 
 async function migrateClippingsData()
 {
-  let clippingsData = await messenger.aeClippingsLegacy.getClippingsFromJSONFile();
+  verifyDB().then(async (aNumClippings) => {
+    log("Clippings/mx: migrateClippingsData(): Successfully verified Clippings DB.")
+    let clippingsData = await messenger.aeClippingsLegacy.getClippingsFromJSONFile();
 
-  if (clippingsData === null) {
-    throw new Error("Failed to retrieve data from clippings.json - file not found");
-  }
-  
-  log("Clippings/mx: migrateClippingsData(): Migrating clippings from legacy data source");    
-  aeImportExport.importFromJSON(clippingsData, true, false);
+    if (clippingsData === null) {
+      throw new Error("Failed to retrieve data from clippings.json - file not found");
+    }
+    
+    log("Clippings/mx: migrateClippingsData(): Migrating clippings from legacy data source");    
+    aeImportExport.importFromJSON(clippingsData, true, false);
+
+    await messenger.storage.local.set({
+      legacyDataMigrnSuccess: true,
+      showLegacyDataMigrnStatus: true,
+    });
+
+    Promise.resolve();
+    
+  }).catch(async (aErr) => {
+    // Error thrown if Dexie can't open the database.
+    console.error("Clippings/mx: migrateClippingsData(): Failed to verify IndexedDB database; cannot migrate legacy Clippings data.");
+    await messenger.storage.local.set({
+      legacyDataMigrnSuccess: false,
+      showLegacyDataMigrnStatus: true,
+    });
+  });
 }
 
 
@@ -1095,6 +1116,13 @@ function openBackupDlg()
 {
   let url = messenger.runtime.getURL("pages/backup.html");
   openDlgWnd(url, "backupFirstRun", { type: "detached_panel", width: 590, height: 410 });
+}
+
+
+function openMigrationStatusDlg()
+{
+  let url = messenger.runtime.getURL("pages/migrationStatus.html");
+  openDlgWnd(url, "migrnStatus", { type: "detached_panel", width: 540, height: 216});
 }
 
 
