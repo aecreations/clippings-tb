@@ -447,16 +447,12 @@ async function init()
       }
     }
 
-    messenger.WindowListener.registerDefaultPrefs("legacy/defaults/preferences/prefs.js");
-
     messenger.WindowListener.registerChromeUrl([
       ["content",  "clippings", "legacy/chrome/content/"],
       ["locale",   "clippings", "en-US", "legacy/chrome/locale/en-US/"],
       ["resource", "clippings", "legacy/"]
     ]);
-/**
-    messenger.WindowListener.registerOptionsPage("chrome://clippings/content/preferences.xul");
-**/
+
     messenger.WindowListener.registerWindow(
       "chrome://messenger/content/messenger.xhtml",
       "chrome://clippings/content/messenger.js"
@@ -510,7 +506,7 @@ async function migrateClippingsData()
     
   }).catch(async (aErr) => {
     // Error thrown if Dexie can't open the database.
-    console.error("Clippings/mx: migrateClippingsData(): Failed to verify IndexedDB database; cannot migrate legacy Clippings data.");
+    console.error("Clippings/mx: migrateClippingsData(): Failed to verify IndexedDB database - cannot migrate legacy Clippings data.");
     await messenger.storage.local.set({
       legacyDataMigrnSuccess: false,
       showLegacyDataMigrnStatus: true,
