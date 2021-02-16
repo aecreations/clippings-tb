@@ -1707,19 +1707,17 @@ let gCmd = {
         filename = aeConst.CLIPPINGS_BACKUP_FILENAME_WITH_DATE.replace("%s", moment().format("YYYY-MM-DD"));
       }
       
-      messenger.downloads.download({
+      let downldOpts = {
         url: URL.createObjectURL(blobData),
         filename,
-        saveAs: true
-
-      }).then(aDownldItemID => {
+        saveAs: true,
+      };
+      messenger.downloads.download(downldOpts).then(aDownldItemID => {
         setStatusBarMsg(messenger.i18n.getMessage("statusSavingBkupDone"));
         gSuppressAutoMinzWnd = false;
-
         return messenger.downloads.search({ id: aDownldItemID });
 
       }).then(aDownldItems => {
-
         if (aDownldItems && aDownldItems.length > 0) {
           let backupFilePath = aDownldItems[0].filename;
           gDialogs.backupConfirmMsgBox.setMessage(messenger.i18n.getMessage("clipMgrBackupConfirm", backupFilePath));
@@ -1736,6 +1734,9 @@ let gCmd = {
           window.alert(messenger.i18n.getMessage("backupError", aErr));
         }
         gSuppressAutoMinzWnd = false;
+
+      }).finally(() => {
+        window.focus();
       });
     }).catch(aErr => {
       window.alert("Sorry, an error occurred during the backup.\n\nDetails:\n" + getErrStr(aErr));
@@ -3147,23 +3148,24 @@ function initDialogs()
   gDialogs.exportToFile.onAfterAccept = () => {
     function saveToFile(aBlobData, aFilename)
     {
-      messenger.downloads.download({
+      let downldOpts = {
         url: URL.createObjectURL(aBlobData),
         filename: aFilename,
-        saveAs: true
-      }).then(aDownldItemID => {
+        saveAs: true,
+      };
+      messenger.downloads.download(downldOpts).then(aDownldItemID => {
         gSuppressAutoMinzWnd = false;
         setStatusBarMsg(messenger.i18n.getMessage("statusExportDone"));
 
         return messenger.downloads.search({ id: aDownldItemID });
 
       }).then(aDownldItems => {
-
         if (aDownldItems && aDownldItems.length > 0) {
           let exportFilePath = aDownldItems[0].filename;
           gDialogs.exportConfirmMsgBox.setMessage(messenger.i18n.getMessage("clipMgrExportConfirm", exportFilePath));
           gDialogs.exportConfirmMsgBox.showModal();
         }
+
       }).catch(aErr => {
         gSuppressAutoMinzWnd = false;
         if (aErr.fileName == "undefined") {
@@ -3174,6 +3176,9 @@ function initDialogs()
           setStatusBarMsg(messenger.i18n.getMessage("statusExportFailed"));
           window.alert(messenger.i18n.getMessage("exportError", aErr));
         }
+
+      }).finally(() => {
+        window.focus();
       });
     }
 

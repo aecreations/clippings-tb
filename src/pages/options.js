@@ -28,6 +28,7 @@ $(async () => {
     return;
   }
 
+  window.focus();
   init();
 });
 
