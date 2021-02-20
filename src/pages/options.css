@@ -196,6 +196,10 @@ progress {
     margin-bottom: 6px;
 }
 
+#show-sync-help {
+    cursor: pointer;
+}
+
 #sync-settings {
     margin-right: 16px;
 }
