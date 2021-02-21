@@ -228,7 +228,7 @@ window.aecreations.clippings = {
     var resetAutoIncrVarsMenuseparator = document.getElementById("reset-auto-increment-vars-separator");
     var resetAutoIncrVarsMenu = document.getElementById("reset-auto-increment-vars");
     var autoIncrVarsMenuPopup = document.getElementById("reset-auto-increment-vars-menu-popup");
-    /***
+
     // Refresh the menu of auto-increment placeholders.
     while (autoIncrVarsMenuPopup.firstChild) {
       autoIncrVarsMenuPopup.removeChild(autoIncrVarsMenuPopup.firstChild);
@@ -237,25 +237,23 @@ window.aecreations.clippings = {
     var autoIncrementVars = this.txt.aeClippingSubst.getAutoIncrementVarNames();
     var numAutoIncrVars = autoIncrementVars.length;
     if (numAutoIncrVars == 0) {
-    ***/
       resetAutoIncrVarsMenuseparator.style.display = "none";
       resetAutoIncrVarsMenu.style.display = "none";
-    /***
     }
     else {
       resetAutoIncrVarsMenuseparator.style.display = "-moz-box";
       resetAutoIncrVarsMenu.style.display = "-moz-box";
       for (let i = 0; i < numAutoIncrVars; i++) {
-        var menuItem = document.createElement("menuitem");
+        var menuItem = document.createXULElement("menuitem");
         menuItem.setAttribute("label", "#[" + autoIncrementVars[i] + "]");
         menuItem.setAttribute("value", autoIncrementVars[i]);
 
-        let that = this;
-        menuItem.addEventListener("command", function (evt) { that.txt.aeClippingSubst.resetAutoIncrementVar(evt.target.value); }, false);
+        menuItem.addEventListener("command", aEvent => {
+	  this.txt.aeClippingSubst.resetAutoIncrementVar(aEvent.target.value);
+	});
         autoIncrVarsMenuPopup.appendChild(menuItem);
       }
     }
-    ***/
   },
 
 
