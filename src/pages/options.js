@@ -49,6 +49,7 @@ async function init()
     shctModeKeys = `${keyOption}${keyCmd}V`;
     
     // Cannot use Cmd+Shift+Y - already assigned to a composer command.
+    $("#shortcut-key-new").css({ display: "none" });
     $("#shct-new-label").css({ display: "none" });
   }
 
@@ -86,54 +87,6 @@ async function init()
   usrContribCTA.append(sanitizeHTML(`<label id="usr-contrib-cta-conj">${messenger.i18n.getMessage("aboutContribConj")}</label>`));
   usrContribCTA.append(sanitizeHTML(`<a href="${aeConst.L10N_URL}" class="hyperlink">${messenger.i18n.getMessage("aboutL10n")}</a>`));
   
-  // Handling keyboard events in open modal dialogs.
-  $(window).keydown(aEvent => {
-    function isAccelKeyPressed()
-    {
-      let rv;
-      if (os == "mac") {
-        rv = aEvent.metaKey;
-      }
-      else {
-        rv = aEvent.ctrlKey;
-      }
-      
-      return rv;
-    }
-
-    function isTextboxFocused(aEvent)
-    {
-      return (aEvent.target.tagName == "INPUT" || aEvent.target.tagName == "TEXTAREA");
-    }
-
-    if (aEvent.key == "Enter" && aeDialog.isOpen()) {
-      aeDialog.acceptDlgs();
-
-      // Don't trigger any further actions that would have occurred if the
-      // ENTER key was pressed.
-      aEvent.preventDefault();
-    }
-    else if (aEvent.key == "Escape" && aeDialog.isOpen()) {
-      aeDialog.cancelDlgs();
-    }
-    else if (aEvent.key == "/" || aEvent.key == "'") {
-      if (! isTextboxFocused(aEvent)) {
-        aEvent.preventDefault();  // Suppress quick find in page.
-      }
-    }
-    else if (aEvent.key == "F5") {
-      aEvent.preventDefault();  // Suppress browser reload.
-    }
-    else {
-      // Ignore standard browser shortcut keys.
-      let key = aEvent.key.toUpperCase();
-      if (isAccelKeyPressed() && (key == "D" || key == "F" || key == "N" || key == "P"
-                                  || key == "R" || key == "S" || key == "U")) {
-        aEvent.preventDefault();
-      }
-    }
-  });
-
   $("#html-paste-options").val(prefs.htmlPaste).change(aEvent => {
     setPref({ htmlPaste: aEvent.target.value });
   });
@@ -543,6 +496,55 @@ function initDialogs()
   // Sync Clippings help dialog content.
   $("#sync-clippings-help-dlg > .dlg-content").html(sanitizeHTML(messenger.i18n.getMessage("syncHelp")));
 }
+
+
+// Handling keyboard events in open modal dialogs.
+$(window).keydown(aEvent => {
+  function isAccelKeyPressed()
+  {
+    let rv;
+    if (os == "mac") {
+      rv = aEvent.metaKey;
+    }
+    else {
+      rv = aEvent.ctrlKey;
+    }
+    
+    return rv;
+  }
+
+  function isTextboxFocused(aEvent)
+  {
+    return (aEvent.target.tagName == "INPUT" || aEvent.target.tagName == "TEXTAREA");
+  }
+
+  if (aEvent.key == "Enter" && aeDialog.isOpen()) {
+    aeDialog.acceptDlgs();
+
+    // Don't trigger any further actions that would have occurred if the
+    // ENTER key was pressed.
+    aEvent.preventDefault();
+  }
+  else if (aEvent.key == "Escape" && aeDialog.isOpen()) {
+    aeDialog.cancelDlgs();
+  }
+  else if (aEvent.key == "/" || aEvent.key == "'") {
+    if (! isTextboxFocused(aEvent)) {
+      aEvent.preventDefault();  // Suppress quick find in page.
+    }
+  }
+  else if (aEvent.key == "F5") {
+    aEvent.preventDefault();  // Suppress browser reload.
+  }
+  else {
+    // Ignore standard browser shortcut keys.
+    let key = aEvent.key.toUpperCase();
+    if (isAccelKeyPressed() && (key == "D" || key == "F" || key == "N" || key == "P"
+                                || key == "R" || key == "S" || key == "U")) {
+      aEvent.preventDefault();
+    }
+  }
+});
 
 
 $(window).on("contextmenu", aEvent => {
