@@ -449,6 +449,16 @@ function accept(aEvent)
 {
   let prefs = gClippings.getPrefs();
   
+  let name = $("#clipping-name").val();
+  let content = $("#clipping-text").val();
+
+  if ($("#create-as-unquoted")[0].checked) {
+    content = content.replace(/^>>* ?(>>* ?)*/gm, "");
+  }
+  if ($("#remove-extra-linebreaks")[0].checked) {
+    content = content.replace(/([^\n])( )?\n([^\n])/gm, "$1 $3");
+  }
+  
   let shortcutKeyMenu = $("#clipping-key")[0];
   let shortcutKey = "";
 
@@ -463,11 +473,8 @@ function accept(aEvent)
   let numItemsInParent = 0;  // For calculating display order of new clipping.
 
   let newClipping = {
-    name: $("#clipping-name").val(),
-    content: $("#clipping-text").val(),
-    shortcutKey: shortcutKey,
+    name, content, shortcutKey, label,
     parentFolderID: gParentFolderID,
-    label,
     displayOrder: 0,
     sourceURL: "",
   };

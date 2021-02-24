@@ -283,6 +283,16 @@
     "description": "Label for the Clipping label menu"
   },
 
+  "labelCrtUnq": {
+    "message": "Create as unquoted text",
+    "description": "New clipping option available only in Thunderbird"
+  },
+
+  "labelRemLnBrk": {
+    "message": "Remove extra line breaks",
+    "description": "New clipping option available only in Thunderbird"
+  },
+
   "labelNewFldrName": {
     "message": "New folder name:"
   },
