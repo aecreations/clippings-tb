@@ -2,10 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
+var {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
 
 Services.scriptloader.loadSubScript("chrome://clippings/content/tbMsgComposeOverlay.js",
 				    window, "UTF-8");
+
 
 let gClippingsMxListener = function () {
   let _clippings = WL.messenger.extension.getBackgroundPage();

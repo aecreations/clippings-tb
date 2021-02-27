@@ -55,101 +55,19 @@ window.aecreations.clippings = {
 
     this.strBundle = this.util.aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
     this.txt.aeClippingSubst.init(this.strBundle, navigator.userAgent);
-    /**
-    try {
-      this.clippingsSvc = this.svc.aeClippingsService.getService();
-    }
-    catch (e) {
-      this.alert(e);
-    }
 
-    this.clippingsSvc.setEmptyClippingString(this.strBundle.getString("emptyClippingLabel"));
-    this.clippingsSvc.setSyncedClippingsFolderName(this.strBundle.getString("syncFldrLabel"));
-
-    let profilePath = this.util.aeUtils.getUserProfileDir().path;
-    let dsPath = this.util.aeUtils.getPref("clippings.datasource.location", profilePath);
-    
-    // Clippings backup
-    var backupDirURL = this.util.aeUtils.getDataSourcePathURL() + this.cnst.aeConstants.BACKUP_DIR_NAME;
-
-    this.clippingsSvc.setBackupDir(backupDirURL);
-    this.clippingsSvc.setMaxBackupFiles(this.util.aeUtils.getPref("clippings.backup.maxfiles", 10));
-    **/
     // Initializing data source on Clippings context menus
     var menu1 = document.getElementById("ae-clippings-menu-1");
     var popup1 = document.getElementById("ae-clippings-popup-1");
     await this.initClippingsPopup(popup1, menu1);
 
     this.util.aeUtils.log(this.str.aeString.format("gClippings.initClippings(): Initializing Clippings integration with host app window: %s", window.location.href));
-    /**
-    // Add null clipping to root folder if there are no items
-    if (this.util.aeUtils.getPref("clippings.datasource.process_root", true) == true) {
-      this.clippingsSvc.processRootFolder();
-      this.util.aeUtils.setPref("clippings.datasource.process_root", false);
-    }
-
-    let syncClippings = this.util.aeUtils.getPref("clippings.datasource.wx_sync.enabled", false);
-    if (syncClippings) {
-      this.util.aeUtils.log("gClippings.initClippings(): Sync Clippings is turned on. Refreshing the Synced Clippings folder.");
-      let syncDirPath = this.util.aeUtils.getPref("clippings.datasource.wx_sync.location", "");
-      if (! syncDirPath) {
-	syncDirPath = this.util.aeUtils.getPref("clippings.datasource.location", "");
-	this.util.aeUtils.setPref("clippings.datasource.wx_sync.location", syncDirPath);
-      }
-      this.util.aeUtils.log("gClippings.initClippings: Sync folder location: " + syncDirPath);
-
-      let syncDirURL = this.util.aeUtils.getURLFromFilePath(syncDirPath);
-      this.clippingsSvc.setSyncDir(syncDirURL);
-      this.clippingsSvc.refreshSyncedClippings(false);
-    }
-    **/
 
     let composerCxtMenu = document.getElementById("msgComposeContext");
     composerCxtMenu.addEventListener("popupshowing", aEvent => {
       this.initContextMenuItem(aEvent);
     });
 
-    /**
-    let that = this;
-
-    this._clippingsListener = {
-      origin:  that.clippingsSvc.ORIGIN_HOSTAPP,
-
-      dataSrcLocationChanged: function (aDataSrcURL) {
-        var menu = document.getElementById("ae-clippings-menu-1");
-        var popup = document.getElementById("ae-clippings-popup-1");
-
-        // Reinitialize Clippings menu so that it points to the correct
-        // datasource.
-        that.initClippingsPopup(popup, menu);
-      },
-
-      syncLocationChanged: function (aSyncURL) {},
-      newFolderCreated:    function (aFolderURI) {},
-      newClippingCreated:  function (aClippingURI) {},
-      importDone:          function (aNumItems) {}
-    };
-
-    this.clippingsSvc.addListener(this._clippingsListener);
-
-    // Set behaviour of "New Clipping" commands - prompt vs. silent operation
-    this.showDialog = true;
-
-    // Initialize "New From Clipboard" command on status bar icon menu.
-    var ellipsis = this.strBundle.getString("ellipsis");
-    var newFromClpbdCmd = document.getElementById("ae_new_clipping_from_clpbd");
-    newFromClpbdCmd.setAttribute("label",
-				 this.strBundle.getString("newFromClipbd")
-				 + ellipsis);
-
-    // Disable Clippings Manager window persistence via JavaScript if running
-    // on Mac OS X, unless user has explicitly set it.
-    if (this.util.aeUtils.getOS() == "Darwin") {
-      if (! this.util.aeUtils.hasPref("clippings.clipmgr.disable_js_window_geometry_persistence")) {
-	this.util.aeUtils.setPref("clippings.clipmgr.disable_js_window_geometry_persistence", true);
-      }
-    }
-    **/
     let prefs = this.getMxListener().prefsRequested();
     
     // Enable/disable Clippings paste using the keyboard.

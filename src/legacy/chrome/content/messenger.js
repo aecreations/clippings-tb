@@ -4,7 +4,8 @@
 
 var {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
 
-Services.scriptloader.loadSubScript("chrome://clippings/content/tbMessengerOverlay.js", window, "UTF-8");
+Services.scriptloader.loadSubScript("chrome://clippings/content/tbMessengerOverlay.js",
+				    window, "UTF-8");
 
 
 let gClippingsMxListener = function () {
