@@ -407,8 +407,6 @@ async function init()
 
     gSyncClippingsListeners.add(gSyncClippingsListener);
 
-    initMessageListeners();
-
     messenger.storage.onChanged.addListener((aChanges, aAreaName) => {
       let changedPrefs = Object.keys(aChanges);
 
@@ -696,29 +694,6 @@ async function purgeFolderItems(aFolderID, aKeepFolder)
     });
   }).catch(aErr => {
     Promise.reject(aErr);
-  });
-}
-
-
-function initMessageListeners()
-{
-  messenger.runtime.onMessage.addListener(aRequest => {
-    log(`Clippings/mx: Received message "${aRequest.msgID}"`);
-
-    let resp = null;
-
-    if (aRequest.msgID == "init-new-clipping-dlg") {
-      resp = gNewClipping.get();
-
-      if (resp !== null) {
-        resp.checkSpelling = gPrefs.checkSpelling;
-        return Promise.resolve(resp);
-      }
-    }
-    else if (aRequest.msgID == "close-new-clipping-dlg") {
-      gWndIDs.newClipping = null;
-      gIsDirty = true;
-    }
   });
 }
 
@@ -1320,8 +1295,28 @@ function setDirtyFlag(aFlag)
 
 
 //
-// Click event listener for notifications
+// Event listeners
 //
+
+messenger.runtime.onMessage.addListener(aRequest => {
+  log(`Clippings/mx: Received message "${aRequest.msgID}"`);
+
+  let resp = null;
+
+  if (aRequest.msgID == "init-new-clipping-dlg") {
+    resp = gNewClipping.get();
+
+    if (resp !== null) {
+      resp.checkSpelling = gPrefs.checkSpelling;
+      return Promise.resolve(resp);
+    }
+  }
+  else if (aRequest.msgID == "close-new-clipping-dlg") {
+    gWndIDs.newClipping = null;
+    gIsDirty = true;
+  }
+});
+
 
 messenger.notifications.onClicked.addListener(aNotifID => {
   if (aNotifID == aeConst.NOTIFY_BACKUP_REMIND_ID) {
@@ -1336,10 +1331,6 @@ messenger.notifications.onClicked.addListener(aNotifID => {
   }
 });
   
-
-//
-// Catch any unhandled promise rejections from 3rd-party libs
-//
 
 window.addEventListener("unhandledrejection", aEvent => {
   aEvent.preventDefault();

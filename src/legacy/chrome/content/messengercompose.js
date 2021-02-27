@@ -156,7 +156,7 @@ async function onLoad(aActivatedWhileWindowOpen)
   // Initialize status bar icon.
   let statusBar = document.getElementById("status-bar");
   let statusbarpanel = document.createXULElement("hbox");
-  statusbarpanel.id = "ae-clippings-statubarpanel";
+  statusbarpanel.id = "ae-clippings-status";
   let statusbarBtn = document.createXULElement("toolbarbutton");
   statusbarBtn.id = "ae-clippings-icon";
   statusbarBtn.setAttribute("context", "ae-clippings-popup");
@@ -183,8 +183,15 @@ function onUnload(aDeactivatedWhileWindowOpen)
     return;
   }
 
+  let statusbarpanel = document.getElementById("ae-clippings-status");
+  statusbarpanel.parentNode.removeChild(statusbarpanel);
+  
   window.aecreations.clippings.removeMxListener();
-  window.aecreations.clippings.unload();
+
+  delete window.aecreations.clippings;
+  if (Object.keys(window.aecreations).length == 0) {
+    delete window.aecreations;
+  }
 }
 
 

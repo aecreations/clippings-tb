@@ -89,5 +89,13 @@ function onUnload(aDeactivatedWhileWindowOpen)
     return;
   }
 
+  let statusbarpanel = document.getElementById("ae-clippings-status");
+  statusbarpanel.parentNode.removeChild(statusbarpanel);
+  
   window.aecreations.clippings.removeMxListener();
+
+  delete window.aecreations.clippings;
+  if (Object.keys(window.aecreations).length == 0) {
+    delete window.aecreations;
+  }
 }
