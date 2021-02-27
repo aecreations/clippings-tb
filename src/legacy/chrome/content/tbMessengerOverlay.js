@@ -182,12 +182,6 @@ window.aecreations.clippings = {
   },
 
 
-  unload: function ()
-  {
-    // TO DO: Unload observers and perform cleanup.
-  },
-
-
   //
   // Methods invoked by overlay code
   //

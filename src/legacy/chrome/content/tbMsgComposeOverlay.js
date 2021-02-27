@@ -257,15 +257,6 @@ window.aecreations.clippings = {
   },
 
 
-  unload: function ()
-  {
-    /**
-    this.clippingsSvc.removeListener(this._clippingsListener);
-    this._clippingsListener = null;
-    **/
-  },
-
-
   //
   // Methods invoked by overlay code
   //
