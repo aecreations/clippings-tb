@@ -700,10 +700,22 @@ async function purgeFolderItems(aFolderID, aKeepFolder)
 
 async function getShortcutKeyPrefixStr()
 {
-  // TO DO: Finish implementation.
+  let rv = "";
+  let os = getOS();
 
-  // TEMPORARY
-  return "ALT+SHIFT+Y";
+  let keyCtrl  = messenger.i18n.getMessage("keyCtrl");
+  let keyAlt   = messenger.i18n.getMessage("keyAlt");
+  let keyShift = messenger.i18n.getMessage("keyShift");
+  let shctModeKeys = `${keyCtrl}+${keyAlt}+V`;
+
+  if (os == "mac") {
+    let keyOption = messenger.i18n.getMessage("keyOption");
+    let keyCmd = messenger.i18n.getMessage("keyCommand");
+    shctModeKeys = `${keyOption}${keyCmd}V`;
+  }
+  rv = shctModeKeys;
+
+  Promise.resolve(rv);
 }
 
 

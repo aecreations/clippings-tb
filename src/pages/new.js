@@ -408,11 +408,10 @@ async function initShortcutKeyMenu()
       }
     }
   });
-  /***
+
   let keybPasteKeys = await gClippings.getShortcutKeyPrefixStr();
   let tooltip = messenger.i18n.getMessage("shctKeyHintTB", keybPasteKeys);
   $("#shct-key-tooltip").attr("title", tooltip);
-  ***/
 }
 
 
