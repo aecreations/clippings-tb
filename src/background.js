@@ -249,6 +249,17 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
 });
 
 
+messenger.runtime.onStartup.addListener(async () => {
+  log("Clippings/mx: Initializing Clippings during browser startup.");
+  
+  gPrefs = await messenger.storage.local.get();
+  log("Clippings/mx: Successfully retrieved user preferences:");
+  log(gPrefs);
+
+  init();
+});
+
+
 async function setDefaultPrefs()
 {
   let defaultPrefs = {
@@ -365,17 +376,6 @@ async function migrateLegacyPrefs()
 }
 
 
-messenger.runtime.onStartup.addListener(async () => {
-  log("Clippings/mx: Initializing Clippings during browser startup.");
-  
-  gPrefs = await messenger.storage.local.get();
-  log("Clippings/mx: Successfully retrieved user preferences:");
-  log(gPrefs);
-
-  init();
-});
-
-
 async function init()
 {
   info("Clippings/mx: Initializing integration of MailExtension with host app...");
@@ -405,15 +405,9 @@ async function init()
       gPrefs.clippingsMgrMinzWhenInactv = (gOS == "linux");
     }
 
+    gClippingsListener.origin = aeConst.ORIGIN_HOSTAPP;
+    gClippingsListeners.add(gClippingsListener);
     gSyncClippingsListeners.add(gSyncClippingsListener);
-
-    messenger.storage.onChanged.addListener((aChanges, aAreaName) => {
-      let changedPrefs = Object.keys(aChanges);
-
-      for (let pref of changedPrefs) {
-        gPrefs[pref] = aChanges[pref].newValue;
-      }
-    });
 
     if (gPrefs.backupRemFirstRun && !gPrefs.lastBackupRemDate) {
       messenger.storage.local.set({
@@ -1326,6 +1320,15 @@ messenger.runtime.onMessage.addListener(aRequest => {
   else if (aRequest.msgID == "close-new-clipping-dlg") {
     gWndIDs.newClipping = null;
     gIsDirty = true;
+  }
+});
+
+
+messenger.storage.onChanged.addListener((aChanges, aAreaName) => {
+  let changedPrefs = Object.keys(aChanges);
+
+  for (let pref of changedPrefs) {
+    gPrefs[pref] = aChanges[pref].newValue;
   }
 });
 
