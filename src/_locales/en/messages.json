@@ -9,11 +9,6 @@
     "description": "Description of the extension"
   },
 
-  "extShortName": {
-    "message": "Clippings",
-    "description": "Shorter name of extension - do NOT translate"
-  },
-
   "browserActionTitle": {
     "message": "Clippings",
     "description": "Toolbar button label"

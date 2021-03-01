@@ -48,6 +48,8 @@ body {
 #addon-icon {
     vertical-align: -14px;
     margin-right: 8px;
+    width: 48px;
+    height: 48px;
 }
 
 h2 {
