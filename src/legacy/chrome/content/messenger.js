@@ -31,17 +31,20 @@ let gClippingsMxListener = function () {
 	return;
       }
       
+      let strBundle = aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
+      let statusbarBtn = document.getElementById("ae-clippings-icon");
+
       let legacyDataMigrnSuccess = prefs.legacyDataMigrnSuccess;
 
       if (legacyDataMigrnSuccess) {
 	if (prefs.showLegacyDataMigrnStatus) {
+	  statusbarBtn.className = "migration-success";
 	  _showLegacyDataMigrnStatus = true;
 	  _clippings.setPrefs({ showLegacyDataMigrnStatus: false });
 	}
       }
       else {
-	let strBundle = aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
-	let statusbarBtn = document.getElementById("ae-clippings-icon");
+	statusbarBtn.className = "migration-error";
 	statusbarBtn.setAttribute("tooltiptext", strBundle.getString("legacyMigrnFail"));
       }
     }

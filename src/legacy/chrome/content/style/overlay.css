@@ -77,3 +77,11 @@ menu.ae-clippings-sync-folder[open="true"] {
 #ae-clippings-icon:-moz-drag-over {
   list-style-image: url("chrome://clippings/content/img/clippings-hilite16.svg");
 }
+
+#ae-clippings-icon.migration-success {
+  list-style-image: url("chrome://clippings/content/img/clippings16-tb-success.svg");
+}
+
+#ae-clippings-icon.migration-error {
+  list-style-image: url("chrome://clippings/content/img/clippings16-tb-error.svg");
+}
