@@ -146,10 +146,9 @@
 .lightbox > .dlg-btns > button,
 .panel > .dlg-btns > button {
     min-width: 72px;
-    min-height: 24px;
-    border-radius: 2px;
+    min-height: 22px;
     text-align: center;
-    font-size: 11px !important;
+    font-size: 12px !important;
 }
 
 .lightbox > .dlg-btns > button {

@@ -182,7 +182,9 @@ button[disabled] {
 
 /* Used only for the Edit button on the web address bar. */
 button.browser-style:focus:not(:disabled) {
+/***
     border-color: var(--color-bkgd) !important;
+***/
 }
 
 input[type="text"],
@@ -195,8 +197,10 @@ input[type="search"],
 textarea,
 select {
     font-size: 11px !important;
+/***
     background-color: var(--color-textbox-bkgd);
     color: var(--color-default-text);
+***/
 }
 
 select {
@@ -210,7 +214,9 @@ select {
 }
 
 input[type="checkbox"] + label {
+/***
     vertical-align: -0.3em;
+***/
 }
 
 .hbox, .vbox {

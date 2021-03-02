@@ -54,10 +54,6 @@ input[type="text"], textarea {
     font-size: 11px;
 }
 
-input[type="checkbox"] + label {
-    vertical-align: -0.3em
-}
-
 textarea {
     resize: none;
 }
@@ -68,6 +64,13 @@ textarea {
 
 .folder-picker {
     margin-top: 4px;
+}
+
+.ae-button {
+    border: 1px solid var(--color-btn-border);
+    border-radius: 2px;
+    background-color: var(--color-btn-bkgd);
+    color: var(--color-btn-text);
 }
 
 .folder-picker-menubtn {
