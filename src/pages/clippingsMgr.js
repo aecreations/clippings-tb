@@ -2709,9 +2709,12 @@ function initDialogs()
         
         aeImportExport.setL10nStrings({
           shctTitle: messenger.i18n.getMessage("expHTMLTitle"),
-          hostAppInfo: messenger.i18n.getMessage("expHTMLHostAppInfo", [extVer, gClippings.getHostAppName()]),
+          hostAppInfo: messenger.i18n.getMessage(
+            "expHTMLHostAppInfo",
+            [extVer, `${gClippings.getHostAppName()} ${gClippings.getHostAppVer()}`]
+          ),
           shctKeyInstrxns: messenger.i18n.getMessage("expHTMLShctKeyInstrxnTB"),
-	  shctKeyCustNote: messenger.i18n.getMessage("expHTMLShctKeyCustNote"),
+	  shctKeyCustNote: "",
           shctKeyColHdr: messenger.i18n.getMessage("expHTMLShctKeyCol"),
           clippingNameColHdr: messenger.i18n.getMessage("expHTMLClipNameCol"),
         });

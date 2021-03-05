@@ -1239,6 +1239,11 @@ function getHostAppName()
   return gHostAppName;
 }
 
+function getHostAppVer()
+{
+  return gHostAppVer;
+}
+
 function getClippingsListeners()
 {
   return gClippingsListeners.getListeners();
