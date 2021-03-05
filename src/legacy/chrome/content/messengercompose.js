@@ -77,9 +77,6 @@ let gClippingsMxListener = function () {
 
 async function onLoad(aActivatedWhileWindowOpen)
 {
-  let strBundle = aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
-
-  // TO DO: Avoid hard-coding UI strings.
   WL.injectElements(`
   <commandset id="composeCommands">
     <command id="ae_clippings_manager" 
@@ -90,7 +87,7 @@ async function onLoad(aActivatedWhileWindowOpen)
      oncommand="window.aecreations.clippings.newFromSelection()"/>
     <command id="ae_clippings_show_paste_options" 
      oncommand="window.aecreations.clippings.toggleShowPasteOptions()"/>
-    <command id="ae_clippings_keyboard_insert" label="Paste Clipping"
+    <command id="ae_clippings_keyboard_insert" label="__MSG_cmdDesc__"
      oncommand="window.aecreations.clippings.keyboardInsertClipping()"/>
   </commandset>
 
@@ -106,12 +103,12 @@ async function onLoad(aActivatedWhileWindowOpen)
   </keyset>
 
   <menupopup id="msgComposeContext">
-    <menu id="ae-clippings-menu-1" label="Clippings">
+    <menu id="ae-clippings-menu-1" label="__MSG_browserActionTitle__">
       <menupopup id="ae-clippings-popup-1">
-        <menuitem id="ae-clippings-add" label="New From Selection..." accesskey="N" command="ae_new_clipping_from_selection"/>
-        <menuitem label="Organize Clippings" accesskey="O" command="ae_clippings_manager"/>
+        <menuitem id="ae-clippings-add" label="__MSG_cxtMenuNewFromSel__" command="ae_new_clipping_from_selection"/>
+        <menuitem label="__MSG_cxtMenuOpenClippingsMgr__" command="ae_clippings_manager"/>
 	<menuseparator id="reset-auto-increment-vars-separator"/>
-        <menu id="reset-auto-increment-vars" label="Reset Auto-increment Placeholders">
+        <menu id="reset-auto-increment-vars" label="__MSG_baMenuResetAutoIncrPlaceholders__">
           <menupopup id="reset-auto-increment-vars-menu-popup"></menupopup>
         </menu>
         <menuseparator/>
@@ -125,28 +122,25 @@ async function onLoad(aActivatedWhileWindowOpen)
     <panel id="ae-clippings-clipboard-alert" orient="vertical">
       <hbox align="center">
 	<image class="alert-icon" />
-        <description>Clipboard is empty or does not contain textual data.</description>
+        <description>__MSG_msgClipbdEmpty__</description>
       </hbox>
       <hbox>
 	<spacer flex="1"/>
-        <button label="OK" oncommand="this.parentNode.parentNode.hidePopup()"/>
+        <button label="__MSG_btnOK__" oncommand="this.parentNode.parentNode.hidePopup()"/>
 	<spacer flex="1"/>
       </hbox>
     </panel>
 
     <!-- Thunderbird status bar menu -->
     <menupopup id="ae-clippings-popup">
-      <menuitem label="Organize Clippings" 
-       accesskey="O"  default="true" 
+      <menuitem label="__MSG_cxtMenuOpenClippingsMgr__" default="true" 
        command="ae_clippings_manager"/>
       <menuitem id="ae-clippings-new-from-clipbd"
-       label="New From Clipboard..." 
-       accesskey="N" 
+       label="__MSG_cxtMenuNewFromClipbd__" 
        command="ae_new_clipping_from_clpbd" />
       <menuseparator/>
       <menuitem id="ae-clippings-show-paste-opts"
-       type="checkbox" checked="false" label="Show Quote Options When Pasting"
-       accesskey="S"
+       type="checkbox" checked="false" label="__MSG_cxtMenuShowPasteOpts__"
        command="ae_clippings_show_paste_options" />
     </menupopup>
   </popupset>
@@ -161,7 +155,7 @@ async function onLoad(aActivatedWhileWindowOpen)
   let statusbarBtn = document.createXULElement("toolbarbutton");
   statusbarBtn.id = "ae-clippings-icon";
   statusbarBtn.setAttribute("context", "ae-clippings-popup");
-  statusbarBtn.setAttribute("tooltiptext", strBundle.getString("appName"));
+  statusbarBtn.setAttribute("tooltiptext", WL.extension.localeData.localizeMessage("browserActionTitle"));
 
   statusbarBtn.addEventListener("command", aEvent => {
     window.aecreations.clippings.openClippingsManager();
@@ -171,7 +165,7 @@ async function onLoad(aActivatedWhileWindowOpen)
   statusBar.insertBefore(statusbarpanel, statusBar.lastChild);
 
   window.aecreations.clippings.addMxListener(gClippingsMxListener);
-  window.aecreations.clippings.initClippings();
+  window.aecreations.clippings.initClippings(WL.extension);
 }
 
 

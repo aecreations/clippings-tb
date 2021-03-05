@@ -3,9 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
+Services.scriptloader.loadSubScript("chrome://clippings/content/lib/i18n.js", this, "UTF-8");
 
 
-var gDlgArgs, gStrBundle;
+var gDlgArgs, gLocaleData;
 
     
 //
@@ -21,7 +24,10 @@ function $(aID) {
 function init()
 {
   gDlgArgs = window.arguments[0].wrappedJSObject;
-  gStrBundle = aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
+  gLocaleData = window.arguments[1];
+
+  i18n.updateDocument({ extension: gLocaleData });
+
   var promptText = $("prompt-text");
   var promptDeck = $("prompt-deck");
   var strKey;
@@ -53,7 +59,7 @@ function init()
     promptDeck.selectedIndex = 0;
     $("placeholder-value").value = gDlgArgs.defaultValue;
   }
-  promptText.value = gStrBundle.getFormattedString(strKey, [gDlgArgs.varName]);
+  promptText.value = gLocaleData.localizeMessage(strKey, [gDlgArgs.varName]);
 
   document.addEventListener("dialogaccept", aEvent => {
     if (! accept()) {

@@ -3,11 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
+Services.scriptloader.loadSubScript("chrome://clippings/content/lib/i18n.js", this, "UTF-8");
+
 
 // Truncate clipping name in the search result popup at this number of char's.
 const MAX_NAME_LEN = 64;
 
-let gDlgArgs, gStrBundle;
+let gDlgArgs, gLocaleData;
 
 let gClippingsSvc = {
   _srchData: [],
@@ -44,7 +48,9 @@ function $(aID)
 function init()
 {
   gDlgArgs = window.arguments[0];
-  gStrBundle = aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
+  gLocaleData = window.arguments[1];
+
+  i18n.updateDocument({ extension: gLocaleData });
 
   gClippingsSvc.initSearch(gDlgArgs.srchData);
 
@@ -80,11 +86,11 @@ function updateSearchResults(aSearchText)
   let numMatches = srchResults.length;
 
   if (numMatches == 0) {
-    $("search-status").value = gStrBundle.getString("findBarNotFound");
+    $("search-status").value = gLocaleData.localizeMessage("numMatches", [numMatches]);
   }
   else {
-    $("search-status").value = gStrBundle.getFormattedString("findBarMatches", [numMatches]);
-    $("num-matches").value = gStrBundle.getFormattedString("findBarMatches", [numMatches]);
+    $("search-status").value = gLocaleData.localizeMessage("numMatches", [numMatches]);
+    $("num-matches").value = gLocaleData.localizeMessage("numMatches", [numMatches]);
 
     // Populate the popup.
     var max = numMatches;

@@ -31,7 +31,6 @@ let gClippingsMxListener = function () {
 	return;
       }
       
-      let strBundle = aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
       let statusbarBtn = document.getElementById("ae-clippings-icon");
 
       let legacyDataMigrnSuccess = prefs.legacyDataMigrnSuccess;
@@ -45,7 +44,7 @@ let gClippingsMxListener = function () {
       }
       else {
 	statusbarBtn.className = "migration-error";
-	statusbarBtn.setAttribute("tooltiptext", strBundle.getString("legacyMigrnFail"));
+	statusbarBtn.setAttribute("tooltiptext", WL.extension.localeData.localizeMessage("migrnFailTtip"));
       }
     }
   };
@@ -54,10 +53,8 @@ let gClippingsMxListener = function () {
 
 function onLoad(aActivatedWhileWindowOpen)
 {
-  // Logging to the console doesn't seem to be working.
+  // Logging to the console doesn't seem to be working anymore.
   aeUtils.log("Clippings/mx::messenger.js: Starting Clippings for Thunderbird from main three-pane window.");
-
-  let strBundle = aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
 
   WL.injectCSS("chrome://clippings/content/style/overlay.css");
   
@@ -70,7 +67,7 @@ function onLoad(aActivatedWhileWindowOpen)
   let statusbarBtn = document.createXULElement("toolbarbutton");
   statusbarBtn.id = "ae-clippings-icon";
   statusbarBtn.setAttribute("context", "ae-clippings-popup");
-  statusbarBtn.setAttribute("tooltiptext", strBundle.getString("appName"));
+  statusbarBtn.setAttribute("tooltiptext", WL.extension.localeData.localizeMessage("browserActionTitle"));
 
   statusbarBtn.addEventListener("command", aEvent => {
     window.aecreations.clippings.openClippingsManager();

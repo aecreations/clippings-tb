@@ -3,6 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
+Services.scriptloader.loadSubScript("chrome://clippings/content/lib/i18n.js", this, "UTF-8");
+
 
 var gDlgArgs;
 
@@ -10,6 +14,8 @@ var gDlgArgs;
 function initWnd()
 {
   gDlgArgs = window.arguments[0];
+
+  i18n.updateDocument({ extension: window.arguments[1] });
 }
 
 

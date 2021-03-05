@@ -21,7 +21,7 @@ window.aecreations.clippings = {
   isClippingsInitialized: false,
   showDialog:             true,
   showPasteOpts:          false,
-  strBundle:              null,
+  _ext:                   null,
   _menu:                  null,
   _clippingsMxListener:   null,
 
@@ -46,15 +46,16 @@ window.aecreations.clippings = {
   // Browser window and Clippings menu initialization
   //
 
-  async initClippings()
+  async initClippings(aWL_extension)
   {   
     // Workaround to this init function being called multiple times
     if (this.isClippingsInitialized) {
       return;
     }
 
-    this.strBundle = this.util.aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
-    this.txt.aeClippingSubst.init(this.strBundle, navigator.userAgent);
+    this._ext = aWL_extension;
+
+    this.txt.aeClippingSubst.init(this._ext, navigator.userAgent);
 
     // Initializing data source on Clippings context menus
     var menu1 = document.getElementById("ae-clippings-menu-1");
@@ -111,7 +112,6 @@ window.aecreations.clippings = {
       that._menu.data = aCxtMenuData;
       that._menu.rebuild();
 
-      var ellipsis = that.showDialog ? that.strBundle.getString("ellipsis") : "";
       var addEntryCmd = document.getElementById("ae_new_clipping_from_selection");
       var selection;
 
@@ -120,8 +120,7 @@ window.aecreations.clippings = {
       }
       
       addEntryCmd.setAttribute("disabled", selection == "");
-      addEntryCmd.setAttribute("label", that.strBundle.getString("newFromSelect")
-			       + ellipsis);
+      addEntryCmd.setAttribute("label", this._ext.localeData.localizeMessage("cxtMenuNewFromSel"));
 
       that._initAutoIncrementPlaceholderMenu();
     });
@@ -181,7 +180,7 @@ window.aecreations.clippings = {
 
   alert: function (aMessage)
   {
-    var title = this.strBundle.getString("appName");
+    var title = this._ext.localeData.localizeMessage("extName");
     this.util.aeUtils.alertEx(title, aMessage);
   },
 
@@ -232,7 +231,7 @@ window.aecreations.clippings = {
       this.getMxListener().newClippingDlgOpened(selection);
     }
     else {
-      this.alert(this.strBundle.getString("errorNoSelection"));
+      this.alert(this._ext.localeData.localizeMessage("msgNoTextSel"));
     }
   },
 
@@ -298,7 +297,7 @@ window.aecreations.clippings = {
     // clipping should be pasted as normal or quoted text.
     if (this.showPasteOpts) {
       var dlgArgs = { userCancel: null };
-      window.openDialog("chrome://clippings/content/pasteOptions.xhtml", "ae_clippings_pasteopt_dlg", "chrome,centerscreen,modal", dlgArgs);
+      window.openDialog("chrome://clippings/content/pasteOptions.xhtml", "ae_clippings_pasteopt_dlg", "chrome,centerscreen,modal", dlgArgs, this._ext);
 
       if (dlgArgs.userCancel) {
         return;
@@ -323,7 +322,7 @@ window.aecreations.clippings = {
 	  
           if (showHTMLPasteOpts == this.cnst.aeConstants.HTMLPASTE_ASK_THE_USER) {
             var dlgArgs = { userCancel: null, pasteAsRichText: null };
-            window.openDialog("chrome://clippings/content/htmlClipping.xhtml", "htmlClipping_dlg", "chrome,modal,centerscreen", dlgArgs);
+            window.openDialog("chrome://clippings/content/htmlClipping.xhtml", "htmlClipping_dlg", "chrome,modal,centerscreen", dlgArgs, this._ext);
 	      
             if (dlgArgs.userCancel) {
               return;
@@ -451,18 +450,18 @@ window.aecreations.clippings = {
 	dlgArgs.showInsertClippingCmd = true;
 
         window.openDialog("chrome://clippings/content/shortcutHelp.xhtml",
-			  "clipkey_help", "centerscreen,resizable", dlgArgs);
+			  "clipkey_help", "centerscreen,resizable", dlgArgs, this._ext);
 
 	await mxListener.prefsChanged({ pastePromptAction: dlgArgs.ACTION_SHORTCUT_KEY });
         return;
       }
       else if (dlgArgs.action == dlgArgs.ACTION_SHORTCUT_KEY) {
         window.openDialog("chrome://clippings/content/clippingKey.xhtml",
-                          "clipkey_dlg", "modal,centerscreen", dlgArgs);
+                          "clipkey_dlg", "modal,centerscreen", dlgArgs, this._ext);
       }
       else if (dlgArgs.action == dlgArgs.ACTION_SEARCH_CLIPPING) {
         window.openDialog("chrome://clippings/content/searchClipping.xhtml",
-                          "clipsrch_dlg", "modal,centerscreen", dlgArgs);
+                          "clipsrch_dlg", "modal,centerscreen", dlgArgs, this._ext);
       }
     } while (dlgArgs.switchModes && !dlgArgs.userCancel);
 

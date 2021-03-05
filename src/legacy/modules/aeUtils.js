@@ -385,30 +385,3 @@ aeUtils.log = function (aMessage)
     consoleSvc.logStringMessage(aMessage);
   }
 };
-
-
-aeUtils.getStringBundle = function (aStringBundleURL)
-{
-  let rv = new aeStringBundle(aStringBundleURL);
-  return rv;
-};
-
-
-//
-// String bundle wrapper object
-//
-
-function aeStringBundle(aStrBundleURL)
-{
-  this._strBundle = Services.strings.createBundle(aStrBundleURL);
-}
-
-aeStringBundle.prototype.getString = function (aKey)
-{
-  return this._strBundle.GetStringFromName(aKey);
-};
-
-aeStringBundle.prototype.getFormattedString = function (aKey, aParams)
-{
-  return this._strBundle.formatStringFromName(aKey, aParams, aParams.length);
-};

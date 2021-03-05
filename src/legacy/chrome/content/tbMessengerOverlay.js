@@ -21,7 +21,6 @@ else {
 window.aecreations.clippings = {
   isClippingsInitialized: false,
   showDialog:             true,
-  strBundle:              null,
   _clippingsMxListener:   null,
 
   
@@ -52,8 +51,6 @@ window.aecreations.clippings = {
       return;
     }
 
-    this.strBundle = this.util.aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
-    
     this.util.aeUtils.log(`initClippings(): Clippings data source successfully loaded.\nHost app: ${this.util.aeUtils.getHostAppName()} (version ${this.util.aeUtils.getHostAppVersion()})\nOS identifier: ${this.util.aeUtils.getOS()}\nInitializing Clippings integration with host app window: ${window.location.href}`);
 
     window.setTimeout(() => {

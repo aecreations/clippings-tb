@@ -4,9 +4,13 @@
 
 const {OS} = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 const {FileUtils} = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {AddonManager} = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
 const {aeConstants} = ChromeUtils.import("resource://clippings/modules/aeConstants.js");
 const {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
-const {aeString} = ChromeUtils.import("resource://clippings/modules/aeString.js");
+
+Services.scriptloader.loadSubScript("chrome://clippings/content/lib/i18n.js", this, "UTF-8");
+
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;
@@ -14,7 +18,7 @@ const Ci = Components.interfaces;
 const OUTPUT_PRINTER = 0;
 const OUTPUT_FILE = 1;
 
-var gDlgArgs, gStrBundle;
+var gDlgArgs, gLocaleData, gAddon;
 
 
 function $(aID)
@@ -26,10 +30,11 @@ function $(aID)
 function init() 
 {
   gDlgArgs = window.arguments[0];
+  gLocaleData = window.arguments[1];
+  i18n.updateDocument({ extension: gLocaleData });
+  
   var keyMap = gDlgArgs.keyMap;
   var keyCount = gDlgArgs.keyCount;
-
-  gStrBundle = aeUtils.getStringBundle("chrome://clippings/locale/clippings.properties");
 
   var treeChildren = $("grid-content");
 
@@ -55,24 +60,9 @@ function init()
     $("insert-clipping").hidden = false;
   }
 
-  if (document.documentElement.nodeName == "dialog") {
-    let hint = "";
-
-    let os = aeUtils.getOS();
-    if (os == "Darwin") {
-      hint = gStrBundle.getString("shortcutInstrDlgMac");
-    }
-    else {
-      hint = gStrBundle.getString("shortcutInstrDlg");
-    }
-    
-    let helpTxt = document.createTextNode(hint);
-    $("shortcut-help").appendChild(helpTxt);
-
-    $("shortcut-map-grid").setAttribute("rows", "8");
-
-    document.addEventListener("dialogextra2", aEvent => { save() });
-  }
+  AddonManager.getAddonByID(aeConstants.EXTENSION_ID).then(aAddon => {
+    gAddon = aAddon;
+  });
 }
 
 
@@ -139,7 +129,7 @@ function outputShortcutList(aOutputMode)
           + ' .print-instructions { '
 	  + '   display: none; '
 	  + "} </style>";
-      data = '<body><p><span class="print-instructions">' + gStrBundle.getString("printShortcutHelpHTML") + "</span></p>";
+      data = '<body><p><span class="print-instructions">' + gLocaleData.localizeMessage("printShctHelpHTML") + "</span></p>";
     }
     else {
       data = '<body onload="window.print();window.close()">';
@@ -155,7 +145,7 @@ function outputShortcutList(aOutputMode)
 
   var doctype = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">';
   var meta = '<META http-equiv="Content-Type" content="text/html; charset=UTF-8">';
-  var header = "<html><head>" + meta + "<title>" + gStrBundle.getString("shortcutHelpTitle") + "</title>" + css + "</head>";
+  var header = "<html><head>" + meta + "<title>" + gLocaleData.localizeMessage("expHTMLTitle") + "</title>" + css + "</head>";
   var footer = "</html>";
   data = doctype + "\n" + header + "\n" + data + "\n" + footer;
 
@@ -179,7 +169,7 @@ function outputShortcutList(aOutputMode)
 	tempFile.launch();
       }      
     }).catch(aErr => {
-      let msg = gStrBundle.getString("errorSaveFailed") + "\n" + aErr;
+      let msg = gLocaleData.localizeMessage("errorSaveFailed") + "\n" + aErr;
       aeUtils.alertEx(title, msg);
       return;
     });
@@ -187,11 +177,11 @@ function outputShortcutList(aOutputMode)
   else if (aOutputMode == OUTPUT_FILE) {
     // Save shortcut key list to an HTML document.
     let fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
-    fp.init(window, gStrBundle.getString("saveToHTML"), fp.modeSave);
+    fp.init(window, gLocaleData.localizeMessage("saveToHTML"), fp.modeSave);
 
     fp.defaultString = aeConstants.SHORTCUT_HELP_FILENAME;
     fp.defaultExtension = "html";
-    fp.appendFilter(gStrBundle.getString("htmlFilterDesc"), "*.html");
+    fp.appendFilter(gLocaleData.localizeMessage("htmlFilterDesc"), "*.html");
 
     let fpShownCallback = {
       done: function (aResult) {
@@ -211,7 +201,7 @@ function outputShortcutList(aOutputMode)
 	};
 	
 	OS.File.writeAtomic(fp.file.path, data, writeFileOpts).catch(aErr => {
-	  let msg = gStrBundle.getString("errorSaveFailed") + "\n" + aErr;
+	  let msg = gLocaleData.localizeMessage("errorSaveFailed") + "\n" + aErr;
 	  aeUtils.alertEx(title, msg);
 	});
       }
@@ -230,14 +220,14 @@ function getShortcutKeyHelpContent()
     rv = getShortcutKeyHelpContent.htmlBody;
   }
   else {
-    let pageHdg = gStrBundle.getString("shortcutHelpTitle");
-    let appInfo = gStrBundle.getFormattedString(
-      "clippingsOnHostAppNameAndVer",
-      [aeUtils.getHostAppName(), aeUtils.getHostAppVersion()]
+    let pageHdg = gLocaleData.localizeMessage("expHTMLTitle");
+    let appInfo = gLocaleData.localizeMessage(
+      "expHTMLHostAppInfo",
+      [gAddon.version, `${aeUtils.getHostAppName()} ${aeUtils.getHostAppVersion()}`]
     );
-    let helpStr = gStrBundle.getFormattedString("shortcutInstr", [gStrBundle.getString("pasteIntoTb")]);
-    let thShortcut = gStrBundle.getString("shortcutKeyTitle");
-    let thClipping = gStrBundle.getString("clippingNameTitle");
+    let helpStr = gLocaleData.localizeMessage("expHTMLShctKeyInstrxnTB");
+    let thShortcut = gLocaleData.localizeMessage("expHTMLShctKeyCol");
+    let thClipping = gLocaleData.localizeMessage("expHTMLClipNameCol");
     
     let tbody = "";
 

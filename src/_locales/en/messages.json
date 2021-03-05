@@ -11,7 +11,7 @@
 
   "browserActionTitle": {
     "message": "Clippings",
-    "description": "Toolbar button label"
+    "description": "Label for toolbar button, context submenu and tooltips"
   },
 
   "cmdDesc": {
@@ -61,25 +61,35 @@
   },
 
   "migrnStatusTitle": {
-    "message": "Clippings Migration Status"
+    "message": "Clippings Migration Status",
+    "description": "Clippings for Thunderbird"
   },
 
   "migrnStatusSuccess": {
-    "message": "Your clippings have been successfully migrated."
+    "message": "Your clippings have been successfully migrated.",
+    "description": "Clippings for Thunderbird"
   },
 
   "migrnStatusFail": {
-    "message": "Sorry, an error occurred while Clippings was trying to migrate your data."
+    "message": "Sorry, an error occurred while Clippings was trying to migrate your data.",
+    "description": "Clippings for Thunderbird"
   },
 
   "migrnFailDetail": {
-    "message": "Click Save Clippings to save a copy of your data."
+    "message": "Click Save Clippings to save a copy of your data.",
+    "description": "Clippings for Thunderbird"
   },
 
   "migrnSaveData": {
-    "message": "Save Clippings"
+    "message": "Save Clippings",
+    "description": "Clippings for Thunderbird"
   },
 
+  "migrnFailTtip": {
+    "message": "There was a problem migrating your Clippings data. Click for more info.",
+    "description": "Clippings for Thunderbird - tooltip"
+  },
+  
   "saveConfirm": {
     "message": "Saved."
   },
@@ -115,6 +125,10 @@
 
   "msgRetryPgNotLoaded": {
     "message": "Unable to retrieve selected text. Reload the page, and then try again."
+  },
+
+  "msgClipbdEmpty": {
+    "message": "Clipboard is empty or does not contain textual data."
   },
   
   "msgUnknown": {
@@ -185,9 +199,39 @@
     "description": "Clippings context menu"
   },
 
+  "cxtMenuNewFromSel": {
+    "message": "New From Selection…",
+    "description": "Clippings context menu in Thunderbird message composer"
+  },
+
+  "cxtMenuNewFromClipbd": {
+    "message": "New From Clipboard…",
+    "description": "Clippings context menu in Thunderbird message composer"
+  },
+
+  "cxtMenuShowPasteOpts": {
+    "message": "Show Quote Options When Pasting",
+    "description": "Clippings context menu in Thunderbird message composer"
+  },
+
   "baMenuResetAutoIncrPlaceholders": {
     "message": "Reset Auto-increment Placeholders",
     "description": "Clippings browser action submenu"
+  },
+
+  "pasteAsHdg": {
+    "message": "Paste Clipping As",
+    "description": "Quote Options dialog in Clippings for Thunderbird"
+  },
+
+  "pasteAsNormal": {
+    "message": "Normal text",
+    "description": "Quote Options dialog in Clippings for Thunderbird"
+  },
+
+  "pasteAsQuoted": {
+    "message": "Quoted text",
+    "description": "Quote Options dialog in Clippings for Thunderbird"
   },
 
   "welcomePageTitle": {
@@ -356,7 +400,7 @@
 
   "expHTMLHostAppInfo": {
     "message": "Clippings $1 on $2",
-    "description": "Clippings <extVersion> on Firefox <fxVersion>"
+    "description": "Clippings <extVersion> on <hostApp>"
   },
 
   "expHTMLShctKeyInstrxn": {
@@ -364,7 +408,8 @@
   },
 
   "expHTMLShctKeyInstrxnTB": {
-    "message": "To paste a clipping into a message in Thunderbird, press CTRL+ALT+V (Command+Option+V on macOS), then the shortcut key."
+    "message": "To paste a clipping into a message in Thunderbird, press CTRL+ALT+V (Command+Option+V on macOS), then the shortcut key.",
+    "description": "Clippings for Thunderbird"
   },
 
   "expHTMLShctKeyCustNote": {
@@ -377,6 +422,28 @@
 
   "expHTMLClipNameCol": {
     "message": "Clipping Name"
+  },
+
+  "printShctHelpHTML": {
+    "message": "To print this document, invoke your browser&rsquo;s Print command.",
+    "description": "HTML content for HTML export of shortcut key list from Clippings for Thunderbird"
+  },
+
+  "saveToHTML": {
+    "message": "Save to HTML"
+  },
+
+  "print": {
+    "message": "Print",
+    "description": "Shortcut key list in Clippings for Thunderbird"
+  },
+
+  "htmlFilterDesc": {
+    "message": "HTML Document"
+  },
+
+  "errorSaveFailed": {
+    "message": "Error: Save failed"
   },
 
   "plchldrPromptSingleDesc": {

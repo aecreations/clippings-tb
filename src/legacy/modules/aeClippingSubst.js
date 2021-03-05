@@ -14,15 +14,15 @@ const EXPORTED_SYMBOLS = ["aeClippingSubst"];
  * predefined values or user-input text.
  */
 var aeClippingSubst = {
-  _strBundle: null,
+  _localeData: null,
   _userAgentStr: null,
   _autoIncrementVars: {}
 };
 
 
-aeClippingSubst.init = function (aStringBundle, aUserAgentStr)
+aeClippingSubst.init = function (aLocaleData, aUserAgentStr)
 {
-  this._strBundle = aStringBundle;
+  this._localeData = aLocaleData;
   this._userAgentStr = aUserAgentStr;
 };
 
@@ -52,7 +52,6 @@ aeClippingSubst.processClippingText = function (aClippingInfo, aWnd, aAutoIncrPl
   }
 
   var rv = "";
-  var strBundle = this._strBundle;
   var userAgentStr = this._userAgentStr;
   var hasFmtDateTime = false;
 
@@ -193,7 +192,7 @@ aeClippingSubst.processClippingText = function (aClippingInfo, aWnd, aAutoIncrPl
       dlgArgs.plchldrType.push("T");
     }
 
-    aWnd.openDialog("chrome://clippings/content/processDateTimePlaceholder.xhtml", "ae_clippings_dtplchldrs", "chrome,modal,centerscreen", dlgArgs);
+    aWnd.openDialog("chrome://clippings/content/processDateTimePlaceholder.xhtml", "ae_clippings_dtplchldrs", "chrome,modal,centerscreen", dlgArgs, this._localeData);
 
     for (let i = 0; i < dlgArgs.dtPlaceholders.length; i++) {
       let prefix = "";

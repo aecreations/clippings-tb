@@ -2,14 +2,14 @@
 <?xml-stylesheet type="text/css" href="chrome://global/skin/global.css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/messenger.css"?>
 
-<!DOCTYPE overlay SYSTEM "chrome://clippings/locale/clippings.dtd">
+<!DOCTYPE dialog>
 
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <dialog id="ae-clippings-paste-options" 
- title="&pasteClipping.title;"
+ title="__MSG_pasteTitle__"
  orient="vertical"
  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
  buttons="accept,cancel"
@@ -19,15 +19,12 @@
 
   <groupbox>
     <hbox class="groupbox-title">
-      <label class="header">&pasteClippingAs.label;</label>
+      <label class="header">__MSG_pasteAsHdg__</label>
     </hbox>
 
     <radiogroup id="paste-as">
-      <radio id="paste-as-normal" selected="true"
-       label="&pasteAsNormal.label;"
-       accesskey="&pasteAsNormal.accesskey;" />
-      <radio id="paste-as-quoted" label="&pasteAsQuoted.label;"
-       accesskey="&pasteAsQuoted.accesskey;" />
+      <radio id="paste-as-normal" selected="true" label="__MSG_pasteAsNormal__"/>
+      <radio id="paste-as-quoted" label="__MSG_pasteAsQuoted__"/>
     </radiogroup>
   </groupbox>
 
