@@ -57,9 +57,8 @@ aeClippingSubst.processClippingText = function (aClippingInfo, aWnd, aAutoIncrPl
 
   // Remember the value of the same placeholder that was filled in previously
   var knownTags = {};
-  let that = aeClippingSubst;
 
-  var fnReplace = function (aMatch, aP1, aP2, aOffset, aString) {
+  let fnReplace = (aMatch, aP1, aP2, aOffset, aString) => {
     let varName = aP1;
 
     if (varName in knownTags) {
@@ -121,11 +120,12 @@ aeClippingSubst.processClippingText = function (aClippingInfo, aWnd, aAutoIncrPl
       defaultValue:  defaultVal,
       autoIncrementMode: false,
       selectMode:    hasMultipleVals,
-      userCancel:    null
+      userCancel:    null,
+      localeData:    this._localeData,
     };
     dlgArgs.wrappedJSObject = dlgArgs;
 
-    that._openDialog(aWnd, "chrome://clippings/content/placeholderPrompt.xhtml", "ae_placeholder_prmpt", "modal,centerscreen", dlgArgs);
+    this._openDialog(aWnd, "chrome://clippings/content/placeholderPrompt.xhtml", "ae_placeholder_prmpt", "modal,centerscreen", dlgArgs);
     if (dlgArgs.userCancel || dlgArgs.userInput == "") {
       return "";
     }
@@ -136,15 +136,15 @@ aeClippingSubst.processClippingText = function (aClippingInfo, aWnd, aAutoIncrPl
     return rv;
   };
 
-  var fnAutoIncrement = function (aMatch, aP1) {
+  let fnAutoIncrement = (aMatch, aP1) => {
     let rv;
     let varName = aP1;
 
-    if (varName in that._autoIncrementVars) {
-      rv = ++that._autoIncrementVars[varName];
+    if (varName in this._autoIncrementVars) {
+      rv = ++this._autoIncrementVars[varName];
     }
     else {
-      rv = that._autoIncrementVars[varName] = aAutoIncrPlchldrStartVal;
+      rv = this._autoIncrementVars[varName] = aAutoIncrPlchldrStartVal;
     }
 
     return rv;
