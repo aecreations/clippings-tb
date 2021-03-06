@@ -7,68 +7,68 @@
 //
 
 
-if (! ('aecreations' in window)) {
+if (! ("aecreations" in window)) {
   window.aecreations = {};
 }
 
-if (! ('clippings' in window.aecreations)) {
+if (! ("clippings" in window.aecreations)) {
   window.aecreations.clippings = {};
 }
 else {
   throw new Error("clippings object already defined");
 }
 
-window.aecreations.clippings = {
-  isClippingsInitialized: false,
-  showDialog:             true,
-  _clippingsMxListener:   null,
-
+window.aecreations.clippings = function () {
+  var {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
   
-  addMxListener: function (aListener)
-  {
-    this._clippingsMxListener = aListener;
-  },
+  let _isInitialized = false;
+  let _clippingsMxListener = null;
 
-  removeMxListener: function ()
-  {
-    this._clippingsMxListener = null;
-  },
+  return {
+    addMxListener: function (aListener)
+    {
+      _clippingsMxListener = aListener;
+    },
 
-  getMxListener: function ()
-  {
-    return this._clippingsMxListener;
-  },
+    removeMxListener: function ()
+    {
+      _clippingsMxListener = null;
+    },
+
+    getMxListener: function ()
+    {
+      return _clippingsMxListener;
+    },
 
 
-  //
-  // Browser window and Clippings menu initialization
-  //
+    //
+    // Browser window and Clippings menu initialization
+    //
 
-  async initClippings()
-  {  
-    // Workaround to this init function being called multiple times.
-    if (this.isClippingsInitialized) {
-      return;
+    async initClippings()
+    {  
+      // Workaround to this init function being called multiple times.
+      if (_isInitialized) {
+	return;
+      }
+
+      aeUtils.log(`initClippings(): Clippings data source successfully loaded.\nHost app: ${aeUtils.getHostAppName()} (version ${aeUtils.getHostAppVersion()})\nOS identifier: ${aeUtils.getOS()}\nInitializing Clippings integration with host app window: ${window.location.href}`);
+
+      window.setTimeout(() => {
+	this.getMxListener().legacyDataMigrationVerified();
+      }, 3000);
+
+      _isInitialized = true;
+    },
+
+
+    //
+    // Methods invoked by overlay code
+    //
+
+    openClippingsManager: function () 
+    {
+      this.getMxListener().clippingsManagerWndOpened();
     }
-
-    this.util.aeUtils.log(`initClippings(): Clippings data source successfully loaded.\nHost app: ${this.util.aeUtils.getHostAppName()} (version ${this.util.aeUtils.getHostAppVersion()})\nOS identifier: ${this.util.aeUtils.getOS()}\nInitializing Clippings integration with host app window: ${window.location.href}`);
-
-    window.setTimeout(() => {
-      this.getMxListener().legacyDataMigrationVerified();
-    }, 3000);
-
-    this.isClippingsInitialized = true;
-  },
-
-
-  //
-  // Methods invoked by overlay code
-  //
-
-  openClippingsManager: function () 
-  {
-    this.getMxListener().clippingsManagerWndOpened();
-  }
-};
-
-window.aecreations.clippings.util = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
+  };
+}();
