@@ -8,7 +8,7 @@ const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 Services.scriptloader.loadSubScript("chrome://clippings/content/lib/i18n.js", this, "UTF-8");
 
 
-var gDlgArgs, gLocaleData;
+var gDlgArgs;
 
     
 //
@@ -24,21 +24,15 @@ function $(aID) {
 function init()
 {
   gDlgArgs = window.arguments[0].wrappedJSObject;
-  gLocaleData = window.arguments[1];
 
-  i18n.updateDocument({ extension: gLocaleData });
+  i18n.updateDocument({ extension: gDlgArgs.localeData });
 
   var promptText = $("prompt-text");
   var promptDeck = $("prompt-deck");
   var strKey;
 
-  if (gDlgArgs.autoIncrementMode) {
-    strKey = "autoIncrPromptText";
-    promptDeck.selectedIndex = 0;
-    $("placeholder-value").value = gDlgArgs.defaultValue;
-  }
-  else if (gDlgArgs.selectMode) {
-    strKey = "selectPromptText";
+  if (gDlgArgs.selectMode) {
+    strKey = "plchldrPmtSelectDesc";
     promptDeck.selectedIndex = 1;
 
     var menupopup = document.createXULElement("menupopup");
@@ -55,11 +49,11 @@ function init()
     phValueMenu.selectedIndex = 0;
   }
   else {
-    strKey = "substPromptText";
+    strKey = "plchldrPromptSingleDesc";
     promptDeck.selectedIndex = 0;
     $("placeholder-value").value = gDlgArgs.defaultValue;
   }
-  promptText.value = gLocaleData.localizeMessage(strKey, [gDlgArgs.varName]);
+  promptText.value = gDlgArgs.localeData.localizeMessage(strKey, [gDlgArgs.varName]);
 
   document.addEventListener("dialogaccept", aEvent => {
     if (! accept()) {
