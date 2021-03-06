@@ -448,12 +448,17 @@
 
   "plchldrPromptSingleDesc": {
     "message": "Enter value for \"$1\":",
-    "description": "Placeholder prompt dialog - single placeholder"
+    "description": "Placeholder prompt dialog - single placeholder, text"
   },
 
   "plchldrPromptMultiDesc": {
     "message": "Enter the values for the following placeholders.",
     "description": "Placeholder prompt dialog - multiple placeholders"
+  },
+
+  "plchldrPmtSelectDesc": {
+    "message": "Select a value for \"$1\":",
+    "description": "Placeholder prompt dialog - single placeholder, select"
   },
 
   "clippingsMgrWndTitle": {
