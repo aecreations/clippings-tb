@@ -1081,11 +1081,11 @@ function openNewClippingDlg(aNewClippingContent)
   }
   
   let url = messenger.runtime.getURL("pages/new.html");
-  let height = 390;
+  let height = 402;
   if (gOS == "win") {
-    height = 420;
+    height = 434;
   }
-  openDlgWnd(url, "newClipping", { type: "detached_panel", width: 428, height });
+  openDlgWnd(url, "newClipping", { type: "detached_panel", width: 432, height });
 }
 
 
