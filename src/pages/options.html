@@ -19,35 +19,33 @@
 	<button id="about-btn" data-i18n="aboutBtn"></button>
       </div>
 
-      <div class="pref-section-content">
-        <fieldset id="paste-options">
-          <legend data-i18n="prefsHdgPasteOptions"></legend>
+      <fieldset id="paste-options">
+	<legend data-i18n="prefsHdgPasteOptions"></legend>
 
-	  <div class="row" style="margin-bottom:6px">
-  	    <label for="html-paste-options"data-i18n="labelPasteOptions"></label>
-	    <br/>
-	    <select id="html-paste-options">
-	      <option value="1" data-i18n="pasteOptFormatted"></option>
-	      <option value="2" data-i18n="pasteOptRawHTML"></option>
-            </select>
-	  </div>
-	  
-	  <div class="indent browser-style">
-	    <input type="checkbox" id="html-auto-line-break"/><label for="html-auto-line-break" data-i18n="cbAutoLineBreak"></label>
-	    <p class="note" data-i18n="htmlPasteDesc"></p>
-          </div>
-	  <div class="row browser-style">
-	    <input type="checkbox" id="shortcut-key"/><label id="shct-label" for="shortcut-key"></label>
-          </div>
-	  <div class="row browser-style indent">
-            <input type="checkbox" id="shortcut-key-new"/><label id="shct-new-label" for="shortcut-key-new"></label>
-          </div>
-	  <div class="row browser-style" style="margin-top:8px">
-	    <label for="auto-inc-plchldrs-start-val" data-i18n="prefsDefaultNumPlchldrStart"></label>
-	    <input type="number" id="auto-inc-plchldrs-start-val" min="0" value="0"/>
-	  </row>
-        </fieldset>
-      </div>
+	<div class="row" style="margin-bottom:6px">
+	  <label for="html-paste-options"data-i18n="labelPasteOptions"></label>
+	  <br/>
+	  <select id="html-paste-options">
+	    <option value="1" data-i18n="pasteOptFormatted"></option>
+	    <option value="2" data-i18n="pasteOptRawHTML"></option>
+	  </select>
+	</div>
+
+	<div class="indent browser-style">
+	  <input type="checkbox" id="html-auto-line-break"/><label for="html-auto-line-break" data-i18n="cbAutoLineBreak"></label>
+	  <p class="note" data-i18n="htmlPasteDesc"></p>
+	</div>
+	<div class="row browser-style">
+	  <input type="checkbox" id="shortcut-key"/><label id="shct-label" for="shortcut-key"></label>
+	</div>
+	<div class="row browser-style indent">
+	  <input type="checkbox" id="shortcut-key-new"/><label id="shct-new-label" for="shortcut-key-new"></label>
+	</div>
+	<div class="row browser-style" style="margin-top:8px">
+	  <label for="auto-inc-plchldrs-start-val" data-i18n="prefsDefaultNumPlchldrStart"></label>
+	  <input type="number" id="auto-inc-plchldrs-start-val" min="0" value="0"/>
+	</row>
+      </fieldset>
 
       <fieldset id="general-options">
 	<legend data-i18n="prefsHdgGeneralOptions"></legend>
@@ -70,7 +68,7 @@
 	  <label for="backup-reminder-freq" data-i18n="backupRemDays"></label>
 	</div>
 
-	<div class="row browser-style">
+	<div class="row browser-style" style="margin-top:0">
 	  <input type="checkbox" id="backup-filename-with-date"/><label for="backup-filename-with-date" data-i18n="cbBackupFilenameWithDate"></label>
 	</div>
       </fieldset>

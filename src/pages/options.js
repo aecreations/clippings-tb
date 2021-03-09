@@ -503,6 +503,7 @@ $(window).keydown(aEvent => {
   function isAccelKeyPressed()
   {
     let rv;
+    let os = gClippings.getOS();
     if (os == "mac") {
       rv = aEvent.metaKey;
     }
