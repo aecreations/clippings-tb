@@ -1047,7 +1047,7 @@ async function openClippingsManager(aBackupMode)
     let wndInfo = {
       url: clippingsMgrURL,
       type: "detached_panel",
-      width: 750, height: 400,
+      width: 760, height: 410,
       left:  64,  top: 128,
     };
 

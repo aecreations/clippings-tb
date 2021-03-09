@@ -3454,10 +3454,10 @@ function initDialogs()
 
   gDialogs.miniHelp = new aeDialog("#mini-help-dlg");
   if (! isMacOS) {
-    let dlgHeight = "320px";
+    let dlgHeight = "330px";
     // Accommodate extra line of text in German locale.
     if (messenger.i18n.getUILanguage() == "de") {
-      dlgHeight = "325px";
+      dlgHeight = "336px";
     }
     $("#mini-help-dlg").css({ height: dlgHeight });
   }

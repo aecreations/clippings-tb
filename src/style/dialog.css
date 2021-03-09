@@ -62,7 +62,9 @@ select.browser-style {
 }
 
 input[type="checkbox"] {
+/***
     vertical-align: -2px;
+***/
 }
 
 input[type="checkbox"] + label {

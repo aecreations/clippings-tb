@@ -168,12 +168,12 @@ body {
     height: 100%;
     overflow: hidden;
     background-color: var(--color-bkgd);
-    font-size: 11px;
+    font-size: 12px;
     color: var(--color-default-text);
 }
 
 button {
-    font-size: 11px !important;
+    font-size: 12px;
 }
 
 button[disabled] {
@@ -196,7 +196,6 @@ input[type="text"],
 input[type="search"],
 textarea,
 select {
-    font-size: 11px !important;
 /***
     background-color: var(--color-textbox-bkgd);
     color: var(--color-default-text);
@@ -382,7 +381,7 @@ input[type="checkbox"] + label {
 .context-menu-submenu {
     padding-top: 4px;
     padding-bottom: 4px;
-    font-size: 12px;
+    font-size: 13px;
     background-color: var(--color-cxtmenu-bkgd);
     color: var(--color-cxtmenu-text);
 }
@@ -438,6 +437,8 @@ input[type="checkbox"] + label {
     width: 220px;
     height: 100%;
     padding-right: 20px;
+
+    font-size: 11px;
 }
 
 #toolbar > #search-clippings-and-folders > #clear-search {
@@ -463,7 +464,7 @@ input[type="checkbox"] + label {
     order: 1;
     flex: 0 1 auto;
     align-self: stretch;
-    width: 220px;
+    width: 228px;
     min-width: 128px;
     overflow: auto;
     border-right: 1px solid var(--color-tree-splitter);
@@ -631,6 +632,7 @@ ul.fancytree-container {
     border-top: none;
     border-bottom: 1px solid var(--color-item-properties-textbox-border);
     background-color: var(--color-textbox-bkgd);
+    font-size: 13px;
 }
 
 #item-properties > #clipping-text {
@@ -647,6 +649,7 @@ ul.fancytree-container {
     border-top: none;
     border-bottom: 1px solid var(--color-item-properties-textbox-border);
     background-color: var(--color-textbox-bkgd);
+    font-size: 13px;
 }
 
 #item-properties > #placeholder-toolbar {
@@ -859,6 +862,7 @@ ul.fancytree-container {
 
 #options-bar > #shortcut-key-select > #clipping-key {
     margin-bottom: 0;
+    font-size: 12px;
 }
 
 #options-bar > #shortcut-key-select > #show-shortcut-list {
@@ -882,7 +886,11 @@ ul.fancytree-container {
 
 #options-bar > #clipping-label {
     order: 3;
-    flex: 0 1 auto;
+    flex: 0 1 auto;   
+}
+
+#options-bar > #clipping-label > #clipping-label-picker {
+    font-size: 12px;
 }
 
 #status-bar {
@@ -958,7 +966,7 @@ ul.fancytree-container {
 
 .lightbox select {
     font: caption;
-    font-size: 11px;
+    font-size: 12px;
 }
 
 .lightbox select > option {
@@ -991,14 +999,14 @@ ul.fancytree-container {
 }
 
 #custom-placeholder-dlg {
-    --width: 330px;
-    --height: 200px;
+    --width: 336px;
+    --height: 204px;
     top: 48px;
 }
 
 #numeric-placeholder-dlg {
-    --width: 330px;
-    --height: 184px;
+    --width: 336px;
+    --height: 188px;
     top: 48px;
 }
 
@@ -1013,8 +1021,8 @@ ul.fancytree-container {
 }
 
 #insert-date-time-placeholder-dlg {
-    --width: 300px;
-    --height: 326px;
+    --width: 306px;
+    --height: 340px;
     top: 14px;
 }
 
@@ -1023,7 +1031,7 @@ ul.fancytree-container {
 }
 
 #shortcut-list-dlg {
-    --width: 420px;
+    --width: 424px;
     --height: 320px;
     top: 18px;
 }
@@ -1112,8 +1120,8 @@ ul.fancytree-container {
 }
 
 #import-dlg {
-    --width: 395px;
-    --height: 200px;
+    --width: 398px;
+    --height: 206px;
     top: 40px;
 }
 
@@ -1253,19 +1261,23 @@ ul.fancytree-container {
 }
 
 #import-confirm-msgbox {
-    --width: 400px;
+    --width: 406px;
 }
 
 #reload-sync-fldr-msgbox {
-    --width: 430px;
+    --width: 436px;
+}
+
+#delete-sync-fldr-msgbox {
+    --width: 510px;
 }
 
 #move-sync-fldr-msgbox {
-    --width: 306px;
+    --width: 318px;
 }
 
 #move-dlg {
-    --width: 340px;
+    --width: 342px;
     --height: 282px;
     top: 32px;
 }
@@ -1291,7 +1303,7 @@ ul.fancytree-container {
 }
 
 #init-error-msgbox, #sync-error-msgbox {
-    --height: 136px;
+    --height: 142px;
     top: 64px;
 }
 
@@ -1302,20 +1314,20 @@ ul.fancytree-container {
 }
 
 #mini-help-dlg {
-    --width: 450px;
-    --height: 312px;
-    top: 20px;
+    --width: 454px;
+    --height: 320px;
+    top: 14px;
 }
 
 #shortcut-list-dlg .hlp-hdr,
 #mini-help-dlg .hlp-hdr {
     margin-top: 0;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: bold;
 }
 
 #show-only-synced-items-reminder {
-    --height: 140px;
+    --height: 150px;
 }
 
 #show-only-synced-items-reminder > .dlg-content > .msgbox-info-icon {
@@ -1323,6 +1335,6 @@ ul.fancytree-container {
 }
 
 #generic-msg-box {
-    --width: 28em;
+    --width: 30em;
 }
 
