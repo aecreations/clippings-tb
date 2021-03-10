@@ -80,6 +80,6 @@ let aeConst = {
   SYNC_ERROR_UNKNOWN: "Error: undefined",
   SYNC_ERROR_CONXN_FAILED: "Error: Attempt to postMessage on disconnected port",
 
-  DONATE_URL: "https://www.paypal.com/paypalme/aecreations88/11.99cad",
+  DONATE_URL: "https://www.paypal.com/paypalme/aecreations88/19.95cad",
   L10N_URL: "https://crowdin.com/project/clippings"
 };
