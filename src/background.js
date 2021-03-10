@@ -409,6 +409,14 @@ async function init()
     gClippingsListeners.add(gClippingsListener);
     gSyncClippingsListeners.add(gSyncClippingsListener);
 
+    if (gPrefs.syncClippings) {
+      gSyncFldrID = gPrefs.syncFolderID;
+
+      // The context menu will be built when refreshing the sync data, via the
+      // onReloadFinish event handler of the Sync Clippings listener.
+      refreshSyncedClippings(true);
+    }
+    
     if (gPrefs.backupRemFirstRun && !gPrefs.lastBackupRemDate) {
       messenger.storage.local.set({
         lastBackupRemDate: new Date().toString(),
