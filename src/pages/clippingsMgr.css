@@ -381,7 +381,7 @@ input[type="checkbox"] + label {
 .context-menu-submenu {
     padding-top: 4px;
     padding-bottom: 4px;
-    font-size: 13px;
+    font-size: 12px;
     background-color: var(--color-cxtmenu-bkgd);
     color: var(--color-cxtmenu-text);
 }
@@ -736,6 +736,10 @@ ul.fancytree-container {
 
     line-height: 24px;
     background-color: var(--color-details-pane-bkgd);
+}
+
+#placeholder-toolbar label {
+    font-size: 11px;
 }
 
 #source-url-bar button {
