@@ -2248,6 +2248,9 @@ $(document).keydown(async (aEvent) => {
     aEvent.preventDefault();
     $("#search-box").focus();
   }
+  else if (aEvent.key.toUpperCase() == "W" && isAccelKeyPressed()) {
+    closeWnd();
+  }
   else if (aEvent.key.toUpperCase() == "Z" && isAccelKeyPressed()) {
     gCmd.undo();
   }
