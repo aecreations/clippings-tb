@@ -14,7 +14,7 @@ $(async () => {
     throw new Error("Clippings/mx::migrationStatus.js: Failed to retrieve parent application window!");
   }
 
-  let prefs = await messenger.storage.local.get();
+  let prefs = await messenger.storage.local.get("legacyDataMigrnSuccess");
 
   if (prefs.legacyDataMigrnSuccess) {
     $("#content-migrn-success-deck").show();

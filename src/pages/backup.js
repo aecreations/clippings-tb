@@ -30,7 +30,7 @@ $(async () => {
   
   $("#btn-close").click(aEvent => { closeDlg() });
 
-  let prefs = await messenger.storage.local.get();
+  let prefs = await messenger.storage.local.get("backupRemFrequency");
   $("#backup-reminder").prop("checked", (prefs.backupRemFrequency != aeConst.BACKUP_REMIND_NEVER)).click(aEvent => {
     let setPrefs;
     

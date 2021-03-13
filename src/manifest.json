@@ -35,6 +35,7 @@
       "scripts/aeListeners.js",
       "scripts/aeDateDiff.js",
       "scripts/aeImportExport.js",
+      "scripts/aePrefs.js",
       "background.js"
     ]
   },

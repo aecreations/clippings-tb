@@ -236,7 +236,7 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
     let currVer = messenger.runtime.getManifest().version;
     log(`Clippings/mx: Upgrading from version ${oldVer} to ${currVer}`);
 
-    gPrefs = await messenger.storage.local.get();
+    gPrefs = await messenger.storage.local.get(aePrefs.getPrefKeys());
 
     if (! hasSantaBarbaraPrefs()) {
       await setDefaultPrefs();
@@ -252,7 +252,7 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
 messenger.runtime.onStartup.addListener(async () => {
   log("Clippings/mx: Initializing Clippings during browser startup.");
   
-  gPrefs = await messenger.storage.local.get();
+  gPrefs = await messenger.storage.local.get(aePrefs.getPrefKeys());
   log("Clippings/mx: Successfully retrieved user preferences:");
   log(gPrefs);
 
@@ -262,34 +262,8 @@ messenger.runtime.onStartup.addListener(async () => {
 
 async function setDefaultPrefs()
 {
-  let defaultPrefs = {
-    htmlPaste: aeConst.HTMLPASTE_AS_FORMATTED,
-    autoLineBreak: true,
-    autoIncrPlchldrStartVal: 0,
-    keyboardPaste: true,
-    wxPastePrefixKey: true,
-    checkSpelling: true,
-    pastePromptAction: aeConst.PASTEACTION_SHORTCUT_KEY,
-    clippingsMgrAutoShowDetailsPane: true,
-    clippingsMgrDetailsPane: false,
-    clippingsMgrStatusBar: false,
-    clippingsMgrPlchldrToolbar: false,
-    clippingsMgrMinzWhenInactv: null,
-    syncClippings: false,
-    syncFolderID: null,
-    cxtMenuSyncItemsOnly: false,
-    clippingsMgrShowSyncItemsOnlyRem: true,
-    lastBackupRemDate: null,
-    backupRemFirstRun: true,
-    backupRemFrequency: aeConst.BACKUP_REMIND_WEEKLY,
-    afterSyncFldrReloadDelay: 3000,
-    syncHelperCheckUpdates: true,
-    lastSyncHelperUpdChkDate: null,
-    backupFilenameWithDate: true,
-    legacyDataMigrnSuccess: null,
-    showLegacyDataMigrnStatus: null,
-  };
-  
+  let defaultPrefs = aePrefs.getDefaultPrefs();
+
   gPrefs = defaultPrefs;
   await messenger.storage.local.set(defaultPrefs);
 }
