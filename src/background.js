@@ -358,7 +358,19 @@ async function init()
   aeImportExport.setDatabase(gClippingsDB);
 
   if (gMigrateLegacyData) {
-    await migrateClippingsData();
+    try {
+      await verifyDB();
+
+      log("Clippings/mx: init(): Successfully verified Clippings DB.  Starting data migration...")
+      await migrateClippingsData();
+    }
+    catch (e) {
+      console.error("Clippings/mx: migrateClippingsData(): Failed to verify IndexedDB database - cannot migrate legacy Clippings data.");
+      await messenger.storage.local.set({
+        legacyDataMigrnSuccess: false,
+        showLegacyDataMigrnStatus: true,
+      });
+    }
    }
   
   let getMsgrInfo = messenger.runtime.getBrowserInfo();
@@ -460,31 +472,18 @@ function initClippingsDB()
 
 async function migrateClippingsData()
 {
-  verifyDB().then(async (aNumClippings) => {
-    log("Clippings/mx: migrateClippingsData(): Successfully verified Clippings DB.")
-    let clippingsData = await messenger.aeClippingsLegacy.getClippingsFromJSONFile();
+  let clippingsJSONData = await messenger.aeClippingsLegacy.getClippingsFromJSONFile();
 
-    if (clippingsData === null) {
-      throw new Error("Failed to retrieve data from clippings.json - file not found");
-    }
-    
-    log("Clippings/mx: migrateClippingsData(): Migrating clippings from legacy data source");    
-    aeImportExport.importFromJSON(clippingsData, true, false);
+  if (clippingsJSONData === null) {
+    throw new Error("Failed to retrieve data from clippings.json - file not found");
+  }
 
-    await messenger.storage.local.set({
-      legacyDataMigrnSuccess: true,
-      showLegacyDataMigrnStatus: true,
-    });
+  log("Clippings/mx: migrateClippingsData(): Migrating clippings from legacy data source");    
+  aeImportExport.importFromJSON(clippingsJSONData, true, false);
 
-    Promise.resolve();
-    
-  }).catch(async (aErr) => {
-    // Error thrown if Dexie can't open the database.
-    console.error("Clippings/mx: migrateClippingsData(): Failed to verify IndexedDB database - cannot migrate legacy Clippings data.");
-    await messenger.storage.local.set({
-      legacyDataMigrnSuccess: false,
-      showLegacyDataMigrnStatus: true,
-    });
+  await messenger.storage.local.set({
+    legacyDataMigrnSuccess: true,
+    showLegacyDataMigrnStatus: true,
   });
 }
 
