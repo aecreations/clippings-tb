@@ -690,7 +690,7 @@ async function getShortcutKeyPrefixStr()
   }
   rv = shctModeKeys;
 
-  Promise.resolve(rv);
+  return rv;
 }
 
 
