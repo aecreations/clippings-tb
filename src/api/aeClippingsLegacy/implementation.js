@@ -46,32 +46,43 @@ var aeClippingsLegacy = class extends ExtensionCommon.ExtensionAPI {
         
 	async getClippingsFromJSONFile()
 	{
+          let rv = await this._getDataFromFile(this.CLIPPINGS_JSON_FILENAME);
+
+	  return rv;
+	},
+
+
+	//
+        // Helper methods
+        //
+
+        async _getDataFromFile(aFileName)
+        {
           let rv;
-          let jsonFilePath = await this.getPref(
+          let filePath = await this.getPref(
             "extensions.aecreations.clippings.datasource.location", ""
           );
 
-          if (jsonFilePath) {
-            jsonFilePath = OS.Path.join(jsonFilePath, this.CLIPPINGS_JSON_FILENAME);
+          if (filePath) {
+            filePath = OS.Path.join(filePath, aFileName);
           }
           else {
             let dirProp = Services.dirsvc;
 	    let profileDir = dirProp.get("ProfD", Components.interfaces.nsIFile);
 	    let path = profileDir.path;
-            jsonFilePath = OS.Path.join(path, this.CLIPPINGS_JSON_FILENAME);
+            filePath = OS.Path.join(path, aFileName);
           }
 
           try {
-	    rv = await OS.File.read(jsonFilePath, { encoding: "utf-8" });
+	    rv = await OS.File.read(filePath, { encoding: "utf-8" });
 	  }
 	  catch (e) {
             rv = null;
           }
 
-	  return rv;
-	},
-
-	// Helper method
+          return rv;
+        },
+        
 	_log(aMessage)
 	{
 	  if (this.DEBUG) {
