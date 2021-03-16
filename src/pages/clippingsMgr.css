@@ -4,6 +4,7 @@
 
 @import url("../lib/fancytree/skin-win8/ui.fancytree.min.css");
 @import url("../lib/contextMenu/jquery.contextMenu.css");
+@import url("../lib/jquery-ui/jquery-ui.min.css");
 @import url("../style/laf.css");
 @import url("../style/lightbox.css");
 @import url("../style/clippingTree.css");

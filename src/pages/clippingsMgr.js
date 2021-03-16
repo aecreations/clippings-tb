@@ -2142,6 +2142,8 @@ $(async () => {
       messenger.storage.local.set({ clippingsMgrShowSyncItemsOnlyRem: false });
     }
   }
+
+  $(document).tooltip();
   
   // Fix for Fx57 bug where bundled page loaded using
   // messenger.windows.create won't show contents unless resized.
