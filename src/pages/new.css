@@ -231,6 +231,10 @@ ul.fancytree-container {
     vertical-align: middle;
 }
 
+#preview-cntr {
+    float: right;
+}
+
 #dlg-buttons {
     z-index: 1;
 }
@@ -259,6 +263,19 @@ ul.fancytree-container {
     height: 160px;
     margin-top: 0;
     z-index: 1101;
+}
+
+#preview-dlg {
+    --width: 390px;
+    --height: 375px;
+    top: 20px;
+}
+
+#preview-dlg > #clipping-preview {
+    height: 282px;
+    padding: 8px;
+    border: 0;
+    background-color: #ededf0;
 }
 
 #create-clipping-error-msgbox {

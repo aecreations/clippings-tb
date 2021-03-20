@@ -340,6 +340,16 @@
     "message": "Create as a subfolder of:"
   },
 
+  "btnPrevw": {
+    "message": "Preview…",
+    "description": "Clippings for Thunderbird"
+  },
+
+  "labelPrevw": {
+    "message": "Clipping preview:",
+    "description": "Clippings for Thunderbird"
+  },
+
   "shortcutKeyHint": {
     "message": "To quickly paste this clipping into a web page textbox in Firefox, press $1 followed by the shortcut key."
   },

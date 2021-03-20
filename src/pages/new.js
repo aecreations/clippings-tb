@@ -14,7 +14,7 @@ let gParentFolderID = 0;
 let gSrcURL = "";
 let gCreateInFldrMenu;
 let gFolderPickerPopup;
-let gNewFolderDlg;
+let gNewFolderDlg, gPreviewDlg;
 
 
 // Page initialization
@@ -83,6 +83,7 @@ $(async () => {
   initShortcutKeyMenu();
 
   $("#new-folder-btn").click(aEvent => { gNewFolderDlg.showModal() });
+  $("#show-preview").click(aEvent => { gPreviewDlg.showModal() });
   $("#btn-accept").click(aEvent => { accept(aEvent) });
   $("#btn-cancel").click(aEvent => { cancel(aEvent) });
 
@@ -334,6 +335,27 @@ function initDialogs()
       window.alert(aErr);
     });  
   };
+
+  gPreviewDlg = new aeDialog("#preview-dlg");
+  gPreviewDlg.onShow = () => {
+    let content = $("#clipping-text").val();
+
+    if ($("#create-as-unquoted")[0].checked) {
+      content = formatUnquoted(content);
+    }
+    if ($("#remove-extra-linebreaks")[0].checked) {
+      content = formatRemoveLineBreaks(content);
+    }
+
+    $("#clipping-preview").val(content);
+  };
+
+  gPreviewDlg.onAccept = aEvent => {
+    let that = gPreviewDlg;
+    
+    $("#clipping-preview").val("");
+    that.close();
+  };
 }
 
 
@@ -446,6 +468,20 @@ function isClippingOptionsSet()
 }
 
 
+function formatUnquoted(aClippingText)
+{
+  let rv = aClippingText.replace(/^>>* ?(>>* ?)*/gm, "");
+  return rv;
+}
+
+
+function formatRemoveLineBreaks(aClippingText)
+{
+  let rv = aClippingText.replace(/([^\n])( )?\n([^\n])/gm, "$1 $3");
+  return rv;
+}
+
+
 function accept(aEvent)
 {
   let prefs = gClippings.getPrefs();
@@ -454,10 +490,10 @@ function accept(aEvent)
   let content = $("#clipping-text").val();
 
   if ($("#create-as-unquoted")[0].checked) {
-    content = content.replace(/^>>* ?(>>* ?)*/gm, "");
+    content = formatUnquoted(content);
   }
   if ($("#remove-extra-linebreaks")[0].checked) {
-    content = content.replace(/([^\n])( )?\n([^\n])/gm, "$1 $3");
+    content = formatRemoveLineBreaks(content);
   }
   
   let shortcutKeyMenu = $("#clipping-key")[0];

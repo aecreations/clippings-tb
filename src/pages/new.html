@@ -44,6 +44,9 @@
 	<legend data-i18n="labelCreateClippingOptions"></legend>
         <button id="btn-expand-options" class="ae-button"></button>
 	<div id="clipping-options">
+          <div id="preview-cntr">
+            <button id="show-preview" data-i18n="btnPrevw"></button>
+          </div>
 	  <div class="row browser-style">
 	    <input type="checkbox" id="create-as-unquoted"/><label for="create-as-unquoted" data-i18n="labelCrtUnq"></label>
 	  </div>
@@ -143,6 +146,16 @@
       <div class="dlg-btns">
         <button class="dlg-accept default" data-i18n="btnOK"></button>
         <button class="dlg-cancel" data-i18n="btnCancel"></button>
+      </div>
+    </div>
+
+    <div id="preview-dlg" class="lightbox">
+      <div class="row">
+        <label data-i18n="labelPrevw"></label>
+      </div>
+      <textarea id="clipping-preview" readonly="true" rows="8"></textarea>
+      <div class="dlg-btns">
+        <button class="dlg-accept default" data-i18n="btnClose"></button>
       </div>
     </div>
 
