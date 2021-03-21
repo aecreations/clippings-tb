@@ -2143,7 +2143,10 @@ $(async () => {
     }
   }
 
-  $(document).tooltip();
+  $(document).tooltip({
+    position: { my: "left top+4", at: "left bottom", collision: "flipfit" },
+    show: { delay: 600, duration: 200 },
+  });
   
   // Fix for Fx57 bug where bundled page loaded using
   // messenger.windows.create won't show contents unless resized.
