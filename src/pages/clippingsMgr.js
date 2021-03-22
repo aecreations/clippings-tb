@@ -3994,19 +3994,15 @@ async function initSyncItemsIDLookupList()
   // END nested helper function
 
   let prefs = gClippings.getPrefs();
-  if (! prefs.syncClippings) {
-    Promise.resolve();
+  if (prefs.syncClippings) {
+    // Include the ID of the root Synced Clippings folder.
+    let syncFolderID = prefs.syncFolderID;
+    gSyncedItemsIDs[syncFolderID + "F"] = 1;
+
+    initSyncItemsIDLookupListHelper(syncFolderID).catch(aErr => {
+      Promise.reject(aErr);
+    });
   }
-
-  // Include the ID of the root Synced Clippings folder.
-  let syncFolderID = prefs.syncFolderID;
-  gSyncedItemsIDs[syncFolderID + "F"] = 1;
-
-  initSyncItemsIDLookupListHelper(syncFolderID).then(() => {
-    Promise.resolve();
-  }).catch(aErr => {
-    Promise.reject(aErr);
-  });
 }
 
 
