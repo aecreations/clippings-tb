@@ -1428,43 +1428,43 @@ let gCmd = {
 
   async editClippingContentIntrl(aClippingID, aContent, aDestUndoStack)
   {
-      let oldContent = "";
-      
-      gClippingsDB.clippings.get(aClippingID).then(aClipping => {
-        oldContent = aClipping.content;
+    let oldContent = "";
+    
+    gClippingsDB.clippings.get(aClippingID).then(aClipping => {
+      oldContent = aClipping.content;
 
-        if (aContent == oldContent) {
-          return 0;
-        }
+      if (aContent == oldContent) {
+        return 0;
+      }
 
-	this.recentAction = this.ACTION_EDITCONTENT;
-        return gClippingsSvc.updateClipping(aClippingID, { content: aContent }, aClipping);
+      this.recentAction = this.ACTION_EDITCONTENT;
+      return gClippingsSvc.updateClipping(aClippingID, { content: aContent }, aClipping);
 
-      }).then(aNumUpd => {
-        if (aNumUpd && aDestUndoStack == this.UNDO_STACK) {
-          this.undoStack.push({
-            action: this.ACTION_EDITCONTENT,
-            id: aClippingID,
-            content: aContent,
-            oldContent,
-            itemType: this.ITEMTYPE_CLIPPING
-          });
-        }
+    }).then(aNumUpd => {
+      if (aNumUpd && aDestUndoStack == this.UNDO_STACK) {
+        this.undoStack.push({
+          action: this.ACTION_EDITCONTENT,
+          id: aClippingID,
+          content: aContent,
+          oldContent,
+          itemType: this.ITEMTYPE_CLIPPING
+        });
+      }
 
-        if (gSyncedItemsIDs[aClippingID + "C"]) {
-          gClippings.pushSyncFolderUpdates().then(() => {
-            Promise.resolve();
-          }).catch(aErr => {
-            handlePushSyncItemsError(aErr);
-          });
-        }
-        else {
+      if (gSyncedItemsIDs[aClippingID + "C"]) {
+        gClippings.pushSyncFolderUpdates().then(() => {
           Promise.resolve();
-        }
-      }).catch(aErr => {
-        console.error("Clippings/mx::clippingsMgr.js: gCmd.editClippingContentIntrl(): " + aErr);
-        Promise.reject(aErr);
-      });
+        }).catch(aErr => {
+          handlePushSyncItemsError(aErr);
+        });
+      }
+      else {
+        Promise.resolve();
+      }
+    }).catch(aErr => {
+      console.error("Clippings/mx::clippingsMgr.js: gCmd.editClippingContentIntrl(): " + aErr);
+      Promise.reject(aErr);
+    });
   },
   
   setLabelIntrl: function (aClippingID, aLabel, aDestUndoStack)
