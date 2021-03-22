@@ -36,6 +36,7 @@ $(async () => {
 async function init()
 {
   let os = gClippings.getOS();
+  document.body.dataset.os = os;
 
   let keyCtrl  = messenger.i18n.getMessage("keyCtrl");
   let keyAlt   = messenger.i18n.getMessage("keyAlt");

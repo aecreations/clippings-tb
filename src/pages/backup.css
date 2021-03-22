@@ -42,10 +42,16 @@ select.browser-style {
 
 #backup-now {
     min-width: 160px;
+    height: 48px;
     padding-left: 16px;
     padding-right: 16px;
+    font-size: 17px !important;
+    font-weight: 400;
+}
+
+body[data-os="mac"] #backup-now {
+    height: 26px;
     font-size: 15px !important;
-    font-weight: 600;
 }
 
 #backup-reminder-freq {
@@ -64,5 +70,10 @@ select.browser-style {
 
 #dlg-buttons > button {
     min-width: 96px;
+    height: 32px;
     font-size: 15px !important;
+}
+
+body[data-os="mac"] #dlg-buttons > button {
+    height: 26px;
 }

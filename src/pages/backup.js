@@ -14,6 +14,8 @@ $(async () => {
     throw new Error("Clippings/mx::backup.js: Failed to retrieve parent application window!");
   }
 
+  document.body.dataset.os = gClippings.getOS();
+
   // Reset backup notification interval timer so that it fires 24 hours after
   // displaying this first-time backup dialog.
   gClippings.clearBackupNotificationInterval();
