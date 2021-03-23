@@ -21,6 +21,28 @@
   <defs
      id="defs2987">
     <linearGradient
+       id="linearGradient2141">
+      <stop
+         style="stop-color:#9e7640;stop-opacity:1"
+         offset="0"
+         id="stop2137" />
+      <stop
+         style="stop-color:#deb887;stop-opacity:1"
+         offset="1"
+         id="stop2139" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient2127">
+      <stop
+         style="stop-color:#a99171;stop-opacity:1"
+         offset="0"
+         id="stop2123" />
+      <stop
+         style="stop-color:#deb887;stop-opacity:1"
+         offset="1"
+         id="stop2125" />
+    </linearGradient>
+    <linearGradient
        id="linearGradient1568">
       <stop
          style="stop-color:#7a7c0d;stop-opacity:1"
@@ -45,11 +67,11 @@
     <linearGradient
        id="linearGradient3764">
       <stop
-         style="stop-color:#f5e54b;stop-opacity:1"
+         style="stop-color:#f9deb0;stop-opacity:1"
          offset="0"
          id="stop3766" />
       <stop
-         style="stop-color:#fdffa2;stop-opacity:1"
+         style="stop-color:#fcefda;stop-opacity:1"
          offset="1"
          id="stop3768" />
     </linearGradient>
@@ -57,15 +79,15 @@
        inkscape:collect="always"
        xlink:href="#linearGradient3764"
        id="linearGradient3770"
-       x1="61.599331"
-       y1="59.633366"
-       x2="24.201653"
-       y2="38.0233"
+       x1="59.011204"
+       y1="59.333591"
+       x2="26.49115"
+       y2="39.322323"
        gradientUnits="userSpaceOnUse"
        gradientTransform="matrix(0.88793847,0,0,0.88454734,5.484832,-26.615245)" />
     <linearGradient
        inkscape:collect="always"
-       xlink:href="#linearGradient1568"
+       xlink:href="#linearGradient2141"
        id="linearGradient3778"
        x1="55.545452"
        y1="63.272728"
@@ -161,7 +183,7 @@
        y2="1051.4814" />
     <linearGradient
        inkscape:collect="always"
-       xlink:href="#linearGradient1568"
+       xlink:href="#linearGradient2141"
        id="linearGradient1493"
        x1="39.845692"
        y1="19.744032"
@@ -171,7 +193,7 @@
        gradientTransform="matrix(0.88463048,0,0,0.88463048,7.3828237,1.7367439e-4)" />
     <linearGradient
        inkscape:collect="always"
-       xlink:href="#linearGradient1568"
+       xlink:href="#linearGradient2141"
        id="linearGradient1509"
        x1="38.514172"
        y1="20.935343"
@@ -198,7 +220,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="11.313708"
-     inkscape:cx="38.301944"
+     inkscape:cx="38.743886"
      inkscape:cy="30.122718"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -229,7 +251,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
