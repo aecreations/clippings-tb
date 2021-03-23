@@ -12,6 +12,7 @@
 
 
 :root {
+    --color-bkgd: -moz-dialog;
     --color-btn-expand-bkgd: #e0e0e1;
     --color-btn-expand-hover-bkgd: #d7d7db;
     --color-btn-expand-active-bkgd: #c9c9ca;
@@ -35,6 +36,10 @@
     }
 }
 
+
+body {
+    background-color: var(--color-bkgd);
+}
 
 label {
     margin-right: 4px;
