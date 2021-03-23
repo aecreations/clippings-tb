@@ -219,9 +219,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="11.313708"
-     inkscape:cx="38.743886"
-     inkscape:cy="30.122718"
+     inkscape:zoom="22.627416"
+     inkscape:cx="37.950194"
+     inkscape:cy="17.475728"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:document-units="px"
@@ -274,19 +274,19 @@
        sodipodi:nodetypes="ccc" />
     <path
        style="fill:none;stroke:url(#linearGradient1519);stroke-width:1.76926;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 21.496304,2.9714328 40.223056,19.313357 61.686493,1.9549493"
+       d="M 21.496304,2.9714328 37.49103,16.929251 c 0.910676,0.794702 1.640591,1.264674 2.599443,1.235057 1.127087,-0.03481 1.711968,-0.368075 2.921504,-1.148734 L 61.686493,1.9549493"
        id="path1511"
-       sodipodi:nodetypes="ccc" />
+       sodipodi:nodetypes="ccscc" />
     <path
        style="fill:none;stroke:url(#linearGradient1493);stroke-width:1.32695;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 19.357376,1.5334104 39.614115,16.128426 60.864129,1.6992787"
+       d="M 19.357376,1.5334104 36.99975,14.244771 c 0.871455,0.627885 1.621925,1.201123 2.570171,1.220742 0.988658,0.02046 1.834771,-0.552922 2.73006,-1.160839 L 60.864129,1.6992787"
        id="path1485"
-       sodipodi:nodetypes="ccc" />
+       sodipodi:nodetypes="ccacc" />
     <path
        style="fill:none;stroke:url(#linearGradient1509);stroke-width:1.32695;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 19.712361,1.7141452 39.600353,17.764267 60.571232,1.824724"
+       d="M 19.712361,1.7141452 36.849253,15.544058 c 0.917033,0.74007 1.658561,1.167264 2.618518,1.203743 1.019069,0.03873 1.956676,-0.369991 2.868724,-1.06322 L 60.571232,1.824724"
        id="path1495"
-       sodipodi:nodetypes="ccc" />
+       sodipodi:nodetypes="ccacc" />
     <g
        inkscape:label="Sheet of paper base"
        id="layer1-0"
