@@ -72,7 +72,7 @@ window.aecreations.clippings = function () {
 
       let composerCxtMenu = document.getElementById("msgComposeContext");
       composerCxtMenu.addEventListener("popupshowing", aEvent => {
-	this.initContextMenuItem(aEvent);
+	this.initContextMenuItem.apply(this, [aEvent]);
       });
 
       let prefs = this.getMxListener().prefsRequested();
