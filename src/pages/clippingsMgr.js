@@ -1712,6 +1712,9 @@ let gCmd = {
   openExtensionPrefs: function ()
   {
     messenger.runtime.openOptionsPage();
+
+    // Workaround to extension preferences page not focused if already open.
+    messenger.runtime.sendMessage({ msgID: "focus-extension-prefs-pg" });
   },
   
   backup: function ()
@@ -2290,6 +2293,13 @@ $(window).on("blur", aEvent => {
       let updWndInfo = { state: "minimized" };
       messenger.windows.update(messenger.windows.WINDOW_ID_CURRENT, updWndInfo);
     }
+  }
+});
+
+
+messenger.runtime.onMessage.addListener(aRequest => {
+  if (aRequest.msgID == "focus-clippings-mgr-wnd") {
+    window.focus();
   }
 });
 

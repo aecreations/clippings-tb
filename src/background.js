@@ -1038,12 +1038,10 @@ async function openClippingsManager(aBackupMode)
   
   if (gWndIDs.clippingsMgr) {
     try {
-      await messenger.windows.get(gWndIDs.clippingsMgr);
-      messenger.windows.update(gWndIDs.clippingsMgr, { focused: true });
+      await messenger.runtime.sendMessage({ msgID: "focus-clippings-mgr-wnd" });
     }
     catch (e) {
       // Handle dangling ref to previously-closed Clippings Manager window
-      // because it was closed before it finished initializing.
       gWndIDs.clippingsMgr = null;
       openClippingsMgrHelper();
     }

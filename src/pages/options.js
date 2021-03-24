@@ -556,6 +556,13 @@ $(window).on("contextmenu", aEvent => {
 });
 
 
+messenger.runtime.onMessage.addListener(aRequest => {
+  if (aRequest.msgID == "focus-extension-prefs-pg") {
+    window.focus();
+  }
+});
+
+
 function gotoURL(aURL)
 {
   messenger.tabs.create({ url: aURL });
