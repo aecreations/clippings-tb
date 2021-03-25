@@ -190,6 +190,19 @@ progress {
 ***/
 }
 
+#sync-options {
+    display: none;
+}
+
+#sync-options[data-visible="true"] {
+    display: block;
+}
+
+#sync-options .description {
+    margin-top: 0;
+    margin-bottom: 6px;
+}
+
 #sync-status {
     font-size: 15px;
 }
@@ -209,11 +222,6 @@ progress {
     background-repeat: no-repeat;
     vertical-align: text-bottom;
     color: #006504;
-}
-
-#sync-options .description {
-    margin-top: 0;
-    margin-bottom: 6px;
 }
 
 #show-sync-help {
@@ -479,6 +487,10 @@ progress {
 #about-dlg {
     top: 72px;
     --width: 410px;
+    --height: 280px;
+}
+
+#about-dlg[data-show-sync-status="true"] {
     --height: 314px;
 }
 
@@ -537,6 +549,19 @@ progress {
 
 #about-dlg #usr-contrib-cta-hdg {
     font-weight: 600;
+}
+
+#about-dlg #diag-info-separator,
+#about-dlg #diag-info {
+    display: none;
+}
+
+#about-dlg[data-show-sync-status="true"] #diag-info-separator {
+    display: block;
+}
+
+#about-dlg[data-show-sync-status="true"] #diag-info {
+    display: block;
 }
 
 #about-dlg #diag-info {
