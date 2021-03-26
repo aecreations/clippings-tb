@@ -500,6 +500,10 @@
     "message": "Tools"
   },
 
+  "tbHelp": {
+    "message": "Help"
+  },
+
   "clipMgrSrchBarHint": {
     "message": "Find clippings and folders",
     "description": "Clippings Manager search bar hint text"
@@ -663,7 +667,7 @@
   },
 
   "clipMgrShortcutHelpHint": {
-    "message": "Shortcut Help"
+    "message": "Shortcut Key List"
   },
 
   "clipMgrNoItems": {
