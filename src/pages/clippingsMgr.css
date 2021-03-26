@@ -206,10 +206,6 @@ select {
 ***/
 }
 
-select {
-    background-color: var(--color-listbox-bkgd);
-}
-
 .browser-style > input[type="text"][readonly]:focus,
 .browser-style > input[type="text"][readonly]:focus:hover {
     border-color: transparent;
@@ -874,7 +870,7 @@ ul.fancytree-container {
     flex: 0 1 auto;
 }
 
-#options-bar > #shortcut-key-select > #clipping-key {
+#options-bar > #shortcut-key-select > #clipping-key{
     margin-bottom: 0;
     font-size: 12px;
 }

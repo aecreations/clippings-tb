@@ -82,18 +82,19 @@ body * {
   text-align: left;
 }
 
-a {
-    color: var(--color-hyperlink);
-    text-decoration: none;
-}
+select.browser-style {
+  background-color: #fbfbfb;
+  border: 1px solid #b1b1b1;
+  box-shadow: 0 0 0 0 transparent;
+  font: caption;
+  height: 24px;
+  outline: 0 !important;
+  padding: 0 8px 0;
+  transition-duration: 250ms;
+  transition-property: box-shadow, border;
 
-a:hover, a:focus {
-    text-decoration: underline;
-}
-
-a:active {
-    color: var(--color-hyperlink-active);
-    text-decoration: underline;
+  padding-inline-end: 24px;
+  text-overflow: ellipsis;
 }
 
 button,
@@ -108,7 +109,8 @@ button {
 
 button[disabled],
 select.browser-style[disabled] {
-    opacity: 0.4;
+    color: #999;
+    opacity: 0.5;
 }
 
 button.default {
@@ -152,16 +154,6 @@ button.default:active {
 ***/
 }
 
-select.browser-style {
-    height: 22px;
-    padding: 0 8px 0;    
-    border: 1px solid var(--color-btn-border);
-    box-shadow: 0 0 0 0 transparent;
-    outline: 0 !important;
-    color: var(--color-btn-text);
-    transition-duration: 250ms;
-    transition-property: box-shadow, border;
-}
 
 select.browser-style:focus,
 select.browser-style:focus > option {
@@ -262,6 +254,20 @@ input[type="text"][disabled],
 
 .browser-style > input[type="checkbox"][disabled] + label {
     color: var(--color-disabled-text);
+}
+
+a {
+    color: var(--color-hyperlink);
+    text-decoration: none;
+}
+
+a:hover, a:focus {
+    text-decoration: underline;
+}
+
+a:active {
+    color: var(--color-hyperlink-active);
+    text-decoration: underline;
 }
 
 .error {
