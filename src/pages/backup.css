@@ -46,17 +46,19 @@ select.browser-style {
     padding-left: 16px;
     padding-right: 16px;
     font-size: 17px !important;
-    font-weight: 400;
+    font-weight: 600;
 }
 
 body[data-os="mac"] #backup-now {
     height: 26px;
     font-size: 15px !important;
+    font-weight: 400;
 }
 
 #backup-reminder-freq {
     margin-left: 4px;
     margin-right: 4px;
+    font-size: 15px;
 }
 
 #prefs-hint {

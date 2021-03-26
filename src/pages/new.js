@@ -39,6 +39,8 @@ $(async () => {
     return;
   };
 
+  document.body.dataset.os = gClippings.getOS();
+
   $("#btn-expand-options").click(async (aEvent) => {
     let height = WNDH_OPTIONS_EXPANDED;
     if (gClippings.getOS() == "win") {

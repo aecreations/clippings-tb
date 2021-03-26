@@ -151,6 +151,10 @@
     font-size: 12px !important;
 }
 
+body[data-os="mac"] .lightbox > .dlg-btns > button.default {
+    min-height: 20px;
+}
+
 .lightbox > .dlg-btns > button {
     margin-right: 10px;   
 }

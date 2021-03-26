@@ -2100,6 +2100,7 @@ $(async () => {
   gOS = platform.os;
 
   // Platform-specific initialization.
+  document.body.dataset.os = gClippings.getOS();
   if (gOS == "mac") {
     $("#status-bar").css({ backgroundImage: "none" });
   }
