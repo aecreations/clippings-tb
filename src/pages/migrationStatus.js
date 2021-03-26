@@ -3,6 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const WNDH_MIGRN_ERROR = 220;
+
 let gClippings = null;
 
 
@@ -23,6 +25,8 @@ $(async () => {
   }
   else {
     $("#content-migrn-fail-deck").show();
+    let height = WNDH_MIGRN_ERROR;
+    messenger.windows.update(messenger.windows.WINDOW_ID_CURRENT, { height });
   }
 
   $("#open-clippings-mgr").click(aEvent => {
@@ -63,6 +67,9 @@ async function saveLegacyData()
     else {
       window.alert(e);
     }
+  }
+  finally {
+    window.focus();
   }
 }
 

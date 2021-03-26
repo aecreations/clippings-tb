@@ -45,6 +45,10 @@ body {
     margin-left: 4px;
 }
 
+.other-actions {
+    margin-top: 32px;
+}
+
 #success-icon {
     background-image: url("../img/success.svg");
 }

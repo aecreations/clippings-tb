@@ -1078,7 +1078,7 @@ function openBackupDlg()
 function openMigrationStatusDlg()
 {
   let url = messenger.runtime.getURL("pages/migrationStatus.html");
-  openDlgWnd(url, "migrnStatus", { type: "detached_panel", width: 540, height: 216});
+  openDlgWnd(url, "migrnStatus", { type: "detached_panel", width: 540, height: 180});
 }
 
 
