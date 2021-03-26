@@ -15,12 +15,16 @@ body {
 
 button {
     min-width: 88px;
-    min-height: 26px;
+    min-height: 28px;
     font-size: 13px !important;
 }
 
+body[data-os="mac"] button {
+    min-height: 24px;
+}
+
 body[data-os="mac"] button.default {
-    min-height: 22px;
+    min-height: 21px;
 }
 
 button[disabled] {

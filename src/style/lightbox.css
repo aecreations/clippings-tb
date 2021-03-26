@@ -146,9 +146,13 @@
 .lightbox > .dlg-btns > button,
 .panel > .dlg-btns > button {
     min-width: 72px;
-    min-height: 22px;
+    min-height: 24px;
     text-align: center;
     font-size: 12px !important;
+}
+
+body[data-os="mac"] .lightbox > .dlg-btns > button {
+    min-height: 22px;
 }
 
 body[data-os="mac"] .lightbox > .dlg-btns > button.default {
