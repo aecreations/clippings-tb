@@ -1,7 +1,12 @@
 {
   "extName": {
-    "message": "Clippings for Thunderbird",
+    "message": "Clippings",
     "description": "Name of the extension - do NOT translate"
+  },
+
+  "extNameTB": {
+    "message": "Clippings for Thunderbird",
+    "description": "Name of the extension for Thunderbird"
   },
 
   "extDesc": {

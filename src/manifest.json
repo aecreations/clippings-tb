@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "name": "__MSG_extName__",
+  "name": "__MSG_extNameTB__",
   "description": "__MSG_extDesc__",
   "version": "6.0b3+",
   "author": "AE Creations",
