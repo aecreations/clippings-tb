@@ -9,8 +9,8 @@
     .jumbotron-header {
 	margin-top: 0;
 	clear: right;
-        background-color: #fdd1c5;
-        border: 1px solid #f2b4b4;
+        background-color: #D1DFEB;
+        border: 1px solid #C1D2E0;
 	text-shadow: 1px 1px #edf3f8;
 	box-shadow: none;
     }
@@ -119,6 +119,10 @@ h3 {
     margin-left: 0.5rem;
 }
 
+p:first-of-type {
+    margin-left: 0.5rem;
+}
+
 p, li {
     font-size: 15px;
     font-weight: 400;
@@ -168,6 +172,9 @@ a:hover, .hyperlink:hover {
 
 #page-actions input[type="checkbox"] + label {
     font-size: 13px;
-    vertical-align: 2px;
+    vertical-align: 0;
 }
 
+body[data-os="WINNT"] #page-actions input[type="checkbox"] + label {
+    vertical-align: 2px;
+}
