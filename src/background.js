@@ -329,6 +329,7 @@ async function migrateLegacyPrefs()
   messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.enable_wx_paste_prefix_key");
   messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.paste_shortcut_mode");
   messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.tb78.show_warning");
+  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.tb78.show_notice");
   messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.beep_on_error");
   messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.first_run");
   messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.v3.first_run");
