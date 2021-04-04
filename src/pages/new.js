@@ -416,20 +416,15 @@ function initLabelPicker()
 {
   $("#clipping-label-picker").on("change", aEvent => {
     let label = aEvent.target.value;
-    let bgColor = label;
-    let fgColor = "white";
+    let color = label;
 
     if (! label) {
-      bgColor = "var(--color-btn-bkgd)";
-      fgColor = "var(--color-text-default)";
+      color = "var(--color-text-default)";
     }
     else if (label == "yellow") {
-      fgColor = "initial";
+      color = "rgb(200, 200, 0)";
     }
-    $(aEvent.target).css({
-      backgroundColor: bgColor,
-      color: fgColor,
-    });
+    $(aEvent.target).css({ color });
   });
 }
 

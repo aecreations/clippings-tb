@@ -73,6 +73,7 @@ main {
 
 input[type="number"],
 select {
+    font: caption;
     font-size: 15px;
 }
 
@@ -111,20 +112,10 @@ label {
     margin-right: 4px;
 }
 
-input[type="checkbox"] + label {
-/***
-    vertical-align: middle;
-***/
-}
-
 button {
     min-width: 88px;
     height: 32px;
     padding: 0 12px 0;
-/***
-    border-radius: 2px;
-    box-shadow: 0 0 0 0 transparent;
-***/
     font: caption;
     font-size: 15px;
 }
@@ -165,17 +156,8 @@ progress {
     font-size: 11px;
 }
 
-.browser-style > input[type="checkbox"] + label::before {
-/***
-    vertical-align: middle;
-***/
-}
-
 #html-paste-options {
     width: 420px;
-/***
-    height: 24px;
-***/
     margin-top: 4px;
 }
 
@@ -185,9 +167,6 @@ progress {
 
 #backup-reminder-freq + label {
     margin-left: 4px;
-/***
-    vertical-align: middle;
-***/
 }
 
 #sync-options {
@@ -295,11 +274,6 @@ progress {
 
 .lightbox > .dlg-btns > button {
     min-width: 96px;
-/***
-    height: 32px;
-    padding: 0 24px 0;
-    border-radius: 2px;
-***/
     font-size: 15px !important;
 }
 
@@ -469,9 +443,6 @@ progress {
 #sync-clippings-dlg input[type="checkbox"] + label,
 #turn-off-sync-clippings-ack-dlg #delete-sync-fldr-opt > #delete-sync-fldr + label {
     font-size: 13px;
-/***
-    vertical-align: middle;
-***/
 }
 
 #sync-clippings-help-dlg {

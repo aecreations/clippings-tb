@@ -750,21 +750,16 @@ let gClippingLabelPicker = {
 
   set selectedLabel(aLabel)
   {
-    let bgColor = aLabel;
-    let fgColor = "white";
+    let color = aLabel;
 
     if (! aLabel) {
-      bgColor = "var(--color-btn-bkgd)";
-      fgColor = "var(--color-default-text)";
+      color = "var(--color-default-text)";
     }
     else if (aLabel == "yellow") {
-      fgColor = "initial";
+      color = "rgb(200, 200, 0)";
     }
 
-    this._labelPicker.css({
-      backgroundColor: bgColor,
-      color: fgColor
-    });
+    this._labelPicker.css({ color });
     this._labelPicker.val(aLabel);
   }
 };

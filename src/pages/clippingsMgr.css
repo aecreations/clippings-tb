@@ -195,14 +195,8 @@ input[type="search"] {
     height: 24px;
 }
 
-input[type="text"],
-input[type="search"],
-textarea,
 select {
-/***
-    background-color: var(--color-textbox-bkgd);
-    color: var(--color-default-text);
-***/
+    font: caption;
 }
 
 .browser-style > input[type="text"][readonly]:focus,
@@ -212,9 +206,11 @@ select {
 }
 
 input[type="checkbox"] + label {
-/***
-    vertical-align: -0.3em;
-***/
+    vertical-align: 0;
+}
+
+body[data-os="win"] input[type="checkbox"] + label {
+    vertical-align: 3px;
 }
 
 .hbox, .vbox {
@@ -468,6 +464,7 @@ input[type="checkbox"] + label {
 
 #toolbar > #help {
     order: 11;
+    margin-right: 2px;
     background-image: var(--url-toolbar-btn-img-help);
 }
 
@@ -885,14 +882,14 @@ ul.fancytree-container {
     flex: 0 1 auto;
 }
 
-#options-bar > #shortcut-key-select > #clipping-key{
+#options-bar > #shortcut-key-select > #clipping-key {
     margin-bottom: 0;
     font-size: 12px;
 }
 
 #options-bar > #shortcut-key-select > #show-shortcut-list {
     height: 24px;
-    vertical-align: bottom;
+    vertical-align: 5px;
     background-image: var(--url-toolbar-btn-img-shct-keys);
 }
 
@@ -911,7 +908,8 @@ ul.fancytree-container {
 
 #options-bar > #clipping-label {
     order: 3;
-    flex: 0 1 auto;   
+    flex: 0 1 auto;
+    margin-top: 4px;
 }
 
 #options-bar > #clipping-label > #clipping-label-picker {
@@ -969,6 +967,10 @@ ul.fancytree-container {
 
 .lightbox .msgbox-icon[os="mac"] {
     background-image: url("chrome://global/skin/icons/warning-64.png");
+}
+
+.lightbox input[type="text"] {
+    font-size: 12px;
 }
 
 .lightbox .browser-style input[type="checkbox"] + label::before {
