@@ -38,12 +38,6 @@ async function init()
   let os = gClippings.getOS();
   document.body.dataset.os = os;
 
-  // Sync Clippings is only supported on Windows.
-  if (os == "win") {
-    $("#sync-options").attr("data-visible", "true");
-    $("#about-dlg").attr("data-show-sync-status", "true");
-  }
-
   let keyCtrl  = messenger.i18n.getMessage("keyCtrl");
   let keyAlt   = messenger.i18n.getMessage("keyAlt");
   let keyShift = messenger.i18n.getMessage("keyShift");
