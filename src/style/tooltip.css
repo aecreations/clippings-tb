@@ -21,6 +21,9 @@
 
 /* Style overrides for jQuery Tooltip widget */
 .ui-tooltip {
+    margin-left: 3px;
+    margin-right: 3px;
+    margin-bottom: 3px;
     padding: 2px;
     border: 1px solid var(--color-tooltip-border) !important;
     border-radius: 0;
