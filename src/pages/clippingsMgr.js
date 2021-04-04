@@ -2783,6 +2783,9 @@ function initDialogs()
               console.error(aErr);
               window.alert("Sorry, an error occurred while creating the export file.\n\nDetails:\n" + getErrStr(aErr));
             }
+
+          }).finally(() => {
+            window.focus();
           });
         });
         
