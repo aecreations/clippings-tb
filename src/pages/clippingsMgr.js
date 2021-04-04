@@ -12,7 +12,6 @@ let gOS;
 let gClippingsDB;
 let gClippings;
 let gIsClippingsTreeEmpty;
-let gIsReloading = false;
 let gDialogs = {};
 let gOpenerWndID;
 let gIsMaximized;
@@ -2171,20 +2170,16 @@ $(async () => {
 
 
 // Reloading or closing Clippings Manager window
-$(window).on("beforeunload", aEvent => {
-  console.log("Clippings/mx::clippingsMgr.js: onbeforeunload event");
+$(window).on("unload", aEvent => {
+  log("Clippings/mx::clippingsMgr.js: onunload event");
   
-  if (! gIsReloading) {
-    messenger.runtime.sendMessage({ msgID: "close-clippings-mgr-wnd" });
-  }
-
   gClippings.removeClippingsListener(gClippingsListener);
   
   let syncClippingsListeners = gClippings.getSyncClippingsListeners();
   syncClippingsListeners.remove(gSyncClippingsListener);
 
   gClippings.purgeFolderItems(aeConst.DELETED_ITEMS_FLDR_ID).catch(aErr => {
-    console.error("Clippings/mx::clippingsMgr.js: $(window).on('beforeunload'): " + aErr);
+    console.error("Clippings/mx::clippingsMgr.js: $(window).on('unload'): " + aErr);
   });
 });
 
