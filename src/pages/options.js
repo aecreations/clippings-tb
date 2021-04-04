@@ -495,7 +495,7 @@ function initDialogs()
   gDialogs.syncClippingsHelp = new aeDialog("#sync-clippings-help-dlg");
 
   // Sync Clippings help dialog content.
-  $("#sync-clippings-help-dlg > .dlg-content").html(sanitizeHTML(messenger.i18n.getMessage("syncHelp")));
+  $("#sync-clippings-help-dlg > .dlg-content").html(sanitizeHTML(messenger.i18n.getMessage("syncHelpTB")));
 }
 
 
