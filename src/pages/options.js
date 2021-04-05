@@ -187,7 +187,7 @@ async function init()
 
   $(".hyperlink").click(aEvent => {
     aEvent.preventDefault();
-    gotoURL(aEvent.target.href);
+    gotoURL(aEvent.target.href, ("openInTbWnd" in aEvent.target.dataset));
   });
 }
 
@@ -563,9 +563,20 @@ messenger.runtime.onMessage.addListener(aRequest => {
 });
 
 
-function gotoURL(aURL)
+function gotoURL(aURL, aOpenInTbWnd)
 {
-  messenger.tabs.create({ url: aURL });
+  if (aOpenInTbWnd) {
+    messenger.tabs.create({ url: aURL });
+  }
+  else {
+    try {
+      // Requires Thunderbird 78.6.0 or newer
+      messenger.windows.openDefaultBrowser(aURL);
+    }
+    catch (e) {
+      messenger.tabs.create({ url: aURL });
+    }
+  }
 }
 
 
