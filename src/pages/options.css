@@ -8,7 +8,8 @@
 
 :root {
     --color-bkgd: #f9f9fa;
-    --color-main-border: #ddd;
+    --color-main-border: #ededf0;
+    --color-main-border-shadow: #ededf0;
     --color-main-bkgd: #fefefe;
     --color-fieldset-border: #d7d7db;
     --color-dlg-fieldset-border: #d7d7db;
@@ -24,7 +25,8 @@
 @media (prefers-color-scheme: dark) {
     :root {
 	--color-bkgd: #1a1a1e;
-	--color-main-border: #0c0c0d;
+	--color-main-border: #2a2a2e;
+	--color-main-border-shadow: #0c0c0d;
 	--color-main-bkgd: #2a2a2e;
 	--color-fieldset-border: #4a4a4f;
 	--color-dlg-fieldset-border: #585858;
@@ -68,6 +70,7 @@ main {
     padding: 16px;
     border: 1px solid var(--color-main-border);
     border-radius: 2px;
+    box-shadow: 0 0 8px 2px var(--color-main-border-shadow);
     background-color: var(--color-main-bkgd);
 }
 
