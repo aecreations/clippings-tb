@@ -12,6 +12,7 @@
     --color-btn-active-bkgd: rgba(12, 12, 13, 0.3);
     --color-btn-border: rgba(12, 12, 13, 0.1);
     --color-btn-text: black;
+    --color-mac-btn-shadow: #d1d1d1;
     --color-tb-bkgd: -moz-field;
     --color-tb-border: rgba(12, 12, 13, 0.2);
     --color-tb-hover-border: rgba(12, 12, 13, 0.3);
@@ -40,6 +41,7 @@
 	--color-btn-active-bkgd: #737373;
 	--color-btn-border: #4a4a4f;
 	--color-btn-text: #f9f9fa;
+	--color-mac-btn-shadow: #2a2a2e;
 	--color-tb-bkgd: #0c0c0d;
 	--color-tb-border: #4a4a4f;
 	--color-tb-hover-border: #737373;
@@ -120,7 +122,7 @@ button.default {
 body[data-os="mac"] button.default {
     border: 0.5px solid #5D9CF9;
     border-radius: 4.5px;
-    box-shadow: 0px 1px 2px 0px #d1d1d1;
+    box-shadow: 0px 1px 2px 0px var(--color-mac-btn-shadow);
     background: linear-gradient(to bottom, #88B6FA 0%, #0364FF 100%);
     color: -moz-dialog;
     font-weight: normal;

@@ -753,7 +753,7 @@ let gClippingLabelPicker = {
     let color = aLabel;
 
     if (! aLabel) {
-      color = "var(--color-default-text)";
+      color = "black";
     }
     else if (aLabel == "yellow") {
       color = "rgb(200, 200, 0)";

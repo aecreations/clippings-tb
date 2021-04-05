@@ -12,7 +12,8 @@
 
 
 :root {
-    --color-bkgd: -moz-dialog;
+    --color-bkgd: #ededf0;
+    --color-preview-bkgd: #ededf0;
     --color-btn-expand-bkgd: #e0e0e1;
     --color-btn-expand-hover-bkgd: #d7d7db;
     --color-btn-expand-active-bkgd: #c9c9ca;
@@ -25,6 +26,8 @@
 
 @media (prefers-color-scheme: dark) {
     :root {
+	--color-bkgd: #2a2a2e;
+	--color-preview-bkgd: #4a4a4f;
 	--color-btn-expand-bkgd: #4a4a4f;
 	--color-btn-expand-hover-bkgd: #737373;
 	--color-btn-expand-active-bkgd: #808080;
@@ -298,7 +301,7 @@ ul.fancytree-container {
     height: 282px;
     padding: 8px;
     border: 0;
-    background-color: #ededf0;
+    background-color: var(--color-preview-bkgd);
 }
 
 #create-clipping-error-msgbox {

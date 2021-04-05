@@ -165,6 +165,10 @@
 	--url-toolbar-btn-img-autoIncPlchldr: url("../img/numericPlchldr_dk.svg");
 	--url-toolbar-btn-img-autoIncPlchldr-hover: url("../img/numericPlchldr_dk.svg");
 	--url-icon-synced-clippings-fldr: url("../img/synced-clippings-dk.svg");
+
+	#options-bar > #clipping-label > #clipping-label-picker {
+	    color: black;
+	}
     }
 }
 
@@ -541,7 +545,7 @@ body[data-os="win"] input[type="checkbox"] + label {
 }
 
 #clippings-tree.cxt-menu-show-sync-items-only .ae-synced-clippings .fancytree-title {
-    color: var(--color-text-default);
+    color: var(--color-default-text);
 }
 
 #clippings-tree.cxt-menu-show-sync-items-only .ae-synced-clippings .fancytree-icon {

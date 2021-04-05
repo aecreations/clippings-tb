@@ -6,6 +6,20 @@
  * Integration with host application
  */
 
+:root {
+    --url-clippings-icon: url("chrome://clippings/content/img/clippings16-tb.svg");
+    --url-clippings-migrn-succs-icon: url("chrome://clippings/content/img/clippings16-tb-success.svg");
+    --url-clippings-migrn-fail-icon: url("chrome://clippings/content/img/clippings16-tb-error.svg");
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+	--url-clippings-icon: url("chrome://clippings/content/img/clippings16-tb-dk.svg");
+	--url-clippings-migrn-succs-icon: url("chrome://clippings/content/img/clippings16-tb-scss-dk.svg");
+	--url-clippings-migrn-fail-icon: url("chrome://clippings/content/img/clippings16-tb-err-dk.svg");
+    }
+}
+
 
 menuitem.ae-clippings-clipping {
   list-style-image: url("chrome://clippings/content/img/clipping.svg");
@@ -71,17 +85,13 @@ menu.ae-clippings-sync-folder[open="true"] {
 
 /* Thunderbird integration */
 #ae-clippings-icon {
-  list-style-image: url("chrome://clippings/content/img/clippings16-tb.svg");
-}
-
-#ae-clippings-icon:-moz-drag-over {
-  list-style-image: url("chrome://clippings/content/img/clippings-hilite16.svg");
+  list-style-image: var(--url-clippings-icon);
 }
 
 #ae-clippings-icon.migration-success {
-  list-style-image: url("chrome://clippings/content/img/clippings16-tb-success.svg");
+  list-style-image: var(--url-clippings-migrn-succs-icon);
 }
 
 #ae-clippings-icon.migration-error {
-  list-style-image: url("chrome://clippings/content/img/clippings16-tb-error.svg");
+  list-style-image: var(--url-clippings-migrn-fail-icon);
 }
