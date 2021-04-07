@@ -321,8 +321,17 @@ async function migrateLegacyPrefs()
     checkSpelling, clippingsMgrDetailsPane, clippingsMgrPlchldrToolbar,
     clippingsMgrStatusBar
   });
+}
 
-  // Reset legacy prefs to remove them.
+
+function removeLegacyPrefs(aKeepDataSrcLocationPref)
+{
+  // Don't reset the data source location pref if legacy data migration failed;
+  // keep the old pref for troubleshooting.
+  if (! aKeepDataSrcLocationPref) {
+    messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.datasource.location");
+  }
+
   messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.html_paste");
   messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.html_auto_line_break");
   messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.enable_keyboard_paste");
@@ -333,7 +342,6 @@ async function migrateLegacyPrefs()
   messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.beep_on_error");
   messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.first_run");
   messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.v3.first_run");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.datasource.location");
   messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.datasource.process_root");
   messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.datasource.wx_sync.enabled");
   messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.datasource.wx_sync.location");
@@ -359,6 +367,8 @@ async function init()
   aeImportExport.setDatabase(gClippingsDB);
 
   if (gMigrateLegacyData) {
+    let keepDataSrcLocnPref = false;
+    
     try {
       await verifyDB();
 
@@ -371,8 +381,11 @@ async function init()
         legacyDataMigrnSuccess: false,
         showLegacyDataMigrnStatus: true,
       });
+      keepDataSrcLocnPref = true;
     }
-   }
+
+    removeLegacyPrefs(keepDataSrcLocnPref);
+  }
   
   let getMsgrInfo = messenger.runtime.getBrowserInfo();
   let getPlatInfo = messenger.runtime.getPlatformInfo();
