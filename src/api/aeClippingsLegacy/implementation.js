@@ -12,7 +12,7 @@ var aeClippingsLegacy = class extends ExtensionCommon.ExtensionAPI {
   getAPI(context) {
     return {
       aeClippingsLegacy: {
-	DEBUG: true,
+	DEBUG: false,
 	CLIPPINGS_JSON_FILENAME: "clippings.json",
 
 	async getPref(aPrefName, aDefaultValue)
@@ -62,6 +62,8 @@ var aeClippingsLegacy = class extends ExtensionCommon.ExtensionAPI {
           let filePath = await this.getPref(
             "extensions.aecreations.clippings.datasource.location", ""
           );
+
+          this._log("aeClippingsLegacy._getDataFromFile(): Data source location: " + filePath);
 
           if (filePath) {
             filePath = OS.Path.join(filePath, aFileName);
