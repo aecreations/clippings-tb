@@ -7,10 +7,10 @@
 
 
 :root {
-    --color-bkgd: #f9f9fa;
+    --color-bkgd: #ededf0;
     --color-main-border: #ededf0;
     --color-main-border-shadow: #ededf0;
-    --color-main-bkgd: #fefefe;
+    --color-main-bkgd: #f9f9fa;
     --color-fieldset-border: #d7d7db;
     --color-dlg-fieldset-border: #d7d7db;
     --color-text-sync-status-on: #003706;

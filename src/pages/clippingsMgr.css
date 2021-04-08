@@ -27,7 +27,7 @@
     --color-main-toolbar-bkgd: linear-gradient(to bottom, #d7d7db 0%, #fcfcfc 100%);
     --color-main-toolbar-text: #0c0c0d;
     --color-main-toolbar-border: silver;
-    --color-plchldr-toolbar-bkgd: #eee;
+    --color-plchldr-toolbar-bkgd: #f0f0f0;
     --color-plchldr-toolbar-text: #0c0c0d;
     --color-toolbarbtn-hover-bkgd: rgba(12, 12, 13, 0.2);
     --color-toolbarbtn-active-bkgd: rgba(12, 12, 13, 0.3);
