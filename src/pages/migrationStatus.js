@@ -37,6 +37,8 @@ $(async () => {
     saveLegacyData();
   });
   $("#btn-cancel").click(aEvent => { closeDlg() });
+
+  window.focus();
 });
 
 
@@ -72,6 +74,13 @@ async function saveLegacyData()
     window.focus();
   }
 }
+
+
+$(window).keydown(aEvent => {
+  if (aEvent.key == "Enter" || aEvent.key == "Escape") {
+    closeDlg();
+  }
+});
 
 
 function closeDlg()
