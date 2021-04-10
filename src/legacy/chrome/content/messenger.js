@@ -31,16 +31,14 @@ let gClippingsMxListener = function () {
 	return;
       }
       
-      let statusbarBtn = document.getElementById("ae-clippings-icon");
+      _showLegacyDataMigrnStatus = true;
 
+      let statusbarBtn = document.getElementById("ae-clippings-icon");
       let legacyDataMigrnSuccess = prefs.legacyDataMigrnSuccess;
 
-      if (legacyDataMigrnSuccess) {
-	if (prefs.showLegacyDataMigrnStatus) {
-	  statusbarBtn.className = "migration-success";
-	  _showLegacyDataMigrnStatus = true;
-	  _clippings.setPrefs({ showLegacyDataMigrnStatus: false });
-	}
+      if (legacyDataMigrnSuccess && prefs.showLegacyDataMigrnStatus) {
+	statusbarBtn.className = "migration-success";
+	_clippings.setPrefs({ showLegacyDataMigrnStatus: false });
       }
       else {
 	statusbarBtn.className = "migration-error";
