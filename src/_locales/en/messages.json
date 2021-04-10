@@ -423,7 +423,7 @@
   },
 
   "expHTMLShctKeyInstrxnTB": {
-    "message": "To paste a clipping into a message in Thunderbird, press CTRL+ALT+V (Command+Option+V on macOS), then the shortcut key.",
+    "message": "To paste a clipping into a message in Thunderbird, press Alt+Shift+Y (Command+Option+V on macOS), then the shortcut key.",
     "description": "Clippings for Thunderbird"
   },
 

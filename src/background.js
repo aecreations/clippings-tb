@@ -692,10 +692,9 @@ async function getShortcutKeyPrefixStr()
   let rv = "";
   let os = getOS();
 
-  let keyCtrl  = messenger.i18n.getMessage("keyCtrl");
   let keyAlt   = messenger.i18n.getMessage("keyAlt");
   let keyShift = messenger.i18n.getMessage("keyShift");
-  let shctModeKeys = `${keyCtrl}+${keyAlt}+V`;
+  let shctModeKeys = `${keyAlt}+${keyShift}+Y`;
 
   if (os == "mac") {
     let keyOption = messenger.i18n.getMessage("keyOption");

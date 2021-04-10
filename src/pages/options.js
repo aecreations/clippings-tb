@@ -44,7 +44,14 @@ async function init()
   let shctModeKeys = `${keyCtrl}+${keyAlt}+V`;
   let shctModeKeysNew = `${keyAlt}+${keyShift}+Y`;
   
-  if (os == "mac") {
+  if (os == "win") {
+    // Cannot use Ctrl+Alt+V - already assigned to a global shortcut for
+    // inserting the radical symbol (√) on Windows 10
+    $("#shortcut-key").css({ display: "none" });
+    $("#shct-label").css({ display: "none" });
+    $("#row-shct-key-new").removeClass("indent");
+  }
+  else if (os == "mac") {
     let keyOption = messenger.i18n.getMessage("keyOption");
     let keyCmd = messenger.i18n.getMessage("keyCommand");
     shctModeKeys = `${keyOption}${keyCmd}V`;
@@ -55,7 +62,12 @@ async function init()
   }
 
   $("#shct-label").text(messenger.i18n.getMessage("prefsShctMode", shctModeKeys));
-  $("#shct-new-label").text(messenger.i18n.getMessage("prefsShctModeNew", shctModeKeysNew));
+
+  let shctNewLabelTxt = messenger.i18n.getMessage("prefsShctModeNew", shctModeKeysNew);
+  if (os == "win") {
+    shctNewLabelTxt = messenger.i18n.getMessage("prefsShctMode", shctModeKeysNew);
+  }
+  $("#shct-new-label").text(shctNewLabelTxt);
 
   let prefs = gClippings.getPrefs();
 
