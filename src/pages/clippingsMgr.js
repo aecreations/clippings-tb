@@ -2152,6 +2152,8 @@ $(async () => {
   }
 
   $(document).tooltip(aeInterxn.getTooltipOpts());
+
+  window.focus();
   
   // Fix for Fx57 bug where bundled page loaded using
   // messenger.windows.create won't show contents unless resized.
