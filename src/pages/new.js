@@ -528,17 +528,12 @@ function accept(aEvent)
         log(aMsgResult);
       }
 
-      // TO DO:
-      // Move this into the "onchange" event handler for the label and shortcut
-      // key drop-down menus, and in the "onclick" event handler for the
-      // checkbox options.
-      if (prefs.isClippingsMgrAutoShowDetailsPane && isClippingOptionsSet()) {
+      if (prefs.clippingsMgrAutoShowDetailsPane && isClippingOptionsSet()) {
         messenger.storage.local.set({
           clippingsMgrAutoShowDetailsPane: false,
           clippingsMgrDetailsPane: true,
         });
       }
-      // END TO DO
 
       closeDlg();
       
