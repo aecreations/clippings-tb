@@ -259,8 +259,6 @@ function initDialogs()
       
     }).then(aResp => {
       if (! gDialogs.syncClippings.isCanceled) {
-        $("#sync-clippings-dlg").css({ height: "336px" });
-
         if (lang == "es-ES") {
           $("#sync-clippings-dlg").css({ width: "606px" });
           $("#sync-helper-app-update-check + label").css({ letterSpacing: "-0.56px" });

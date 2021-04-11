@@ -164,7 +164,7 @@ progress {
 }
 
 .example {
-    font-size: 11px;
+    font-size: 11.5px;
 }
 
 #html-paste-options {
@@ -330,6 +330,7 @@ body[data-os="win"] #backup-reminder-freq + label {
 }
 
 #sync-clippings-dlg fieldset {
+    margin-top: 14px;
     margin-left: 0;
 }
 
