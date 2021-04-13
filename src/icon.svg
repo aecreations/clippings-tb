@@ -15,9 +15,9 @@
    version="1.1"
    inkscape:version="1.0.1 (c497b03c, 2020-09-10)"
    sodipodi:docname="clippings-tb.svg"
-   inkscape:export-filename="/Users/aecreations/Documents/Graphics/Inkscape/Send Tab URLs/icon.png"
-   inkscape:export-xdpi="45"
-   inkscape:export-ydpi="45">
+   inkscape:export-filename="/Users/aecreations/Documents/Graphics/Inkscape/Clippings/clippings-tb.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96">
   <defs
      id="defs2987">
     <linearGradient
@@ -30,28 +30,6 @@
          style="stop-color:#deb887;stop-opacity:1"
          offset="1"
          id="stop2139" />
-    </linearGradient>
-    <linearGradient
-       id="linearGradient2127">
-      <stop
-         style="stop-color:#a99171;stop-opacity:1"
-         offset="0"
-         id="stop2123" />
-      <stop
-         style="stop-color:#deb887;stop-opacity:1"
-         offset="1"
-         id="stop2125" />
-    </linearGradient>
-    <linearGradient
-       id="linearGradient1568">
-      <stop
-         style="stop-color:#7a7c0d;stop-opacity:1"
-         offset="0"
-         id="stop1564" />
-      <stop
-         style="stop-color:#ccbf12;stop-opacity:1"
-         offset="1"
-         id="stop1566" />
     </linearGradient>
     <linearGradient
        id="linearGradient4654">
@@ -219,9 +197,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="22.627416"
+     inkscape:zoom="11.313708"
      inkscape:cx="37.950194"
-     inkscape:cy="17.475728"
+     inkscape:cy="34.711457"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:document-units="px"
@@ -229,7 +207,7 @@
      inkscape:snap-global="false"
      inkscape:window-width="2048"
      inkscape:window-height="1026"
-     inkscape:window-x="1"
+     inkscape:window-x="0"
      inkscape:window-y="23"
      inkscape:window-maximized="0"
      showguides="true"
