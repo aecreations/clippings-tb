@@ -41,12 +41,14 @@ body {
     background-size: contain;
 }
 
-.detail, .other-actions {
+.detail {
     margin-left: 4px;
 }
 
 .other-actions {
-    margin-top: 34px;
+    position: absolute;
+    left: 80px;
+    bottom: 14px;
 }
 
 #success-icon {
