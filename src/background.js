@@ -19,6 +19,7 @@ let gSyncClippingsHelperDwnldPgURL;
 let gForceShowFirstTimeBkupNotif = false;
 let gClippingsMgrRootFldrReseq = false;
 let gMigrateLegacyData = false;
+let gClippingsMgrCleanUpIntvID = null;
 
 let gClippingsListeners = new aeListeners();
 
@@ -1047,15 +1048,27 @@ async function openClippingsManager(aBackupMode)
 
     let wnd = await messenger.windows.create(wndInfo);
     gWndIDs.clippingsMgr = wnd.id;
+
+    gClippingsMgrCleanUpIntvID = window.setInterval(async () => {
+      log(`Clippings/mx: [Interval ID: ${gClippingsMgrCleanUpIntvID}]: Checking if Clippings Manager is open`);
+      try {
+        await messenger.windows.get(gWndIDs.clippingsMgr);
+      }
+      catch (e) {
+        log("Clippings Manager window not found, cleaning up.");
+        cleanUpClippingsMgr();
+      }
+    }, gPrefs.clippingsMgrCleanUpIntv);
   }
+  // END nested helper function
   
   if (gWndIDs.clippingsMgr) {
     try {
       await messenger.windows.get(gWndIDs.clippingsMgr);
     }
     catch (e) {
-      // Handle dangling ref to previously-closed Clippings Manager window
-      gWndIDs.clippingsMgr = null;
+      log("Clippings/mx: openClippingsManager(): Cleaning up dangling reference to previously-closed Clippings Manager window.");
+      cleanUpClippingsMgr();
       openClippingsMgrHelper();
       return;
     }
@@ -1065,6 +1078,18 @@ async function openClippingsManager(aBackupMode)
   else {
     openClippingsMgrHelper();
   }
+}
+
+
+function cleanUpClippingsMgr()
+{
+  gWndIDs.clippingsMgr = null;
+  window.clearInterval(gClippingsMgrCleanUpIntvID);
+  gClippingsMgrCleanUpIntvID = null;
+
+  purgeFolderItems(aeConst.DELETED_ITEMS_FLDR_ID).catch(aErr => {
+    console.error("Clippings/mx: cleanUpClippingsMgr(): Error purging deleted clippings/folders: " + aErr);
+  });
 }
 
 

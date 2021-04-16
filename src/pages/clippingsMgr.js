@@ -2182,14 +2182,22 @@ $(async () => {
 $(window).on("unload", aEvent => {
   log("Clippings/mx::clippingsMgr.js: onunload event");
   
+  // Make sure that the selected clipping is saved before closing.
+  if (! gIsClippingsTreeEmpty) {
+    let tree = getClippingsTree();
+    let selectedNode = tree.activeNode;
+    let id = parseInt(selectedNode.key);
+
+    if (! selectedNode.folder) {
+      let content = $("#clipping-text").val();
+      gCmd.editClippingContentIntrl(id, content);
+    }
+  }
+  
   gClippings.removeClippingsListener(gClippingsListener);
   
   let syncClippingsListeners = gClippings.getSyncClippingsListeners();
   syncClippingsListeners.remove(gSyncClippingsListener);
-
-  gClippings.purgeFolderItems(aeConst.DELETED_ITEMS_FLDR_ID).catch(aErr => {
-    console.error("Clippings/mx::clippingsMgr.js: $(window).on('unload'): " + aErr);
-  });
 });
 
 

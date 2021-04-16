@@ -31,6 +31,7 @@ let aePrefs = function () {
     backupFilenameWithDate: true,
     legacyDataMigrnSuccess: null,
     showLegacyDataMigrnStatus: null,
+    clippingsMgrCleanUpIntv: 15000,
   };
 
   return {
