@@ -1338,126 +1338,138 @@ let gCmd = {
     });
   },
   
-  async editFolderNameIntrl(aFolderID, aName, aDestUndoStack)
+  editFolderNameIntrl(aFolderID, aName, aDestUndoStack)
   {
-    let oldName = "";
+     let that = this;
     
-    gClippingsDB.folders.get(aFolderID).then(aFolder => {
-      oldName = aFolder.name;
+    return new Promise((aFnResolve, aFnReject) => {
+      let oldName = "";
+      
+      gClippingsDB.folders.get(aFolderID).then(aFolder => {
+        oldName = aFolder.name;
 
-      if (aName == oldName) {
-        return 0;
-      }
+        if (aName == oldName) {
+          return 0;
+        }
 
-      this.recentAction = this.ACTION_EDITNAME;
-      return gClippingsSvc.updateFolder(aFolderID, { name: aName }, aFolder);
+	that.recentAction = that.ACTION_EDITNAME;
+        return gClippingsSvc.updateFolder(aFolderID, { name: aName }, aFolder);
 
-    }).then(aNumUpd => {
-      if (aNumUpd && aDestUndoStack == this.UNDO_STACK) {
-        this.undoStack.push({
-          action: this.ACTION_EDITNAME,
-          id: aFolderID,
-          name: aName,
-          oldName,
-          itemType: this.ITEMTYPE_FOLDER
-        });
-      }
+      }).then(aNumUpd => {
+        if (aNumUpd && aDestUndoStack == that.UNDO_STACK) {
+          that.undoStack.push({
+            action: that.ACTION_EDITNAME,
+            id: aFolderID,
+            name: aName,
+            oldName,
+            itemType: that.ITEMTYPE_FOLDER
+          });
+        }
 
-      if (gSyncedItemsIDs[aFolderID + "F"]) {
-        gClippings.pushSyncFolderUpdates().then(() => {
-          Promise.resolve();
-        }).catch(aErr => {
-          handlePushSyncItemsError(aErr);
-        });
-      }
-      else {
-        Promise.resolve();
-      }
-    }).catch(aErr => {
-      console.error("Clippings/mx::clippingsMgr.js: gCmd.editFolderNameIntrl(): " + aErr);
-      Promise.reject(aErr);
+        if (gSyncedItemsIDs[aFolderID + "F"]) {
+          gClippings.pushSyncFolderUpdates().then(() => {
+            aFnResolve();
+          }).catch(aErr => {
+            handlePushSyncItemsError(aErr);
+          });
+        }
+        else {
+          aFnResolve();
+        }
+      }).catch(aErr => {
+        console.error("Clippings/mx::clippingsMgr.js: gCmd.editFolderNameIntrl(): " + aErr);
+        aFnReject(aErr);
+      });
+    });
+ },
+
+  editClippingNameIntrl(aClippingID, aName, aDestUndoStack)
+  {
+    let that = this;
+    
+    return new Promise((aFnResolve, aFnReject) => {
+      let oldName = "";
+      
+      gClippingsDB.clippings.get(aClippingID).then(aClipping => {
+        oldName = aClipping.name;
+
+        if (aName == oldName) {
+          return 0;
+        }
+
+	that.recentAction = that.ACTION_EDITNAME;
+        return gClippingsSvc.updateClipping(aClippingID, { name: aName }, aClipping);
+
+      }).then(aNumUpd => {
+        if (aNumUpd && aDestUndoStack == that.UNDO_STACK) {
+          that.undoStack.push({
+            action: that.ACTION_EDITNAME,
+            id: aClippingID,
+            name: aName,
+            oldName,
+            itemType: that.ITEMTYPE_CLIPPING
+          });
+        }
+
+        if (gSyncedItemsIDs[aClippingID + "C"]) {
+          gClippings.pushSyncFolderUpdates().then(() => {
+            aFnResolve();
+          }).catch(aErr => {
+            handlePushSyncItemsError(aErr);
+          });
+        }
+        else {
+          aFnResolve();
+        }
+      }).catch(aErr => {
+        console.error("Clippings/mx::clippingsMgr.js: gCmd.editClippingNameIntrl(): " + aErr);
+        aFnReject(aErr);
+      });
     });
   },
 
-  async editClippingNameIntrl(aClippingID, aName, aDestUndoStack)
+  editClippingContentIntrl(aClippingID, aContent, aDestUndoStack)
   {
-    let oldName = "";
+    let that = this;
     
-    gClippingsDB.clippings.get(aClippingID).then(aClipping => {
-      oldName = aClipping.name;
+    return new Promise((aFnResolve, aFnReject) => {
+      let oldContent = "";
+      
+      gClippingsDB.clippings.get(aClippingID).then(aClipping => {
+        oldContent = aClipping.content;
 
-      if (aName == oldName) {
-        return 0;
-      }
+        if (aContent == oldContent) {
+          return 0;
+        }
 
-      this.recentAction = this.ACTION_EDITNAME;
-      return gClippingsSvc.updateClipping(aClippingID, { name: aName }, aClipping);
+	that.recentAction = that.ACTION_EDITCONTENT;
+        return gClippingsSvc.updateClipping(aClippingID, { content: aContent }, aClipping);
 
-    }).then(aNumUpd => {
-      if (aNumUpd && aDestUndoStack == this.UNDO_STACK) {
-        this.undoStack.push({
-          action: this.ACTION_EDITNAME,
-          id: aClippingID,
-          name: aName,
-          oldName,
-          itemType: this.ITEMTYPE_CLIPPING
-        });
-      }
+      }).then(aNumUpd => {
+        if (aNumUpd && aDestUndoStack == that.UNDO_STACK) {
+          that.undoStack.push({
+            action: that.ACTION_EDITCONTENT,
+            id: aClippingID,
+            content: aContent,
+            oldContent,
+            itemType: that.ITEMTYPE_CLIPPING
+          });
+        }
 
-      if (gSyncedItemsIDs[aClippingID + "C"]) {
-        gClippings.pushSyncFolderUpdates().then(() => {
-          Promise.resolve();
-        }).catch(aErr => {
-          handlePushSyncItemsError(aErr);
-        });
-      }
-      else {
-        Promise.resolve();
-      }
-    }).catch(aErr => {
-      console.error("Clippings/mx::clippingsMgr.js: gCmd.editClippingNameIntrl(): " + aErr);
-      Promise.reject(aErr);
-    });
-  },
-
-  async editClippingContentIntrl(aClippingID, aContent, aDestUndoStack)
-  {
-    let oldContent = "";
-    
-    gClippingsDB.clippings.get(aClippingID).then(aClipping => {
-      oldContent = aClipping.content;
-
-      if (aContent == oldContent) {
-        return 0;
-      }
-
-      this.recentAction = this.ACTION_EDITCONTENT;
-      return gClippingsSvc.updateClipping(aClippingID, { content: aContent }, aClipping);
-
-    }).then(aNumUpd => {
-      if (aNumUpd && aDestUndoStack == this.UNDO_STACK) {
-        this.undoStack.push({
-          action: this.ACTION_EDITCONTENT,
-          id: aClippingID,
-          content: aContent,
-          oldContent,
-          itemType: this.ITEMTYPE_CLIPPING
-        });
-      }
-
-      if (gSyncedItemsIDs[aClippingID + "C"]) {
-        gClippings.pushSyncFolderUpdates().then(() => {
-          Promise.resolve();
-        }).catch(aErr => {
-          handlePushSyncItemsError(aErr);
-        });
-      }
-      else {
-        Promise.resolve();
-      }
-    }).catch(aErr => {
-      console.error("Clippings/mx::clippingsMgr.js: gCmd.editClippingContentIntrl(): " + aErr);
-      Promise.reject(aErr);
+        if (gSyncedItemsIDs[aClippingID + "C"]) {
+          gClippings.pushSyncFolderUpdates().then(() => {
+            aFnResolve();
+          }).catch(aErr => {
+            handlePushSyncItemsError(aErr);
+          });
+        }
+        else {
+          aFnResolve();
+        }
+      }).catch(aErr => {
+        console.error("Clippings/mx::clippingsMgr.js: gCmd.editClippingContentIntrl(): " + aErr);
+        aFnReject(aErr);
+      });
     });
   },
   
@@ -3982,39 +3994,46 @@ function buildClippingsTreeHelper(aFolderID)
 }
 
 
-async function initSyncItemsIDLookupList()
+function initSyncItemsIDLookupList()
 {
-  async function initSyncItemsIDLookupListHelper(aFolderID)
+  function initSyncItemsIDLookupListHelper(aFolderID)
   {
-    gClippingsDB.transaction("r", gClippingsDB.clippings, gClippingsDB.folders, () => {
-      gClippingsDB.folders.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
-        gSyncedItemsIDs[aItem.id + "F"] = 1;
-        initSyncItemsIDLookupListHelper(aItem.id);
-        
-      }).then(() => {
-        return gClippingsDB.clippings.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
-          gSyncedItemsIDs[aItem.id + "C"] = 1;
-        });
+    return new Promise((aFnResolve, aFnReject) => {
+      gClippingsDB.transaction("r", gClippingsDB.clippings, gClippingsDB.folders, () => {
+        gClippingsDB.folders.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
+          gSyncedItemsIDs[aItem.id + "F"] = 1;
+          initSyncItemsIDLookupListHelper(aItem.id);
+          
+        }).then(() => {
+          return gClippingsDB.clippings.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
+            gSyncedItemsIDs[aItem.id + "C"] = 1;
+          });
 
-      }).then(() => {
-        Promise.resolve();
+        }).then(() => {
+          aFnResolve();
+        });
+      }).catch(aErr => {
+        aFnReject(aErr);
       });
-    }).catch(aErr => {
-      Promise.reject(aErr);
-    });
+    });    
   }
   // END nested helper function
 
-  let prefs = gClippings.getPrefs();
-  if (prefs.syncClippings) {
-    // Include the ID of the root Synced Clippings folder.
-    let syncFolderID = prefs.syncFolderID;
-    gSyncedItemsIDs[syncFolderID + "F"] = 1;
+  return new Promise((aFnResolve, aFnReject) => {
+    let prefs = gClippings.getPrefs();
+    if (! prefs.syncClippings) {
+      aFnResolve();
+    }
 
-    initSyncItemsIDLookupListHelper(syncFolderID).catch(aErr => {
-      Promise.reject(aErr);
+    // Include the ID of the root Synced Clippings folder.
+    gSyncedItemsIDs[prefs.syncFolderID + "F"] = 1;
+
+    initSyncItemsIDLookupListHelper(prefs.syncFolderID).then(() => {
+      aFnResolve();
+    }).catch(aErr => {
+      aFnReject(aErr);
     });
-  }
+  });
 }
 
 
