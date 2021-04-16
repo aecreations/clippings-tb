@@ -15,7 +15,7 @@ function init()
   });
 
   let alwaysShowCb = document.getElementById("always-show");
-  alwaysShowCb.checked = aeUtils.getPref("clippings.tb78.show_notice", true);
+  alwaysShowCb.checked = aeUtils.getPref("clippings.tb78.show_anncmt", true);
 
   alwaysShowCb.addEventListener("click", aEvent => {
     let alwaysShow = aEvent.target;

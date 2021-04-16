@@ -401,7 +401,7 @@ window.aecreations.clippings = {
     this.isClippingsInitialized = true;
 
     // Thunderbird 78 upgrade notice
-    if (this.util.aeUtils.getPref("clippings.tb78.show_notice", true)) {
+    if (this.util.aeUtils.getPref("clippings.tb78.show_anncmt", true)) {
       this.util.aeUtils.openURLInNewTab("chrome://clippings/content/thunderbird78.xhtml");
     }
   }

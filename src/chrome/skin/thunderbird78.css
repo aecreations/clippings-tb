@@ -66,6 +66,28 @@
         font-size: 12px;
         text-shadow: 1px 1px #f8f8f8;
     }
+
+    #page-actions {
+	margin-top: 32px;
+	text-align: center;
+    }
+
+    #page-actions button {
+	margin-top: 12px;
+	min-width: 100px;
+	padding-left: 18px;
+	padding-right: 18px;
+	height: 32px;
+    }
+
+    #page-actions input[type="checkbox"] + label {
+	font-size: 13px;
+	vertical-align: 0;
+    }
+
+    body[data-os="WINNT"] #page-actions input[type="checkbox"] + label {
+	vertical-align: 2px;
+    }
 }
 
 @media print {
@@ -103,6 +125,10 @@
         margin-top: 4em;
         font-size: 6pt;
     }
+
+    .page-options, #page-actions {
+	display: none;
+    }
 }
 
 h2 {
@@ -119,7 +145,8 @@ h3 {
     margin-left: 0.5rem;
 }
 
-p:first-of-type {
+p:first-of-type,
+.contact {
     margin-left: 0.5rem;
 }
 
@@ -155,26 +182,4 @@ a:hover, .hyperlink:hover {
     margin-left: 16px;
     width: 146px;
     height: 40px;
-}
-
-#page-actions {
-    margin-top: 28px;
-    text-align: center;
-}
-
-#page-actions button {
-    margin-top: 12px;
-    min-width: 100px;
-    padding-left: 18px;
-    padding-right: 18px;
-    height: 32px;
-}
-
-#page-actions input[type="checkbox"] + label {
-    font-size: 13px;
-    vertical-align: 0;
-}
-
-body[data-os="WINNT"] #page-actions input[type="checkbox"] + label {
-    vertical-align: 2px;
 }
