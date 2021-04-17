@@ -53,6 +53,8 @@ let aeConst = {
   CLIPPINGS_BACKUP_FILENAME: "clippings-tb-backup.json",
   CLIPPINGS_BACKUP_FILENAME_WITH_DATE: "clippings-tb-backup %s.json",
 
+  CLIPPINGSMGR_CLEANUP_INTERVAL_MS: 10000,
+
   // Backup reminder frequency
   BACKUP_REMIND_NEVER: 0,
   BACKUP_REMIND_DAILY: 1,
