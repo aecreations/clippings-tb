@@ -2646,42 +2646,59 @@ function initToolbar()
 
 function initInstantEditing()
 {
-  $("#clipping-name").attr("placeholder", messenger.i18n.getMessage("clipMgrNameHint")).blur(aEvent => {
-    let tree = getClippingsTree();
-    let selectedNode = tree.activeNode;
-    let name = aEvent.target.value;
-    let id = parseInt(selectedNode.key);
+  $("#clipping-name").attr("placeholder", messenger.i18n.getMessage("clipMgrNameHint"))
+    .blur(aEvent => {
+      let tree = getClippingsTree();
+      let selectedNode = tree.activeNode;
+      let name = aEvent.target.value;
+      let id = parseInt(selectedNode.key);
 
-    if (selectedNode.isFolder()) {
-      if (name) {
-        gCmd.editFolderNameIntrl(id, name, gCmd.UNDO_STACK);
+      if (selectedNode.isFolder()) {
+        if (name) {
+          gCmd.editFolderNameIntrl(id, name, gCmd.UNDO_STACK);
+        }
+        else {
+          aEvent.target.value = messenger.i18n.getMessage("untitledFolder");
+          gCmd.editFolderNameIntrl(id, messenger.i18n.getMessage("untitledFolder"), gCmd.UNDO_STACK);
+        }
       }
       else {
-        aEvent.target.value = messenger.i18n.getMessage("untitledFolder");
-        gCmd.editFolderNameIntrl(id, messenger.i18n.getMessage("untitledFolder"), gCmd.UNDO_STACK);
+        if (name) {
+          gCmd.editClippingNameIntrl(id, name, gCmd.UNDO_STACK);
+        }
+        else {
+          aEvent.target.value = messenger.i18n.getMessage("untitledClipping");
+          gCmd.editClippingNameIntrl(id, messenger.i18n.getMessage("untitledClipping"), gCmd.UNDO_STACK);
+        }
       }
-    }
-    else {
-      if (name) {
-        gCmd.editClippingNameIntrl(id, name, gCmd.UNDO_STACK);
-      }
-      else {
-        aEvent.target.value = messenger.i18n.getMessage("untitledClipping");
-        gCmd.editClippingNameIntrl(id, messenger.i18n.getMessage("untitledClipping"), gCmd.UNDO_STACK);
-      }
-    }
-  });
+    });
   
-  $("#clipping-text").attr("placeholder", messenger.i18n.getMessage("clipMgrContentHint")).blur(aEvent => {
-    let tree = getClippingsTree();
-    let selectedNode = tree.activeNode;
-    let id = parseInt(selectedNode.key);
+  let contentAutoSave = new aeAutoSave($("#clipping-text")[0], aeConst.CLIPPINGSMGR_AUTOSAVE_INTERVAL_MS);
+  contentAutoSave.debug = aeConst.DEBUG;
+  
+  $("#clipping-text").attr("placeholder", messenger.i18n.getMessage("clipMgrContentHint"))
+    .attr("spellcheck", gClippings.getPrefs().checkSpelling)
+    .focus(aEvent => {
+      let tree = getClippingsTree();
+      let selectedNode = tree.activeNode;
+      let id = parseInt(selectedNode.key);
 
-    if (! selectedNode.folder) {
-      let content = aEvent.target.value;
-      gCmd.editClippingContentIntrl(id, content, gCmd.UNDO_STACK);
-    }
-  }).attr("spellcheck", gClippings.getPrefs().checkSpelling);
+      contentAutoSave.onSave = aContent => {
+        gCmd.editClippingContentIntrl(id, aContent, gCmd.UNDO_STACK);
+      };
+      contentAutoSave.start();
+    }).blur(aEvent => {
+      let tree = getClippingsTree();
+      let selectedNode = tree.activeNode;
+      let id = parseInt(selectedNode.key);
+
+      if (! selectedNode.folder) {
+        let content = aEvent.target.value;
+        gCmd.editClippingContentIntrl(id, content, gCmd.UNDO_STACK);
+      }
+
+      contentAutoSave.stop();
+    });
 }
 
 
