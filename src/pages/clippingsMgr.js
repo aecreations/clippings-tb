@@ -2646,6 +2646,8 @@ function initToolbar()
 
 function initInstantEditing()
 {
+  let prefs = gClippings.getPrefs();
+  
   $("#clipping-name").attr("placeholder", messenger.i18n.getMessage("clipMgrNameHint"))
     .blur(aEvent => {
       let tree = getClippingsTree();
@@ -2673,7 +2675,7 @@ function initInstantEditing()
       }
     });
   
-  let contentAutoSave = new aeAutoSave($("#clipping-text")[0], aeConst.CLIPPINGSMGR_AUTOSAVE_INTERVAL_MS);
+  let contentAutoSave = new aeAutoSave($("#clipping-text")[0], prefs.clippingsMgrAutoSaveIntv);
   contentAutoSave.debug = aeConst.DEBUG;
   
   $("#clipping-text").attr("placeholder", messenger.i18n.getMessage("clipMgrContentHint"))

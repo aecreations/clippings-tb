@@ -32,6 +32,7 @@ let aePrefs = function () {
     legacyDataMigrnSuccess: null,
     showLegacyDataMigrnStatus: null,
     clippingsMgrCleanUpIntv: aeConst.CLIPPINGSMGR_CLEANUP_INTERVAL_MS,
+    clippingsMgrAutoSaveIntv: aeConst.CLIPPINGSMGR_AUTOSAVE_INTERVAL_MS,
   };
 
   return {
