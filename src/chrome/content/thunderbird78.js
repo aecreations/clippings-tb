@@ -7,7 +7,12 @@ const {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
 
 function init()
 {
-  document.body.dataset.os = aeUtils.getOS();
+  let os = aeUtils.getOS();
+  document.body.dataset.os = os;
+
+  if (os == "WINNT") {
+    document.getElementById("windows-shct-notice").style.display = "block";
+  }
 
   let printLinks = document.querySelectorAll(".print-page");
   printLinks.forEach(aElt => {
@@ -19,7 +24,7 @@ function init()
 
   alwaysShowCb.addEventListener("click", aEvent => {
     let alwaysShow = aEvent.target;
-    aeUtils.setPref("clippings.tb78.show_notice", alwaysShow.checked);
+    aeUtils.setPref("clippings.tb78.show_anncmt", alwaysShow.checked);
   });
 
   document.getElementById("close-pg").addEventListener("click", aEvent => {

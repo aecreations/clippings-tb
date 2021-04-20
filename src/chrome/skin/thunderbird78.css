@@ -183,3 +183,15 @@ a:hover, .hyperlink:hover {
     width: 146px;
     height: 40px;
 }
+
+#windows-shct-notice {
+    display: none;
+
+    border-style: solid;
+    border-width: 1px 1px 1px 8px;
+    border-color: #ddd #ddd #ddd green;
+    padding: 12px;
+    margin-top: 16px;
+    margin-bottom: 16px;
+    background-color: #fef8db;
+}
