@@ -29,6 +29,7 @@ pref("extensions.aecreations.clippings.beep_on_error", true);
 pref("extensions.aecreations.clippings.migrated_prefs", false);
 pref("extensions.aecreations.clippings.paste_shortcut_mode", 1);
 pref("extensions.aecreations.clippings.tb78.show_warning", false);
-pref("extensions.aecreations.clippings.tb78.show_notice", true);
+pref("extensions.aecreations.clippings.tb78.show_notice", false);
+pref("extensions.aecreations.clippings.tb78.show_anncmt", true);
 pref("extensions.{91aa5abe-9de4-4347-b7b5-322c38dd9271}.description", "chrome://clippings/locale/clippings.properties");
 
