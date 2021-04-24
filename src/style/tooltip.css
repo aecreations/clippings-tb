@@ -1,0 +1,38 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+:root {
+    --color-tooltip-text: #000;
+    --color-tooltip-bkgd: rgb(255, 255, 225);
+    --color-tooltip-border: rgb(108, 108, 0);
+    --color-tooltip-shadow: #8f8f8f;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+	--color-tooltip-text: #000;
+	--color-tooltip-bkgd: rgb(255, 255, 225);
+	--color-tooltip-border: black;
+	--color-tooltip-shadow: #2a2a2e;
+    }
+}
+
+
+/* Style overrides for jQuery Tooltip widget */
+.ui-tooltip {
+    margin-left: 3px;
+    margin-right: 3px;
+    margin-bottom: 3px;
+    padding: 2px;
+    border: 1px solid var(--color-tooltip-border) !important;
+    border-radius: 0;
+    box-shadow: 4px 4px 2px -2px var(--color-tooltip-shadow);
+    background-color: var(--color-tooltip-bkgd);
+    color: var(--color-tooltip-text);
+}
+
+.ui-tooltip-content {
+    font: caption;
+    font-size: 11px;
+}

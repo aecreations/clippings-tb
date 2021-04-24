@@ -1,0 +1,81 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("../style/dialog.css");
+
+
+body {
+    font-size: 15px;
+}
+
+h3 {
+    font-size: 17px;
+    font-weight: 600;
+    margin: 0;
+}
+
+fieldset {
+    margin-top: 18px;
+    margin-left: 0;
+}
+
+fieldset > legend {
+    margin-left: -12px;
+    font-size: 15px;
+}
+
+select.browser-style {
+    font-size: unset;
+}
+
+.centered-row {
+    width: 100%;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    text-align: center;
+}
+
+.hint, .note {
+    font-size: 13px;
+}
+
+#backup-now {
+    min-width: 160px;
+    height: 48px;
+    padding-left: 16px;
+    padding-right: 16px;
+    font-size: 17px !important;
+    font-weight: 600;
+}
+
+body[data-os="mac"] #backup-now {
+    height: 26px;
+    font-size: 15px !important;
+    font-weight: 400;
+}
+
+#backup-reminder-freq {
+    margin-left: 4px;
+    margin-right: 4px;
+    font-size: 15px;
+}
+
+#prefs-hint {
+    margin-top: 2px;
+}
+
+#dlg-buttons {
+    right: 16px;
+    z-index: 1;
+}
+
+#dlg-buttons > button {
+    min-width: 96px;
+    height: 32px;
+    font-size: 15px !important;
+}
+
+body[data-os="mac"] #dlg-buttons > button {
+    height: 26px;
+}

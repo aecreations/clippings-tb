@@ -1,0 +1,152 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+
+:root {
+    --color-clippings-tree-bkgd: #fbfbfb;
+    --color-default-text: black;
+    --color-active-node: #eff9fe;
+    --color-active-border: #70c0e7;
+    --color-focused-node: #cbe8f6;
+    --color-focused-border: #26a0da;
+    --color-selected-node: #f7f7f7;
+    --color-selected-border: #dedede;
+    --url-treelist-icons: url("../lib/fancytree/skin-win8/icons.gif");
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+	--color-clippings-tree-bkgd: #202023;
+	--color-default-text: #f9f9fa;
+	--color-focused-node: #0a84ff;
+	--color-focused-border: #0060df;
+	--color-active-node: #003eaa;
+	--color-active-border: #002275;
+	--color-selected-node: #4a4a4f;
+	--color-selected-border: #38383d;
+	--url-treelist-icons: url("../img/tree-icons-dk.png");
+    }
+}
+
+
+/* Fancytree style overrides */
+#fancytree-drop-marker, span.fancytree-checkbox, span.fancytree-drag-helper-img, span.fancytree-empty, span.fancytree-expander, span.fancytree-icon, span.fancytree-vline {
+    background-image: var(--url-treelist-icons);
+}
+
+ul.fancytree-container {
+    font: caption;
+    font-size: 12px;
+    background-color: var(--color-clippings-tree-bkgd);
+}
+
+span.fancytree-title {
+    cursor: default;
+    padding: 1px 3px 0 3px;
+    color: var(--color-default-text);
+}
+
+.fancytree-plain span.fancytree-title {
+    border: none;
+    padding: 2px 3px 3px 3px;
+}
+
+.fancytree-plain span.fancytree-active span.fancytree-title,
+.fancytree-plain span.fancytree-selected span.fancytree-title {
+    background-color: var(--color-selected-node);
+    border: 1px solid var(--color-selected-border);
+    padding: 1px 2px 2px 2px;
+}
+
+.fancytree-plain span.fancytree-node:hover span.fancytree-title {
+    background-color: var(--color-active-node);
+    border: 1px solid var(--color-active-border);
+    padding: 1px 2px 2px 2px;
+}
+
+.fancytree-plain.fancytree-container.fancytree-treefocus span.fancytree-active span.fancytree-title,
+.fancytree-plain.fancytree-container.fancytree-treefocus span.fancytree-selected span.fancytree-title {
+    background-color: var(--color-focused-node);
+    border: 1px solid var(--color-focused-border);
+    padding: 1px 2px 2px 2px;
+}
+
+
+/* Tree icons for clippings and folders */
+.ui-fancytree .fancytree-node > .fancytree-icon {
+    background-position: unset;
+    background-image: url("../img/clipping.svg");
+}
+
+.fancytree-has-children.fancytree-ico-cf span.fancytree-icon {
+    background-position: unset;
+}
+
+.ui-fancytree .fancytree-folder > .fancytree-icon {
+    background-position: unset;
+    background-image: url("../img/folder.svg");
+}
+
+.ui-fancytree .fancytree-expanded > .fancytree-icon {
+    background-position: unset;
+    background-image: url("../img/folder-open.svg");
+}
+
+.ui-fancytree .ae-clippings-root > .fancytree-icon {
+    background-position: unset;
+    background-image: url("../img/clippings-root.svg");    
+}
+
+/* Tree icons for clippings with labels */
+.ui-fancytree .ae-clipping-label-red > .fancytree-icon {
+    background-position: unset;
+    background-image: url("../img/clipping-red.svg");
+}
+    
+.ui-fancytree .ae-clipping-label-orange > .fancytree-icon {
+    background-position: unset;
+    background-image: url("../img/clipping-orange.svg");
+}
+
+.ui-fancytree .ae-clipping-label-yellow > .fancytree-icon {
+    background-position: unset;
+    background-image: url("../img/clipping-yellow.svg");
+}
+
+.ui-fancytree .ae-clipping-label-green > .fancytree-icon {
+    background-position: unset;
+    background-image: url("../img/clipping-green.svg");
+}
+
+.ui-fancytree .ae-clipping-label-purple > .fancytree-icon {
+    background-position: unset;
+    background-image: url("../img/clipping-purple.svg");
+}
+
+.ui-fancytree .ae-clipping-label-blue > .fancytree-icon {
+    background-position: unset;
+    background-image: url("../img/clipping-blue.svg");
+}
+
+.ui-fancytree .ae-clipping-label-grey > .fancytree-icon {
+    background-position: unset;
+    background-image: url("../img/clipping-grey.svg");
+}
+
+/* Suppress Fancytree node icon hover styling */
+.fancytree-ico-ef span.fancytree-icon:hover {
+    background-position: unset;
+}
+
+.fancytree-has-children.fancytree-ico-cf span.fancytree-icon:hover {
+    background-position: unset;
+}
+
+.fancytree-ico-cf span.fancytree-icon:hover {
+    background-position: unset;
+}
+
+.fancytree-ico-c span.fancytree-icon:hover {
+    background-position: unset;
+}

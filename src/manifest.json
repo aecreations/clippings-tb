@@ -1,16 +1,15 @@
 {
   "manifest_version": 2,
-  "name": "Clippings",
-  "description": "Save frequently-entered text for pasting later.",
-  "version": "5.7.3",
+  "name": "__MSG_extNameTB__",
+  "description": "__MSG_extDesc__",
+  "version": "6.0",
   "author": "AE Creations",
-  "homepage_url": "https://aecreations.sourceforge.io/clippings/",
-
+  "homepage_url": "https://aecreations.sourceforge.io/clippings/index.php",
   "browser_specific_settings": {
     "gecko": {
       "id": "clippings-tb@aecreations.github.io",
-      "strict_min_version": "68.0",
-      "strict_max_version": "68.*",
+      "strict_min_version": "78.0",
+      "strict_max_version": "78.*",
       "update_url": "https://aecreations.github.io/updates/update.json"
     }
   },
@@ -19,11 +18,51 @@
     "32": "icon.svg"
   },
 
-  "legacy": {
-    "type": "xul",
-    "options": {
-      "page": "chrome://clippings/content/preferences.xul",
-      "open_in_tab": false
+  "permissions": [
+    "downloads",
+    "nativeMessaging",
+    "notifications",
+    "storage",
+    "unlimitedStorage"
+  ],
+
+  "background": {
+    "scripts": [
+      "lib/dexie/dexie.min.js",
+      "lib/jquery.js",
+      "scripts/aeConst.js",
+      "scripts/aeListeners.js",
+      "scripts/aeDateDiff.js",
+      "scripts/aeImportExport.js",
+      "scripts/aePrefs.js",
+      "background.js"
+    ]
+  },
+
+  "options_ui": {
+    "page": "pages/options.html",
+    "open_in_tab": true,
+    "browser_style": true
+  },
+  
+  "experiment_apis": {
+    "WindowListener": {
+      "schema": "api/WindowListener/schema.json",
+      "parent": {
+        "scopes": ["addon_parent"],
+        "paths": [["WindowListener"]],
+        "script": "api/WindowListener/implementation.js"
+      }
+    },
+    "aeClippingsLegacy": {
+      "schema": "api/aeClippingsLegacy/schema.json",
+      "parent": {
+	"scopes": ["addon_parent"],
+        "paths": [["aeClippingsLegacy"]],
+        "script": "api/aeClippingsLegacy/implementation.js"
+      }
     }
-  }
+  },
+
+  "default_locale": "en"
 }

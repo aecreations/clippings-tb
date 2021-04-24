@@ -1,0 +1,45 @@
+[
+  {
+    "namespace": "aeClippingsLegacy",
+    "functions": [
+      {
+	"name": "getPref",
+	"description": "Returns the value of the given legacy pref",
+	"type": "function",
+	"async": true,
+	"parameters": [
+	  {
+	    "name": "prefName",
+	    "type": "string",
+	    "description": "The pref name"
+	  },
+	  {
+	    "name": "defaultValue",
+	    "type": "any",
+	    "description": "Default pref value"
+	  }
+	]
+      },
+      {
+	"name": "clearPref",
+	"description": "Clears the value of the given legacy pref",
+	"type": "function",
+	"async": true,
+	"parameters": [
+	  {
+	    "name": "prefName",
+	    "type": "string",
+	    "description": "The pref name"
+	  }
+	]
+      },
+      {
+	"name": "getClippingsFromJSONFile",
+	"description": "Returns the data from the Clippings JSON data file, or null if file does not exist",
+	"type": "function",
+	"async": true,
+	"parameters": []
+      }
+    ]
+  }
+]

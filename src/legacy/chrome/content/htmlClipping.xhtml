@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+
+<!DOCTYPE dialog>
+
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<dialog id="ae-clippings-confirm-html-insert"
+ title="Paste Clipping"
+ orient="vertical"
+ xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+ buttons="accept,cancel" buttonlabelaccept="Paste Clipping"
+ onload="init()">
+
+  <script type="application/javascript" src="chrome://clippings/content/htmlClipping.js"/>
+
+  <separator class="thin"/>
+  <description style="min-width:16em">The selected clipping appears to contain HTML tags.</description>
+
+  <radiogroup id="rich-text-insert-option" style="-moz-box-orient:vertical;margin-left:8px">
+    <radio label="Paste as formatted text" selected="true"/>
+    <radio label="Paste as plain text, preserving HTML tags"/>
+  </radiogroup>
+
+  <separator class="thin"/>
+
+</dialog>
