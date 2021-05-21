@@ -5,7 +5,8 @@
 :root {
     --color-tooltip-text: #000;
     --color-tooltip-bkgd: rgb(255, 255, 225);
-    --color-tooltip-border: rgb(108, 108, 0);
+    --color-tooltip-border-dk: #999933;
+    --color-tooltip-border-hl: #EEEE00;
     --color-tooltip-shadow: #8f8f8f;
 }
 
@@ -25,7 +26,12 @@
     margin-right: 3px;
     margin-bottom: 3px;
     padding: 2px;
-    border: 1px solid var(--color-tooltip-border) !important;
+    border-width: 1px;
+    border-style: solid;
+    border-top-color: var(--color-tooltip-border-hl) !important;
+    border-left-color: var(--color-tooltip-border-hl) !important;
+    border-bottom-color: var(--color-tooltip-border-dk) !important;
+    border-right-color: var(--color-tooltip-border-dk) !important;
     border-radius: 0;
     box-shadow: 4px 4px 2px -2px var(--color-tooltip-shadow);
     background-color: var(--color-tooltip-bkgd);
