@@ -12,7 +12,7 @@
    viewBox="0 0 16.0 16.0"
    version="1.1"
    id="SVGRoot"
-   sodipodi:docname="shctkeys_hover.svg"
+   sodipodi:docname="shctkeys_hover-dk.svg"
    inkscape:version="1.0.1 (c497b03c, 2020-09-10)">
   <defs
      id="defs1631" />
@@ -48,7 +48,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -182,12 +182,12 @@
        id="path5522"
        sodipodi:nodetypes="cc" />
     <path
-       style="fill:none;stroke:#7f78bf;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="fill:none;stroke:#918bcc;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="M 1,15.515634 H 15.5 V 7.0156344"
        id="path5531"
        sodipodi:nodetypes="ccc" />
     <path
-       style="fill:none;stroke:#5858ff;stroke-width:1.00157;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:none;stroke:#bfb9ff;stroke-width:1.00157;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.94117647"
        d="M 7.501961,6.0270967 7.493901,5.0643823 c 0,0 0.023588,-0.3292118 -0.076539,-0.4388803 C 7.3088082,4.5066026 6.9510386,4.4996733 6.9510386,4.4996733 l -3.5149416,0.00272 c 0,0 -0.9164275,-0.01281 -0.9170291,-0.9943689 C 2.5184664,2.5264696 3.4913397,2.5136599 3.4913397,2.5136599 l 7.6212953,-0.024935 c 0,0 0.543114,0.028061 0.964049,-0.416285 0.420935,-0.4443455 0.4192,-0.9319402 0.4192,-0.9319402 l 1.9e-5,-1.13485911"
        id="path2064"
        sodipodi:nodetypes="ccacczcczcc" />
