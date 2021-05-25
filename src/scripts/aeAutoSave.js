@@ -5,12 +5,10 @@
 
 class aeAutoSave
 {
-  static DEFAULT_SAVE_INTV_MS = 3000;
-  
   constructor(aInputDOMElt, aSaveInterval)
   {
     this._inputElt = aInputDOMElt;
-    this._saveInterval = aSaveInterval || aeAutoSave.DEFAULT_SAVE_INTV_MS;
+    this._saveInterval = aSaveInterval || 3000;
     this._saveIntvID = null;
     this._fnSave = () => {};
     this._oldContent = null;
