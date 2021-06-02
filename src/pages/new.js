@@ -8,6 +8,7 @@ const WNDH_OPTIONS_EXPANDED = 486;
 const DLG_HEIGHT_ADJ_WINDOWS = 36;
 const DLG_HEIGHT_ADJ_LOCALE_ES = 16;
 
+let gOS;
 let gClippingsDB = null;
 let gClippings = null;
 let gParentFolderID = 0;
@@ -15,6 +16,7 @@ let gSrcURL = "";
 let gCreateInFldrMenu;
 let gFolderPickerPopup;
 let gNewFolderDlg, gPreviewDlg;
+let gSyncFldrID = null;
 
 
 // Page initialization
@@ -39,11 +41,14 @@ $(async () => {
     return;
   };
 
-  document.body.dataset.os = gClippings.getOS();
+  let resp = await messenger.runtime.sendMessage({msgID: "get-env-info"});
+  document.body.dataset.os = gOS = resp.os;
+
+  gSyncFldrID = await messenger.runtime.sendMessage({ msgID: "get-sync-fldr-id" });
 
   $("#btn-expand-options").click(async (aEvent) => {
     let height = WNDH_OPTIONS_EXPANDED;
-    if (gClippings.getOS() == "win") {
+    if (gOS == "win") {
       height += DLG_HEIGHT_ADJ_WINDOWS;
     }
     
@@ -147,8 +152,7 @@ function showInitError()
 
 function initDialogs()
 {
-  let osName = gClippings.getOS();
-  $(".msgbox-error-icon").attr("os", osName);
+  $(".msgbox-error-icon").attr("os", gOS);
   
   gNewFolderDlg = new aeDialog("#new-folder-dlg");
   gNewFolderDlg.firstInit = true;
@@ -189,7 +193,7 @@ function initDialogs()
       let fldrID = aFolderData.node.key;
       fldrPickerMnuBtn.val(fldrID).text(aFolderData.node.title);
 
-      if (fldrID == gClippings.getSyncFolderID()) {
+      if (fldrID == gSyncFldrID) {
         fldrPickerMnuBtn.attr("syncfldr", "true");
       }
       else {
@@ -201,7 +205,7 @@ function initDialogs()
     };
 
     fldrPickerMnuBtn.val(selectedFldrID).text(selectedFldrName);
-    if (selectedFldrID == gClippings.getSyncFolderID()) {
+    if (selectedFldrID == gSyncFldrID) {
       fldrPickerMnuBtn.attr("syncfldr", "true");
     }
     else {
@@ -378,7 +382,7 @@ function selectFolder(aFolderData)
   let fldrPickerMenuBtn = $("#new-clipping-fldr-picker-menubtn");
   fldrPickerMenuBtn.text(aFolderData.node.title).val(gParentFolderID);
 
-  if (gParentFolderID == gClippings.getSyncFolderID()) {
+  if (gParentFolderID == gSyncFldrID) {
     fldrPickerMenuBtn.attr("syncfldr", "true");
   }
   else {
@@ -406,7 +410,7 @@ async function initShortcutKeyMenu()
     }
   });
 
-  let keybPasteKeys = await gClippings.getShortcutKeyPrefixStr();
+  let keybPasteKeys = await messenger.runtime.sendMessage({msgID: "get-shct-key-prefix-ui-str"});
   let tooltip = messenger.i18n.getMessage("shctKeyHintTB", keybPasteKeys);
   $("#shct-key-tooltip").attr("title", tooltip);
 }
@@ -501,10 +505,9 @@ function accept(aEvent)
       });
 
       if (prefs.syncClippings) {
-        let syncFldrID = gClippings.getSyncFolderID();
         aeImportExport.setDatabase(gClippingsDB);
         
-        return aeImportExport.exportToJSON(true, true, syncFldrID, false, true);
+        return aeImportExport.exportToJSON(true, true, gSyncFldrID, false, true);
       }
       return null;
 

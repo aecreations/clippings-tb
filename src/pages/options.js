@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 let gClippings;
+let gOS;
 let gDialogs = {};
 let gIsActivatingSyncClippings = false;
 
@@ -35,8 +36,8 @@ $(async () => {
 
 async function init()
 {
-  let os = gClippings.getOS();
-  document.body.dataset.os = os;
+  let resp = await messenger.runtime.sendMessage({msgID: "get-env-info"});
+  document.body.dataset.os = gOS = resp.os;
 
   let keyCtrl  = messenger.i18n.getMessage("keyCtrl");
   let keyAlt   = messenger.i18n.getMessage("keyAlt");
@@ -44,14 +45,14 @@ async function init()
   let shctModeKeys = `${keyCtrl}+${keyAlt}+V`;
   let shctModeKeysNew = `${keyAlt}+${keyShift}+Y`;
   
-  if (os == "win") {
+  if (gOS == "win") {
     // Cannot use Ctrl+Alt+V - already assigned to a global shortcut for
     // inserting the radical symbol (√) on Windows 10
     $("#shortcut-key").css({ display: "none" });
     $("#shct-label").css({ display: "none" });
     $("#row-shct-key-new").removeClass("indent");
   }
-  else if (os == "mac") {
+  else if (gOS == "mac") {
     let keyOption = messenger.i18n.getMessage("keyOption");
     let keyCmd = messenger.i18n.getMessage("keyCommand");
     shctModeKeys = `${keyOption}${keyCmd}V`;
@@ -64,7 +65,7 @@ async function init()
   $("#shct-label").text(messenger.i18n.getMessage("prefsShctMode", shctModeKeys));
 
   let shctNewLabelTxt = messenger.i18n.getMessage("prefsShctModeNew", shctModeKeysNew);
-  if (os == "win") {
+  if (gOS == "win") {
     shctNewLabelTxt = messenger.i18n.getMessage("prefsShctMode", shctModeKeysNew);
   }
   $("#shct-new-label").text(shctNewLabelTxt);
@@ -212,8 +213,7 @@ function setPref(aPref)
 
 function initDialogs()
 {
-  let osName = gClippings.getOS();
-  $(".msgbox-icon").attr("os", osName);
+  $(".msgbox-icon").attr("os", gOS);
   
   gDialogs.syncClippings = new aeDialog("#sync-clippings-dlg");
   gDialogs.syncClippings.oldShowSyncItemsOpt = null;
@@ -375,10 +375,10 @@ function initDialogs()
   };
 
   // Dialog UI strings
-  if (osName == "win") {
+  if (gOS == "win") {
     $("#example-sync-path").text(messenger.i18n.getMessage("syncFileDirExWin"));
   }
-  else if (osName == "mac") {
+  else if (gOS == "mac") {
     $("#example-sync-path").text(messenger.i18n.getMessage("syncFileDirExMac"));
   }
   else {
@@ -520,8 +520,7 @@ $(window).keydown(aEvent => {
   function isAccelKeyPressed()
   {
     let rv;
-    let os = gClippings.getOS();
-    if (os == "mac") {
+    if (gOS == "mac") {
       rv = aEvent.metaKey;
     }
     else {

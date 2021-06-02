@@ -8,7 +8,7 @@ const DEBUG_WND_ACTIONS = false;
 const ENABLE_PASTE_CLIPPING = false;
 const NEW_CLIPPING_FROM_CLIPBOARD = "New Clipping From Clipboard";
 
-let gOS;
+let gEnvInfo;
 let gClippingsDB;
 let gClippings;
 let gIsClippingsTreeEmpty;
@@ -16,7 +16,7 @@ let gDialogs = {};
 let gOpenerWndID;
 let gIsMaximized;
 let gSuppressAutoMinzWnd;
-let gSyncFolderID;
+let gSyncFldrID;
 let gSyncedItemsIDs = {};
 let gIsBackupMode = false;
 let gErrorPushSyncItems = false;
@@ -219,7 +219,7 @@ let gClippingsListener = {
       children: []
     };
 
-    if (aID == gClippings.getSyncFolderID()) {
+    if (aID == gSyncFldrID) {
       newNodeData.extraClasses = "ae-synced-clippings-fldr";
     }
 
@@ -768,7 +768,7 @@ let gClippingLabelPicker = {
 let gReloadSyncFldrBtn = {
   show()
   {
-    let syncFldrID = gClippings.getSyncFolderID();
+    let syncFldrID = gSyncFldrID;
     if (syncFldrID === null) {
       return;
     }
@@ -1058,7 +1058,7 @@ let gCmd = {
     let selectedNode = tree.activeNode;
     if (selectedNode && selectedNode.isFolder()) {
       let folderID = parseInt(selectedNode.key);
-      if (folderID == gClippings.getSyncFolderID()) {
+      if (folderID == gSyncFldrID) {
         window.setTimeout(() => {gDialogs.moveSyncFldr.showModal()});
         return;
       }
@@ -1083,7 +1083,7 @@ let gCmd = {
     let parentFolderID = this._getParentFldrIDOfTreeNode(selectedNode);
     
     if (selectedNode.isFolder()) {
-      if (id == gClippings.getSyncFolderID()) {
+      if (id == gSyncFldrID) {
         window.setTimeout(() => {gDialogs.deleteSyncFldr.showModal()}, 100);
         return;
       }
@@ -1567,7 +1567,7 @@ let gCmd = {
             gClippings.rebuildContextMenu();
           }
 
-          if (aFolderID == gClippings.getSyncFolderID() || gSyncedItemsIDs[aFolderID + "F"] !== undefined) {
+          if (aFolderID == gSyncFldrID || gSyncedItemsIDs[aFolderID + "F"] !== undefined) {
             gClippings.pushSyncFolderUpdates().then(() => {
               log("Clippings/mx::clippingsMgr.js::gCmd.updateDisplayOrder(): Saved the display order for synced items.");
             });
@@ -2112,12 +2112,11 @@ $(async () => {
 
   aeImportExport.setDatabase(gClippingsDB);
 
-  let platform = await messenger.runtime.getPlatformInfo();
-  gOS = platform.os;
+  gEnvInfo = await messenger.runtime.sendMessage({msgID: "get-env-info"});
 
   // Platform-specific initialization.
-  document.body.dataset.os = gClippings.getOS();
-  if (gOS == "mac") {
+  document.body.dataset.os = gEnvInfo.os;
+  if (gEnvInfo.os == "mac") {
     $("#status-bar").css({ backgroundImage: "none" });
   }
 
@@ -2138,7 +2137,7 @@ $(async () => {
   gClippingsListener.origin = aeConst.ORIGIN_CLIPPINGS_MGR;
   gClippings.addClippingsListener(gClippingsListener);
 
-  gSyncFolderID = prefs.syncFolderID;
+  gSyncFldrID = prefs.syncFolderID;
 
   let syncClippingsListeners = gClippings.getSyncClippingsListeners();
   syncClippingsListeners.add(gSyncClippingsListener);
@@ -2208,7 +2207,7 @@ $(document).keydown(async (aEvent) => {
     return;
   }
   
-  const isMacOS = gClippings.getOS() == "mac";
+  const isMacOS = gEnvInfo.os == "mac";
 
   function isAccelKeyPressed()
   {
@@ -2305,7 +2304,7 @@ $(window).on("click", aEvent => {
 
 
 $(window).on("blur", aEvent => {
-  if (gOS == "linux" || DEBUG_WND_ACTIONS) {
+  if (gEnvInfo.os == "linux" || DEBUG_WND_ACTIONS) {
     if (gClippings.getPrefs().clippingsMgrMinzWhenInactv && !gSuppressAutoMinzWnd) {
       let updWndInfo = { state: "minimized" };
       messenger.windows.update(messenger.windows.WINDOW_ID_CURRENT, updWndInfo);
@@ -2603,7 +2602,7 @@ function initToolbar()
         name: messenger.i18n.getMessage("mnuMaximize"),
         className: "ae-menuitem",
         visible: function (aKey, aOpt) {
-          return (gOS == "win" || DEBUG_WND_ACTIONS);
+          return (gEnvInfo.os == "win" || DEBUG_WND_ACTIONS);
         },
         icon: function (aKey, aOpt) {
           if (gIsMaximized) {
@@ -2615,7 +2614,7 @@ function initToolbar()
         name: messenger.i18n.getMessage("mnuMinimizeWhenInactive"),
         className: "ae-menuitem",
         visible: function (aKey, aOpt) {
-          return (gOS == "linux" || DEBUG_WND_ACTIONS);
+          return (gEnvInfo.os == "linux" || DEBUG_WND_ACTIONS);
         },
         icon: function (aKey, aOpt) {
           if (gClippings.getPrefs().clippingsMgrMinzWhenInactv) {
@@ -2626,7 +2625,7 @@ function initToolbar()
       windowCmdsSeparator: {
         type: "cm_separator",
         visible: function (akey, aOpt) {
-          return (gOS != "mac" || DEBUG_WND_ACTIONS);
+          return (gEnvInfo.os != "mac" || DEBUG_WND_ACTIONS);
         }
       },
       openExtensionPrefs: {
@@ -2706,8 +2705,8 @@ function initInstantEditing()
 
 function initIntroBannerAndHelpDlg()
 {
-  const isMacOS = gClippings.getOS() == "mac";
-  const isLinux = gClippings.getOS() == "linux";
+  const isMacOS = gEnvInfo.os == "mac";
+  const isLinux = gEnvInfo.os == "linux";
 
   function buildKeyMapTable(aTableDOMElt)
   {
@@ -2764,7 +2763,7 @@ function initIntroBannerAndHelpDlg()
 
 function initDialogs()
 {
-  let osName = gClippings.getOS();
+  let osName = gEnvInfo.os;
   $(".msgbox-icon").attr("os", osName);
   $("#import-dlg #restore-backup-warning > .warning-icon").attr("os", osName);
 
@@ -2785,59 +2784,57 @@ function initDialogs()
 
   gDialogs.shortcutList = new aeDialog("#shortcut-list-dlg");
   gDialogs.shortcutList.isInitialized = false;
-  gDialogs.shortcutList.onInit = () => {
+  gDialogs.shortcutList.onInit = async () => {
     let that = gDialogs.shortcutList;
-
-    gClippings.getShortcutKeyPrefixStr().then(aKeybPasteKeys => {
-      if (! that.isInitialized) {
-        let shctPrefixKey = 0;
-        $("#shortcut-instrxns").text(messenger.i18n.getMessage("clipMgrShortcutHelpInstrxnTB", aKeybPasteKeys));
-        let extVer = messenger.runtime.getManifest().version;
-        
-        aeImportExport.setL10nStrings({
-          shctTitle: messenger.i18n.getMessage("expHTMLTitle"),
-          hostAppInfo: messenger.i18n.getMessage(
-            "expHTMLHostAppInfo",
-            [extVer, `${gClippings.getHostAppName()} ${gClippings.getHostAppVer()}`]
-          ),
-          shctKeyInstrxns: messenger.i18n.getMessage("expHTMLShctKeyInstrxnTB"),
-	  shctKeyCustNote: "",
-          shctKeyColHdr: messenger.i18n.getMessage("expHTMLShctKeyCol"),
-          clippingNameColHdr: messenger.i18n.getMessage("expHTMLClipNameCol"),
-        });
-
-        $("#export-shct-list").click(aEvent => {
-          aeImportExport.getShortcutKeyListHTML(true).then(aHTMLData => {
-            let blobData = new Blob([aHTMLData], { type: "text/html;charset=utf-8"});
-            let downldOpts = {
-              url: URL.createObjectURL(blobData),
-              filename: aeConst.HTML_EXPORT_SHORTCUTS_FILENAME,
-              saveAs: true,
-            };
-            return messenger.downloads.download(downldOpts);
-
-          }).catch(aErr => {
-            if (aErr.fileName == "undefined") {
-              // User cancel
-            }
-            else {
-              console.error(aErr);
-              window.alert("Sorry, an error occurred while creating the export file.\n\nDetails:\n" + getErrStr(aErr));
-            }
-
-          }).finally(() => {
-            window.focus();
-          });
-        });
-        
-        that.isInitialized = true;
-      }
-
-      aeImportExport.getShortcutKeyListHTML(false).then(aShctListHTML => {
-        $("#shortcut-list-content").append(sanitizeHTML(aShctListHTML));
-      }).catch(aErr => {
-        console.error("Clippings/mx::clippingsMgr.js: gDialogs.shortcutList.onInit(): " + aErr);
+    let keybPasteKeys = await messenger.runtime.sendMessage({msgID: "get-shct-key-prefix-ui-str"});
+    if (! that.isInitialized) {
+      let shctPrefixKey = 0;
+      $("#shortcut-instrxns").text(messenger.i18n.getMessage("clipMgrShortcutHelpInstrxnTB", keybPasteKeys));
+      let extVer = messenger.runtime.getManifest().version;
+      
+      aeImportExport.setL10nStrings({
+        shctTitle: messenger.i18n.getMessage("expHTMLTitle"),
+        hostAppInfo: messenger.i18n.getMessage(
+          "expHTMLHostAppInfo",
+          [extVer, `${gEnvInfo.hostAppName} ${gEnvInfo.hostAppVer}`]
+        ),
+        shctKeyInstrxns: messenger.i18n.getMessage("expHTMLShctKeyInstrxnTB"),
+	shctKeyCustNote: "",
+        shctKeyColHdr: messenger.i18n.getMessage("expHTMLShctKeyCol"),
+        clippingNameColHdr: messenger.i18n.getMessage("expHTMLClipNameCol"),
       });
+
+      $("#export-shct-list").click(aEvent => {
+        aeImportExport.getShortcutKeyListHTML(true).then(aHTMLData => {
+          let blobData = new Blob([aHTMLData], { type: "text/html;charset=utf-8"});
+          let downldOpts = {
+            url: URL.createObjectURL(blobData),
+            filename: aeConst.HTML_EXPORT_SHORTCUTS_FILENAME,
+            saveAs: true,
+          };
+          return messenger.downloads.download(downldOpts);
+
+        }).catch(aErr => {
+          if (aErr.fileName == "undefined") {
+            // User cancel
+          }
+          else {
+            console.error(aErr);
+            window.alert("Sorry, an error occurred while creating the export file.\n\nDetails:\n" + getErrStr(aErr));
+          }
+
+        }).finally(() => {
+          window.focus();
+        });
+      });
+      
+      that.isInitialized = true;
+    }
+
+    aeImportExport.getShortcutKeyListHTML(false).then(aShctListHTML => {
+      $("#shortcut-list-content").append(sanitizeHTML(aShctListHTML));
+    }).catch(aErr => {
+      console.error("Clippings/mx::clippingsMgr.js: gDialogs.shortcutList.onInit(): " + aErr);
     });
   };
   gDialogs.shortcutList.onUnload = () => {
@@ -2961,7 +2958,7 @@ function initDialogs()
 
     let dtFmtList = $("#date-time-format-list")[0];
 
-    if (gClippings.getOS() != "mac") {
+    if (gEnvInfo.os != "mac") {
       dtFmtList.setAttribute("size", "11");
     }
 
@@ -3819,7 +3816,7 @@ async function buildClippingsTree()
           }
 
           let folderID = parseInt(selectedNode.key);
-          return (folderID == gClippings.getSyncFolderID());
+          return (folderID == gSyncFldrID);
         }
       },
 
@@ -3835,7 +3832,7 @@ async function buildClippingsTree()
           }
 
           let folderID = parseInt(selectedNode.key);
-          return (folderID == gClippings.getSyncFolderID());
+          return (folderID == gSyncFldrID);
         }
       },
       labelSubmenu: {
@@ -3931,7 +3928,7 @@ async function buildClippingsTree()
           }
 
           let folderID = parseInt(selectedNode.key);
-          return (folderID == gClippings.getSyncFolderID());
+          return (folderID == gSyncFldrID);
         }
       }
     }
@@ -3969,7 +3966,7 @@ function buildClippingsTreeHelper(aFolderID)
           folder: true
         }
 
-        if (aItem.id == gClippings.getSyncFolderID()) {
+        if (aItem.id == gSyncFldrID) {
           folderNode.extraClasses = "ae-synced-clippings-fldr";
         }
 
@@ -4233,7 +4230,7 @@ function updateDisplay(aEvent, aData)
 
       $("#item-properties").addClass("folder-only");
 
-      if (prefs.syncClippings && selectedItemID == gClippings.getSyncFolderID()) {
+      if (prefs.syncClippings && selectedItemID == gSyncFldrID) {
         // Prevent renaming of the Synced Clippings folder.
         $("#clipping-name").attr("disabled", "true");
       }

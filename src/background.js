@@ -692,13 +692,11 @@ async function purgeFolderItems(aFolderID, aKeepFolder)
 async function getShortcutKeyPrefixStr()
 {
   let rv = "";
-  let os = getOS();
-
   let keyAlt   = messenger.i18n.getMessage("keyAlt");
   let keyShift = messenger.i18n.getMessage("keyShift");
   let shctModeKeys = `${keyAlt}+${keyShift}+Y`;
 
-  if (os == "mac") {
+  if (gOS == "mac") {
     let keyOption = messenger.i18n.getMessage("keyOption");
     let keyCmd = messenger.i18n.getMessage("keyCommand");
     shctModeKeys = `${keyOption}${keyCmd}V`;
@@ -1250,21 +1248,6 @@ function verifyDB()
 }
 
 
-function getOS()
-{
-  return gOS;
-}
-
-function getHostAppName()
-{
-  return gHostAppName;
-}
-
-function getHostAppVer()
-{
-  return gHostAppVer;
-}
-
 function getClippingsListeners()
 {
   return gClippingsListeners.getListeners();
@@ -1293,11 +1276,6 @@ function getPrefs()
 async function setPrefs(aPrefs)
 {
   await messenger.storage.local.set(aPrefs);
-}
-
-function getSyncFolderID()
-{
-  return gSyncFldrID;
 }
 
 function isClippingsMgrRootFldrReseq()
@@ -1386,12 +1364,21 @@ function versionCompare(aVer1, aVer2)
 // Event listeners
 //
 
-messenger.runtime.onMessage.addListener(aRequest => {
+messenger.runtime.onMessage.addListener(async (aRequest) => {
   log(`Clippings/mx: Received message "${aRequest.msgID}"`);
 
   let resp = null;
 
-  if (aRequest.msgID == "init-new-clipping-dlg") {
+  if (aRequest.msgID == "get-env-info") {
+    resp = {
+      os: gOS,
+      hostAppName: gHostAppName,
+      hostAppVer:  gHostAppVer,
+    };
+
+    return Promise.resolve(resp);
+  }
+  else if (aRequest.msgID == "init-new-clipping-dlg") {
     resp = gNewClipping.get();
 
     if (resp !== null) {
@@ -1402,6 +1389,14 @@ messenger.runtime.onMessage.addListener(aRequest => {
   else if (aRequest.msgID == "close-new-clipping-dlg") {
     gWndIDs.newClipping = null;
     gIsDirty = true;
+  }
+  else if (aRequest.msgID == "get-sync-fldr-id") {
+    resp = gSyncFldrID;
+    return Promise.resolve(resp);
+  }
+  else if (aRequest.msgID == "get-shct-key-prefix-ui-str") {
+    resp = await getShortcutKeyPrefixStr();
+    return Promise.resolve(resp);
   }
 });
 
