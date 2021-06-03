@@ -14,8 +14,8 @@ $(async () => {
     throw new Error("Clippings/mx::backup.js: Failed to retrieve parent application window!");
   }
 
-  let resp = await messenger.runtime.sendMessage({msgID: "get-env-info"});
-  document.body.dataset.os = resp.os;
+  let platform = await messenger.runtime.getPlatformInfo();
+  document.body.dataset.os = platform.os;
 
   // Reset backup notification interval timer so that it fires 24 hours after
   // displaying this first-time backup dialog.

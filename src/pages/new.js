@@ -41,9 +41,10 @@ $(async () => {
     return;
   };
 
-  let resp = await messenger.runtime.sendMessage({msgID: "get-env-info"});
-  document.body.dataset.os = gOS = resp.os;
+  let platform = await messenger.runtime.getPlatformInfo();
+  document.body.dataset.os = gOS = platform.os;
 
+  // TO DO: Get this from prefs via aePrefs API.
   gSyncFldrID = await messenger.runtime.sendMessage({ msgID: "get-sync-fldr-id" });
 
   $("#btn-expand-options").click(async (aEvent) => {

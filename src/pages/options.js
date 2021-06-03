@@ -36,8 +36,8 @@ $(async () => {
 
 async function init()
 {
-  let resp = await messenger.runtime.sendMessage({msgID: "get-env-info"});
-  document.body.dataset.os = gOS = resp.os;
+  let platform = await messenger.runtime.getPlatformInfo();
+  document.body.dataset.os = gOS = platform.os;
 
   let keyCtrl  = messenger.i18n.getMessage("keyCtrl");
   let keyAlt   = messenger.i18n.getMessage("keyAlt");

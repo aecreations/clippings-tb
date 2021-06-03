@@ -16,8 +16,8 @@ $(async () => {
     throw new Error("Clippings/mx::migrationStatus.js: Failed to retrieve parent application window!");
   }
 
-  let resp = await messenger.runtime.sendMessage({msgID: "get-env-info"});
-  document.body.dataset.os = resp.os;
+  let platform = await messenger.runtime.getPlatformInfo();
+  document.body.dataset.os = platform.os;
 
   let prefs = await messenger.storage.local.get("legacyDataMigrnSuccess");
 
