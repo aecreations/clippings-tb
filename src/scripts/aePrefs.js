@@ -44,6 +44,25 @@ let aePrefs = function () {
     getPrefKeys()
     {
       return Object.keys(_defaultPrefs);
+    },
+
+    async getPref(aPrefName)
+    {
+      let pref = await messenger.storage.local.get(aPrefName);
+      let rv = pref[aPrefName];
+      
+      return rv;
+    },
+
+    async getAllPrefs()
+    {
+      let rv = await messenger.storage.local.get(this.getPrefKeys());
+      return rv;
+    },
+
+    async setPrefs(aPrefMap)
+    {
+      await messenger.storage.local.set(aPrefMap);
     }
   };
 }();

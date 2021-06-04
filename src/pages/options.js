@@ -70,7 +70,7 @@ async function init()
   }
   $("#shct-new-label").text(shctNewLabelTxt);
 
-  let prefs = gClippings.getPrefs();
+  let prefs = await aePrefs.getAllPrefs();
 
   if (! prefs.keyboardPaste) {
     $("#shortcut-key-new").prop("disabled", true);
@@ -102,16 +102,16 @@ async function init()
   usrContribCTA.append(sanitizeHTML(`<a href="${aeConst.L10N_URL}" class="hyperlink">${messenger.i18n.getMessage("aboutL10n")}</a>`));
   
   $("#html-paste-options").val(prefs.htmlPaste).change(aEvent => {
-    setPref({ htmlPaste: aEvent.target.value });
+    aePrefs.setPrefs({ htmlPaste: aEvent.target.value });
   });
 
   $("#html-auto-line-break").attr("checked", prefs.autoLineBreak).click(aEvent => {
-    setPref({ autoLineBreak: aEvent.target.checked });
+    aePrefs.setPrefs({ autoLineBreak: aEvent.target.checked });
   });
 
   $("#shortcut-key").attr("checked", prefs.keyboardPaste).click(aEvent => {
     let shortcutCb = aEvent.target;
-    setPref({ keyboardPaste: shortcutCb.checked });
+    aePrefs.setPrefs({ keyboardPaste: shortcutCb.checked });
 
     if (os != "mac") {
       $("#shortcut-key-new").prop("disabled", !shortcutCb.checked);
@@ -119,31 +119,31 @@ async function init()
 
       if (! shortcutCb.checked) {
         $("#shortcut-key-new").prop("checked", false);
-        setPref({ wxPastePrefixKey: false });
+        aePrefs.setPrefs({ wxPastePrefixKey: false });
       }
     }
   });
 
   $("#shortcut-key-new").attr("checked", prefs.wxPastePrefixKey).click(aEvent => {
-    setPref({ wxPastePrefixKey: aEvent.target.checked });
+    aePrefs.setPrefs({ wxPastePrefixKey: aEvent.target.checked });
   });
 
   $("#auto-inc-plchldrs-start-val").val(prefs.autoIncrPlchldrStartVal).click(aEvent => {
-    setPref({ autoIncrPlchldrStartVal: aEvent.target.valueAsNumber });
+    aePrefs.setPrefs({ autoIncrPlchldrStartVal: aEvent.target.valueAsNumber });
   });
 
   $("#check-spelling").attr("checked", prefs.checkSpelling).click(aEvent => {
-    setPref({ checkSpelling: aEvent.target.checked });
+    aePrefs.setPrefs({ checkSpelling: aEvent.target.checked });
   });
 
   $("#backup-filename-with-date").attr("checked", prefs.backupFilenameWithDate).click(aEvent => {
-    setPref({ backupFilenameWithDate: aEvent.target.checked });
+    aePrefs.setPrefs({ backupFilenameWithDate: aEvent.target.checked });
   });
 
   $("#backup-reminder").prop("checked", (prefs.backupRemFrequency != aeConst.BACKUP_REMIND_NEVER)).click(async (aEvent) => {
     if (aEvent.target.checked) {
       $("#backup-reminder-freq").prop("disabled", false);
-      setPref({
+      aePrefs.setPrefs({
         backupRemFrequency: Number($("#backup-reminder-freq").val()),
         backupRemFirstRun: false,
         lastBackupRemDate: new Date().toString(),
@@ -151,7 +151,7 @@ async function init()
     }
     else {
       $("#backup-reminder-freq").prop("disabled", true);
-      setPref({ backupRemFrequency: aeConst.BACKUP_REMIND_NEVER });
+      aePrefs.setPrefs({ backupRemFrequency: aeConst.BACKUP_REMIND_NEVER });
     }
 
     gClippings.clearBackupNotificationInterval();
@@ -169,7 +169,7 @@ async function init()
   }
   
   $("#backup-reminder-freq").change(async (aEvent) => {
-    setPref({
+    aePrefs.setPrefs({
       backupRemFrequency: Number(aEvent.target.value),
       backupRemFirstRun: false,
       lastBackupRemDate: new Date().toString(),
@@ -205,12 +205,6 @@ async function init()
 }
 
 
-function setPref(aPref)
-{
-  messenger.storage.local.set(aPref);
-}
-
-
 function initDialogs()
 {
   $(".msgbox-icon").attr("os", gOS);
@@ -239,11 +233,11 @@ function initDialogs()
     let sendNativeMsg = messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
     sendNativeMsg.then(aResp => {
       console.info("Sync Clippings helper app version: " + aResp.appVersion);
+      return aePrefs.getAllPrefs();
 
-      let prefs = gClippings.getPrefs();
-      
-      $("#sync-helper-app-update-check").prop("checked", prefs.syncHelperCheckUpdates);
-      $("#show-only-sync-items").prop("checked", prefs.cxtMenuSyncItemsOnly);
+    }).then(aPrefs => {
+      $("#sync-helper-app-update-check").prop("checked", aPrefs.syncHelperCheckUpdates);
+      $("#show-only-sync-items").prop("checked", aPrefs.cxtMenuSyncItemsOnly);
 
       gDialogs.syncClippings.oldShowSyncItemsOpt = $("#show-only-sync-items").prop("checked");
 
@@ -315,7 +309,7 @@ function initDialogs()
       return;
     }
 
-    setPref({
+    aePrefs.setPrefs({
       syncHelperCheckUpdates: $("#sync-helper-app-update-check").prop("checked"),
       cxtMenuSyncItemsOnly: $("#show-only-sync-items").prop("checked"),
     });
@@ -339,7 +333,7 @@ function initDialogs()
 	  if (gIsActivatingSyncClippings) {
             // Don't do the following if Sync Clippings was already turned on
             // and no changes to settings were made.
-            setPref({
+            aePrefs.setPrefs({
               syncClippings: true,
               clippingsMgrShowSyncItemsOnlyRem: true,
             });
@@ -392,7 +386,7 @@ function initDialogs()
     that.close();
 
     gClippings.enableSyncClippings(false).then(aOldSyncFldrID => {
-      setPref({ syncClippings: false });
+      aePrefs.setPrefs({ syncClippings: false });
       $("#sync-settings").hide();
       $("#toggle-sync").text(messenger.i18n.getMessage("syncTurnOn"));
       $("#sync-status").removeClass("sync-status-on").text(messenger.i18n.getMessage("syncStatusOff"));
@@ -459,15 +453,15 @@ function initDialogs()
       $("#sync-ver-label").css({ letterSpacing: "-0.15px" });
     }
   };
-  gDialogs.about.onShow = () => {
+  gDialogs.about.onShow = async () => {
     let msg = { msgID: "get-app-version" };
     let sendNativeMsg = messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
     sendNativeMsg.then(aResp => {
-      $("#about-dlg > .dlg-content #diag-info #sync-ver").text(aResp.appVersion);     
+      $("#about-dlg > .dlg-content #diag-info #sync-ver").text(aResp.appVersion);
+      return aePrefs.getPref("syncClippings");
 
-      let prefs = gClippings.getPrefs();
-
-      if (prefs.syncClippings) {
+    }).then(aPrefSyncClpgs => {
+      if (!!aPrefSyncClpgs) {
         let msg = { msgID: "get-sync-file-info" };
         return messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
       }

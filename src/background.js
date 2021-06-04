@@ -154,7 +154,7 @@ let gSyncClippingsListener = {
   {
     function resetCxtMenuSyncItemsOnlyOpt(aRebuildCxtMenu) {
       if (gPrefs.cxtMenuSyncItemsOnly) {
-        messenger.storage.local.set({ cxtMenuSyncItemsOnly: false });
+        aePrefs.setPrefs({ cxtMenuSyncItemsOnly: false });
       }
       if (aRebuildCxtMenu) {
         rebuildContextMenu();
@@ -237,7 +237,7 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
     let currVer = messenger.runtime.getManifest().version;
     log(`Clippings/mx: Upgrading from version ${oldVer} to ${currVer}`);
 
-    gPrefs = await messenger.storage.local.get(aePrefs.getPrefKeys());
+    gPrefs = await aePrefs.getAllPrefs();
 
     if (! hasSantaBarbaraPrefs()) {
       await setDefaultPrefs();
@@ -253,7 +253,7 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
 messenger.runtime.onStartup.addListener(async () => {
   log("Clippings/mx: Initializing Clippings during browser startup.");
   
-  gPrefs = await messenger.storage.local.get(aePrefs.getPrefKeys());
+  gPrefs = await aePrefs.getAllPrefs();
   log("Clippings/mx: Successfully retrieved user preferences:");
   log(gPrefs);
 
@@ -266,7 +266,7 @@ async function setDefaultPrefs()
   let defaultPrefs = aePrefs.getDefaultPrefs();
 
   gPrefs = defaultPrefs;
-  await messenger.storage.local.set(defaultPrefs);
+  await aePrefs.setPrefs(defaultPrefs);
 }
 
 
@@ -317,7 +317,7 @@ async function migrateLegacyPrefs()
     htmlPaste = aeConst.HTMLPASTE_AS_FORMATTED;
   }
   
-  messenger.storage.local.set({
+  aePrefs.setPrefs({
     htmlPaste, autoLineBreak, keyboardPaste, wxPastePrefixKey, pastePromptAction,
     checkSpelling, clippingsMgrDetailsPane, clippingsMgrPlchldrToolbar,
     clippingsMgrStatusBar
@@ -379,7 +379,7 @@ async function init()
     }
     catch (e) {
       console.error("Clippings/mx: migrateClippingsData(): Failed to verify IndexedDB database - cannot migrate legacy Clippings data.");
-      await messenger.storage.local.set({
+      await aePrefs.setPrefs({
         legacyDataMigrnSuccess: false,
         showLegacyDataMigrnStatus: true,
       });
@@ -420,7 +420,7 @@ async function init()
     }
     
     if (gPrefs.backupRemFirstRun && !gPrefs.lastBackupRemDate) {
-      messenger.storage.local.set({
+      aePrefs.setPrefs({
         lastBackupRemDate: new Date().toString(),
       });
     }
@@ -497,7 +497,7 @@ async function migrateClippingsData()
   log("Clippings/mx: migrateClippingsData(): Migrating clippings from legacy data source");    
   aeImportExport.importFromJSON(clippingsJSONData, true, false);
 
-  await messenger.storage.local.set({
+  await aePrefs.setPrefs({
     legacyDataMigrnSuccess: true,
     showLegacyDataMigrnStatus: true,
   });
@@ -550,7 +550,7 @@ async function enableSyncClippings(aIsEnabled)
         console.error("Clippings/mx: enableSyncClippings(): Failed to create the Synced Clipping folder: " + e);
       }
 
-      await messenger.storage.local.set({ syncFolderID: gSyncFldrID });
+      await aePrefs.setPrefs({ syncFolderID: gSyncFldrID });
       log("Clippings/mx: enableSyncClippings(): Synced Clippings folder ID: " + gSyncFldrID);
       return gSyncFldrID;
     }
@@ -560,7 +560,7 @@ async function enableSyncClippings(aIsEnabled)
     let oldSyncFldrID = gSyncFldrID;
 
     let numUpd = await gClippingsDB.folders.update(gSyncFldrID, { isSync: undefined });
-    await messenger.storage.local.set({ syncFolderID: null });
+    await aePrefs.setPrefs({ syncFolderID: null });
     gSyncFldrID = null;
     return oldSyncFldrID;
   }
@@ -604,7 +604,7 @@ function refreshSyncedClippings(aRebuildClippingsMenu)
     if (gSyncFldrID === null) {
       gSyncFldrID = aSyncFldrID;
       log("Clippings/mx: Synced Clippings folder ID: " + gSyncFldrID);
-      return messenger.storage.local.set({ syncFolderID: gSyncFldrID });
+      return aePrefs.setPrefs({ syncFolderID: gSyncFldrID });
     }
       
     gSyncClippingsListeners.getListeners().forEach(aListener => { aListener.onReloadStart() });
@@ -895,7 +895,7 @@ async function showBackupNotification()
         iconUrl: "img/icon.svg",
       });
 
-      await messenger.storage.local.set({
+      await aePrefs.setPrefs({
         backupRemFirstRun: false,
         backupRemFrequency: aeConst.BACKUP_REMIND_WEEKLY,
         lastBackupRemDate: new Date().toString(),
@@ -920,7 +920,7 @@ async function showBackupNotification()
       clearBackupNotificationInterval();
       setBackupNotificationInterval();
 
-      await messenger.storage.local.set({
+      await aePrefs.setPrefs({
         lastBackupRemDate: new Date().toString(),
       });
     }
@@ -993,7 +993,7 @@ function showSyncHelperUpdateNotification()
       }
 
     }).then(aNotifID => {
-      messenger.storage.local.set({ lastSyncHelperUpdChkDate: new Date().toString() });
+      aePrefs.setPrefs({ lastSyncHelperUpdChkDate: new Date().toString() });
       
     }).catch(aErr => {
       console.error("Clippings/mx: showSyncHelperUpdateNotification(): Unable to check for updates to the Sync Clippings Helper app at this time.\n" + aErr);
@@ -1268,6 +1268,8 @@ function getSyncClippingsListeners()
   return gSyncClippingsListeners;
 }
 
+// DEPRECATED
+// - These functions are currently called from WindowListener scripts.
 function getPrefs()
 {
   return gPrefs;
@@ -1277,6 +1279,7 @@ async function setPrefs(aPrefs)
 {
   await messenger.storage.local.set(aPrefs);
 }
+// END DEPRECATED
 
 function isClippingsMgrRootFldrReseq()
 {
@@ -1389,10 +1392,6 @@ messenger.runtime.onMessage.addListener(async (aRequest) => {
   else if (aRequest.msgID == "close-new-clipping-dlg") {
     gWndIDs.newClipping = null;
     gIsDirty = true;
-  }
-  else if (aRequest.msgID == "get-sync-fldr-id") {
-    resp = gSyncFldrID;
-    return Promise.resolve(resp);
   }
   else if (aRequest.msgID == "get-shct-key-prefix-ui-str") {
     resp = await getShortcutKeyPrefixStr();

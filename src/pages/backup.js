@@ -33,13 +33,13 @@ $(async () => {
   
   $("#btn-close").click(aEvent => { closeDlg() });
 
-  let prefs = await messenger.storage.local.get("backupRemFrequency");
-  $("#backup-reminder").prop("checked", (prefs.backupRemFrequency != aeConst.BACKUP_REMIND_NEVER)).click(aEvent => {
+  let backupRemFrequency = await aePrefs.getPref("backupRemFrequency");
+  $("#backup-reminder").prop("checked", (backupRemFrequency != aeConst.BACKUP_REMIND_NEVER)).click(aEvent => {
     let setPrefs;
     
     if (aEvent.target.checked) {
       $("#backup-reminder-freq").prop("disabled", false);
-      setPrefs = messenger.storage.local.set({
+      setPrefs = aePrefs.setPrefs({
         backupRemFrequency: Number($("#backup-reminder-freq").val()),
         backupRemFirstRun: false,
         lastBackupRemDate: new Date().toString(),
@@ -47,7 +47,7 @@ $(async () => {
     }
     else {
       $("#backup-reminder-freq").prop("disabled", true);
-      setPrefs = messenger.storage.local.set({
+      setPrefs = aePrefs.setPrefs({
 	backupRemFrequency: aeConst.BACKUP_REMIND_NEVER,
       });
     }
@@ -60,16 +60,16 @@ $(async () => {
     });
   });
 
-  if (prefs.backupRemFrequency == aeConst.BACKUP_REMIND_NEVER) {
+  if (backupRemFrequency == aeConst.BACKUP_REMIND_NEVER) {
     // Set to default interval.
     $("#backup-reminder-freq").val(aeConst.BACKUP_REMIND_WEEKLY).prop("disabled", true);
   }
   else {
-    $("#backup-reminder-freq").val(prefs.backupRemFrequency);
+    $("#backup-reminder-freq").val(backupRemFrequency);
   }
 
   $("#backup-reminder-freq").change(async (aEvent) => {
-    await messenger.storage.local.set({
+    await aePrefs.setPrefs({
       backupRemFrequency: Number(aEvent.target.value),
       backupRemFirstRun: false,
       lastBackupRemDate: new Date().toString(),

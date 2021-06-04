@@ -19,9 +19,9 @@ $(async () => {
   let platform = await messenger.runtime.getPlatformInfo();
   document.body.dataset.os = platform.os;
 
-  let prefs = await messenger.storage.local.get("legacyDataMigrnSuccess");
+  let legacyDataMigrnSuccess = await aePrefs.getPref("legacyDataMigrnSuccess");
 
-  if (prefs.legacyDataMigrnSuccess) {
+  if (legacyDataMigrnSuccess) {
     $("#content-migrn-success-deck").show();
   }
   else {

@@ -16,7 +16,7 @@ let gSrcURL = "";
 let gCreateInFldrMenu;
 let gFolderPickerPopup;
 let gNewFolderDlg, gPreviewDlg;
-let gSyncFldrID = null;
+let gPrefs;
 
 
 // Page initialization
@@ -44,8 +44,7 @@ $(async () => {
   let platform = await messenger.runtime.getPlatformInfo();
   document.body.dataset.os = gOS = platform.os;
 
-  // TO DO: Get this from prefs via aePrefs API.
-  gSyncFldrID = await messenger.runtime.sendMessage({ msgID: "get-sync-fldr-id" });
+  gPrefs = await aePrefs.getAllPrefs();
 
   $("#btn-expand-options").click(async (aEvent) => {
     let height = WNDH_OPTIONS_EXPANDED;
@@ -194,7 +193,7 @@ function initDialogs()
       let fldrID = aFolderData.node.key;
       fldrPickerMnuBtn.val(fldrID).text(aFolderData.node.title);
 
-      if (fldrID == gSyncFldrID) {
+      if (fldrID == gPrefs.syncFolderID) {
         fldrPickerMnuBtn.attr("syncfldr", "true");
       }
       else {
@@ -206,7 +205,7 @@ function initDialogs()
     };
 
     fldrPickerMnuBtn.val(selectedFldrID).text(selectedFldrName);
-    if (selectedFldrID == gSyncFldrID) {
+    if (selectedFldrID == gPrefs.syncFolderID) {
       fldrPickerMnuBtn.attr("syncfldr", "true");
     }
     else {
@@ -383,7 +382,7 @@ function selectFolder(aFolderData)
   let fldrPickerMenuBtn = $("#new-clipping-fldr-picker-menubtn");
   fldrPickerMenuBtn.text(aFolderData.node.title).val(gParentFolderID);
 
-  if (gParentFolderID == gSyncFldrID) {
+  if (gParentFolderID == gPrefs.syncFolderID) {
     fldrPickerMenuBtn.attr("syncfldr", "true");
   }
   else {
@@ -505,10 +504,10 @@ function accept(aEvent)
         aListener.newClippingCreated(aNewClippingID, newClipping, aeConst.ORIGIN_HOSTAPP);
       });
 
-      if (prefs.syncClippings) {
+      if (gPrefs.syncClippings) {
         aeImportExport.setDatabase(gClippingsDB);
         
-        return aeImportExport.exportToJSON(true, true, gSyncFldrID, false, true);
+        return aeImportExport.exportToJSON(true, true, gPrefs.syncFolderID, false, true);
       }
       return null;
 
@@ -532,8 +531,8 @@ function accept(aEvent)
         log(aMsgResult);
       }
 
-      if (prefs.clippingsMgrAutoShowDetailsPane && isClippingOptionsSet()) {
-        messenger.storage.local.set({
+      if (gPrefs.clippingsMgrAutoShowDetailsPane && isClippingOptionsSet()) {
+        aePrefs.setPrefs({
           clippingsMgrAutoShowDetailsPane: false,
           clippingsMgrDetailsPane: true,
         });
