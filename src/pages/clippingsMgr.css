@@ -1280,6 +1280,10 @@ ul.fancytree-container {
     display: block;
 }
 
+body[data-locale="de"] #export-dlg #export-format-list-label {
+    letter-spacing: -0.15px;
+}
+
 #export-dlg fieldset {
     margin-top: 6px;
     margin-bottom: 12px;

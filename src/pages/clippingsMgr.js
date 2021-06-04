@@ -2121,6 +2121,9 @@ $(async () => {
     $("#status-bar").css({ backgroundImage: "none" });
   }
 
+  let lang = messenger.i18n.getUILanguage();
+  document.body.dataset.locale = lang;
+
   let wndURL = new URL(window.location.href);
   gOpenerWndID = Number(wndURL.searchParams.get("openerWndID"));
   gIsBackupMode = wndURL.searchParams.get("backupMode") || false;
@@ -3214,11 +3217,6 @@ function initDialogs()
 
     gSuppressAutoMinzWnd = true;
 
-    // Fit text on one line for German locale.
-    if (messenger.i18n.getUILanguage() == "de") {
-      $("#export-format-list-label").css({ letterSpacing: "-0.15px" });
-    }
-    
     $("#export-format-list").change(aEvent => {
       let selectedFmtIdx = aEvent.target.selectedIndex;
       $("#format-description").text(fmtDesc[selectedFmtIdx]);

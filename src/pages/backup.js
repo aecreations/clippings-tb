@@ -23,9 +23,7 @@ $(async () => {
   gClippings.setBackupNotificationInterval();
 
   let lang = messenger.i18n.getUILanguage();
-  if (lang == "fr") {
-    $("#backup-hint").css({ letterSpacing: "-0.3px" });
-  }
+  document.body.dataset.locale = lang;
 
   $("#backup-now").click(aEvent => {
     gClippings.openClippingsManager(true);

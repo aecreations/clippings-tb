@@ -415,6 +415,24 @@ body[data-os="win"] #backup-reminder-freq + label {
     margin-left: 12px;
 }
 
+body[data-locale="de"] #sync-clippings-dlg #sync-helper-app-update-check + label {
+    letter-spacing: -0.51px;
+}
+
+body[data-locale|="es"] #sync-clippings-dlg #sync-helper-app-update-check + label {
+    letter-spacing: -0.56px;
+}
+
+body[data-locale|="pt"] #sync-clippings-dlg #sync-helper-app-update-check + label {
+    letter-spacing: -0.56px;
+}
+
+body[data-locale="nl"] #sync-clippings-dlg #sync-helper-app-update-check + label,
+body[data-locale="uk"] #sync-clippings-dlg #sync-helper-app-update-check + label {
+    letter-spacing: -0.65px;
+    margin-right: 0;
+}
+
 #turn-off-sync-clippings-dlg {
     top: 160px;
     --width: 510px;
@@ -528,6 +546,18 @@ body[data-os="win"] #backup-reminder-freq + label {
 
 #about-dlg #usr-contrib-cta {
     margin-top: 8px;
+}
+
+body[data-locale="de"] #about-dlg #usr-contrib-cta {
+    letter-spacing: -0.1px;
+}
+
+body[data-locale|="pt"] #about-dlg #usr-contrib-cta {
+    letter-spacing: -0.55px;
+}
+
+body[data-locale|="es"] #about-dlg #usr-contrib-cta {
+    letter-spacing: -0.15px;
 }
 
 #about-dlg #usr-contrib-cta-hdg {

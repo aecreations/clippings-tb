@@ -77,12 +77,16 @@ async function init()
     $("#shct-new-label").attr("disabled", true);
   }
 
+  let lang = messenger.i18n.getUILanguage();
+  document.body.dataset.locale = lang;
+
   $("#sync-intro").html(sanitizeHTML(messenger.i18n.getMessage("syncIntroTB")));
 
   initDialogs();
 
   $("#toggle-sync").click(async (aEvent) => {
-    if (prefs.syncClippings) {
+    let syncClippings = await aePrefs.getPref("syncClippings");
+    if (syncClippings) {
       gDialogs.turnOffSync.showModal();
     }
     else {
@@ -241,19 +245,6 @@ function initDialogs()
 
       gDialogs.syncClippings.oldShowSyncItemsOpt = $("#show-only-sync-items").prop("checked");
 
-      if (lang == "de") {
-        $("#sync-helper-app-update-check + label").css({ letterSpacing: "-0.51px" });
-      }
-      else if (lang == "pt-BR") {
-        $("#sync-helper-app-update-check + label").css({ letterSpacing: "-0.56px" });
-      }
-      else if (lang == "nl" || lang == "uk") {
-        $("#sync-helper-app-update-check + label").css({
-          letterSpacing: "-0.65px",
-          marginRight: "0",
-        });
-      }
-
       let msg = { msgID: "get-sync-dir" };
       return messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
       
@@ -261,7 +252,6 @@ function initDialogs()
       if (! gDialogs.syncClippings.isCanceled) {
         if (lang == "es-ES") {
           $("#sync-clippings-dlg").css({ width: "606px" });
-          $("#sync-helper-app-update-check + label").css({ letterSpacing: "-0.56px" });
         }
       }
       $("#sync-clippings-dlg .dlg-accept").show();
@@ -441,17 +431,6 @@ function initDialogs()
     $("#about-dlg > .dlg-content #ext-ver").text(messenger.i18n.getMessage("aboutExtVer", that.extInfo.version));
     $("#about-dlg > .dlg-content #ext-desc").text(that.extInfo.description);
     $("#about-dlg > .dlg-content #ext-home-pg").attr("href", that.extInfo.homePgURL);
-
-    let lang = messenger.i18n.getUILanguage();
-    if (lang == "de") {
-      $("#usr-contrib-cta").css({ letterSpacing: "-0.1px" });
-    }
-    else if (lang == "pt-BR") {
-      $("#ext-desc").css({ letterSpacing: "-0.55px" });
-    }
-    else if (lang == "es-ES") {
-      $("#sync-ver-label").css({ letterSpacing: "-0.15px" });
-    }
   };
   gDialogs.about.onShow = async () => {
     let msg = { msgID: "get-app-version" };
