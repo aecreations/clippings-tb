@@ -1277,7 +1277,7 @@ function getPrefs()
 
 async function setPrefs(aPrefs)
 {
-  await messenger.storage.local.set(aPrefs);
+  await aePrefs.setPrefs(aPrefs);
 }
 // END DEPRECATED
 
