@@ -180,10 +180,20 @@ function initDialogs()
     let fldrPickerPopup = $("#new-folder-dlg-fldr-tree-popup");
     let selectedFldrID = parentDlgFldrPickerMnuBtn.val();
     let selectedFldrName = parentDlgFldrPickerMnuBtn.text();
+    let rootFldrID = aeConst.ROOT_FOLDER_ID;
+    let rootFldrName = browser.i18n.getMessage("rootFldrName");
+    let rootFldrCls = aeFolderPicker.ROOT_FOLDER_CLS;
+    
+    if (gPrefs.syncClippings && gPrefs.cxtMenuSyncItemsOnly) {
+      $("#new-folder-dlg-fldr-tree").addClass("show-sync-items-only");
+    }
 
     that.fldrTree = new aeFolderPicker(
       "#new-folder-dlg-fldr-tree",
       gClippingsDB,
+      rootFldrID,
+      rootFldrName,
+      rootFldrCls,
       selectedFldrID
     );
 
@@ -338,6 +348,13 @@ function initDialogs()
 
 function initFolderPicker()
 {
+  function selectSyncedClippingsFldr()
+  {
+    $("#new-clipping-fldr-picker-menubtn").val(gPrefs.syncFolderID)
+      .text(browser.i18n.getMessage("syncFldrName"))
+      .attr("syncfldr", "true");
+  }
+  
   // Initialize the hidden background that user can click on to dismiss an open
   // folder picker popup.
   $(".popup-bkgrd").click(aEvent => {
@@ -370,7 +387,24 @@ function initFolderPicker()
   
   $("#new-folder-btn").attr("title", messenger.i18n.getMessage("btnNewFolder"));
 
-  gFolderPickerPopup = new aeFolderPicker("#new-clipping-fldr-tree", gClippingsDB);
+  let rootFldrName = browser.i18n.getMessage("rootFldrName");
+  let rootFldrCls = aeFolderPicker.ROOT_FOLDER_CLS;
+  let selectedFldrID = aeConst.ROOT_FOLDER_ID;
+
+  if (gPrefs.syncClippings && gPrefs.cxtMenuSyncItemsOnly) {
+    selectSyncedClippingsFldr();
+    $("#new-clipping-fldr-tree").addClass("show-sync-items-only");
+    selectedFldrID = gPrefs.syncFolderID;
+  }
+
+  gFolderPickerPopup = new aeFolderPicker(
+    "#new-clipping-fldr-tree",
+    gClippingsDB,
+    rootFldrName,
+    rootFldrCls,
+    selectedFldrID
+  );
+
   gFolderPickerPopup.onSelectFolder = selectFolder;
 }
 
