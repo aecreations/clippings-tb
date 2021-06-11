@@ -2320,6 +2320,15 @@ messenger.runtime.onMessage.addListener(aRequest => {
 });
 
 
+browser.storage.onChanged.addListener((aChanges, aAreaName) => {
+  let changedPrefs = Object.keys(aChanges);
+
+  for (let pref of changedPrefs) {
+    gPrefs[pref] = aChanges[pref].newValue;
+  }
+});
+
+
 //
 // Clippings Manager functions
 //
