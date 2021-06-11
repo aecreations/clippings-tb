@@ -1397,6 +1397,16 @@ messenger.runtime.onMessage.addListener(async (aRequest) => {
     resp = await getShortcutKeyPrefixStr();
     return Promise.resolve(resp);
   }
+  else if (aRequest.msgID == "clear-backup-notifcn-intv") {
+    clearBackupNotificationInterval();
+    return Promise.resolve();
+  }
+  else if (aRequest.msgID == "set-backup-notifcn-intv") {
+    setBackupNotificationInterval();
+  }
+  else if (aRequest.msgID == "backup-clippings") {
+    openClippingsManager(true);
+  }
 });
 
 

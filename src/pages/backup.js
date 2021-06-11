@@ -3,30 +3,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let gClippings;
-
 
 // Dialog initialization
 $(async () => {
-  gClippings = messenger.extension.getBackgroundPage();
-
-  if (! gClippings) {
-    throw new Error("Clippings/mx::backup.js: Failed to retrieve parent application window!");
-  }
-
   let platform = await messenger.runtime.getPlatformInfo();
   document.body.dataset.os = platform.os;
 
   // Reset backup notification interval timer so that it fires 24 hours after
   // displaying this first-time backup dialog.
-  gClippings.clearBackupNotificationInterval();
-  gClippings.setBackupNotificationInterval();
-
+  await messenger.runtime.sendMessage({msgID: "clear-backup-notifcn-intv"});
+  messenger.runtime.sendMessage({msgID: "set-backup-notifcn-intv"});
+  
   let lang = messenger.i18n.getUILanguage();
   document.body.dataset.locale = lang;
 
   $("#backup-now").click(aEvent => {
-    gClippings.openClippingsManager(true);
+    messenger.runtime.sendMessage({ msgID: "backup-clippings" });
   });
   
   $("#btn-close").click(aEvent => { closeDlg() });
@@ -51,9 +43,10 @@ $(async () => {
     }
 
     setPrefs.then(() => {
-      gClippings.clearBackupNotificationInterval();
+      return messenger.runtime.sendMessage({msgID: "clear-backup-notifcn-intv"});
+    }).then(() => {
       if (aEvent.target.checked) {
-	gClippings.setBackupNotificationInterval();
+	messenger.runtime.sendMessage({msgID: "set-backup-notifcn-intv"});
       }
     });
   });
@@ -72,8 +65,8 @@ $(async () => {
       backupRemFirstRun: false,
       lastBackupRemDate: new Date().toString(),
     });
-    gClippings.clearBackupNotificationInterval();
-    gClippings.setBackupNotificationInterval();
+    await messenger.runtime.sendMessage({msgID: "clear-backup-notifcn-intv"});
+    messenger.runtime.sendMessage({msgID: "set-backup-notifcn-intv"});
   });
 
   // Fix for Fx57 bug where bundled page loaded using

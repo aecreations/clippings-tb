@@ -158,9 +158,9 @@ async function init()
       aePrefs.setPrefs({ backupRemFrequency: aeConst.BACKUP_REMIND_NEVER });
     }
 
-    gClippings.clearBackupNotificationInterval();
+    await messenger.runtime.sendMessage({msgID: "clear-backup-notifcn-intv"});
     if (aEvent.target.checked) {
-      gClippings.setBackupNotificationInterval();
+      messenger.runtime.sendMessage({msgID: "set-backup-notifcn-intv"});
     }
   });
 
@@ -179,8 +179,8 @@ async function init()
       lastBackupRemDate: new Date().toString(),
     });
 
-    gClippings.clearBackupNotificationInterval();
-    gClippings.setBackupNotificationInterval();
+    await messenger.runtime.sendMessage({msgID: "clear-backup-notifcn-intv"});
+    messenger.runtime.sendMessage({msgID: "set-backup-notifcn-intv"});
   });   
 
   if (prefs.syncClippings) {
