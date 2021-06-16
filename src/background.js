@@ -17,7 +17,6 @@ let gBackupRemIntervalID = null;
 let gIsReloadingSyncFldr = false;
 let gSyncClippingsHelperDwnldPgURL;
 let gForceShowFirstTimeBkupNotif = false;
-let gClippingsMgrRootFldrReseq = false;
 let gMigrateLegacyData = false;
 let gClippingsMgrCleanUpIntvID = null;
 
@@ -1280,16 +1279,6 @@ async function setPrefs(aPrefs)
   await aePrefs.setPrefs(aPrefs);
 }
 // END DEPRECATED
-
-function isClippingsMgrRootFldrReseq()
-{
-  return gClippingsMgrRootFldrReseq;
-}
-
-function setClippingsMgrRootFldrReseq(aReseqOnReload)
-{
-  gClippingsMgrRootFldrReseq = aReseqOnReload;
-}
 
 function isDirty()
 {
