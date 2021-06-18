@@ -6,6 +6,8 @@ var {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
 
 Services.scriptloader.loadSubScript("chrome://clippings/content/tbMsgComposeOverlay.js",
 				    window, "UTF-8");
+Services.scriptloader.loadSubScript("chrome://clippings/content/lib/notifyTools.js",
+				    this, "UTF-8");
 
 
 let gClippingsMxListener = function () {
@@ -13,14 +15,18 @@ let gClippingsMxListener = function () {
   let _cxtMenuData = null;
 
   return {
-    prefsRequested()
+    async prefsRequested()
     {
-      return _clippings.getPrefs();
+      let rv = await notifyTools.notifyBackground({command: "get-prefs"});
+      return rv;
     },
 
     async prefsChanged(aPrefs)
     {
-      await _clippings.setPrefs(aPrefs);
+      await notifyTools.notifyBackground({
+	command: "set-prefs",
+	prefs: aPrefs,
+      });
     },
     
     newClippingDlgOpened(aClippingContent)
@@ -34,7 +40,7 @@ let gClippingsMxListener = function () {
 
     clippingsManagerWndOpened()
     {
-      _clippings.openClippingsManager(false);
+      notifyTools.notifyBackground({command: "open-clippings-mgr"});
     },
 
     async clippingsMenuDataRequested(aRootFldrID)
