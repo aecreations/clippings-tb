@@ -1413,6 +1413,32 @@ messenger.NotifyTools.onNotifyBackground.addListener(async (aMessage) => {
   else if (aMessage.command == "open-clippings-mgr") {
     openClippingsManager(false);
   }
+  else if (aMessage.command == "open-new-clipping-dlg") {
+    openNewClippingDlg(aMessage.clippingContent);
+  }
+  else if (aMessage.command == "get-clipping") {
+    let rv = await getClipping(aMessage.clippingID);
+    return rv;
+  }
+  else if (aMessage.command == "get-shct-key-map") {
+    let rv = await getShortcutKeyMap();
+    return rv;
+  }
+  else if (aMessage.command == "get-clipping-srch-data") {
+    let rv = await getClippingSearchData();
+    return rv;
+  }
+  else if (aMessage.command == "get-clippings-dirty-flag") {
+    let rv = isDirty();
+    return Promise.resolve(rv);
+  }
+  else if (aMessage.command == "get-clippings-cxt-menu-data") {
+    let rv = getContextMenuData(aMessage.rootFldrID);
+    return Promise.resolve(rv);
+  }
+  else if (aMessage.command == "open-migrn-status-dlg") {
+    openMigrationStatusDlg();
+  }
 });
   
 

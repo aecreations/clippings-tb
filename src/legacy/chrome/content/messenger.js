@@ -11,14 +11,13 @@ Services.scriptloader.loadSubScript("chrome://clippings/content/lib/notifyTools.
 
 
 let gClippingsMxListener = function () {
-  let _clippings = WL.messenger.extension.getBackgroundPage();
   let _showLegacyDataMigrnStatus = false;
 
   return {
     clippingsManagerWndOpened()
     {
       if (_showLegacyDataMigrnStatus) {
-	_clippings.openMigrationStatusDlg();
+	notifyTools.notifyBackground({command: "open-migrn-status-dlg"});
       }
       else {
 	notifyTools.notifyBackground({command: "open-clippings-mgr"});
