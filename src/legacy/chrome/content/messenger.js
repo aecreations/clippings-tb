@@ -6,6 +6,8 @@ var {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
 
 Services.scriptloader.loadSubScript("chrome://clippings/content/tbMessengerOverlay.js",
 				    window, "UTF-8");
+Services.scriptloader.loadSubScript("chrome://clippings/content/lib/notifyTools.js",
+				    this, "UTF-8");
 
 
 let gClippingsMxListener = function () {
@@ -19,13 +21,13 @@ let gClippingsMxListener = function () {
 	_clippings.openMigrationStatusDlg();
       }
       else {
-	_clippings.openClippingsManager(false);
+	notifyTools.notifyBackground({command: "open-clippings-mgr"});
       }
     },
 
-    legacyDataMigrationVerified()
+    async legacyDataMigrationVerified()
     {
-      let prefs = _clippings.getPrefs();
+      let prefs = await notifyTools.notifyBackground({command: "get-prefs"});
 
       if (! prefs.showLegacyDataMigrnStatus) {
 	return;
@@ -38,7 +40,10 @@ let gClippingsMxListener = function () {
 
       if (legacyDataMigrnSuccess && prefs.showLegacyDataMigrnStatus) {
 	statusbarBtn.className = "migration-success";
-	_clippings.setPrefs({ showLegacyDataMigrnStatus: false });
+	await notifyTools.notifyBackground({
+	  command: "set-prefs",
+	  prefs: {showLegacyDataMigrnStatus: false},
+	});
       }
       else {
 	statusbarBtn.className = "migration-error";

@@ -1353,7 +1353,7 @@ function versionCompare(aVer1, aVer2)
 
 
 //
-// Event listeners
+// Event handlers
 //
 
 messenger.runtime.onMessage.addListener(async (aRequest) => {
@@ -1399,6 +1399,23 @@ messenger.runtime.onMessage.addListener(async (aRequest) => {
 });
 
 
+messenger.NotifyTools.onNotifyBackground.addListener(async (aMessage) => {
+  log(`Clipping/mx: Received NotifyTools message "${aMessage.command}" from legacy overlay script`);
+  
+  if (aMessage.command == "get-prefs") {
+    return Promise.resolve(gPrefs);
+  }
+  else if (aMessage.command == "set-prefs") {
+    log(aMessage.prefs);
+    let rv = await aePrefs.setPrefs(aMessage.prefs);
+    return rv;
+  }
+  else if (aMessage.command == "open-clippings-mgr") {
+    openClippingsManager(false);
+  }
+});
+  
+
 messenger.storage.onChanged.addListener((aChanges, aAreaName) => {
   let changedPrefs = Object.keys(aChanges);
 
@@ -1420,7 +1437,7 @@ messenger.notifications.onClicked.addListener(aNotifID => {
     messenger.tabs.create({ url: gSyncClippingsHelperDwnldPgURL });
   }
 });
-  
+
 
 window.addEventListener("unhandledrejection", aEvent => {
   aEvent.preventDefault();

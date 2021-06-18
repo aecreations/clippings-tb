@@ -71,11 +71,12 @@ window.aecreations.clippings = function () {
       aeUtils.log(aeString.format("gClippings.initClippings(): Initializing Clippings integration with host app window: %s", window.location.href));
 
       let composerCxtMenu = document.getElementById("msgComposeContext");
-      composerCxtMenu.addEventListener("popupshowing", aEvent => {
-	this.initContextMenuItem.apply(this, [aEvent]);
+      composerCxtMenu.addEventListener("popupshowing", async (aEvent) => {
+	let prefs = await this.getMxListener().prefsRequested();
+	this.initContextMenuItem.apply(this, [aEvent, prefs]);
       });
 
-      let prefs = this.getMxListener().prefsRequested();
+      let prefs = await this.getMxListener().prefsRequested();
       
       // Enable/disable Clippings paste using the keyboard.
       let keyEnabled = prefs.keyboardPaste;
@@ -103,7 +104,7 @@ window.aecreations.clippings = function () {
     },
 
 
-    initContextMenuItem: function (aEvent)
+    async initContextMenuItem(aEvent, aPrefs)
     {
       if (aEvent.target.id != "msgComposeContext") {
 	return;
@@ -111,10 +112,9 @@ window.aecreations.clippings = function () {
 
       let that = this;
       let mxListener = this.getMxListener();
-      let prefs = mxListener.prefsRequested();
       let clippingsMenu = document.getElementById("ae-clippings-menu-1");
       
-      mxListener.clippingsMenuDataRequested(that._getMnuRootFldrID(prefs)).then(aCxtMenuData => {
+      mxListener.clippingsMenuDataRequested(that._getMnuRootFldrID(aPrefs)).then(aCxtMenuData => {
 	_menu.data = aCxtMenuData;
 	_menu.rebuild();
 
@@ -138,9 +138,7 @@ window.aecreations.clippings = function () {
       const ROOT_FOLDER_ID = 0;
       
       let rv;
-      let prefs = aPrefs || this.getMxListener().prefsRequested();
-
-      rv = prefs.cxtMenuSyncItemsOnly ? prefs.syncFolderID : ROOT_FOLDER_ID;
+      rv = aPrefs.cxtMenuSyncItemsOnly ? aPrefs.syncFolderID : ROOT_FOLDER_ID;
 
       return rv;
     },
@@ -258,7 +256,7 @@ window.aecreations.clippings = function () {
     async initClippingsPopup(aPopup, aMenu) 
     {
       let mxListener = this.getMxListener();
-      let prefs = mxListener.prefsRequested();
+      let prefs = await mxListener.prefsRequested();
       let cxtMenuData = await mxListener.clippingsMenuDataRequested(this._getMnuRootFldrID(prefs));
       
       _menu = aeClippingsMenu.createInstance(aPopup, cxtMenuData);
@@ -283,7 +281,7 @@ window.aecreations.clippings = function () {
 
       let mxListener = this.getMxListener();
       let clipping = await mxListener.clippingRequested(aID);
-      let prefs = mxListener.prefsRequested();
+      let prefs = await mxListener.prefsRequested();
 
       var clippingInfo = aeClippingSubst.getClippingInfo(
 	aID, clipping.name, clipping.text, clipping.parentFolderName
@@ -445,7 +443,7 @@ window.aecreations.clippings = function () {
       dlgArgs.keyCount = keyMap.size;
       dlgArgs.srchData = await mxListener.clippingSearchDataRequested();
 
-      let prefs = mxListener.prefsRequested();
+      let prefs = await mxListener.prefsRequested();
       
       // Remember the last mode (shortcut key or search clipping by name).
       dlgArgs.action = prefs.pastePromptAction;
