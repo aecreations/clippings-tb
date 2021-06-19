@@ -10,7 +10,7 @@
     "gecko": {
       "id": "clippings-tb@aecreations.github.io",
       "strict_min_version": "78.0",
-      "strict_max_version": "78.*",
+      "strict_max_version": "91.*",
       "update_url": "https://aecreations.github.io/updates/update.json"
     }
   },
