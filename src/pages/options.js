@@ -117,7 +117,7 @@ async function init()
     let shortcutCb = aEvent.target;
     aePrefs.setPrefs({ keyboardPaste: shortcutCb.checked });
 
-    if (os != "mac") {
+    if (gOS != "mac") {
       $("#shortcut-key-new").prop("disabled", !shortcutCb.checked);
       $("#shct-new-label").attr("disabled", !shortcutCb.checked);
 
