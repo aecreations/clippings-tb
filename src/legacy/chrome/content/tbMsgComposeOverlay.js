@@ -80,27 +80,58 @@ window.aecreations.clippings = function () {
       
       // Enable/disable Clippings paste using the keyboard.
       let keyEnabled = prefs.keyboardPaste;
-      let keyset = document.getElementById("tasksKeys");
-      let keyElt = document.getElementById("key_ae_clippings");
-      let keyEltMac = document.getElementById("key_ae_clippings_mac");
-      let keyEltNew = document.getElementById("key_ae_clippings_new");
-      let keyEltNewMac = document.getElementById("key_ae_clippings_new_mac");
+      let newKeysEnabled = prefs.wxPastePrefixKey;
+      this.initKeyboardShortcut(keyEnabled, newKeysEnabled);
 
-      if (!keyEnabled && keyElt) {     
-	keyset.removeChild(keyElt);
-	keyset.removeChild(keyEltMac);
-	keyset.removeChild(keyEltNew);
-	keyset.removeChild(keyEltNewMac);
+      _isInitialized = true;
+    },
+
+
+    initKeyboardShortcut(aIsEnabled, aIsNewKeysEnabled)
+    {
+      const KEY_CMD = "ae_clippings_keyboard_insert";
+      let keyset = document.getElementById("tasksKeys");
+
+      if (aIsEnabled) {
+	let keyElt = document.createXULElement("key");
+	keyElt.id = "key_ae_clippings";
+	keyElt.setAttribute("command", KEY_CMD);
+	keyElt.setAttribute("key", "v");
+	keyElt.setAttribute("modifiers", "alt control");
+	keyset.appendChild(keyElt);
+
+	let keyEltMac = document.createXULElement("key");
+	keyEltMac.id = "key_ae_clippings_mac";
+	keyEltMac.setAttribute("command", KEY_CMD);
+	keyElt.setAttribute("key", "v");
+	keyElt.setAttribute("modifiers", "alt meta");
+	keyset.appendChild(keyEltMac);
       }
       else {
-	let newKeysEnabled = prefs.wxPastePrefixKey;
-	if (! newKeysEnabled) {
-	  keyset.removeChild(keyEltNew);
-	  keyset.removeChild(keyEltNewMac);
+	let keyElt = document.getElementById("key_ae_clippings");
+	let keyEltMac = document.getElementById("key_ae_clippings_mac");
+
+	if (keyElt) {
+	  keyset.removeChild(keyElt);
+	  keyset.removeChild(keyEltMac);
+	  keyset.removeChild(keyEltNew);  
 	}
       }
 
-      _isInitialized = true;
+      if (aIsNewKeysEnabled) {
+	let keyEltNew = document.createXULElement("key");
+	keyEltNew.id = "key_ae_clippings_new";
+	keyEltNew.setAttribute("command", KEY_CMD);
+	keyEltNew.setAttribute("key", "y");
+	keyEltNew.setAttribute("modifiers", "alt shift");
+	keyset.appendChild(keyEltNew);
+      }
+      else {
+	let keyEltNew = document.getElementById("key_ae_clippings_new");
+	if (keyEltNew) {
+	  keyset.removeChild(keyEltNew);
+	}
+      }
     },
 
 
