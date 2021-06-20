@@ -76,62 +76,7 @@ window.aecreations.clippings = function () {
 	this.initContextMenuItem.apply(this, [aEvent, prefs]);
       });
 
-      let prefs = await this.getMxListener().prefsRequested();
-      
-      // Enable/disable Clippings paste using the keyboard.
-      let keyEnabled = prefs.keyboardPaste;
-      let newKeysEnabled = prefs.wxPastePrefixKey;
-      this.initKeyboardShortcut(keyEnabled, newKeysEnabled);
-
       _isInitialized = true;
-    },
-
-
-    initKeyboardShortcut(aIsEnabled, aIsNewKeysEnabled)
-    {
-      const KEY_CMD = "ae_clippings_keyboard_insert";
-      let keyset = document.getElementById("tasksKeys");
-
-      if (aIsEnabled) {
-	let keyElt = document.createXULElement("key");
-	keyElt.id = "key_ae_clippings";
-	keyElt.setAttribute("command", KEY_CMD);
-	keyElt.setAttribute("key", "v");
-	keyElt.setAttribute("modifiers", "alt control");
-	keyset.appendChild(keyElt);
-
-	let keyEltMac = document.createXULElement("key");
-	keyEltMac.id = "key_ae_clippings_mac";
-	keyEltMac.setAttribute("command", KEY_CMD);
-	keyElt.setAttribute("key", "v");
-	keyElt.setAttribute("modifiers", "alt meta");
-	keyset.appendChild(keyEltMac);
-      }
-      else {
-	let keyElt = document.getElementById("key_ae_clippings");
-	let keyEltMac = document.getElementById("key_ae_clippings_mac");
-
-	if (keyElt) {
-	  keyset.removeChild(keyElt);
-	  keyset.removeChild(keyEltMac);
-	  keyset.removeChild(keyEltNew);  
-	}
-      }
-
-      if (aIsNewKeysEnabled) {
-	let keyEltNew = document.createXULElement("key");
-	keyEltNew.id = "key_ae_clippings_new";
-	keyEltNew.setAttribute("command", KEY_CMD);
-	keyEltNew.setAttribute("key", "y");
-	keyEltNew.setAttribute("modifiers", "alt shift");
-	keyset.appendChild(keyEltNew);
-      }
-      else {
-	let keyEltNew = document.getElementById("key_ae_clippings_new");
-	if (keyEltNew) {
-	  keyset.removeChild(keyEltNew);
-	}
-      }
     },
 
 
@@ -449,6 +394,13 @@ window.aecreations.clippings = function () {
 
 	return rv;
       }
+      // END nested function
+
+      let mxListener = this.getMxListener();
+      let prefs = await mxListener.prefsRequested();
+      if (! (prefs.keyboardPaste && prefs.wxPastePrefixKey)) {
+	return;
+      }
       
       _menu.rebuild();
 
@@ -466,15 +418,12 @@ window.aecreations.clippings = function () {
 	userCancel: null
       };
 
-      let mxListener = this.getMxListener();
       let unsortedKeyMap = await mxListener.shortcutKeyMapRequested();
       let keyMap = sortKeyMap(unsortedKeyMap);
 
       dlgArgs.keyMap = keyMap;
       dlgArgs.keyCount = keyMap.size;
       dlgArgs.srchData = await mxListener.clippingSearchDataRequested();
-
-      let prefs = await mxListener.prefsRequested();
       
       // Remember the last mode (shortcut key or search clipping by name).
       dlgArgs.action = prefs.pastePromptAction;
