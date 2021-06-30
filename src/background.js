@@ -238,7 +238,7 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
 
     gPrefs = await aePrefs.getAllPrefs();
 
-    if (! hasSantaBarbaraPrefs()) {
+    if (! aePrefs.hasSantaBarbaraPrefs(gPrefs)) {
       await setDefaultPrefs();
       await migrateLegacyPrefs();
       gMigrateLegacyData = true;
@@ -266,13 +266,6 @@ async function setDefaultPrefs()
 
   gPrefs = defaultPrefs;
   await aePrefs.setPrefs(defaultPrefs);
-}
-
-
-function hasSantaBarbaraPrefs()
-{
-  // Version 6.0
-  return gPrefs.hasOwnProperty("htmlPaste");
 }
 
 
@@ -402,8 +395,8 @@ async function init()
     gOS = platform.os;
     log("Clippings/mx: OS: " + gOS);
 
-    if (gPrefs.clippingsMgrMinzWhenInactv === null) {
-      gPrefs.clippingsMgrMinzWhenInactv = (gOS == "linux");
+    if (gOS == "linux" && gPrefs.clippingsMgrMinzWhenInactv === null) {
+      await aePrefs.setPrefs({ clippingsMgrMinzWhenInactv: true });
     }
 
     gClippingsListener.origin = aeConst.ORIGIN_HOSTAPP;
@@ -1406,7 +1399,6 @@ messenger.NotifyTools.onNotifyBackground.addListener(async (aMessage) => {
     return Promise.resolve(gPrefs);
   }
   else if (aMessage.command == "set-prefs") {
-    log(aMessage.prefs);
     let rv = await aePrefs.setPrefs(aMessage.prefs);
     return rv;
   }

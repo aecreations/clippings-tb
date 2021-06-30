@@ -63,6 +63,17 @@ let aePrefs = function () {
     async setPrefs(aPrefMap)
     {
       await messenger.storage.local.set(aPrefMap);
-    }
+    },
+
+
+    //
+    // Version upgrade handling
+    //
+
+    hasSantaBarbaraPrefs(aPrefs)
+    {
+      // Version 6.0
+      return aPrefs.hasOwnProperty("htmlPaste");
+    },
   };
 }();
