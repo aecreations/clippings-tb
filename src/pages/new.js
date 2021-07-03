@@ -184,10 +184,17 @@ function initDialogs()
     let rootFldrName = browser.i18n.getMessage("rootFldrName");
     let rootFldrCls = aeFolderPicker.ROOT_FOLDER_CLS;
     
-    if (gPrefs.syncClippings && gPrefs.cxtMenuSyncItemsOnly) {
-      $("#new-folder-dlg-fldr-tree").addClass("show-sync-items-only");
+    if (gPrefs.syncClippings) {
+      if (gPrefs.newClippingSyncFldrsOnly) {
+        rootFldrID = gPrefs.syncFolderID;
+        rootFldrName = browser.i18n.getMessage("syncFldrName");
+        rootFldrCls = aeFolderPicker.SYNCED_ROOT_FOLDER_CLS;
+      }
+      else if (gPrefs.cxtMenuSyncItemsOnly) {
+        $("#new-folder-dlg-fldr-tree").addClass("show-sync-items-only");
+      }
     }
-
+    
     that.fldrTree = new aeFolderPicker(
       "#new-folder-dlg-fldr-tree",
       gClippingsDB,
@@ -355,8 +362,8 @@ function initFolderPicker()
       .attr("syncfldr", "true");
   }
   
-  // Initialize the hidden background that user can click on to dismiss an open
-  // folder picker popup.
+  // Initialize the transparent background that user can click on to dismiss an
+  // open folder picker popup.
   $(".popup-bkgrd").click(aEvent => {
     $(".folder-tree-popup").css({ visibility: "hidden" });
     $(".popup-bkgrd").hide();
@@ -387,19 +394,29 @@ function initFolderPicker()
   
   $("#new-folder-btn").attr("title", messenger.i18n.getMessage("btnNewFolder"));
 
+  let rootFldrID = aeConst.ROOT_FOLDER_ID;
   let rootFldrName = browser.i18n.getMessage("rootFldrName");
   let rootFldrCls = aeFolderPicker.ROOT_FOLDER_CLS;
   let selectedFldrID = aeConst.ROOT_FOLDER_ID;
 
-  if (gPrefs.syncClippings && gPrefs.cxtMenuSyncItemsOnly) {
-    selectSyncedClippingsFldr();
-    $("#new-clipping-fldr-tree").addClass("show-sync-items-only");
-    selectedFldrID = gPrefs.syncFolderID;
+  if (gPrefs.syncClippings) {
+    if (gPrefs.newClippingSyncFldrsOnly) {
+      selectSyncedClippingsFldr();
+      rootFldrID = gPrefs.syncFolderID;
+      rootFldrName = browser.i18n.getMessage("syncFldrName");
+      rootFldrCls = aeFolderPicker.SYNCED_ROOT_FOLDER_CLS;
+    }
+    else if (gPrefs.cxtMenuSyncItemsOnly) {
+      selectSyncedClippingsFldr();
+      $("#new-clipping-fldr-tree").addClass("show-sync-items-only");
+      selectedFldrID = gPrefs.syncFolderID;
+    }
   }
-
+  
   gFolderPickerPopup = new aeFolderPicker(
     "#new-clipping-fldr-tree",
     gClippingsDB,
+    rootFldrID,
     rootFldrName,
     rootFldrCls,
     selectedFldrID
