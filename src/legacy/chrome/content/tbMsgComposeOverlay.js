@@ -298,22 +298,8 @@ window.aecreations.clippings = function () {
 	if (hasHTMLTags) {
           var pasteAsRichText;
           if (! hasRestrictedHTMLTags) {
-            var showHTMLPasteOpts = prefs.htmlPaste;
-	    
-            if (showHTMLPasteOpts == aeConstants.HTMLPASTE_ASK_THE_USER) {
-              var dlgArgs = { userCancel: null, pasteAsRichText: null };
-              window.openDialog("chrome://clippings/content/htmlClipping.xhtml", "htmlClipping_dlg", "chrome,modal,centerscreen", dlgArgs, _ext);
-	      
-              if (dlgArgs.userCancel) {
-		return;
-              }
-              pasteAsRichText = dlgArgs.pasteAsRichText;
-            }
-            else {
-              pasteAsRichText = showHTMLPasteOpts == aeConstants.HTMLPASTE_AS_HTML;
-            }
+	    pasteAsRichText = prefs.htmlPaste == aeConstants.HTMLPASTE_AS_HTML;
           }
-          var plainTextClipping = clippingText;
 	  
           if (!pasteAsRichText || hasRestrictedHTMLTags) {
             clippingText = clippingText.replace(/&/g, "&amp;");
