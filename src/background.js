@@ -1354,40 +1354,51 @@ messenger.runtime.onMessage.addListener(async (aRequest) => {
 
   let resp = null;
 
-  if (aRequest.msgID == "get-env-info") {
+  switch (aRequest.msgID) {
+  case "get-env-info":
     resp = {
       os: gOS,
       hostAppName: gHostAppName,
       hostAppVer:  gHostAppVer,
     };
+    break;
 
-    return Promise.resolve(resp);
-  }
-  else if (aRequest.msgID == "init-new-clipping-dlg") {
+  case "init-new-clipping-dlg":
     resp = gNewClipping.get();
-
-    if (resp !== null) {
-      resp.checkSpelling = gPrefs.checkSpelling;
-      return Promise.resolve(resp);
+    if (! resp) {
+      resp = {};
     }
-  }
-  else if (aRequest.msgID == "close-new-clipping-dlg") {
+    resp.checkSpelling = gPrefs.checkSpelling;
+    break;
+
+  case "close-new-clipping-dlg":
     gWndIDs.newClipping = null;
     gIsDirty = true;
-  }
-  else if (aRequest.msgID == "get-shct-key-prefix-ui-str") {
+    break;
+
+  case "get-shct-key-prefix-ui-str":
     resp = await getShortcutKeyPrefixStr();
-    return Promise.resolve(resp);
-  }
-  else if (aRequest.msgID == "clear-backup-notifcn-intv") {
+    break;
+
+  case "clear-backup-notifcn-intv":
     clearBackupNotificationInterval();
-    return Promise.resolve();
-  }
-  else if (aRequest.msgID == "set-backup-notifcn-intv") {
+    resp = {};
+    break;
+
+  case "set-backup-notifcn-intv":
     setBackupNotificationInterval();
-  }
-  else if (aRequest.msgID == "backup-clippings") {
+    break;
+
+  case "backup-clippings":
     openClippingsManager(true);
+    break;
+
+  default:
+    break;
+  }
+
+  if (resp) {
+    return Promise.resolve(resp);
   }
 });
 
