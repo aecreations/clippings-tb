@@ -1405,43 +1405,63 @@ messenger.runtime.onMessage.addListener(async (aRequest) => {
 
 messenger.NotifyTools.onNotifyBackground.addListener(async (aMessage) => {
   log(`Clipping/mx: Received NotifyTools message "${aMessage.command}" from legacy overlay script`);
+
+  let rv = null;
+  let isAsync = false;
   
-  if (aMessage.command == "get-prefs") {
-    return Promise.resolve(gPrefs);
-  }
-  else if (aMessage.command == "set-prefs") {
-    let rv = await aePrefs.setPrefs(aMessage.prefs);
-    return rv;
-  }
-  else if (aMessage.command == "open-clippings-mgr") {
+  switch (aMessage.command) {
+  case "get-prefs":
+    rv = gPrefs;
+    isAsync = true;
+    break;
+
+  case "set-prefs":
+    rv = await aePrefs.setPrefs(aMessage.prefs);
+    break;
+
+  case "open-clippings-mgr":
     openClippingsManager(false);
-  }
-  else if (aMessage.command == "open-new-clipping-dlg") {
+    break;
+
+  case "open-new-clipping-dlg":
     openNewClippingDlg(aMessage.clippingContent);
-  }
-  else if (aMessage.command == "get-clipping") {
-    let rv = await getClipping(aMessage.clippingID);
-    return rv;
-  }
-  else if (aMessage.command == "get-shct-key-map") {
-    let rv = await getShortcutKeyMap();
-    return rv;
-  }
-  else if (aMessage.command == "get-clipping-srch-data") {
-    let rv = await getClippingSearchData();
-    return rv;
-  }
-  else if (aMessage.command == "get-clippings-dirty-flag") {
-    let rv = isDirty();
-    return Promise.resolve(rv);
-  }
-  else if (aMessage.command == "get-clippings-cxt-menu-data") {
-    let rv = getContextMenuData(aMessage.rootFldrID);
-    return Promise.resolve(rv);
-  }
-  else if (aMessage.command == "open-migrn-status-dlg") {
+    break;
+
+  case "get-clipping":
+    rv = await getClipping(aMessage.clippingID);
+    break;
+
+  case "get-shct-key-map":
+    rv = await getShortcutKeyMap();
+    break;
+
+  case "get-clipping-srch-data":
+    rv = await getClippingSearchData();
+    break;
+
+  case "get-clippings-dirty-flag":
+    rv = isDirty();
+    isAsync = true;
+    break;
+
+  case "get-clippings-cxt-menu-data":
+    rv = await getContextMenuData(aMessage.rootFldrID);
+    isAsync = true;
+    break;
+
+  case "open-migrn-status-dlg":
     openMigrationStatusDlg();
+    break;
+
+  default:
+    break;
   }
+
+  if (isAsync) {
+    return Promise.resolve(rv);
+  }
+
+  return rv;
 });
   
 
