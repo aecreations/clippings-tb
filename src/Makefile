@@ -2,7 +2,7 @@
 
 EXT_VER=`./getver.pl`
 DIST_FILE=clippings-tb-$(EXT_VER).xpi
-EXCLUDE = \*~ \*.psp \*.bak
+EXCLUDE = \*~ \*.psp \*.bak *\.pl Makefile
 
 
 $(DIST_FILE):
