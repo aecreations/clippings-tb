@@ -2806,6 +2806,10 @@ function initDialogs()
           clippingNameColHdr: messenger.i18n.getMessage("expHTMLClipNameCol"),
         });
 
+        if (messenger.i18n.getUILanguage() == "de") {
+          $("#shortcut-instrxns").css({letterSpacing: "-0.3px"});
+        }
+
         $("#export-shct-list").click(aEvent => {
           aeImportExport.getShortcutKeyListHTML(true).then(aHTMLData => {
             let blobData = new Blob([aHTMLData], { type: "text/html;charset=utf-8"});
@@ -3516,7 +3520,7 @@ function initDialogs()
     let dlgHeight = "330px";
     // Accommodate extra line of text in German locale.
     if (messenger.i18n.getUILanguage() == "de") {
-      dlgHeight = "336px";
+      dlgHeight = "344px";
     }
     $("#mini-help-dlg").css({ height: dlgHeight });
   }
