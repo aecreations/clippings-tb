@@ -2807,7 +2807,7 @@ function initDialogs()
         });
 
         if (messenger.i18n.getUILanguage() == "de") {
-          $("#shortcut-instrxns").css({letterSpacing: "-0.3px"});
+          $("#shortcut-instrxns").css({letterSpacing: "-0.31px"});
         }
 
         $("#export-shct-list").click(aEvent => {
@@ -3516,14 +3516,20 @@ function initDialogs()
   gDialogs.deleteSyncFldr = new aeDialog("#delete-sync-fldr-msgbox");
 
   gDialogs.miniHelp = new aeDialog("#mini-help-dlg");
-  if (! isMacOS) {
-    let dlgHeight = "330px";
-    // Accommodate extra line of text in German locale.
-    if (messenger.i18n.getUILanguage() == "de") {
-      dlgHeight = "344px";
+  gDialogs.miniHelp.isInitialized = false;
+  gDialogs.miniHelp.onInit = () => {
+    let that = gDialogs.miniHelp;
+
+    if (! that.isInitialized) {
+      // Accommodate extra line of text in German locale.
+      if (messenger.i18n.getUILanguage() == "de") {
+        let dlgHeight = "344px";
+        $("#mini-help-dlg").css({ height: dlgHeight });
+      }
+
+      that.isInitialized = true;
     }
-    $("#mini-help-dlg").css({ height: dlgHeight });
-  }
+  };
 
   gDialogs.showOnlySyncedItemsReminder = new aeDialog("#show-only-synced-items-reminder");
   gDialogs.genericMsgBox = new aeDialog("#generic-msg-box");
