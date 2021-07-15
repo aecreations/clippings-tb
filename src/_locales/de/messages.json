@@ -48,7 +48,7 @@
     "message": "Fertig"
   },
   "btnBrowse": {
-    "message": "Durchsuchen..."
+    "message": "Durchsuchen …"
   },
   "migrnStatusTitle": {
     "message": "Status der Textbausteinmigration",
@@ -150,7 +150,7 @@
     "message": "Grau"
   },
   "cxtMenuNew": {
-    "message": "Neu...",
+    "message": "Neu …",
     "description": "Clippings context menu"
   },
   "cxtMenuOpenClippingsMgr": {
@@ -158,11 +158,11 @@
     "description": "Clippings context menu"
   },
   "cxtMenuNewFromSel": {
-    "message": "Neu aus Auswahl…",
+    "message": "Neu aus Auswahl …",
     "description": "Clippings context menu in Thunderbird message composer"
   },
   "cxtMenuNewFromClipbd": {
-    "message": "Neu aus Zwischenablage…",
+    "message": "Neu aus Zwischenablage …",
     "description": "Clippings context menu in Thunderbird message composer"
   },
   "cxtMenuShowPasteOpts": {
@@ -170,7 +170,7 @@
     "description": "Clippings context menu in Thunderbird message composer"
   },
   "baMenuResetAutoIncrPlaceholders": {
-    "message": "Auto-Inkrement-Platzhalter zurücksetzen",
+    "message": "Automatische Erhöhung von Platzhaltern zurücksetzen",
     "description": "Clippings browser action submenu"
   },
   "pasteAsHdg": {
@@ -267,7 +267,7 @@
     "message": "Als Unterordner erstellen von:"
   },
   "btnPrevw": {
-    "message": "Vorschau…",
+    "message": "Vorschau …",
     "description": "Clippings for Thunderbird"
   },
   "labelPrevw": {
@@ -281,7 +281,7 @@
     "message": "Um diesen Textbaustein schnell in eine Nachricht in Thunderbird einzufügen, drücken Sie $1 gefolgt von der Tastenkombinationen."
   },
   "shortcutKeyAssigned": {
-    "message": "'$1' ist bereits zugeordnet"
+    "message": "»$1« ist bereits zugeordnet"
   },
   "initError": {
     "message": "Clippings funktioniert nicht, wenn die Datenschutzeinstellungen in Firefox zu restriktiv sind, zum Beispiel wenn der private Modus aktiviert ist. Ändern Sie diese Einstellungen zurück auf ihre Standardwerte, starten Sie dann Firefox neu und versuchen Sie es erneut."
@@ -356,7 +356,7 @@
     "message": "Fehler: Speichern fehlgeschlagen"
   },
   "plchldrPromptSingleDesc": {
-    "message": "Geben Sie den Wert für \"$1\" ein:",
+    "message": "Bitte Wert für »$1« eingeben:",
     "description": "Placeholder prompt dialog - single placeholder, text"
   },
   "plchldrPromptMultiDesc": {
@@ -434,22 +434,22 @@
     "message": "Neu aus Zwischenablage"
   },
   "mnuBackup": {
-    "message": "Sichern…"
+    "message": "Sichern …"
   },
   "mnuRestoreFromBackup": {
-    "message": "Aus Sicherung wiederherstellen…"
+    "message": "Aus Sicherung wiederherstellen …"
   },
   "mnuImport": {
-    "message": "Importieren..."
+    "message": "Importieren …"
   },
   "mnuExport": {
-    "message": "Exportieren..."
+    "message": "Exportieren …"
   },
   "mnuReloadSyncFldr": {
     "message": "Neu laden"
   },
   "mnuRemoveAllSrcURLs": {
-    "message": "Webseiten-Quelladressen entfernen..."
+    "message": "Webseiten-Quelladressen entfernen …"
   },
   "mnuShowHide": {
     "message": "Anzeigen/Verbergen"
@@ -470,10 +470,10 @@
     "message": "Minimieren, falls inaktiv"
   },
   "mnuShowExtPrefs": {
-    "message": "Optionen..."
+    "message": "Optionen …"
   },
   "mnuMoveOrCopy": {
-    "message": "Verschieben oder kopieren..."
+    "message": "Verschieben oder kopieren …"
   },
   "mnuEditLabel": {
     "message": "Beschriftung"
@@ -506,7 +506,7 @@
     "description": "Clippings Manager - preset (built-in) placeholder menu"
   },
   "mnuPlchldrFmtDateTime": {
-    "message": "Formatiertes Datum/Zeit...",
+    "message": "Formatiertes Datum/Zeit …",
     "description": "Clippings Manager - preset (built-in) placeholder menu"
   },
   "clipMgrNameHint": {
@@ -584,7 +584,7 @@
     "message": "Der ausgewählte Textbaustein hat keine Quell-Webseiten-Adresse."
   },
   "clipMgrImportConfirm": {
-    "message": "Der Import aus \"$1\" ist erfolgreich abgeschlossen."
+    "message": "Import von »$1« wurde erfolgreich abgeschlossen."
   },
   "btnReload": {
     "message": "Neu laden"
@@ -629,10 +629,10 @@
     "message": "Wählen Sie die Sicherungsdatei:"
   },
   "statusSavingBkup": {
-    "message": "Speichere die Sicherungsdatei..."
+    "message": "Speichere die Sicherungsdatei …"
   },
   "statusSavingBkupDone": {
-    "message": "Speichere die Sicherungsdatei... fertig"
+    "message": "Sicherungsdatei wird gespeichert … fertig"
   },
   "statusSavingBkupFailed": {
     "message": "Sicherung fehlgeschlagen."
@@ -686,10 +686,10 @@
     "message": "Exportieren"
   },
   "statusExportStart": {
-    "message": "Wird exportiert..."
+    "message": "Exportiere ..."
   },
   "statusExportDone": {
-    "message": "Wird exportiert... fertig"
+    "message": "Export abgeschlossen."
   },
   "statusExportFailed": {
     "message": "Exportieren fehlgeschlagen."
@@ -859,7 +859,7 @@
     "message": "Sie können Ihre Textbausteine mit Firefox oder anderen Thunderbird Installationen synchronisieren, indem Sie die auszutauschenden Textbausteine in einen speziellen Ordner “Austausch Textbausteine” ablegen. Die synchronisierten Textbausteine werden in einer Datei auf Ihrem Rechner gespeichert. Dies erfordert das <a href=\"http://aecreations.sourceforge.net/clippings/sync.php\" class=\"hyperlink\">Sync Clippings Helper App</a>."
   },
   "syncLearnMore": {
-    "message": "Erfahren Sie mehr über die Synchronisierung von Textbausteinen."
+    "message": "Mehr über die Synchronisierung von Textbausteinen erfahren."
   },
   "syncHelp": {
     "message": "<p class=\"dlg-subhead\">Textbausteine synchronisieren</p><p>Damit können Sie eine Auswahl Ihrer Textbausteine zwischen Firefox und Thunderbird synchronisieren, so dass sie in beiden Anwendungen erscheinen. Sie können auswählen, welche Textbausteine Sie synchronisieren möchten, indem Sie diese in einen speziellen Ordner “Synced Clippings” im Dialogfeld \"Neue Clippings\" erstellen, oder indem Sie sie in den selben Ordner im Textbaustein-Manager verschieben.</p><p>Der Ordner “Synced Clippings” wird automatisch erstellt, sobald \"Textbausteine synchronisieren\" eingerichtet ist.</p><p class=\"dlg-subhead\">Einrichtung</p><p> Die Option \"Textbausteine synchronisieren\" muss in allen Anwendungen die synchronisiert werden sollen eingeschaltet werden. Unterstützt wird Firefox und Thunderbird jeweils ab Version 60 und neuer (mit installiertem Clippings für Thunderbird Version 5.6 oder neuer).</p><p> Außerdem muss die \"Sync Clippings helper app\" installiert sein, damit der Inhalt des Ordners \"Synced Clippings\" immer aktuell gehalten wird. Das Programm kann von der <a href=\"http://aecreations.sourceforge.net/clippings/sync.php\" class=\"hyperlink\">AE Creations Website</a> heruntergeladen werden. Einmal installiert wird es automatisch mit Firefox gestartet und läuft im Hintergrund.</p><p>Um die Synchronisierung der Textbausteine, klicken Sie auf <b>Synchronisierung einschalten</b> auf der Clippings-Einstellungsseite. Sie werden aufgefordert, einen Speicherort auf Ihrem System zu wählen, an dem die synchronisierten Clippings-Daten gespeichert werden sollen, falls dies noch nicht festgelegt wurde.</p>",
@@ -876,7 +876,7 @@
     "message": "Die Synchronisierung von Textbausteinen ist deaktiviert."
   },
   "syncSettings": {
-    "message": "Einstellungen…"
+    "message": "Einstellungen …"
   },
   "syncTurnOn": {
     "message": "Synchronisierung einschalten"
@@ -969,7 +969,7 @@
     "message": "Nur synchronisierte Elemente im Menü Clippings anzeigen"
   },
   "aboutBtn": {
-    "message": "Über…"
+    "message": "Über …"
   },
   "aboutExtVer": {
     "message": "Version $1",
@@ -979,7 +979,7 @@
     "message": "Entwickelt von AE Creations."
   },
   "aboutHomePgLink": {
-    "message": "Startseite besuchen"
+    "message": "Internetseite besuchen"
   },
   "aboutLicLink": {
     "message": "Lizenzinformationen"
@@ -1027,7 +1027,7 @@
     "message": "⌘"
   },
   "keyShift": {
-    "message": "Umsch"
+    "message": "Umschalt"
   },
   "keyMacShift": {
     "message": "⇧"
