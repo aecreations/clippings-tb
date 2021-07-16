@@ -11,6 +11,8 @@ class aeDialog
     this.HIDE_POPUP_DELAY_MS = 5000;
     
     this._dlgEltStor = aDlgEltSelector;
+    this._isInitialized = false;
+    this._fnFirstInit = function () {};
     this._fnInit = function () {};
     this._fnDlgShow = function () {};
     this._fnUnload = function () {};
@@ -67,6 +69,11 @@ class aeDialog
     this._fnInit = aFnInit;
   }
 
+  set onFirstInit(aFnInit)
+  {
+    this._fnFirstInit = aFnInit;
+  }
+
   set onUnload(aFnUnload)
   {
     this._fnUnload = aFnUnload;
@@ -92,6 +99,13 @@ class aeDialog
     this._fnDlgCancel = aFnCancel;    
   }
 
+  setProps(aProperties)
+  {
+    for (let prop in aProperties) {
+      this[prop] = aProperties[prop];
+    }
+  }
+
   isPopup()
   {
     let rv = $(this._dlgEltStor).hasClass("panel");
@@ -100,6 +114,11 @@ class aeDialog
 
   showModal()
   {
+    if (! this._isInitialized) {
+      this._fnFirstInit();
+      this._isInitialized = true;
+    }
+    
     this._fnInit();
     $("#lightbox-bkgrd-ovl").addClass("lightbox-show");
     $(`${this._dlgEltStor}`).addClass("lightbox-show");

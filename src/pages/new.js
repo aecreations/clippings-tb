@@ -138,14 +138,17 @@ $(window).on("contextmenu", aEvent => {
 function showInitError()
 {
   let errorMsgBox = new aeDialog("#create-clipping-error-msgbox");
-  errorMsgBox.onInit = () => {
+  errorMsgBox.onInit = function ()
+  {
     let errMsgElt = $("#create-clipping-error-msgbox > .dlg-content > .msgbox-error-msg");
     errMsgElt.text(messenger.i18n.getMessage("initError"));
   };
-  errorMsgBox.onAccept = () => {
+  errorMsgBox.onAccept = function ()
+  {
     errorMsgBox.close();
     closeDlg();
   };
+  
   errorMsgBox.showModal();
 }
 
@@ -155,16 +158,17 @@ function initDialogs()
   $(".msgbox-error-icon").attr("os", gOS);
   
   gNewFolderDlg = new aeDialog("#new-folder-dlg");
-  gNewFolderDlg.firstInit = true;
-  gNewFolderDlg.fldrTree = null;
-  gNewFolderDlg.selectedFldrNode = null;
+  gNewFolderDlg.setProps({
+    fldrTree: null,
+    selectedFldrNode: null,
+  });
 
-  gNewFolderDlg.resetTree = function () {
-    let that = gNewFolderDlg;
-    let fldrTree = that.fldrTree.getTree();
+  gNewFolderDlg.resetTree = function ()
+  {
+    let fldrTree = this.fldrTree.getTree();
     fldrTree.clear();
-    that.fldrTree = null;
-    that.selectedFldrNode = null;
+    this.fldrTree = null;
+    this.selectedFldrNode = null;
 
     // Remove and recreate the Fancytree <div> element.
     $("#new-folder-dlg-fldr-tree").children().remove();
@@ -172,9 +176,32 @@ function initDialogs()
     parentElt.children("#new-folder-dlg-fldr-tree").remove();
     $('<div id="new-folder-dlg-fldr-tree" class="folder-tree"></div>').appendTo("#new-folder-dlg-fldr-tree-popup");
   };
+
+  gNewFolderDlg.onFirstInit = function ()
+  {
+    let fldrPickerMnuBtn = $("#new-folder-dlg-fldr-picker-mnubtn");
+    let fldrPickerPopup = $("#new-folder-dlg-fldr-tree-popup");
+
+    fldrPickerMnuBtn.click(aEvent => {
+      if (fldrPickerPopup.css("visibility") == "visible") {
+        fldrPickerPopup.css({ visibility: "hidden" });
+        $("#new-folder-dlg-fldr-tree-popup-bkgrd-ovl").hide();
+      }
+      else {
+        fldrPickerPopup.css({ visibility: "visible" });
+        $("#new-folder-dlg-fldr-tree-popup-bkgrd-ovl").show();
+      }
+    });
+    
+    $("#new-fldr-name").on("blur", aEvent => {
+      if (! aEvent.target.value) {
+        aEvent.target.value = messenger.i18n.getMessage("newFolder");
+      }
+    });
+  };
   
-  gNewFolderDlg.onInit = () => {
-    let that = gNewFolderDlg;
+  gNewFolderDlg.onInit = function ()
+  {
     let parentDlgFldrPickerMnuBtn = $("#new-clipping-fldr-picker-menubtn");
     let fldrPickerMnuBtn = $("#new-folder-dlg-fldr-picker-mnubtn");
     let fldrPickerPopup = $("#new-folder-dlg-fldr-tree-popup");
@@ -195,7 +222,7 @@ function initDialogs()
       }
     }
     
-    that.fldrTree = new aeFolderPicker(
+    this.fldrTree = new aeFolderPicker(
       "#new-folder-dlg-fldr-tree",
       gClippingsDB,
       rootFldrID,
@@ -204,8 +231,8 @@ function initDialogs()
       selectedFldrID
     );
 
-    that.fldrTree.onSelectFolder = aFolderData => {
-      that.selectedFldrNode = aFolderData.node;
+    this.fldrTree.onSelectFolder = aFolderData => {
+      this.selectedFldrNode = aFolderData.node;
 
       let fldrID = aFolderData.node.key;
       fldrPickerMnuBtn.val(fldrID).text(aFolderData.node.title);
@@ -229,41 +256,21 @@ function initDialogs()
       fldrPickerMnuBtn.removeAttr("syncfldr");
     }
 
-    if (that.firstInit) {
-      fldrPickerMnuBtn.click(aEvent => {
-        if (fldrPickerPopup.css("visibility") == "visible") {
-          fldrPickerPopup.css({ visibility: "hidden" });
-          $("#new-folder-dlg-fldr-tree-popup-bkgrd-ovl").hide();
-        }
-        else {
-          fldrPickerPopup.css({ visibility: "visible" });
-          $("#new-folder-dlg-fldr-tree-popup-bkgrd-ovl").show();
-        }
-      })
-      
-      $("#new-fldr-name").on("blur", aEvent => {
-        if (! aEvent.target.value) {
-          aEvent.target.value = messenger.i18n.getMessage("newFolder");
-        }
-      });
-      
-      that.firstInit = false;
-    }
-
     $("#new-fldr-name").val(messenger.i18n.getMessage("newFolder"));
   };
 
-  gNewFolderDlg.onShow = () => {
+  gNewFolderDlg.onShow = function ()
+  {
     $("#new-fldr-name").select().focus();
   };
   
-  gNewFolderDlg.onAccept = aEvent => {
-    let that = gNewFolderDlg;
-    let newFldrDlgTree = that.fldrTree.getTree();
+  gNewFolderDlg.onAccept = function (aEvent)
+  {
+    let newFldrDlgTree = this.fldrTree.getTree();
     let parentFldrID = aeConst.ROOT_FOLDER_ID;
 
-    if (that.selectedFldrNode) {
-      parentFldrID = Number(that.selectedFldrNode.key);
+    if (this.selectedFldrNode) {
+      parentFldrID = Number(this.selectedFldrNode.key);
     }
     else {
       // User didn't choose a different parent folder.
@@ -278,6 +285,8 @@ function initDialogs()
       parentFolderID: parentFldrID,
       displayOrder: 0,
     };
+
+    let that = gNewFolderDlg;
 
     gClippingsDB.transaction("rw", gClippingsDB.clippings, gClippingsDB.folders, () => {
       gClippingsDB.folders.where("parentFolderID").equals(parentFldrID).count().then(aNumFldrs => {
@@ -331,7 +340,8 @@ function initDialogs()
   };
 
   gPreviewDlg = new aeDialog("#preview-dlg");
-  gPreviewDlg.onShow = () => {
+  gPreviewDlg.onShow = function ()
+  {
     let content = $("#clipping-text").val();
 
     if ($("#create-as-unquoted")[0].checked) {
@@ -344,11 +354,10 @@ function initDialogs()
     $("#clipping-preview").val(content);
   };
 
-  gPreviewDlg.onAccept = aEvent => {
-    let that = gPreviewDlg;
-    
+  gPreviewDlg.onAccept = function (aEvent)
+  {
     $("#clipping-preview").val("");
-    that.close();
+    this.close();
   };
 }
 
