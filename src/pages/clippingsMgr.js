@@ -3521,9 +3521,17 @@ function initDialogs()
     let that = gDialogs.miniHelp;
 
     if (! that.isInitialized) {
+      let dlgHeight = null;
+
+      if (gOS == "win") {
+        dlgHeight = "332px";
+      }
       // Accommodate extra line of text in German locale.
       if (messenger.i18n.getUILanguage() == "de") {
-        let dlgHeight = "344px";
+        dlgHeight = "344px";
+      }
+
+      if (dlgHeight) {
         $("#mini-help-dlg").css({ height: dlgHeight });
       }
 
