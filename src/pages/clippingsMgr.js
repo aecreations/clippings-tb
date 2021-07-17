@@ -3546,7 +3546,7 @@ function initDialogs()
   gDialogs.deleteSyncFldr = new aeDialog("#delete-sync-fldr-msgbox");
 
   gDialogs.miniHelp = new aeDialog("#mini-help-dlg");
-  gDialogs.miniHelp.firstInit = function ()
+  gDialogs.miniHelp.onFirstInit = function ()
   {
     const isWindows = osName == "win";
     let dlgHeight = null;
