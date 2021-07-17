@@ -286,8 +286,6 @@ function initDialogs()
       displayOrder: 0,
     };
 
-    let that = gNewFolderDlg;
-
     gClippingsDB.transaction("rw", gClippingsDB.clippings, gClippingsDB.folders, () => {
       gClippingsDB.folders.where("parentFolderID").equals(parentFldrID).count().then(aNumFldrs => {
         numItemsInParent += aNumFldrs;
@@ -299,6 +297,10 @@ function initDialogs()
         return gClippingsDB.folders.add(newFolder);
 
       }).then(aFldrID => {
+        if (gPrefs.clippingsUnchanged) {
+          aePrefs.setPrefs({ clippingsUnchanged: false });
+        }
+
         let newFldrName = $("#new-fldr-name").val();
       
         // Update the folder tree in the main dialog.
@@ -325,14 +327,14 @@ function initDialogs()
         $("#new-clipping-fldr-picker-menubtn").text(newFldrName).val(aFldrID);       
         gParentFolderID = aFldrID;
         
-        that.resetTree();
+        this.resetTree();
 
         let clipgsLstrs = gClippings.getClippingsListeners();
         clipgsLstrs.forEach(aListener => {
           aListener.newFolderCreated(aFldrID, newFolder, aeConst.ORIGIN_HOSTAPP);
         });
         
-        that.close();
+        this.close();
       });
     }).catch(aErr => {
       window.alert(aErr);

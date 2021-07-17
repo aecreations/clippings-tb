@@ -33,6 +33,8 @@ let aePrefs = function () {
     showLegacyDataMigrnStatus: null,
     clippingsMgrCleanUpIntv: aeConst.CLIPPINGSMGR_CLEANUP_INTERVAL_MS,
     clippingsMgrAutoSaveIntv: aeConst.CLIPPINGSMGR_AUTOSAVE_INTERVAL_MS,
+    skipBackupRemIfUnchg: true,
+    clippingsUnchanged: false,
   };
 
   return {
@@ -74,6 +76,35 @@ let aePrefs = function () {
     {
       // Version 6.0
       return aPrefs.hasOwnProperty("htmlPaste");
+    },
+    
+    hasCarpinteriaPrefs(aPrefs)
+    {
+      // Version 6.1
+      return aPrefs.hasOwnProperty("skipBackupRemIfUnchg");
+    },
+
+    async setCarpinteriaPrefs(aPrefs)
+    {
+      let newPrefs = {
+        skipBackupRemIfUnchg: true,
+        clippingsUnchanged: false,
+      };
+
+      await this._addPrefs(aPrefs, newPrefs);
+    },
+
+    
+    //
+    // Helper methods
+    //
+    
+    async _addPrefs(aCurrPrefs, aNewPrefs)
+    {
+      for (let pref in aNewPrefs) {
+        aCurrPrefs[pref] = aNewPrefs[pref];
+      }
+      await this.setPrefs(aNewPrefs);
     },
   };
 }();

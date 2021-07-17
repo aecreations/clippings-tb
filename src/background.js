@@ -244,6 +244,10 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
       gMigrateLegacyData = true;
     }
 
+    if (! aePrefs.hasCarpinteriaPrefs(gPrefs)) {
+      await aePrefs.setCarpinteriaPrefs(gPrefs);
+    }
+
     init();
   }
 });

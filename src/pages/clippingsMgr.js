@@ -717,6 +717,10 @@ let gShortcutKey = {
 
       let clippingID = parseInt(selectedNode.key);
       gClippingsSvc.updateClipping(clippingID, { shortcutKey }).then(aNumUpd => {
+        if (gPrefs.clippingsUnchanged) {
+          aePrefs.setPrefs({ clippingsUnchanged: false });
+        }
+        
         if (gSyncedItemsIDs[clippingID + "C"]) {
           gClippings.pushSyncFolderUpdates().catch(handlePushSyncItemsError);
         }
@@ -963,6 +967,8 @@ let gCmd = {
     };
       
     gClippingsSvc.createClipping(newClipping).then(aNewClippingID => {
+      this._unsetClippingsUnchangedFlag();
+      
       if (aDestUndoStack == this.UNDO_STACK) {
         this.undoStack.push({
           action: this.ACTION_CREATENEW,
@@ -1001,6 +1007,8 @@ let gCmd = {
     };
 
     gClippingsSvc.createClipping(newClipping).then(aNewClippingID => {
+      this._unsetClippingsUnchangedFlag();
+      
       if (aDestUndoStack == this.UNDO_STACK) {
         this.undoStack.push({
           action: this.ACTION_CREATENEW,
@@ -1047,6 +1055,8 @@ let gCmd = {
     };
 
     gClippingsSvc.createFolder(newFolder).then(aNewFolderID => {
+      this._unsetClippingsUnchangedFlag();
+
       if (aDestUndoStack == this.UNDO_STACK) {
         this.undoStack.push({
           action: this.ACTION_CREATENEWFOLDER,
@@ -1106,6 +1116,8 @@ let gCmd = {
       this.recentAction = this.ACTION_DELETEFOLDER;
 
       gClippingsSvc.updateFolder(id, { parentFolderID: aeConst.DELETED_ITEMS_FLDR_ID }).then(aNumUpd => {
+        this._unsetClippingsUnchangedFlag();
+
         if (aDestUndoStack == this.UNDO_STACK) {
           this.undoStack.push({
             action: this.ACTION_DELETEFOLDER,
@@ -1129,6 +1141,8 @@ let gCmd = {
         parentFolderID: aeConst.DELETED_ITEMS_FLDR_ID,
         shortcutKey: ""
       }).then(aNumUpd => {
+        this._unsetClippingsUnchangedFlag();
+
         if (aDestUndoStack == this.UNDO_STACK) {
           this.undoStack.push({
             action: this.ACTION_DELETECLIPPING,
@@ -1161,6 +1175,8 @@ let gCmd = {
       oldParentFldrID = aClipping.parentFolderID;
       return gClippingsSvc.updateClipping(aClippingID, { parentFolderID: aNewParentFldrID }, aClipping);
     }).then(aNumUpd => {
+      this._unsetClippingsUnchangedFlag();
+
       let state = {
         action: this.ACTION_MOVETOFOLDER,
         itemType: this.ITEMTYPE_CLIPPING,
@@ -1225,6 +1241,8 @@ let gCmd = {
       return gClippingsSvc.createClipping(clippingCpy);
 
     }).then(aNewClippingID => {
+      this._unsetClippingsUnchangedFlag();
+
       if (aDestUndoStack == this.UNDO_STACK) {
         this.undoStack.push({
           action: this.ACTION_COPYTOFOLDER,
@@ -1259,7 +1277,10 @@ let gCmd = {
         parentFolderID: aNewParentFldrID,
       };
       return gClippingsSvc.updateFolder(aFolderID, folderCpy, aFolder);
+
     }).then(aNumUpd => {
+      this._unsetClippingsUnchangedFlag();
+
       if (aDestUndoStack == this.UNDO_STACK) {
         this.undoStack.push({
           action: this.ACTION_MOVETOFOLDER,
@@ -1329,6 +1350,8 @@ let gCmd = {
       return this._copyFolderHelper(aFolderID, aNewFolderID);
       
     }).then(() => {
+      this._unsetClippingsUnchangedFlag();
+
       if (aDestUndoStack == this.UNDO_STACK) {
         this.undoStack.push({
           action: this.ACTION_COPYTOFOLDER,
@@ -1371,6 +1394,8 @@ let gCmd = {
         return gClippingsSvc.updateFolder(aFolderID, { name: aName }, aFolder);
 
       }).then(aNumUpd => {
+        this._unsetClippingsUnchangedFlag();
+
         if (aNumUpd && aDestUndoStack == that.UNDO_STACK) {
           that.undoStack.push({
             action: that.ACTION_EDITNAME,
@@ -1416,6 +1441,8 @@ let gCmd = {
         return gClippingsSvc.updateClipping(aClippingID, { name: aName }, aClipping);
 
       }).then(aNumUpd => {
+        this._unsetClippingsUnchangedFlag();
+
         if (aNumUpd && aDestUndoStack == that.UNDO_STACK) {
           that.undoStack.push({
             action: that.ACTION_EDITNAME,
@@ -1461,6 +1488,10 @@ let gCmd = {
         return gClippingsSvc.updateClipping(aClippingID, { content: aContent }, aClipping);
 
       }).then(aNumUpd => {
+        if (aNumUpd > 0) {
+          this._unsetClippingsUnchangedFlag();
+        }
+
         if (aNumUpd && aDestUndoStack == that.UNDO_STACK) {
           that.undoStack.push({
             action: that.ACTION_EDITCONTENT,
@@ -1514,6 +1545,7 @@ let gCmd = {
 
       gClippingLabelPicker.selectedLabel = aLabel;
 
+      this._unsetClippingsUnchangedFlag();
       if (aDestUndoStack == this.UNDO_STACK) {
         this.undoStack.push({
           action: this.ACTION_SETLABEL,
@@ -1574,6 +1606,7 @@ let gCmd = {
 	Promise.all(seqUpdates).then(aNumUpd => {
           log(`Clippings/mx::clippingsMgr.js: gCmd.updateDisplayOrder(): Display order updates for each folder item is completed (folder ID = ${aFolderID})`);
 
+          this._unsetClippingsUnchangedFlag();
           if (aDestUndoStack == this.UNDO_STACK) {
             this.undoStack.push(aUndoInfo);
           }
@@ -2048,7 +2081,11 @@ let gCmd = {
     }
   },
   
-  // Helper
+
+  //
+  // Helper methods
+  //
+  
   _getParentFldrIDOfTreeNode: function (aNode)
   {
     let rv = null;
@@ -2105,7 +2142,14 @@ let gCmd = {
         aFnReject(aErr);
       });
     });
-  }
+  },
+
+  _unsetClippingsUnchangedFlag()
+  {
+    if (gPrefs.clippingsUnchanged) {
+      aePrefs.setPrefs({ clippingsUnchanged: false });
+    }
+  },
 };
 
 
@@ -3365,6 +3409,10 @@ function initDialogs()
   {
     $("#backup-confirm-msgbox > .msgbox-content").text(aMessage);
   };
+  gDialogs.backupConfirmMsgBox.onShow = async function ()
+  {
+    await aePrefs.setPrefs({ clippingsUnchanged: true });
+  };
   gDialogs.backupConfirmMsgBox.onAfterAccept = function ()
   {
     if (gIsBackupMode) {
@@ -4387,6 +4435,10 @@ function insertTextIntoTextbox(aTextboxElt, aInsertedText)
   textbox.value = pre + aInsertedText + post;
   textbox.selectionStart = pos;
   textbox.selectionEnd = pos;
+
+  if (gPrefs.clippingsUnchanged) {
+    aePrefs.setPrefs({ clippingsUnchanged: false });
+  }
 }
 
 
