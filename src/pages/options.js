@@ -214,10 +214,26 @@ function initDialogs()
   $(".msgbox-icon").attr("os", gOS);
   
   gDialogs.syncClippings = new aeDialog("#sync-clippings-dlg");
-  gDialogs.syncClippings.oldShowSyncItemsOpt = null;
-  gDialogs.syncClippings.isCanceled = false;
-  gDialogs.syncClippings.onInit = () => {
-    gDialogs.syncClippings.isCanceled = false;
+  gDialogs.syncClippings.setProps({
+    oldShowSyncItemsOpt: null,
+    isCanceled: false,
+  });
+  gDialogs.syncClippings.onFirstInit = function ()
+  {
+    if (gOS == "win") {
+      $("#example-sync-path").text(messenger.i18n.getMessage("syncFileDirExWin"));
+    }
+    else if (gOS == "mac") {
+      $("#example-sync-path").text(messenger.i18n.getMessage("syncFileDirExMac"));
+    }
+    else {
+      $("#example-sync-path").text(messenger.i18n.getMessage("syncFileDirExLinux"));
+    }
+    $("#sync-conxn-error-detail").html(sanitizeHTML(messenger.i18n.getMessage("errSyncConxnDetail")));
+  };
+  gDialogs.syncClippings.onInit = function ()
+  {
+    this.isCanceled = false;
     $("#sync-clippings-dlg .dlg-accept").hide();
     $("#sync-clippings-dlg .dlg-cancel").text(messenger.i18n.getMessage("btnCancel"));
     $("#sync-err-detail").text("");
@@ -232,6 +248,7 @@ function initDialogs()
     deckSyncError.hide();
     deckSyncSettings.hide();
 
+    let that = this;
     let lang = messenger.i18n.getUILanguage();
     let msg = { msgID: "get-app-version" };
     let sendNativeMsg = messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
@@ -243,13 +260,13 @@ function initDialogs()
       $("#sync-helper-app-update-check").prop("checked", aPrefs.syncHelperCheckUpdates);
       $("#show-only-sync-items").prop("checked", aPrefs.cxtMenuSyncItemsOnly);
 
-      gDialogs.syncClippings.oldShowSyncItemsOpt = $("#show-only-sync-items").prop("checked");
+      that.oldShowSyncItemsOpt = $("#show-only-sync-items").prop("checked");
 
       let msg = { msgID: "get-sync-dir" };
       return messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
       
     }).then(aResp => {
-      if (! gDialogs.syncClippings.isCanceled) {
+      if (! that.isCanceled) {
         if (lang == "es-ES") {
           $("#sync-clippings-dlg").css({ width: "606px" });
         }
@@ -285,9 +302,8 @@ function initDialogs()
       }
     });
   };
-  gDialogs.syncClippings.onAccept = () => {
-    let that = gDialogs.syncClippings;
-
+  gDialogs.syncClippings.onAccept = function ()
+  {
     let syncFldrPath = $("#sync-fldr-curr-location").val();
 
     // Sanitize the sync folder path value.
@@ -314,6 +330,8 @@ function initDialogs()
     log(msg);
 
     let setSyncFilePath = messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
+    let that = this;
+    
     setSyncFilePath.then(aResp => {
       log("Received response to 'set-sync-dir':");
       log(aResp);
@@ -353,23 +371,12 @@ function initDialogs()
       console.error(aErr);
     });
   };
-  gDialogs.syncClippings.onUnload = () => {
+  gDialogs.syncClippings.onUnload = function ()
+  {
     $("#sync-clippings-dlg").css({ height: "256px" });
     gDialogs.syncClippings.isCanceled = true;
   };
-
-  // Dialog UI strings
-  if (gOS == "win") {
-    $("#example-sync-path").text(messenger.i18n.getMessage("syncFileDirExWin"));
-  }
-  else if (gOS == "mac") {
-    $("#example-sync-path").text(messenger.i18n.getMessage("syncFileDirExMac"));
-  }
-  else {
-    $("#example-sync-path").text(messenger.i18n.getMessage("syncFileDirExLinux"));
-  }
-  $("#sync-conxn-error-detail").html(sanitizeHTML(messenger.i18n.getMessage("errSyncConxnDetail")));
-
+  
   gDialogs.turnOffSync = new aeDialog("#turn-off-sync-clippings-dlg");
   $("#turn-off-sync-clippings-dlg > .dlg-btns > .dlg-btn-yes").click(aEvent => {
     let that = gDialogs.turnOffSync;
@@ -392,11 +399,15 @@ function initDialogs()
   });
 
   gDialogs.turnOffSyncAck = new aeDialog("#turn-off-sync-clippings-ack-dlg");
-  gDialogs.turnOffSyncAck.oldSyncFldrID = null;
-  gDialogs.turnOffSyncAck.onInit = () => {
+  gDialogs.turnOffSyncAck.setProps({
+    oldSyncFldrID: null,
+  });
+  gDialogs.turnOffSyncAck.onInit = function ()
+  {
     $("#delete-sync-fldr").prop("checked", true);
   };
-  gDialogs.turnOffSyncAck.onAfterAccept = () => {
+  gDialogs.turnOffSyncAck.onAfterAccept = function ()
+  {
     let that = gDialogs.turnOffSyncAck;
     let removeSyncFldr = $("#delete-sync-fldr").prop("checked");
     let syncClippingsListeners = gClippings.getSyncClippingsListeners().getListeners();
@@ -407,19 +418,20 @@ function initDialogs()
   };
 
   gDialogs.about = new aeDialog("#about-dlg");
-  gDialogs.about.extInfo = null;
-  gDialogs.about.onInit = () => {
-    let that = gDialogs.about;
-    
+  gDialogs.about.setProps({
+    extInfo: null,
+  });
+  gDialogs.about.onInit = function ()
+  {
     let diagDeck = $("#about-dlg > .dlg-content #diag-info .deck");
     diagDeck.children("#sync-diag-loading").show();
     diagDeck.children("#sync-diag").hide();
     $("#about-dlg > .dlg-content #diag-info #sync-diag-detail").hide();
     $("#about-dlg > .dlg-content #diag-info #sync-file-size").text("");
 
-    if (! that.extInfo) {
+    if (! this.extInfo) {
       let extManifest = messenger.runtime.getManifest();
-      that.extInfo = {
+      this.extInfo = {
         name: extManifest.name,
         version: extManifest.version,
         description: extManifest.description,
@@ -427,12 +439,13 @@ function initDialogs()
       };
     }
 
-    $("#about-dlg > .dlg-content #ext-name").text(that.extInfo.name);
-    $("#about-dlg > .dlg-content #ext-ver").text(messenger.i18n.getMessage("aboutExtVer", that.extInfo.version));
-    $("#about-dlg > .dlg-content #ext-desc").text(that.extInfo.description);
-    $("#about-dlg > .dlg-content #ext-home-pg").attr("href", that.extInfo.homePgURL);
+    $("#about-dlg > .dlg-content #ext-name").text(this.extInfo.name);
+    $("#about-dlg > .dlg-content #ext-ver").text(messenger.i18n.getMessage("aboutExtVer", this.extInfo.version));
+    $("#about-dlg > .dlg-content #ext-desc").text(this.extInfo.description);
+    $("#about-dlg > .dlg-content #ext-home-pg").attr("href", this.extInfo.homePgURL);
   };
-  gDialogs.about.onShow = async () => {
+  gDialogs.about.onShow = async function ()
+  {
     let msg = { msgID: "get-app-version" };
     let sendNativeMsg = messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
     sendNativeMsg.then(aResp => {
@@ -482,9 +495,11 @@ function initDialogs()
   };
   
   gDialogs.syncClippingsHelp = new aeDialog("#sync-clippings-help-dlg");
-
-  // Sync Clippings help dialog content.
-  $("#sync-clippings-help-dlg > .dlg-content").html(sanitizeHTML(messenger.i18n.getMessage("syncHelpTB")));
+  gDialogs.syncClippingsHelp.onFirstInit = function ()
+  {
+    // Sync Clippings help dialog content.
+    $("#sync-clippings-help-dlg > .dlg-content").html(sanitizeHTML(messenger.i18n.getMessage("syncHelpTB")));
+  };
 }
 
 
