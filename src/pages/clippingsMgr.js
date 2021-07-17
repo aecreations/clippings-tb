@@ -3390,6 +3390,12 @@ function initDialogs()
   {
     $("#import-confirm-msgbox > .msgbox-content").text(aMessage);
   };
+  gDialogs.importConfirmMsgBox.onShow = async function ()
+  {
+    if (gPrefs.clippingsUnchanged) {
+      await aePrefs.setPrefs({ clippingsUnchanged: false });
+    }
+  };
   gDialogs.importConfirmMsgBox.onAfterAccept = async function ()
   {
     let clpgsLstrs = gClippings.getClippingsListeners();
