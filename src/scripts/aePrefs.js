@@ -91,6 +91,12 @@ let aePrefs = function () {
         clippingsUnchanged: false,
       };
 
+      let platform = await messenger.runtime.getPlatformInfo();
+      if (platform.os != "linux") {
+        // Fix incorrect default value of pref.
+        newPrefs.clippingsMgrMinzWhenInactv = null;
+      }
+
       await this._addPrefs(aPrefs, newPrefs);
     },
 
