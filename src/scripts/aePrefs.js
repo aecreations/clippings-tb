@@ -38,6 +38,7 @@ let aePrefs = function () {
     clippingsMgrSaveWndGeom: false,
     clippingsMgrSaveWndGeomIntv: 2000,
     clippingsMgrWndGeom: null,
+    clippingsMgrTreeWidth: null,
     autoAdjustWndPos: null,
   };
 
@@ -96,6 +97,7 @@ let aePrefs = function () {
         clippingsMgrSaveWndGeom: false,
         clippingsMgrSaveWndGeomIntv: 2000,
         clippingsMgrWndGeom: null,
+        clippingsMgrTreeWidth: null,
         autoAdjustWndPos: null,
       };
 

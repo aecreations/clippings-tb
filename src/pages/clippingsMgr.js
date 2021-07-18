@@ -2220,6 +2220,11 @@ $(async () => {
       await saveWindowGeometry();
     }, gPrefs.clippingsMgrSaveWndGeomIntv);
   }
+
+  if (gPrefs.clippingsMgrTreeWidth) {
+    let width = `${parseInt(gPrefs.clippingsMgrTreeWidth)}px`;
+    $("#clippings-tree").css({ width });
+  }
   
   if (gIsBackupMode) {
     gCmd.backup();
@@ -4480,6 +4485,13 @@ function setStatusBarMsg(aMessage)
 
 async function saveWindowGeometry()
 {
+  // Save the Clippings Manager tree width.
+  let treeWidth = parseInt($("#clippings-tree").css("width"));
+  if (treeWidth != gPrefs.clippingsMgrTreeWidth) {
+    let clippingsMgrTreeWidth = treeWidth;
+    await aePrefs.setPrefs({ clippingsMgrTreeWidth });
+  }
+
   let scrWidth = window.screen.availWidth;
 
   // Stop saving window geometry if window is maximized, due to bugs/limitations
