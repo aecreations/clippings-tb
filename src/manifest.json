@@ -36,6 +36,7 @@
       "scripts/aeDateDiff.js",
       "scripts/aeImportExport.js",
       "scripts/aePrefs.js",
+      "scripts/aeWndPos.js",
       "background.js"
     ]
   },

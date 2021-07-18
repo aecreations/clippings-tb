@@ -35,6 +35,7 @@ let aePrefs = function () {
     clippingsMgrAutoSaveIntv: aeConst.CLIPPINGSMGR_AUTOSAVE_INTERVAL_MS,
     skipBackupRemIfUnchg: true,
     clippingsUnchanged: false,
+    autoAdjustWndPos: null,
   };
 
   return {
@@ -89,6 +90,7 @@ let aePrefs = function () {
       let newPrefs = {
         skipBackupRemIfUnchg: true,
         clippingsUnchanged: false,
+        autoAdjustWndPos: null,
       };
 
       let platform = await messenger.runtime.getPlatformInfo();

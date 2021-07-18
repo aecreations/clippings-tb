@@ -403,6 +403,11 @@ async function init()
       await aePrefs.setPrefs({ clippingsMgrMinzWhenInactv: true });
     }
 
+    if (gPrefs.autoAdjustWndPos === null) {
+      let autoAdjustWndPos = gOS == "win";
+      await aePrefs.setPrefs({ autoAdjustWndPos });
+    }
+
     gClippingsListener.origin = aeConst.ORIGIN_HOSTAPP;
     gClippingsListeners.add(gClippingsListener);
     gSyncClippingsListeners.add(gSyncClippingsListener);
@@ -1122,17 +1127,37 @@ async function openDlgWnd(aURL, aWndKey, aWndPpty)
 {
   async function openDlgWndHelper()
   {
+    let width = aWndPpty.width;
+    let height = aWndPpty.height;
+    let left, top, wndGeom;
+
+    if (gPrefs.autoAdjustWndPos) {
+      ({ left, top } = await aeWndPos.calcPopupWndCoords(width, height, aWndPpty.topOffset));
+      wndGeom = true;
+    }
+    else {
+      wndGeom = false;
+      left = Math.ceil((window.screen.availWidth - width) / 2);
+      top = Math.ceil((window.screen.availHeight - height) / 2);
+    }
+
     let wnd = await messenger.windows.create({
       url: aURL,
       type: aWndPpty.type,
-      width: aWndPpty.width,
-      height: aWndPpty.height,
-      left: window.screen.availWidth - aWndPpty.width / 2,
-      top:  window.screen.availHeight - aWndPpty.height / 2
+      width, height,
+      left, top,
     });
 
     gWndIDs[aWndKey] = wnd.id;
+
+    // Workaround to bug where window position isn't set when calling
+    // `browser.windows.create()`. If unable to get window geometry, then
+    // default to centering on screen.
+    if (wndGeom) {
+      browser.windows.update(wnd.id, { left, top });
+    }
   }
+  // END nested function
 
   if (gWndIDs[aWndKey]) {
     try {
