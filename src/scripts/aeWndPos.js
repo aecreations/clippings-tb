@@ -29,12 +29,44 @@ let aeWndPos = function () {
     return rv;
   };
 
+  async function _getFocusedWndGeom()
+  {
+    let rv = null;
+    let msgrWnds = await messenger.windows.getAll();
+
+    for (let wnd of msgrWnds) {
+      if (["normal", "messageCompose"].includes(wnd.type) && wnd.focused) {
+	let wndGeom = {
+          w: wnd.width,
+          h: wnd.height,
+          x: wnd.left,
+          y: wnd.top,
+	};
+	rv = wndGeom;
+	break;
+      }
+    }
+
+    return rv;
+  };
+
   return {
-    async calcPopupWndCoords(aWidth, aHeight, aTopOffset)
+    WND_CURRENTLY_FOCUSED: 0,
+    WND_MESSENGER: 1,
+    WND_MSG_COMPOSE: 2,
+    
+    async calcPopupWndCoords(aWidth, aHeight, aTopOffset, aWndType)
     {
       let rv = null;
 
-      let wndGeom = await _getComposerWndGeom();
+      let wndGeom;
+      if (aWndType == this.WND_MSG_COMPOSE) {
+	wndGeom = await _getComposerWndGeom();
+      }
+      else {
+	wndGeom = await _getFocusedWndGeom();
+      }
+      
       let topOffset = aTopOffset ?? TOP_OFFSET;
       let left, top;
 

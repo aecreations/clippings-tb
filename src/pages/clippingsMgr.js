@@ -21,6 +21,7 @@ let gSyncedItemsIDs = {};
 let gIsBackupMode = false;
 let gErrorPushSyncItems = false;
 let gReorderedTreeNodeNextSibling = null;
+let gWndGeomSaveIntvID = null
 
 
 // DOM utility
@@ -2213,6 +2214,12 @@ $(async () => {
   buildClippingsTree();
   initTreeSplitter();
   initSyncItemsIDLookupList();
+  
+  if (gPrefs.clippingsMgrSaveWndGeom) {
+    gWndGeomSaveIntvID = window.setInterval(async () => {
+      await saveWindowGeometry();
+    }, gPrefs.clippingsMgrSaveWndGeomIntv);
+  }
   
   if (gIsBackupMode) {
     gCmd.backup();
@@ -4468,6 +4475,35 @@ function setStatusBarMsg(aMessage)
 
   let tree = getClippingsTree();
   $("#status-bar-msg").text(messenger.i18n.getMessage("clipMgrStatusBar", tree.count()));
+}
+
+
+async function saveWindowGeometry()
+{
+  let scrWidth = window.screen.availWidth;
+
+  // Stop saving window geometry if window is maximized, due to bugs/limitations
+  // with detecting and getting geometry of maximized windows.
+  if (window.outerWidth >= scrWidth) {
+    warn("Clippings/wx::clippingsMgr.js: saveWindowGeometry(): Not saving window geometry for maximized window.");
+    return;
+  }
+
+  let savedWndGeom = gPrefs.clippingsMgrWndGeom;
+
+  if (!savedWndGeom || savedWndGeom.w != window.outerWidth
+      || savedWndGeom.h != window.outerHeight
+      || savedWndGeom.x != window.screenX || savedWndGeom.y != window.screenY) {
+    let clippingsMgrWndGeom = {
+      w: window.outerWidth, h: window.outerHeight,
+      x: window.screenX, y: window.screenY,
+    };
+
+    log("Clippings/wx::clippingsMgr.js: saveWindowGeometry():");
+    log(clippingsMgrWndGeom);
+
+    await aePrefs.setPrefs({ clippingsMgrWndGeom });
+  }
 }
 
 

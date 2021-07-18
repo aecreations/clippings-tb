@@ -35,6 +35,9 @@ let aePrefs = function () {
     clippingsMgrAutoSaveIntv: aeConst.CLIPPINGSMGR_AUTOSAVE_INTERVAL_MS,
     skipBackupRemIfUnchg: true,
     clippingsUnchanged: false,
+    clippingsMgrSaveWndGeom: false,
+    clippingsMgrSaveWndGeomIntv: 2000,
+    clippingsMgrWndGeom: null,
     autoAdjustWndPos: null,
   };
 
@@ -90,6 +93,9 @@ let aePrefs = function () {
       let newPrefs = {
         skipBackupRemIfUnchg: true,
         clippingsUnchanged: false,
+        clippingsMgrSaveWndGeom: false,
+        clippingsMgrSaveWndGeomIntv: 2000,
+        clippingsMgrWndGeom: null,
         autoAdjustWndPos: null,
       };
 

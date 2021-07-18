@@ -405,7 +405,8 @@ async function init()
 
     if (gPrefs.autoAdjustWndPos === null) {
       let autoAdjustWndPos = gOS == "win";
-      await aePrefs.setPrefs({ autoAdjustWndPos });
+      let clippingsMgrSaveWndGeom = autoAdjustWndPos;
+      await aePrefs.setPrefs({ autoAdjustWndPos, clippingsMgrSaveWndGeom });
     }
 
     gClippingsListener.origin = aeConst.ORIGIN_HOSTAPP;
@@ -1039,15 +1040,45 @@ async function openClippingsManager(aBackupMode)
   
   async function openClippingsMgrHelper()
   {
+    let width = 760;
+    let height = 410;
+    let topOffset = 200;
+    let left, top;
+    let wndGeom = gPrefs.clippingsMgrWndGeom;
+
+    if (gPrefs.clippingsMgrSaveWndGeom && wndGeom) {
+      width  = wndGeom.w - 1;  // Compensate for workaround to popup window bug.
+      height = wndGeom.h;
+      left   = wndGeom.x;
+      top    = wndGeom.y;
+    }
+    else {
+      if (gPrefs.autoAdjustWndPos) {
+        ({left, top} = await aeWndPos.calcPopupWndCoords(width, height, topOffset, aeWndPos.WND_CURRENTLY_FOCUSED));
+        wndGeom = true;
+      }
+      else {
+        left = Math.ceil((window.screen.availWidth - width) / 2);
+        top = Math.ceil((window.screen.availHeight - height) / 2);
+      }
+    }
+
     let wndInfo = {
       url: clippingsMgrURL,
-      type: "detached_panel",
-      width: 760, height: 410,
-      left:  64,  top: 128,
+      type: "popup",
+      width, height,
+      left, top,
     };
 
     let wnd = await messenger.windows.create(wndInfo);
     gWndIDs.clippingsMgr = wnd.id;
+
+    // Workaround to bug where window position isn't set when calling
+    // `browser.windows.create()`. If unable to get window geometry, then
+    // default to centering on screen.
+    if (wndGeom) {
+      browser.windows.update(wnd.id, { left, top });
+    }
 
     gClippingsMgrCleanUpIntvID = window.setInterval(async () => {
       log(`Clippings/mx: [Interval ID: ${gClippingsMgrCleanUpIntvID}]: Checking if Clippings Manager is open`);
@@ -1132,7 +1163,7 @@ async function openDlgWnd(aURL, aWndKey, aWndPpty)
     let left, top, wndGeom;
 
     if (gPrefs.autoAdjustWndPos) {
-      ({ left, top } = await aeWndPos.calcPopupWndCoords(width, height, aWndPpty.topOffset));
+      ({ left, top } = await aeWndPos.calcPopupWndCoords(width, height, aWndPpty.topOffset, aeWndPos.WND_MSG_COMPOSE));
       wndGeom = true;
     }
     else {
