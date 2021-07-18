@@ -297,10 +297,6 @@ function initDialogs()
         return gClippingsDB.folders.add(newFolder);
 
       }).then(aFldrID => {
-        if (gPrefs.clippingsUnchanged) {
-          aePrefs.setPrefs({ clippingsUnchanged: false });
-        }
-
         let newFldrName = $("#new-fldr-name").val();
       
         // Update the folder tree in the main dialog.
@@ -333,7 +329,10 @@ function initDialogs()
         clipgsLstrs.forEach(aListener => {
           aListener.newFolderCreated(aFldrID, newFolder, aeConst.ORIGIN_HOSTAPP);
         });
-        
+
+        return unsetClippingsUnchangedFlag();
+
+      }).then(() => {
         this.close();
       });
     }).catch(aErr => {
@@ -516,6 +515,15 @@ function formatRemoveLineBreaks(aClippingText)
 }
 
 
+function unsetClippingsUnchangedFlag()
+{
+  if (gPrefs.clippingsUnchanged) {
+    return aePrefs.setPrefs({ clippingsUnchanged: false });
+  }
+  return Promise.resolve();
+}
+
+
 function accept(aEvent)
 {
   let prefs = gClippings.getPrefs();
@@ -566,6 +574,9 @@ function accept(aEvent)
         aListener.newClippingCreated(aNewClippingID, newClipping, aeConst.ORIGIN_HOSTAPP);
       });
 
+      return unsetClippingsUnchangedFlag();
+
+    }).then(() => {
       if (gPrefs.syncClippings) {
         aeImportExport.setDatabase(gClippingsDB);
         
