@@ -1394,7 +1394,9 @@ let gCmd = {
         return gClippingsSvc.updateFolder(aFolderID, { name: aName }, aFolder);
 
       }).then(aNumUpd => {
-        this._unsetClippingsUnchangedFlag();
+        if (aNumUpd > 0) {
+          this._unsetClippingsUnchangedFlag();
+        }
 
         if (aNumUpd && aDestUndoStack == that.UNDO_STACK) {
           that.undoStack.push({
@@ -1441,7 +1443,9 @@ let gCmd = {
         return gClippingsSvc.updateClipping(aClippingID, { name: aName }, aClipping);
 
       }).then(aNumUpd => {
-        this._unsetClippingsUnchangedFlag();
+        if (aNumUpd > 0) {
+          this._unsetClippingsUnchangedFlag();
+        }
 
         if (aNumUpd && aDestUndoStack == that.UNDO_STACK) {
           that.undoStack.push({
