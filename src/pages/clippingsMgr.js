@@ -3535,7 +3535,7 @@ function initDialogs()
         "#move-to-fldr-tree",
         gClippingsDB,
         aeConst.ROOT_FOLDER_ID,
-        browser.i18n.getMessage("rootFldrName")
+        messenger.i18n.getMessage("rootFldrName")
       );
 
       this.fldrTree.onSelectFolder = aFolderData => {
@@ -3692,6 +3692,7 @@ async function buildClippingsTree()
     autoScroll: true,
     source: treeData,
     selectMode: 1,
+    strings: { noData: messenger.i18n.getMessage("clipMgrNoItems") },
     icon: (gIsClippingsTreeEmpty ? false : true),
 
     init: function (aEvent, aData) {
