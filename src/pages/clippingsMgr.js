@@ -2216,9 +2216,7 @@ $(async () => {
   initSyncItemsIDLookupList();
   
   if (gPrefs.clippingsMgrSaveWndGeom) {
-    gWndGeomSaveIntvID = window.setInterval(async () => {
-      await saveWindowGeometry();
-    }, gPrefs.clippingsMgrSaveWndGeomIntv);
+    setSaveWndGeometryInterval(true);
   }
 
   if (gPrefs.clippingsMgrTreeWidth) {
@@ -2250,6 +2248,10 @@ $(async () => {
   });
 });
 
+
+//
+// Event handlers
+//
 
 // Reloading or closing Clippings Manager window
 $(window).on("unload", aEvent => {
@@ -2401,6 +2403,19 @@ messenger.storage.onChanged.addListener((aChanges, aAreaName) => {
     gPrefs[pref] = aChanges[pref].newValue;
   }
 });
+
+
+messenger.runtime.onMessage.addListener(aRequest => {
+  if (aRequest.msgID == "ping-clippings-mgr") {
+    let resp = { isOpen: true };
+    return Promise.resolve(resp);
+  }
+  else if (aRequest.msgID == "toggle-save-clipman-wnd-geom") {
+    setSaveWndGeometryInterval(aRequest.saveWndGeom);
+  }
+});
+
+
 
 
 //
@@ -4515,6 +4530,22 @@ async function saveWindowGeometry()
     log(clippingsMgrWndGeom);
 
     await aePrefs.setPrefs({ clippingsMgrWndGeom });
+  }
+}
+
+
+function setSaveWndGeometryInterval(aSaveWndGeom)
+{
+  if (aSaveWndGeom) {
+    gWndGeomSaveIntvID = window.setInterval(async () => {
+      await saveWindowGeometry();
+    }, gPrefs.clippingsMgrSaveWndGeomIntv);    
+  }
+  else {
+    if (!! gWndGeomSaveIntvID) {
+      window.clearInterval(gWndGeomSaveIntvID);
+      gWndGeomSaveIntvID = null;
+    }
   }
 }
 

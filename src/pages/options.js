@@ -16,6 +16,27 @@ function sanitizeHTML(aHTMLStr)
 }
 
 
+function capitalize(aString)
+{
+  let rv;
+
+  if (typeof aString != "string") {
+    throw new TypeError("Not a string");
+  }
+  else if (! aString) {
+    rv = "";
+  }
+  else if (aString.length == 1) {
+    rv = aString.toUpperCase();
+  }
+  else {
+    rv = aString[0].toUpperCase().concat(aString.substring(1));
+  }
+
+  return rv;
+}
+
+
 // Options page initialization
 $(async () => {
   gClippings = await messenger.runtime.getBackgroundPage();
@@ -191,6 +212,10 @@ async function init()
     aePrefs.setPrefs({skipBackupRemIfUnchg: aEvent.target.checked});
   });
 
+  $("#wnds-dlgs-settings").on("click", aEvent => {
+    gDialogs.wndsDlgsOpts.showModal();
+  });
+
   if (prefs.syncClippings) {
     $("#sync-settings").show();
     $("#sync-status").addClass("sync-status-on").text(messenger.i18n.getMessage("syncStatusOn"));
@@ -221,6 +246,78 @@ function initDialogs()
 {
   $(".msgbox-icon").attr("os", gOS);
   
+  gDialogs.wndsDlgsOpts = new aeDialog("#wnds-dlgs-opts-dlg");
+  gDialogs.wndsDlgsOpts.setProps({
+    resetClpMgrWndPos: false,
+  });
+  gDialogs.wndsDlgsOpts.onFirstInit = function ()
+  {   
+    if (gOS != "win") {
+      let os = gOS == "mac" ? "macOS" : capitalize(gOS);
+      $("#wnds-dlgs-opts-dlg").css({height: "320px"});
+      $("#wnds-dlgs-opts-exp-warn-msg").text(browser.i18n.getMessage("wndsDlgsOptsExpWarn", os));
+      $("#wnds-dlgs-opts-exp-warn").show();
+    }
+
+    $("#clpmgr-save-wnd-pos").on("click", aEvent => {
+      $("#reset-clpmgr-wnd-pos").prop("disabled", !aEvent.target.checked);
+    });
+
+    $("#reset-clpmgr-wnd-pos").on("click", aEvent => {
+      this.resetClpMgrWndPos = true;
+    });
+  };
+  gDialogs.wndsDlgsOpts.onInit = async function ()
+  {
+    let prefs = await aePrefs.getAllPrefs();
+    $("#auto-pos-wnds").prop("checked", prefs.autoAdjustWndPos);
+    $("#clpmgr-save-wnd-pos").prop("checked", prefs.clippingsMgrSaveWndGeom);
+    $("#reset-clpmgr-wnd-pos").prop("disabled", !$("#clpmgr-save-wnd-pos").prop("checked"));
+  };
+  gDialogs.wndsDlgsOpts.onAccept = async function (aEvent)
+  {
+    let autoAdjustWndPos = $("#auto-pos-wnds").prop("checked");
+    let clippingsMgrSaveWndGeom = $("#clpmgr-save-wnd-pos").prop("checked");
+    await aePrefs.setPrefs({autoAdjustWndPos, clippingsMgrSaveWndGeom});
+
+    let isClippingsMgrOpen;
+    try {
+      isClippingsMgrOpen = await browser.runtime.sendMessage({msgID: "ping-clippings-mgr"});
+    }
+    catch (e) {}
+
+    if (isClippingsMgrOpen) {
+      let saveWndGeom = this.resetClpMgrWndPos ? false : clippingsMgrSaveWndGeom;
+      await browser.runtime.sendMessage({
+        msgID: "toggle-save-clipman-wnd-geom",
+        saveWndGeom,
+      });
+
+      if (! saveWndGeom) {
+        await this._purgeSavedClpMgrWndGeom();
+      }
+    }
+    else {
+      if (this.resetClpMgrWndPos || !clippingsMgrSaveWndGeom) {
+        await this._purgeSavedClpMgrWndGeom();
+      }
+    }
+
+    this.close();
+  };
+  gDialogs.wndsDlgsOpts._purgeSavedClpMgrWndGeom = async function ()
+  {   
+    await aePrefs.setPrefs({
+      clippingsMgrWndGeom: null,
+      clippingsMgrTreeWidth: null,
+    });
+  };
+  gDialogs.wndsDlgsOpts.onUnload = function ()
+  {
+    this.resetClpMgrWndPos = false;
+    $("#reset-clpmgr-wnd-pos").prop("disabled", false);
+  };
+
   gDialogs.syncClippings = new aeDialog("#sync-clippings-dlg");
   gDialogs.syncClippings.setProps({
     oldShowSyncItemsOpt: null,
@@ -416,12 +513,11 @@ function initDialogs()
   };
   gDialogs.turnOffSyncAck.onAfterAccept = function ()
   {
-    let that = gDialogs.turnOffSyncAck;
     let removeSyncFldr = $("#delete-sync-fldr").prop("checked");
     let syncClippingsListeners = gClippings.getSyncClippingsListeners().getListeners();
 
     for (let listener of syncClippingsListeners) {
-      listener.onAfterDeactivate(removeSyncFldr, that.oldSyncFldrID);
+      listener.onAfterDeactivate(removeSyncFldr, this.oldSyncFldrID);
     }
   };
 
