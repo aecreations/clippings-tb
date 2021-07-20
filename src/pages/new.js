@@ -209,13 +209,13 @@ function initDialogs()
     let selectedFldrID = parentDlgFldrPickerMnuBtn.val();
     let selectedFldrName = parentDlgFldrPickerMnuBtn.text();
     let rootFldrID = aeConst.ROOT_FOLDER_ID;
-    let rootFldrName = browser.i18n.getMessage("rootFldrName");
+    let rootFldrName = messenger.i18n.getMessage("rootFldrName");
     let rootFldrCls = aeFolderPicker.ROOT_FOLDER_CLS;
     
     if (gPrefs.syncClippings) {
       if (gPrefs.newClippingSyncFldrsOnly) {
         rootFldrID = gPrefs.syncFolderID;
-        rootFldrName = browser.i18n.getMessage("syncFldrName");
+        rootFldrName = messenger.i18n.getMessage("syncFldrName");
         rootFldrCls = aeFolderPicker.SYNCED_ROOT_FOLDER_CLS;
       }
       else if (gPrefs.cxtMenuSyncItemsOnly) {
@@ -369,7 +369,7 @@ function initFolderPicker()
   function selectSyncedClippingsFldr()
   {
     $("#new-clipping-fldr-picker-menubtn").val(gPrefs.syncFolderID)
-      .text(browser.i18n.getMessage("syncFldrName"))
+      .text(messenger.i18n.getMessage("syncFldrName"))
       .attr("syncfldr", "true");
   }
   
@@ -406,7 +406,7 @@ function initFolderPicker()
   $("#new-folder-btn").attr("title", messenger.i18n.getMessage("btnNewFolder"));
 
   let rootFldrID = aeConst.ROOT_FOLDER_ID;
-  let rootFldrName = browser.i18n.getMessage("rootFldrName");
+  let rootFldrName = messenger.i18n.getMessage("rootFldrName");
   let rootFldrCls = aeFolderPicker.ROOT_FOLDER_CLS;
   let selectedFldrID = aeConst.ROOT_FOLDER_ID;
 
@@ -414,7 +414,7 @@ function initFolderPicker()
     if (gPrefs.newClippingSyncFldrsOnly) {
       selectSyncedClippingsFldr();
       rootFldrID = gPrefs.syncFolderID;
-      rootFldrName = browser.i18n.getMessage("syncFldrName");
+      rootFldrName = messenger.i18n.getMessage("syncFldrName");
       rootFldrCls = aeFolderPicker.SYNCED_ROOT_FOLDER_CLS;
     }
     else if (gPrefs.cxtMenuSyncItemsOnly) {

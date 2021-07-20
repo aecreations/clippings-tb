@@ -256,7 +256,7 @@ function initDialogs()
     if (gOS != "win") {
       let os = gOS == "mac" ? "macOS" : capitalize(gOS);
       $("#wnds-dlgs-opts-dlg").css({height: "320px"});
-      $("#wnds-dlgs-opts-exp-warn-msg").text(browser.i18n.getMessage("wndsDlgsOptsExpWarn", os));
+      $("#wnds-dlgs-opts-exp-warn-msg").text(messenger.i18n.getMessage("wndsDlgsOptsExpWarn", os));
       $("#wnds-dlgs-opts-exp-warn").show();
     }
 
@@ -283,13 +283,13 @@ function initDialogs()
 
     let isClippingsMgrOpen;
     try {
-      isClippingsMgrOpen = await browser.runtime.sendMessage({msgID: "ping-clippings-mgr"});
+      isClippingsMgrOpen = await messenger.runtime.sendMessage({msgID: "ping-clippings-mgr"});
     }
     catch (e) {}
 
     if (isClippingsMgrOpen) {
       let saveWndGeom = this.resetClpMgrWndPos ? false : clippingsMgrSaveWndGeom;
-      await browser.runtime.sendMessage({
+      await messenger.runtime.sendMessage({
         msgID: "toggle-save-clipman-wnd-geom",
         saveWndGeom,
       });

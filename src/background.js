@@ -1084,7 +1084,7 @@ async function openClippingsManager(aBackupMode)
     // `browser.windows.create()`. If unable to get window geometry, then
     // default to centering on screen.
     if (wndGeom) {
-      browser.windows.update(wnd.id, { left, top });
+      messenger.windows.update(wnd.id, { left, top });
     }
 
     gClippingsMgrCleanUpIntvID = window.setInterval(async () => {
@@ -1192,7 +1192,7 @@ async function openDlgWnd(aURL, aWndKey, aWndPpty)
     // `browser.windows.create()`. If unable to get window geometry, then
     // default to centering on screen.
     if (wndGeom) {
-      browser.windows.update(wnd.id, { left, top });
+      messenger.windows.update(wnd.id, { left, top });
     }
   }
   // END nested function
