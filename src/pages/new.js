@@ -45,6 +45,7 @@ $(async () => {
   document.body.dataset.os = gOS = platform.os;
 
   gPrefs = await aePrefs.getAllPrefs();
+  document.body.dataset.laf = gPrefs.enhancedLaF;
 
   $("#btn-expand-options").click(async (aEvent) => {
     let height = WNDH_OPTIONS_EXPANDED;

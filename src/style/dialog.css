@@ -19,10 +19,7 @@ button {
     font-size: 13px !important;
 }
 
-body[data-os="mac"] button {
-    min-height: 24px;
-}
-
+body[data-os="mac"] button,
 body[data-os="mac"] button.default {
     min-height: 21px;
 }

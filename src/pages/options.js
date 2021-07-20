@@ -100,6 +100,7 @@ async function init()
 
   let lang = messenger.i18n.getUILanguage();
   document.body.dataset.locale = lang;
+  document.body.dataset.laf = prefs.enhancedLaF;
 
   $("#sync-intro").html(sanitizeHTML(messenger.i18n.getMessage("syncIntroTB")));
 

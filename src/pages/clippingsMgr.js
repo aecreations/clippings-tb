@@ -2187,6 +2187,7 @@ $(async () => {
 
   let lang = messenger.i18n.getUILanguage();
   document.body.dataset.locale = lang;
+  document.body.dataset.laf = gPrefs.enhancedLaF;
 
   let wndURL = new URL(window.location.href);
   gOpenerWndID = Number(wndURL.searchParams.get("openerWndID"));
@@ -2428,8 +2429,6 @@ messenger.runtime.onMessage.addListener(aRequest => {
 
 function initToolbar()
 {
-  let prefs = gClippings.getPrefs();
-  
   // Show or hide the details pane and status bar.
   if (! gPrefs.clippingsMgrDetailsPane) {
     $("#options-bar").hide();

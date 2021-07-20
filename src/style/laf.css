@@ -12,7 +12,7 @@
     --color-btn-active-bkgd: rgba(12, 12, 13, 0.3);
     --color-btn-border: rgba(12, 12, 13, 0.1);
     --color-btn-text: black;
-    --color-mac-btn-shadow: #d1d1d1;
+    --color-mac-btn-shadow: #f3f3f3;
     --color-tb-bkgd: -moz-field;
     --color-tb-border: rgba(12, 12, 13, 0.2);
     --color-tb-hover-border: rgba(12, 12, 13, 0.3);
@@ -79,24 +79,34 @@ body * {
 }
 
 .browser-style {
-  appearance: none;
   margin-bottom: 6px;
   text-align: left;
 }
 
 select.browser-style {
-  background-color: #fbfbfb;
-  border: 1px solid #b1b1b1;
-  box-shadow: 0 0 0 0 transparent;
-  font: caption;
-  height: 24px;
-  outline: 0 !important;
-  padding: 0 8px 0;
-  transition-duration: 250ms;
-  transition-property: box-shadow, border;
+    font: caption;
+    text-overflow: ellipsis;
+}
 
-  padding-inline-end: 24px;
-  text-overflow: ellipsis;
+body[data-laf="true"] select.browser-style {
+    padding: 0 8px 0;
+
+    /* TO DO: Apply the following styles on platforms except macOS. */
+    /***
+    height: 24px;
+    background-color: #fbfbfb;
+    border: 1px solid #b1b1b1;
+    box-shadow: 0 0 0 0 transparent;
+    outline: 0 !important;
+    transition-duration: 250ms;
+    transition-property: box-shadow, border;
+    padding-inline-end: 24px;
+    ***/
+    /* END TO DO */    
+}
+
+body[data-laf="true"]:not([data-os="mac"]) select.browser-style {
+    /* TO DO: Move above commented-out styles to here */
 }
 
 button,
@@ -115,12 +125,42 @@ select.browser-style[disabled] {
     opacity: 0.5;
 }
 
+body[data-os="mac"] button:not(.ae-button):not(.toolbar-button),
+body[data-os="mac"][data-laf="true"] select.browser-style {
+    border-top: 1px solid #e7e7e7;
+    border-right: 1px solid #e1e1e1;
+    border-bottom: 1px solid #d4d4d4;
+    border-left: 1px solid #e5e5e5;
+    border-radius: 4.5px;
+    box-shadow: 0px 1px 2px 0px var(--color-mac-btn-shadow);
+    background: linear-gradient(to bottom, #fdfefd 0%, #f6f6f6 100%);
+    color: black;
+    font-weight: normal;
+}
+
+body[data-os="mac"] button.default:active,
+body[data-os="mac"] button:active:not(.ae-button):not(.toolbar-button) {
+    background: linear-gradient(to bottom, #4B91FF 0%, #0050DC 100%);
+    border: 0.5px solid #2F7FFF;
+}
+
+body[data-os="mac"] button:not(.ae-button):not(.toolbar-button) {
+    border-radius: 4.5px;
+}
+
+body[data-os="mac"][data-laf="true"] select.browser-style {
+    border-radius: 2px;
+}
+
 button.default {
     font-weight: 600;
 }
 
-body[data-os="mac"] button.default {
-    border: 0.5px solid #5D9CF9;
+body[data-os="mac"] button.default:not(.ae-button):not(.toolbar-button) {
+    border-top: 1px solid #6fa6f9;
+    border-right: 1px solid #2d7efd;
+    border-bottom: 1px solid #0768ff;
+    border-left: 1px solid #3d89fc;
     border-radius: 4.5px;
     box-shadow: 0px 1px 2px 0px var(--color-mac-btn-shadow);
     background: linear-gradient(to bottom, #88B6FA 0%, #0364FF 100%);
@@ -128,7 +168,7 @@ body[data-os="mac"] button.default {
     font-weight: normal;
 }
 
-body[data-os="mac"] button.default:active {
+body[data-os="mac"] button.default:active:not(.ae-button):not(.toolbar-button) {
     background: linear-gradient(to bottom, #4B91FF 0%, #0050DC 100%);
     border: 0.5px solid #2F7FFF;
 }
@@ -138,10 +178,12 @@ select.browser-style:focus > option {
     color: var(--color-btn-text);
 }
 
+/**
 select.browser-style:active {
     border: 1px solid rgba(12, 12, 13, 0.3) !important;
     background-color: rgba(12, 12, 13, 0.3) !important;
 }
+**/
 
 select:-moz-focusring {
     outline-style: none;

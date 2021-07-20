@@ -40,6 +40,7 @@ let aePrefs = function () {
     clippingsMgrWndGeom: null,
     clippingsMgrTreeWidth: null,
     autoAdjustWndPos: null,
+    enhancedLaF: true,
   };
 
   return {
@@ -99,6 +100,7 @@ let aePrefs = function () {
         clippingsMgrWndGeom: null,
         clippingsMgrTreeWidth: null,
         autoAdjustWndPos: null,
+        enhancedLaF: true,
       };
 
       let platform = await messenger.runtime.getPlatformInfo();

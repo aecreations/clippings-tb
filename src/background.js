@@ -409,6 +409,13 @@ async function init()
       await aePrefs.setPrefs({ autoAdjustWndPos, clippingsMgrSaveWndGeom });
     }
 
+    // Use enhanced look and feel UI on Thunderbird 89 and newer. Check for
+    // Thunderbird version at every startup in case an update occurred.
+    let enhancedLaF = versionCompare(gHostAppVer, "89.0") >= 0;
+    if (gPrefs.enhancedLaF != enhancedLaF) {
+      await aePrefs.setPrefs({ enhancedLaF });
+    }
+    
     gClippingsListener.origin = aeConst.ORIGIN_HOSTAPP;
     gClippingsListeners.add(gClippingsListener);
     gSyncClippingsListeners.add(gSyncClippingsListener);
