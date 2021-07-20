@@ -1364,8 +1364,18 @@ body[data-locale="de"] #export-dlg #export-format-list-label {
 
 #mini-help-dlg {
     --width: 454px;
-    --height: 320px;
-    top: 14px;
+    --height: 352px;
+    top: 8px;
+}
+
+body[data-os="mac"] #mini-help-dlg {
+    height: 340px;
+    top: 18px;
+}
+
+body[data-locale="de"] #mini-help-dlg {
+    height: 368px;
+    top: 2px;
 }
 
 #shortcut-list-dlg .hlp-hdr,

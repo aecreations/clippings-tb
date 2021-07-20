@@ -2341,6 +2341,10 @@ $(document).keydown(async (aEvent) => {
       aEvent.preventDefault();
     }
   }
+  else if (aEvent.key.toUpperCase() == "D" && isAccelKeyPressed()) {
+    aEvent.preventDefault();
+    gCmd.showHideDetailsPane();
+  }
   else if (aEvent.key.toUpperCase() == "F" && isAccelKeyPressed()) {
     aEvent.preventDefault();
     $("#search-box").focus();
@@ -2810,18 +2814,22 @@ function initIntroBannerAndHelpDlg()
   {
     let shctKeys = [];
     if (isMacOS) {
-      shctKeys = ["\u2326", "esc", "\u2318F", "\u2318W", "\u2318Z", "F1", "F2", "\u2318F10"];
+      shctKeys = [
+        "\u2326", "esc", "\u2318D", "\u2318F", "\u2318W", "\u2318Z", "F1",
+        "F2", "\u2318F10"
+      ];
     }
     else {
       shctKeys = [
         messenger.i18n.getMessage("keyDel"),
         messenger.i18n.getMessage("keyEsc"),
-        `${messenger.i18n.getMessage("keyCtrl")}+F`,  // CTRL+F
-        `${messenger.i18n.getMessage("keyCtrl")}+W`,  // CTRL+W
-        `${messenger.i18n.getMessage("keyCtrl")}+Z`,  // CTRL+Z
+        `${messenger.i18n.getMessage("keyCtrl")}+D`,
+        `${messenger.i18n.getMessage("keyCtrl")}+F`,
+        `${messenger.i18n.getMessage("keyCtrl")}+W`,
+        `${messenger.i18n.getMessage("keyCtrl")}+Z`,
         "F1",
         "F2",
-        `${messenger.i18n.getMessage("keyCtrl")}+F10`, // CTRL+F10
+        `${messenger.i18n.getMessage("keyCtrl")}+F10`,
       ];
     }
 
@@ -2840,14 +2848,15 @@ function initIntroBannerAndHelpDlg()
 
     aTableDOMElt.appendChild(buildKeyMapTableRow(shctKeys[0], "clipMgrIntroCmdDel"));
     aTableDOMElt.appendChild(buildKeyMapTableRow(shctKeys[1], "clipMgrIntroCmdClearSrchBar"));
-    aTableDOMElt.appendChild(buildKeyMapTableRow(shctKeys[2], "clipMgrIntroCmdSrch"));
-    aTableDOMElt.appendChild(buildKeyMapTableRow(shctKeys[3], "clipMgrIntroCmdClose"));
-    aTableDOMElt.appendChild(buildKeyMapTableRow(shctKeys[4], "clipMgrIntroCmdUndo"));
-    aTableDOMElt.appendChild(buildKeyMapTableRow(shctKeys[5], "clipMgrIntroCmdShowIntro"));
-    aTableDOMElt.appendChild(buildKeyMapTableRow(shctKeys[6], "clipMgrIntroCmdRedo"));
+    aTableDOMElt.appendChild(buildKeyMapTableRow(shctKeys[2], "clipMgrIntroCmdDetailsPane"));
+    aTableDOMElt.appendChild(buildKeyMapTableRow(shctKeys[3], "clipMgrIntroCmdSrch"));
+    aTableDOMElt.appendChild(buildKeyMapTableRow(shctKeys[4], "clipMgrIntroCmdClose"));
+    aTableDOMElt.appendChild(buildKeyMapTableRow(shctKeys[5], "clipMgrIntroCmdUndo"));
+    aTableDOMElt.appendChild(buildKeyMapTableRow(shctKeys[6], "clipMgrIntroCmdShowIntro"));
+    aTableDOMElt.appendChild(buildKeyMapTableRow(shctKeys[7], "clipMgrIntroCmdRedo"));
 
     if (! isLinux) {
-      aTableDOMElt.appendChild(buildKeyMapTableRow(shctKeys[7], "clipMgrIntroCmdMaximize"));
+      aTableDOMElt.appendChild(buildKeyMapTableRow(shctKeys[8], "clipMgrIntroCmdMaximize"));
     }
   }
  
@@ -3637,11 +3646,11 @@ function initDialogs()
     let dlgHeight = null;
 
     if (isWindows) {
-      dlgHeight = "332px";
+      dlgHeight = "352px";
     }
     // Accommodate extra line of text in German locale.
     if (messenger.i18n.getUILanguage() == "de") {
-      dlgHeight = "344px";
+      dlgHeight = "368px";
     }
 
     if (dlgHeight) {
