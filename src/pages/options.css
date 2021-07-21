@@ -474,7 +474,7 @@ body[data-os="win"] #backup-reminder-freq + label {
 #about-dlg {
     top: 72px;
     --width: 410px;
-    --height: 314px;
+    --height: 320px;
 }
 
 #about-dlg #ext-icon {
