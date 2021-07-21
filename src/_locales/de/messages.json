@@ -924,7 +924,7 @@
     "message": "Beispiel:"
   },
   "syncFileDirExWin": {
-    "message": "C:\\Users\\IhrName\\Documents\\Synced Clippings",
+    "message": "C:\\Users\\IhrName\\Documents\\Synchronisierte Textbausteine",
     "description": "Example folder path on Windows."
   },
   "syncFileDirExMac": {
