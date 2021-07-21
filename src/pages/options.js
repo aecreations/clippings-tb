@@ -248,7 +248,8 @@ function initDialogs()
       gDialogs.syncClippings.oldShowSyncItemsOpt = $("#show-only-sync-items").prop("checked");
 
       if (lang == "de") {
-        $("#sync-helper-app-update-check + label").css({ letterSpacing: "-0.51px" });
+        $("#sync-clippings-dlg").css({ width: "540px" });
+        $("#sync-helper-app-update-check + label").css({ letterSpacing: "-0.5px" });
       }
       else if (lang == "pt-BR") {
         $("#sync-helper-app-update-check + label").css({ letterSpacing: "-0.56px" });
