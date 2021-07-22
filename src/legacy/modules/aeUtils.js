@@ -274,19 +274,6 @@ aeUtils.getRecentHostAppWindow = function ()
 };
 
 
-aeUtils.isElectrolysisEnabled = function ()
-{
-  if (this.getHostAppID() != HOSTAPP_FX_GUID) {
-    throw new Error("aeUtils.isElectrolysisEnabled(): Attempt to invoke this method on a host application that is not Firefox!");
-  }
-
-  let prefs = Services.prefs;
-  let rv = prefs.getBoolPref("browser.tabs.remote.autostart");
-
-  return rv;
-}
-
-
 aeUtils.openURLInNewTab = function (aURL)
 {
   let mail3PaneWnd = Services.wm.getMostRecentWindow("mail:3pane");

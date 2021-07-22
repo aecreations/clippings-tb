@@ -2806,6 +2806,10 @@ function initDialogs()
           clippingNameColHdr: messenger.i18n.getMessage("expHTMLClipNameCol"),
         });
 
+        if (messenger.i18n.getUILanguage() == "de") {
+          $("#shortcut-instrxns").css({letterSpacing: "-0.31px"});
+        }
+
         $("#export-shct-list").click(aEvent => {
           aeImportExport.getShortcutKeyListHTML(true).then(aHTMLData => {
             let blobData = new Blob([aHTMLData], { type: "text/html;charset=utf-8"});
@@ -3512,14 +3516,28 @@ function initDialogs()
   gDialogs.deleteSyncFldr = new aeDialog("#delete-sync-fldr-msgbox");
 
   gDialogs.miniHelp = new aeDialog("#mini-help-dlg");
-  if (! isMacOS) {
-    let dlgHeight = "330px";
-    // Accommodate extra line of text in German locale.
-    if (messenger.i18n.getUILanguage() == "de") {
-      dlgHeight = "336px";
+  gDialogs.miniHelp.isInitialized = false;
+  gDialogs.miniHelp.onInit = () => {
+    let that = gDialogs.miniHelp;
+
+    if (! that.isInitialized) {
+      let dlgHeight = null;
+
+      if (gOS == "win") {
+        dlgHeight = "332px";
+      }
+      // Accommodate extra line of text in German locale.
+      if (messenger.i18n.getUILanguage() == "de") {
+        dlgHeight = "344px";
+      }
+
+      if (dlgHeight) {
+        $("#mini-help-dlg").css({ height: dlgHeight });
+      }
+
+      that.isInitialized = true;
     }
-    $("#mini-help-dlg").css({ height: dlgHeight });
-  }
+  };
 
   gDialogs.showOnlySyncedItemsReminder = new aeDialog("#show-only-synced-items-reminder");
   gDialogs.genericMsgBox = new aeDialog("#generic-msg-box");
