@@ -17,6 +17,10 @@ $(async () => {
   let lang = messenger.i18n.getUILanguage();
   document.body.dataset.locale = lang;
 
+  let enhancedLaF = await aePrefs.getPref("enhancedLaF");
+  document.body.dataset.laf = enhancedLaF;
+
+
   $("#backup-now").click(aEvent => {
     messenger.runtime.sendMessage({ msgID: "backup-clippings" });
   });

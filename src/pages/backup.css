@@ -49,6 +49,10 @@ select.browser-style {
     font-weight: 600;
 }
 
+body:not([data-os="mac"]) #backup-now {
+    border-radius: 6px;
+}
+
 body[data-os="mac"] #backup-now {
     height: 26px;
     font-size: 15px !important;
