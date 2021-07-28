@@ -19,7 +19,83 @@
     }
 }
 
+/*
+ * Adapted from CSS-Only Tooltip: <https://codepen.io/Kriesse/pen/bzeFC/>
+ */
 
+.tooltip {
+    position: relative;
+}
+
+.tooltip:after {
+    content: attr(title);
+    display: none;
+    
+    width: max-content;
+    max-width: 300px;
+    height: max-content;
+    box-sizing: border-box;
+    padding: 2px 3px 2px 3px;    
+    border: 1px solid var(--color-tooltip-border-dk);
+    box-shadow: 4px 4px 2px -2px var(--color-tooltip-shadow);
+    
+    background-color: var(--color-tooltip-bkgd);
+    color: var(--color-tooltip-text);   
+    opacity: 0;
+
+    font: caption;
+    font-size: 11px;
+}
+
+.tooltip:hover:after {
+    display: block;
+    position: absolute;
+    top: 26px;
+    bottom: auto;
+    left: 0;
+    
+    margin-top: 3px;
+    margin-bottom: 0;
+    
+    opacity: 1;
+    visibility: visible;
+    z-index: 10;
+}
+
+.tooltip-auto:after {
+    top: 24px !important;
+}
+
+.tooltip-right:hover:after,
+.tooltip-xright:hover:after {
+    bottom: auto;
+    left: unset;
+    margin-bottom: 0;
+    margin-top: 3px;
+}
+
+.tooltip-right:hover:after {
+    right: -1px;    
+}
+
+.tooltip-xright:hover:after {
+    right: -14px;
+}
+
+.tooltip-auto:hover:after {
+    bottom: auto;
+    left: unset;
+    margin-bottom: 0;
+    margin-top: 3px;   
+}
+
+.tooltip-top:hover:after {
+    top: unset;
+    bottom: 26px;
+    margin-bottom: 3px;
+}
+
+/*** DEPRECATED ***/
 /* Style overrides for jQuery Tooltip widget */
 .ui-tooltip {
     margin-left: 3px;

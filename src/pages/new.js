@@ -90,12 +90,13 @@ $(async () => {
   initLabelPicker();
   initShortcutKeyMenu();
 
-  $("#new-folder-btn").click(aEvent => { gNewFolderDlg.showModal() });
+  let newFolderBtn = $("#new-folder-btn");
+  newFolderBtn.attr("title", messenger.i18n.getMessage("btnNewFolder"));
+  newFolderBtn.click(aEvent => { gNewFolderDlg.showModal() });
+  
   $("#show-preview").click(aEvent => { gPreviewDlg.showModal() });
   $("#btn-accept").click(aEvent => { accept(aEvent) });
   $("#btn-cancel").click(aEvent => { cancel(aEvent) });
-
-  $(document).tooltip(aeInterxn.getTooltipOpts());
 
   // Fix for Fx57 bug where bundled page loaded using
   // browser.windows.create won't show contents unless resized.
@@ -403,8 +404,6 @@ function initFolderPicker()
   // to the width of the New Clipping popup window.
   $("#new-clipping-fldr-tree-popup").css({ width: `${menuBtnWidth + 1}px` });
   
-  $("#new-folder-btn").attr("title", messenger.i18n.getMessage("btnNewFolder"));
-
   let rootFldrID = aeConst.ROOT_FOLDER_ID;
   let rootFldrName = messenger.i18n.getMessage("rootFldrName");
   let rootFldrCls = aeFolderPicker.ROOT_FOLDER_CLS;
@@ -474,7 +473,7 @@ async function initShortcutKeyMenu()
 
   let keybPasteKeys = await messenger.runtime.sendMessage({msgID: "get-shct-key-prefix-ui-str"});
   let tooltip = messenger.i18n.getMessage("shctKeyHintTB", keybPasteKeys);
-  $("#shct-key-tooltip").attr("title", tooltip);
+  $("#shct-key-tooltip-text").attr("title", tooltip);
 }
 
 

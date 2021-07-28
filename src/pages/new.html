@@ -9,6 +9,7 @@
     <title data-i18n="newClippingDlgTitle"></title>
     
     <link rel="stylesheet" href="new.css"/>
+    <link rel="stylesheet" href="../style/tooltip.css"/>
   </head>
 
   <body>
@@ -29,9 +30,9 @@
         <label data-i18n="labelCreateInFldr"></label>
       </div>
       <div class="hbox folder-picker">
-        <button id="new-clipping-fldr-picker-menubtn" class="ae-button folder-picker-menubtn" value="0"
-	 data-i18n="rootFldrName"></button>
-        <button id="new-folder-btn" class="ae-button"></button>
+        <button id="new-clipping-fldr-picker-menubtn" class="ae-button folder-picker-menubtn"
+	 value="0" data-i18n="rootFldrName"></button>
+        <button id="new-folder-btn" class="ae-button tooltip tooltip-xright"></button>
       </div>
       <div id="new-clipping-fldr-tree-popup" class="folder-tree-popup">
 	<div id="new-clipping-fldr-tree" class="folder-tree"></div>
@@ -95,7 +96,7 @@
 		<option>9</option>
 		<option>0</option>
 	      </select>
-	      <img id="shct-key-tooltip" src="../img/help-tooltip.svg"/>
+	      <span id="shct-key-tooltip-text" class="tooltip tooltip-auto"><img id="shct-key-tooltip" src="../img/help-tooltip.svg"/></span>
 	    </div>
 	    <div id="clipping-options-spacer" class="spacer"></div>
 	    <div id="clipping-label">
@@ -178,7 +179,6 @@
     <script src="../scripts/aeFolderPicker.js"></script>
     <script src="../scripts/aeImportExport.js"></script>
     <script src="../scripts/aeI18n.js"></script>
-    <script src="../scripts/aeInterxn.js"></script>
     <script src="../scripts/aePrefs.js"></script>
     <script src="new.js"></script>
   </body>

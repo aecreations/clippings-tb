@@ -9,6 +9,7 @@
     <title data-i18n="clippingsMgrWndTitle"></title>
 
     <link rel="stylesheet" href="clippingsMgr.css"/>
+    <link rel="stylesheet" href="../style/tooltip.css"/>
   </head>
 
   <body>
@@ -19,9 +20,9 @@
     <div id="toolbar" class="hbox">
       <button id="new-clipping" class="toolbar-button toolbar-button-labelled" data-i18n="tbNewClipping"></button>
       <button id="new-folder" class="toolbar-button toolbar-button-labelled" data-i18n="tbNewFolder"></button>
-      <button id="move" class="toolbar-button"></button>
-      <button id="delete" class="toolbar-button"></button>
-      <button id="undo" class="toolbar-button"></button>
+      <button id="move" class="toolbar-button tooltip"></button>
+      <button id="delete" class="toolbar-button tooltip"></button>
+      <button id="undo" class="toolbar-button tooltip"></button>
       <span id="spacer-1" class="spacer"></span>
       <button id="clippings-mgr-options" class="toolbar-button toolbar-button-labelled"
        data-i18n="tbTools"></button>
@@ -31,7 +32,7 @@
 	<div id="clear-search"></div>
       </div>
       <span id="spacer-3" class="spacer"></span>
-      <button id="help" class="toolbar-button"></button>
+      <button id="help" class="toolbar-button tooltip tooltip-right"></button>
     </div>
     
     <div id="content" class="hbox">
@@ -99,7 +100,7 @@
 	      <option>9</option>
 	      <option>0</option>
 	    </select>
-	    <button id="show-shortcut-list" class="ae-button"></button>
+	    <button id="show-shortcut-list" class="ae-button tooltip tooltip-top"></button>
 	  </div>  <!-- #shortcut-key-select -->
 	  
 	  <div id="options-bar-spacer" class="spacer"></div>
