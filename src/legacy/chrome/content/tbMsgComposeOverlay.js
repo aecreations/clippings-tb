@@ -348,21 +348,6 @@ window.aecreations.clippings = function () {
     },
 
 
-    _pasteClipping: function (aClippings)
-    {
-      try {
-	// Paste clipping.  The following function is defined in
-	// "chrome://global/content/globalOverlay.js"
-	goDoCommand('cmd_paste');
-	// SIDE EFFECT: The clipping text will remain on the system clipboard.
-      }
-      catch (e) {
-	// Exception thrown if command is disabled or not applicable
-	aClippings.aeUtils.beep();
-      }
-    },
-
-
     async keyboardInsertClipping(aEvent)
     {
       function sortKeyMap(aKeyMap)
@@ -416,13 +401,8 @@ window.aecreations.clippings = function () {
 
       do {
 	if (dlgArgs.action == dlgArgs.SHORTCUT_KEY_HELP) {
-	  dlgArgs.printToExtBrowser = true;
-	  dlgArgs.showInsertClippingCmd = true;
-
-          window.openDialog("chrome://clippings/content/shortcutHelp.xhtml",
-			    "clipkey_help", "centerscreen,resizable", dlgArgs, _ext);
-
 	  await mxListener.prefsChanged({ pastePromptAction: dlgArgs.ACTION_SHORTCUT_KEY });
+	  mxListener.shortcutListWndOpened();
           return;
 	}
 	else if (dlgArgs.action == dlgArgs.ACTION_SHORTCUT_KEY) {

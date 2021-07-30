@@ -410,11 +410,22 @@ async function init()
     }
 
     // Use enhanced look and feel UI on Thunderbird 89 and newer. Check for
-    // Thunderbird version at every startup in case an update occurred.
+    // Thunderbird version at every startup in case it was updated.
     let enhancedLaF = versionCompare(gHostAppVer, "89.0") >= 0;
     if (gPrefs.enhancedLaF != enhancedLaF) {
       await aePrefs.setPrefs({ enhancedLaF });
     }
+
+    let extVer = messenger.runtime.getManifest().version;
+    
+    aeImportExport.setL10nStrings({
+      shctTitle: messenger.i18n.getMessage("expHTMLTitle"),
+      hostAppInfo: messenger.i18n.getMessage("expHTMLHostAppInfo", [extVer, gHostAppName]),
+      shctKeyInstrxns: messenger.i18n.getMessage("expHTMLShctKeyInstrxnTB"),
+      shctKeyCustNote: "",
+      shctKeyColHdr: messenger.i18n.getMessage("expHTMLShctKeyCol"),
+      clippingNameColHdr: messenger.i18n.getMessage("expHTMLClipNameCol"),
+    });
     
     gClippingsListener.origin = aeConst.ORIGIN_HOSTAPP;
     gClippingsListeners.add(gClippingsListener);
@@ -1161,6 +1172,13 @@ function openMigrationStatusDlg()
 }
 
 
+function openShortcutListWnd()
+{
+  let url = messenger.runtime.getURL("pages/shortcutList.html");
+  openDlgWnd(url, "shctList", { type: "popup", width: 500, height: 164, topOffset: 256 });
+}
+
+
 async function openDlgWnd(aURL, aWndKey, aWndPpty)
 {
   async function openDlgWndHelper()
@@ -1257,6 +1275,12 @@ function getClipping(aClippingID)
       aFnReject(aErr);
     });
   });
+}
+
+
+function getShortcutKeyListHTML(aIsFullHTMLDoc)
+{
+  return aeImportExport.getShortcutKeyListHTML(aIsFullHTMLDoc);
 }
 
 
@@ -1460,6 +1484,10 @@ messenger.runtime.onMessage.addListener(async (aRequest) => {
     openClippingsManager(true);
     break;
 
+  case "get-shct-key-list-html":
+    resp = await getShortcutKeyListHTML(aRequest.isFullHTMLDoc);
+    break;
+
   default:
     break;
   }
@@ -1518,6 +1546,10 @@ messenger.NotifyTools.onNotifyBackground.addListener(async (aMessage) => {
 
   case "open-migrn-status-dlg":
     openMigrationStatusDlg();
+    break;
+
+  case "open-shct-list-wnd":
+    openShortcutListWnd();
     break;
 
   default:

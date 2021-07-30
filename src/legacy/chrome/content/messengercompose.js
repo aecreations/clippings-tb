@@ -77,14 +77,21 @@ let gClippingsMxListener = function () {
     async shortcutKeyMapRequested()
     {
       let rv = await notifyTools.notifyBackground({command: "get-shct-key-map"});
-
       return rv;
+    },
+
+    async shortcutListWndOpened()
+    {
+      let notifyMsg = {
+	command: "open-shct-list-wnd",
+      };
+
+      await notifyTools.notifyBackground(notifyMsg);
     },
 
     async clippingSearchDataRequested()
     {
       let rv = await notifyTools.notifyBackground({command: "get-clipping-srch-data"});
-
       return rv;
     }
   };
