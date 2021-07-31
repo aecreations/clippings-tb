@@ -245,7 +245,14 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
     }
 
     if (! aePrefs.hasCarpinteriaPrefs(gPrefs)) {
+      log("Initializing 6.1 user preferences.");
       await aePrefs.setCarpinteriaPrefs(gPrefs);
+
+      // Enable post-upgrade notifications which users can click on to open the
+      // What's New page.
+      await aePrefs.setPrefs({
+        upgradeNotifCount: aeConst.MAX_NUM_POST_UPGRADE_NOTIFICNS
+      });
     }
 
     init();
@@ -442,6 +449,13 @@ async function init()
     if (gPrefs.backupRemFirstRun && !gPrefs.lastBackupRemDate) {
       aePrefs.setPrefs({
         lastBackupRemDate: new Date().toString(),
+      });
+    }
+
+    if (gPrefs.upgradeNotifCount > 0) {
+      // Show post-upgrade notification in 1 minute.
+      messenger.alarms.create("show-upgrade-notifcn", {
+        delayInMinutes: aeConst.POST_UPGRADE_NOTIFCN_DELAY_MS / 60000
       });
     }
 
@@ -965,6 +979,21 @@ function clearBackupNotificationInterval()
     window.clearInterval(gBackupRemIntervalID);
     gBackupRemIntervalID = null;
   }
+}
+
+
+async function showWhatsNewNotification()
+{
+  let extName = messenger.i18n.getMessage("extNameTB");
+  await messenger.notifications.create(aeConst.NOTIFY_WHATS_NEW, {
+    type: "basic",
+    title: extName,
+    message: messenger.i18n.getMessage("upgradeNotifcn", extName),
+    iconUrl: "img/icon.svg",
+  });
+
+  let upgradeNotifCount = gPrefs.upgradeNotifCount - 1;
+  aePrefs.setPrefs({upgradeNotifCount});
 }
 
 
@@ -1573,6 +1602,15 @@ messenger.storage.onChanged.addListener((aChanges, aAreaName) => {
 });
 
 
+messenger.alarms.onAlarm.addListener(async (aAlarm) => {
+  info(`Clippings/mx: Alarm "${aAlarm.name}" was triggered.`);
+
+  if (aAlarm.name == "show-upgrade-notifcn") {
+    showWhatsNewNotification();
+  }
+});
+
+
 messenger.notifications.onClicked.addListener(aNotifID => {
   if (aNotifID == aeConst.NOTIFY_BACKUP_REMIND_ID) {
     // Open Clippings Manager in backup mode.
@@ -1583,6 +1621,10 @@ messenger.notifications.onClicked.addListener(aNotifID => {
   }
   else if (aNotifID == aeConst.NOTIFY_SYNC_HELPER_UPDATE) {
     messenger.tabs.create({ url: gSyncClippingsHelperDwnldPgURL });
+  }
+  else if (aNotifID == aeConst.NOTIFY_WHATS_NEW) {
+    messenger.tabs.create({ url: messenger.runtime.getURL("pages/whatsnew.html") });
+    aePrefs.setPrefs({ upgradeNotifCount: 0 });
   }
 });
 

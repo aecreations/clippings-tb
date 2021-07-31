@@ -73,6 +73,10 @@ let aeConst = {
   SYNC_HELPER_CHECK_UPDATE_DELAY_MS: 600000,  // 10 minutes
   SYNC_HELPER_CHECK_UPDATE_FREQ_DAYS: 2,
 
+  // Post-upgrade notifications
+  POST_UPGRADE_NOTIFCN_DELAY_MS: 60000, // 1 minute
+  MAX_NUM_POST_UPGRADE_NOTIFICNS: 2,
+
   // Notification IDs
   NOTIFY_BACKUP_REMIND_FIRSTRUN_ID: "ae-clippings-notify-backup-reminder-firstrun",
   NOTIFY_BACKUP_REMIND_ID: "ae-clippings-notify-backup-reminder",
@@ -84,5 +88,9 @@ let aeConst = {
   SYNC_ERROR_CONXN_FAILED: "Error: Attempt to postMessage on disconnected port",
 
   DONATE_URL: "https://www.paypal.com/paypalme/aecreations88/19.95cad",
-  L10N_URL: "https://crowdin.com/project/clippings"
+  L10N_URL: "https://crowdin.com/project/clippings",
+  BLOG_URL: "https://aecreations.blogspot.com/",
+  FORUM_URL: "https://groups.google.com/g/aecreations-help",
+  CONTRIB_URL: "https://aecreations.sourceforge.io/clippings/contribute.php",
+  HELP_URL: "https://aecreations.sourceforge.io/clippings/help.php",
 };

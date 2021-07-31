@@ -41,6 +41,7 @@ let aePrefs = function () {
     clippingsMgrTreeWidth: null,
     autoAdjustWndPos: null,
     enhancedLaF: true,
+    upgradeNotifCount: 0,
   };
 
   return {
@@ -101,6 +102,7 @@ let aePrefs = function () {
         clippingsMgrTreeWidth: null,
         autoAdjustWndPos: null,
         enhancedLaF: true,
+        upgradeNotifCount: 0,
       };
 
       let platform = await messenger.runtime.getPlatformInfo();
