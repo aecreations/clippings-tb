@@ -264,6 +264,10 @@ body[data-laf="true"] .browser-style > input[type="checkbox"] {
     appearance: none;
     border: 1px solid var(--color-cb-border);
     background-color: var(--color-cb-bkgd);
+    vertical-align: -36%;
+}
+
+body[data-laf="true"][data-os="win"] .browser-style > input[type="checkbox"] {
     vertical-align: text-bottom;
 }
 
