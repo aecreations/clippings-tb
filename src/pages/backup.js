@@ -3,6 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+let gBackupConfirmMsgBox;
+
 
 // Dialog initialization
 $(async () => {
@@ -20,11 +22,7 @@ $(async () => {
   let enhancedLaF = await aePrefs.getPref("enhancedLaF");
   document.body.dataset.laf = enhancedLaF;
 
-
-  $("#backup-now").click(aEvent => {
-    messenger.runtime.sendMessage({ msgID: "backup-clippings" });
-  });
-  
+  $("#backup-now").click(aEvent => { backup() });
   $("#btn-close").click(aEvent => { closeDlg() });
 
   let backupRemFrequency = await aePrefs.getPref("backupRemFrequency");
@@ -73,6 +71,8 @@ $(async () => {
     messenger.runtime.sendMessage({msgID: "set-backup-notifcn-intv"});
   });
 
+  initDialogs();
+
   // Fix for Fx57 bug where bundled page loaded using
   // browser.windows.create won't show contents unless resized.
   // See <https://bugzilla.mozilla.org/show_bug.cgi?id=1402110>
@@ -82,6 +82,65 @@ $(async () => {
     focused: true,
   });
 });
+
+
+function initDialogs()
+{
+  gBackupConfirmMsgBox = new aeDialog("#backup-confirm-msgbox");
+  gBackupConfirmMsgBox.setMessage = function (aMessage)
+  {
+    $("#backup-confirm-msgbox > .msgbox-content").text(aMessage);
+  };
+}
+
+async function backup()
+{
+  let backupJSON = await messenger.runtime.sendMessage({msgID: "get-clippings-backup-data"});
+
+  if (! backupJSON) {
+    window.alert("Clippings Error: Unable to get backup data.");
+    return;
+  }
+
+  let filename = aeConst.CLIPPINGS_BACKUP_FILENAME;
+  let backupFilenameWithDate = await aePrefs.getPref("backupFilenameWithDate");
+  if (backupFilenameWithDate) {
+    filename = aeConst.CLIPPINGS_BACKUP_FILENAME_WITH_DATE.replace("%s", moment().format("YYYY-MM-DD"));
+  }
+
+  let blobData = new Blob([backupJSON], { type: "application/json;charset=utf-8"});
+  let downldOpts = {
+    url: URL.createObjectURL(blobData),
+    filename,
+    saveAs: true,
+  };
+  
+  let downldItemID, downldItems;
+  try {
+    downldItemID = await messenger.downloads.download(downldOpts);
+    downldItems = await messenger.downloads.search({id: downldItemID});
+
+    if (downldItems && downldItems.length > 0) {
+      let backupFilePath = downldItems[0].filename;
+      let backupConfMsg = messenger.i18n.getMessage("clipMgrBackupConfirm", backupFilePath);
+
+      gBackupConfirmMsgBox.setMessage(backupConfMsg);
+      gBackupConfirmMsgBox.showModal();
+    }
+  }
+  catch (e) {
+    if (e.fileName == "undefined") {
+      // User cancelled from Save As dialog.
+    }
+    else {
+      console.error("Clippings/mx::backup.js: backup(): " + e);
+      window.alert(messenger.i18n.getMessage("backupError", e));
+    }
+  }
+  finally {
+    window.focus();
+  }
+}
 
 
 function closeDlg()

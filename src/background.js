@@ -1074,6 +1074,17 @@ function createClippingNameFromText(aText)
 }
 
 
+function getClippingsBackupData()
+{
+  let excludeSyncFldrID = null;
+  if (gPrefs.syncClippings) {
+    excludeSyncFldrID = gPrefs.syncFolderID;
+  }
+
+  return aeImportExport.exportToJSON(false, false, aeConst.ROOT_FOLDER_ID, excludeSyncFldrID, true);
+}
+
+
 async function openClippingsManager(aBackupMode)
 {
   let clippingsMgrURL = messenger.runtime.getURL("pages/clippingsMgr.html");
@@ -1528,6 +1539,10 @@ messenger.runtime.onMessage.addListener(async (aRequest) => {
 
   case "get-shct-key-list-html":
     resp = await getShortcutKeyListHTML(aRequest.isFullHTMLDoc);
+    break;
+
+  case "get-clippings-backup-data":
+    resp = await getClippingsBackupData();
     break;
 
   default:

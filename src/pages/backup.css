@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url("../style/dialog.css");
+@import url("../style/lightbox.css");
 
 
 body {
@@ -86,4 +87,29 @@ body[data-locale="fr"] #backup-hint {
 
 body[data-os="mac"] #dlg-buttons > button {
     height: 26px;
+}
+
+/*
+ * Dialog boxes
+ */
+
+.lightbox {
+    border-radius: 2px;
+}
+
+.lightbox .msgbox-info-icon {
+    width: 32px;
+    height: 32px;
+    margin-top: 10px;
+    margin-right: 12px;
+    float: left;
+}
+
+.lightbox .msgbox-info-icon {
+    background-image: url("../img/info.svg");
+    background-size: contain;
+}
+
+#backup-confirm-msgbox {
+    top: 64px;
 }
