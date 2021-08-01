@@ -1187,10 +1187,23 @@ function openNewClippingDlg(aNewClippingContent)
 }
 
 
-function openBackupDlg()
+async function openBackupDlg()
 {
   let url = messenger.runtime.getURL("pages/backup.html");
-  openDlgWnd(url, "backupFirstRun", { type: "detached_panel", width: 590, height: 410 });
+  let wndKey = "backupFirstRun";
+  let wndPpty = {
+    url,
+    type: "popup",
+    width: 590, height: 410,
+    top: 64, left: 128,
+  };
+
+  // The (x,y) coords set above will be ignored - the popup window will always
+  // be centered on the primary display, where the first-time backup
+  // notification is assumed to appear.
+  let wnd = await messenger.windows.create(wndPpty);
+
+  gWndIDs[wndKey] = wnd.id;
 }
 
 
