@@ -100,6 +100,10 @@ select {
     vertical-align: middle;
 }
 
+body[data-laf="true"][data-os="mac"] select.browser-style {
+    height: 24px;
+}
+
 fieldset {
     padding-top: 4px;
     padding-bottom: 12px;

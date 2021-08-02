@@ -112,6 +112,10 @@ body[data-laf="true"]:not([data-os="mac"]) select.browser-style {
     background-color: var(--color-btn-bkgd);
 }
 
+body[data-laf="true"][data-os="mac"] select.browser-style {
+    height: 20px;
+}
+
 button,
 select.browser-style {
     font: caption;
