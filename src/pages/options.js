@@ -266,6 +266,7 @@ function initDialogs()
 
     $("#reset-clpmgr-wnd-pos").on("click", aEvent => {
       this.resetClpMgrWndPos = true;
+      $("#reset-clpmgr-wnd-pos-ack").css({visibility: "visible"});
     });
   };
   gDialogs.wndsDlgsOpts.onInit = async function ()
@@ -317,6 +318,7 @@ function initDialogs()
   {
     this.resetClpMgrWndPos = false;
     $("#reset-clpmgr-wnd-pos").prop("disabled", false);
+    $("#reset-clpmgr-wnd-pos-ack").css({visibility: "hidden"});
   };
 
   gDialogs.syncClippings = new aeDialog("#sync-clippings-dlg");

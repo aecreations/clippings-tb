@@ -136,7 +136,7 @@ button {
 }
 
 body[data-os="mac"] button {
-    height: 24px;    
+    height: 24px;
 }
 
 progress {
@@ -370,6 +370,14 @@ body[data-os="mac"] #wnds-dlgs-opts-dlg #wnds-dlgs-opts-exp-warn .warning-icon {
 #wnds-dlgs-opts-dlg #reset-clpmgr-wnd-pos {
     min-width: 72px;
     margin-top: 4px;
+}
+
+#wnds-dlgs-opts-dlg #reset-clpmgr-wnd-pos-ack {
+    visibility: hidden;
+    margin-left: 4px;
+    width: 18px;
+    height: 18px;
+    vertical-align: text-bottom;
 }
 
 #sync-clippings-dlg {
