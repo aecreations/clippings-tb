@@ -72,6 +72,7 @@ $(async () => {
   });
 
   initDialogs();
+  window.focus();
 
   // Fix for Fx57 bug where bundled page loaded using
   // browser.windows.create won't show contents unless resized.
@@ -149,14 +150,32 @@ function closeDlg()
 }
 
 
+function log(aMessage)
+{
+  if (aeConst.DEBUG) { console.log(aMessage); }
+}
+
+
+//
+// Event handlers
+//
+
+$(window).keydown(aEvent => {
+  if (aEvent.key == "Enter") {
+    if (aeDialog.isOpen()) {
+      aeDialog.acceptDlgs();
+    }
+    else {
+      backup();
+    }
+  }
+  else if (aEvent.key == "Escape") {
+    closeDlg();
+  }
+});
+
 $(window).on("contextmenu", aEvent => {
   if (aEvent.target.tagName != "INPUT" && aEvent.target.tagName != "TEXTAREA") {
     aEvent.preventDefault();
   }
 });
-
-
-function log(aMessage)
-{
-  if (aeConst.DEBUG) { console.log(aMessage); }
-}
