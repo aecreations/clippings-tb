@@ -99,6 +99,6 @@
 
 .tooltip-top:hover:after {
     top: unset;
-    bottom: 26px;
+    bottom: 24px;
     margin-bottom: 3px;
 }
