@@ -68,6 +68,10 @@ textarea {
     resize: none;
 }
 
+body[data-laf="true"][data-os="mac"] select.browser-style {
+    height: 22px;
+}
+
 input[type="checkbox"] + label {
     vertical-align: 0;
 }

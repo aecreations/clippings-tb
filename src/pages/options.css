@@ -136,7 +136,7 @@ button {
 }
 
 body[data-os="mac"] button {
-    height: 24px;
+    height: 26px;
 }
 
 progress {

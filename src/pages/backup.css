@@ -41,6 +41,10 @@ select.browser-style {
     font-size: 13px;
 }
 
+body[data-laf="true"][data-os="mac"] select.browser-style {
+    height: 26px;
+}
+
 #backup-now {
     min-width: 160px;
     height: 48px;
