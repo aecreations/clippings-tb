@@ -6,7 +6,7 @@
     --color-tooltip-text: #000;
     --color-tooltip-bkgd: rgb(255, 255, 225);
     --color-tooltip-border-dk: #999933;
-    --color-tooltip-border-hl: #eee;
+    --color-tooltip-border-hl: #ededf0;
     --color-tooltip-shadow: #8f8f8f;
 }
 
@@ -29,37 +29,45 @@
 
 .tooltip:after {
     content: attr(title);
-    display: none;
-    
+
+    display: block;
+    position: absolute;
+    top: 28px;
+    bottom: auto;
+    left: 0;
+
     width: max-content;
     max-width: 310px;
     height: max-content;
     box-sizing: border-box;
-    padding: 2px 3px 2px 3px;    
-    border: 1px solid var(--color-tooltip-border-dk);
+    padding: 2px 3px 2px 3px;
+    border-style: solid;
+    border-width: 1px;
+    border-top-color: var(--color-tooltip-border-hl);
+    border-left-color: var(--color-tooltip-border-hl);
+    border-bottom-color: var(--color-tooltip-border-dk);
+    border-right-color: var(--color-tooltip-border-dk);
     box-shadow: 4px 4px 2px -2px var(--color-tooltip-shadow);
     
     background-color: var(--color-tooltip-bkgd);
     color: var(--color-tooltip-text);   
     opacity: 0;
+    z-index: -1;
 
     font: caption;
     font-size: 11px;
 }
 
 .tooltip:hover:after {
-    display: block;
-    position: absolute;
-    top: 26px;
-    bottom: auto;
-    left: 0;
-    
     margin-top: 3px;
     margin-bottom: 0;
     
     opacity: 1;
-    visibility: visible;
     z-index: 10;
+
+    transition-property: opacity, z-index;
+    transition-delay: 700ms;
+    transition-duration: 200ms;
 }
 
 .tooltip-auto:after {
@@ -75,7 +83,7 @@
 }
 
 .tooltip-right:hover:after {
-    right: -1px;    
+    right: 0;    
 }
 
 .tooltip-xright:hover:after {
@@ -93,28 +101,4 @@
     top: unset;
     bottom: 26px;
     margin-bottom: 3px;
-}
-
-/*** DEPRECATED ***/
-/* Style overrides for jQuery Tooltip widget */
-.ui-tooltip {
-    margin-left: 3px;
-    margin-right: 3px;
-    margin-bottom: 3px;
-    padding: 2px;
-    border-width: 1px;
-    border-style: solid;
-    border-top-color: var(--color-tooltip-border-hl) !important;
-    border-left-color: var(--color-tooltip-border-hl) !important;
-    border-bottom-color: var(--color-tooltip-border-dk) !important;
-    border-right-color: var(--color-tooltip-border-dk) !important;
-    border-radius: 0;
-    box-shadow: 4px 4px 2px -2px var(--color-tooltip-shadow);
-    background-color: var(--color-tooltip-bkgd);
-    color: var(--color-tooltip-text);
-}
-
-.ui-tooltip-content {
-    font: caption;
-    font-size: 11px;
 }
