@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url("../lib/fancytree/skin-win8/ui.fancytree.min.css");
-@import url("../lib/jquery-ui/jquery-ui.min.css");
 @import url("../style/dialog.css");
 @import url("../style/lightbox.css");
 @import url("../style/tooltip.css");
