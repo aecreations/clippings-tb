@@ -887,6 +887,7 @@ ul.fancytree-container {
 #options-bar > #shortcut-key-select {
     order: 1;
     flex: 0 1 auto;
+    margin-top: 3px;
 }
 
 #options-bar > #shortcut-key-select > #clipping-key {
