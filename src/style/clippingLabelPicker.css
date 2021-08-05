@@ -4,7 +4,7 @@
 
 
 body[data-laf="true"]:not([data-os="mac"]) #clipping-label-picker.browser-style {
-    background-color: #f9f9fa;
+    background-color: #fdfefd;
     border-color: #d7d7db;
 }
 
