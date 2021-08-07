@@ -73,11 +73,21 @@ $(async () => {
       return;
     }
 
-    $("#clipping-name").val(aResp.name).select().focus();
-    $("#clipping-text").val(aResp.content).attr("spellcheck", aResp.checkSpelling);
+    let clippingName = $("#clipping-name")[0];
+    clippingName.value = aResp.name;
+    clippingName.focus();
+    
+    $("#clipping-text").val(aResp.content).attr("spellcheck", aResp.checkSpelling)
+      .focus(aEvent => {
+        aEvent.target.select();
+      });
     gSrcURL = aResp.url || "";
   });
 
+  $("#clipping-name").focus(aEvent => {
+    aEvent.target.select();
+  });
+  
   $("#clipping-name").blur(aEvent => {
     let name = aEvent.target.value;
     if (! name) {
@@ -97,6 +107,8 @@ $(async () => {
   $("#show-preview").click(aEvent => { gPreviewDlg.showModal() });
   $("#btn-accept").click(aEvent => { accept(aEvent) });
   $("#btn-cancel").click(aEvent => { cancel(aEvent) });
+
+  window.focus();
 
   // Fix for Fx57 bug where bundled page loaded using
   // browser.windows.create won't show contents unless resized.
@@ -147,7 +159,7 @@ function showInitError()
   };
   errorMsgBox.onAccept = function ()
   {
-    errorMsgBox.close();
+    this.close();
     closeDlg();
   };
   
