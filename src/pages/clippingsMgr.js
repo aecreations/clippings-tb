@@ -786,6 +786,7 @@ let gReloadSyncFldrBtn = {
     let syncFldrSpanElt = this._getSyncFldrSpan()[0];
     let reloadBtn = document.createElement("span");
     reloadBtn.id = "reload-sync-fldr-btn";
+    reloadBtn.classList.add("tooltip");
     reloadBtn.title = messenger.i18n.getMessage("btnReload");
     reloadBtn.addEventListener("click", aEvent => { gCmd.reloadSyncFolder() });
     
