@@ -23,6 +23,7 @@ $(async () => {
   document.body.dataset.os = gOS = envInfo.os;
 
   initShortcutList();
+  window.focus();
 
   // Fix for Fx57 bug where bundled page loaded using
   // browser.windows.create won't show contents unless resized.
