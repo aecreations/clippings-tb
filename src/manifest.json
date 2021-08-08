@@ -22,6 +22,7 @@
   "permissions": [
     "alarms",
     "downloads",
+    "management",
     "nativeMessaging",
     "notifications",
     "storage",
