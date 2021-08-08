@@ -82,6 +82,7 @@ let aeConst = {
   NOTIFY_BACKUP_REMIND_ID: "ae-clippings-notify-backup-reminder",
   NOTIFY_SYNC_ERROR_ID: "ae-clippings-sync-error",
   NOTIFY_SYNC_HELPER_UPDATE: "ae-clippings-sync-helper-update",
+  NOTIFY_WHATS_NEW: "ae-clippings-whats-new",
 
   // Errors returned by the native messaging app
   SYNC_ERROR_UNKNOWN: "Error: undefined",
