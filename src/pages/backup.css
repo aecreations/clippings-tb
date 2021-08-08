@@ -54,7 +54,7 @@ body[data-laf="true"][data-os="mac"] select.browser-style {
     font-weight: 600;
 }
 
-body:not([data-os="mac"]) #backup-now {
+body[data-laf="true"]:not([data-os="mac"]) #backup-now {
     border-radius: 6px;
 }
 
