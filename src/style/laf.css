@@ -280,7 +280,7 @@ body[data-laf="true"] button:-moz-focusring:not(:disabled),
 body[data-laf="true"] select:-moz-focusring:not([size]):not(:disabled),
 body[data-laf="true"] select.browser-style:-moz-focusring:not([size]):not(:disabled) {
     border-color: var(--color-bkgd) !important;
-    box-shadow: 0 0 0 2px #61b5ffbf !important;
+    box-shadow: 0 0 0 2px #45a1ff !important;
 }
 
 body[data-laf="true"] .browser-style > input[type="checkbox"] {
