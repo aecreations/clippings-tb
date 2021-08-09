@@ -496,7 +496,7 @@ function initLabelPicker()
     let color = label;
 
     if (! label) {
-      color = "var(--color-default-text)";
+      color = "black";
     }
     else if (label == "yellow") {
       color = "rgb(200, 200, 0)";
