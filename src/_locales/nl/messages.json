@@ -50,6 +50,9 @@
   "btnBrowse": {
     "message": "Browse…"
   },
+  "btnReset": {
+    "message": "Reset"
+  },
   "migrnStatusTitle": {
     "message": "Migratiestatus van knipsels",
     "description": "Clippings for Thunderbird"
@@ -80,6 +83,10 @@
   "pasteTitle": {
     "message": "Plak knipsel",
     "description": "Title bar text of keyboard paste dialog"
+  },
+  "msgTitle": {
+    "message": "Waarschuwing",
+    "description": "Title bar text of alert dialog"
   },
   "msgUnavail": {
     "message": "De geselecteerde actie is momenteel niet beschikbaar."
@@ -199,7 +206,7 @@
     "message": "Wat is er nieuw"
   },
   "welcWhatsNewDesc": {
-    "message": "Clippings 6.2 bevat veel nieuwe functies en verbeteringen, zoals ondersteuning bij donkere modus."
+    "message": "Clippings 6.3 bevat verbeteringen in vensters en dialogen, en een nieuwe instelling voor backup herinneringen."
   },
   "welcWhatsNewCTA": {
     "message": "Meer informatie"
@@ -213,11 +220,11 @@
   "welcQuickStartCTA": {
     "message": "Lees de handleiding"
   },
+  "welcHelpLink": {
+    "message": "Knipsels Help"
+  },
   "closeWelcomePg": {
     "message": "Sluit deze pagina"
-  },
-  "welcLeaveConfirm": {
-    "message": "Weet u zeker dat u de welkom bij Clippings pagina wilt verlaten?"
   },
   "welcCancelDlg": {
     "message": "Ga terug"
@@ -448,6 +455,10 @@
   "mnuReloadSyncFldr": {
     "message": "Opnieuw Laden"
   },
+  "mnuMoreTools": {
+    "message": "Extra",
+    "description": "Submenu of Tools menu in Clippings Manager"
+  },
   "mnuRemoveAllSrcURLs": {
     "message": "Bron webadressen verwijderen…"
   },
@@ -521,7 +532,7 @@
     "message": "Sneltoets lijst"
   },
   "clipMgrNoItems": {
-    "message": "Geen clipping gevonden."
+    "message": "Geen items gevonden."
   },
   "clipMgrIntroCmdDel": {
     "message": "Verwijder geselecteerd knipsel of map",
@@ -555,12 +566,19 @@
     "message": "Taak ongedaan maken",
     "description": "Clippings Manager intro - key binding description"
   },
+  "clipMgrIntroCmdDetailsPane": {
+    "message": "Tonen/verbergen details",
+    "description": "Clippings Manager intro - key binding description"
+  },
   "clipMgrStatusBar": {
     "message": "$1 items",
     "description": "Status bar text in Clippings Manager, counting the number of clippings and folders"
   },
   "clipMgrRemoveSrcURLsConfirm": {
     "message": "Bron-webpagina-adressen zijn verwijderd van uw clippings."
+  },
+  "clipMgrRestoredSrcURLs": {
+    "message": "Herstelde bronweb-adressen."
   },
   "clipMgrNoUndo": {
     "message": "Niets om ongedaan te maken"
@@ -784,6 +802,9 @@
     "message": "Toon backup herinnering elke",
     "description": "Label for checkbox option for setting backup notification, appears after checkbox and before the reminder frequency drop-down menu"
   },
+  "backupRemSkip": {
+    "message": "Herinnering overslaan als er geen wijzigingen zijn sinds de laatste back-up"
+  },
   "backupRemDays": {
     "message": "dagen",
     "description": "Label appearing after the drop-down menu for backup reminder frequency"
@@ -914,12 +935,6 @@
     "message": "/home/YourName/synced-knipsels",
     "description": "Example folder path on Linux."
   },
-  "syncFileDirDesc": {
-    "message": "Uw Sync Clippings gegevens worden opgeslagen op deze bestandslocatie. Als je synchroniseert met Thunderbird en de bestandslocatie wilt wijzigen, om overeen te komen met de synchronisatie bestandslocatie in de voorkeuren van Clippings in Thunderbird."
-  },
-  "syncFileDirDescTB": {
-    "message": "Uw Sync Knipsels gegevens worden hier opgeslagen. Als u synchroniseert met Firefox en de deze locatie wilt wijzigen, moet u ook in de voorkeuren voor Knipsels in Firefox de locatie van het synchronisatiebestand wijzigen om deze gelijk te houden."
-  },
   "errSyncConxn": {
     "message": "Geen verbinding met de Sync Clippings helper-app. Zorg ervoor dat de app is geïnstalleerd."
   },
@@ -968,6 +983,27 @@
   "cxtMnuSyncItemsOnly": {
     "message": "Toon alleen gesynchroniseerde items in het Knipsels menu"
   },
+  "wndsAndDlgsOpts": {
+    "message": "Vensters en dialogen…"
+  },
+  "wndsDlgsOptsTitle": {
+    "message": "Vensters en dialogen"
+  },
+  "wndsDlgsOptsExpWarn": {
+    "message": "Deze instellingen zijn experimenteel op $1. Ze werken mogelijk niet goed op systemen met meerdere weergaven.",
+    "description": "Warning message in the Windows and Dialogs settings dialog, appearing if using an OS other than Windows"
+  },
+  "macOS": {
+    "message": "macOS"
+  },
+  "autoPosWnds": {
+    "message": "Automatisch in het origineel venster plaatsen",
+    "description": "Checkbox option in Windows and Dialogs settings dialog"
+  },
+  "clpMgrSaveWndPos": {
+    "message": "Sla de positie en grootte van Clippings Manager venster op",
+    "description": "Checkbox option in Windows and Dialogs settings dialog"
+  },
   "aboutBtn": {
     "message": "Over…"
   },
@@ -979,7 +1015,7 @@
     "message": "Aangemaakt door AE Creations."
   },
   "aboutHomePgLink": {
-    "message": "Homepage bezoeken"
+    "message": "Website bezoeken"
   },
   "aboutLicLink": {
     "message": "Licentie informatie"
@@ -1010,6 +1046,58 @@
   },
   "aboutSyncFileSize": {
     "message": "Synchronisatie bestandsgrootte:"
+  },
+  "upgradeNotifcn": {
+    "message": "$1 is onlangs bijgewerkt! Klik hier om te zien wat er nieuw is.",
+    "description": "Post-upgrade notification text, with placeholder for extension name (Clippings or Clippings for Thunderbird)"
+  },
+  "newVerHdg": {
+    "message": "Nieuwe versie geïnstalleerd!",
+    "description": "Header for the What's New page (appears after upgrading Clippings)"
+  },
+  "upgrade": {
+    "message": "Clippings is bijgewerkt naar versie 6.3.",
+    "description": "What's New page (appears after upgrading Clippings)"
+  },
+  "upgradeTB": {
+    "message": "Clippings voor Thunderbird is bijgewerkt naar versie 6.1.",
+    "description": "What's New page (appears after upgrading Clippings for Thunderbird)"
+  },
+  "whatsNew": {
+    "message": "Wat is er nieuw",
+    "description": "What's New page (appears after upgrading Clippings)"
+  },
+  "whatsNew1": {
+    "message": "Verbeteringen aan Clippings Manager. In Windows herkent Clippings Manager nu grootte en positie van het venster",
+    "description": "Description of an enhancement or fix in the new version of Clippings"
+  },
+  "whatsNew2": {
+    "message": "Verbeteringen voor ondersteuning van meerdere displays in Windows. Clippings pop-upvensters en dialogen zullen nu worden geplaatst binnen het browservenster waaruit ze werden geopend, in plaats van altijd gecentreerd op de primaire weergave",
+    "description": "Description of an enhancement or fix in the new version of Clippings"
+  },
+  "whatsNew3": {
+    "message": "Nieuwe optie om back-upherinneringen over te slaan als er geen wijzigingen zijn aangebracht in uw knipsels sinds de laatste back-up",
+    "description": "Description of an enhancement or fix in the new version of Clippings"
+  },
+  "contribHdg": {
+    "message": "Help mee",
+    "description": "Contribution CTA in the What's New page"
+  },
+  "contribCTA": {
+    "message": "Steun de ontwikkeling van $1 door <a href=\"$2\">een donatie</a>te doen. Leer meer over andere manieren om <a href=\"$3\">betrokken te raken</a>!",
+    "description": "Call to action message to make donation or learn more about contributing to Clippings (or Clippings for Thunderbird)"
+  },
+  "linkBlog": {
+    "message": "AE Aanmaak blog"
+  },
+  "linkAMO": {
+    "message": "Firefox Add-ons pagina"
+  },
+  "linkATN": {
+    "message": "Thunderbird Add-ons pagina"
+  },
+  "linkForum": {
+    "message": "Help en Support forums"
   },
   "keyAlt": {
     "message": "Alt"

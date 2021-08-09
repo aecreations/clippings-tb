@@ -50,6 +50,9 @@
   "btnBrowse": {
     "message": "Explorar..."
   },
+  "btnReset": {
+    "message": "Reset"
+  },
   "migrnStatusTitle": {
     "message": "Status de Migração do Clippings",
     "description": "Clippings for Thunderbird"
@@ -80,6 +83,10 @@
   "pasteTitle": {
     "message": "Colar Clipping",
     "description": "Title bar text of keyboard paste dialog"
+  },
+  "msgTitle": {
+    "message": "Alerta",
+    "description": "Title bar text of alert dialog"
   },
   "msgUnavail": {
     "message": "A ação selecionada não está disponível agora."
@@ -199,7 +206,7 @@
     "message": "O que há de novo"
   },
   "welcWhatsNewDesc": {
-    "message": "Clippings 6.2 vem com muitos recursos novos e melhorias, como suporte ao Modo Escuro."
+    "message": "Clippings 6.3 vem com melhorias em janelas e diálogos, bem como uma nova configuração para notificações de lembrete de backup."
   },
   "welcWhatsNewCTA": {
     "message": "Saiba mais"
@@ -213,11 +220,11 @@
   "welcQuickStartCTA": {
     "message": "Leia um Guia"
   },
+  "welcHelpLink": {
+    "message": "Ajuda do Clippings"
+  },
   "closeWelcomePg": {
     "message": "Feche esta página"
-  },
-  "welcLeaveConfirm": {
-    "message": "Tem certeza que quer sair da página de boas vindas do Clipping?"
   },
   "welcCancelDlg": {
     "message": "Voltar"
@@ -448,6 +455,10 @@
   "mnuReloadSyncFldr": {
     "message": "Recarregar"
   },
+  "mnuMoreTools": {
+    "message": "Mais",
+    "description": "Submenu of Tools menu in Clippings Manager"
+  },
   "mnuRemoveAllSrcURLs": {
     "message": "Remover Endereços da Web da Fonte..."
   },
@@ -521,7 +532,7 @@
     "message": "Teclas de Atalho"
   },
   "clipMgrNoItems": {
-    "message": "Nenhum Clipping encontrado."
+    "message": "Nenhum item encontrado."
   },
   "clipMgrIntroCmdDel": {
     "message": "Excluir o Clipping selecionado ou pasta",
@@ -555,12 +566,19 @@
     "message": "Desfazer desfazer",
     "description": "Clippings Manager intro - key binding description"
   },
+  "clipMgrIntroCmdDetailsPane": {
+    "message": "Mostrar/Ocultar Detalhes",
+    "description": "Clippings Manager intro - key binding description"
+  },
   "clipMgrStatusBar": {
     "message": "$1 itens",
     "description": "Status bar text in Clippings Manager, counting the number of clippings and folders"
   },
   "clipMgrRemoveSrcURLsConfirm": {
     "message": "Removidos endereços de páginas da Web de origem de seus Clippings."
+  },
+  "clipMgrRestoredSrcURLs": {
+    "message": "Endereços da página web de origem restaurados."
   },
   "clipMgrNoUndo": {
     "message": "Nada para desfazer"
@@ -784,6 +802,9 @@
     "message": "Mostrar lembrete de backup a cada",
     "description": "Label for checkbox option for setting backup notification, appears after checkbox and before the reminder frequency drop-down menu"
   },
+  "backupRemSkip": {
+    "message": "Pular lembrete se não houver alterações desde o último backup"
+  },
   "backupRemDays": {
     "message": "dias",
     "description": "Label appearing after the drop-down menu for backup reminder frequency"
@@ -914,12 +935,6 @@
     "message": "/home/SeuNome/clippings-sincronizados",
     "description": "Example folder path on Linux."
   },
-  "syncFileDirDesc": {
-    "message": "Seus dados do Sync Clippings são armazenados nesta pasta. Se você está sincronizando com o Thunderbird e deseja alterar o local de sincronização de arquivo, você também deve alterar o local de sincronização de arquivo nas preferências de Clippings do Thunderbird para corresponder."
-  },
-  "syncFileDirDescTB": {
-    "message": "Seus dados do Sync Clippings são armazenados neste pasta. Se você estiver sincronizando com o Firefox e quiser alterar a pasta do arquivo de sincronização, você também deve alterar a pasta do arquivo nas preferências do Clippings do Firefox para corresponder."
-  },
   "errSyncConxn": {
     "message": "Não foi possível conectar-se ao app de ajuda de Clippings Sync. Certifique-se de que o app está instalado."
   },
@@ -968,6 +983,27 @@
   "cxtMnuSyncItemsOnly": {
     "message": "Mostrar somente itens sincronizados no menu do Clippings"
   },
+  "wndsAndDlgsOpts": {
+    "message": "Janelas e Diálogos…"
+  },
+  "wndsDlgsOptsTitle": {
+    "message": "Janelas e Diálogos"
+  },
+  "wndsDlgsOptsExpWarn": {
+    "message": "Essas configurações são experimentais em $1. Elas podem não funcionar corretamente em sistemas com vários monitores.",
+    "description": "Warning message in the Windows and Dialogs settings dialog, appearing if using an OS other than Windows"
+  },
+  "macOS": {
+    "message": "macOS"
+  },
+  "autoPosWnds": {
+    "message": "Posicionar automaticamente na janela de origem",
+    "description": "Checkbox option in Windows and Dialogs settings dialog"
+  },
+  "clpMgrSaveWndPos": {
+    "message": "Salvar posição e tamanho da janela do Clippings Manager",
+    "description": "Checkbox option in Windows and Dialogs settings dialog"
+  },
   "aboutBtn": {
     "message": "Sobre..."
   },
@@ -979,7 +1015,7 @@
     "message": "Criado por AE Creations."
   },
   "aboutHomePgLink": {
-    "message": "Visite nosso Site"
+    "message": "Visitar o Website"
   },
   "aboutLicLink": {
     "message": "Informação da licença"
@@ -1010,6 +1046,58 @@
   },
   "aboutSyncFileSize": {
     "message": "Tamanho do arquivo de sincronização:"
+  },
+  "upgradeNotifcn": {
+    "message": "$1 foi atualizado recentemente! Clique aqui para ver as novidades.",
+    "description": "Post-upgrade notification text, with placeholder for extension name (Clippings or Clippings for Thunderbird)"
+  },
+  "newVerHdg": {
+    "message": "Nova Versão Instalada!",
+    "description": "Header for the What's New page (appears after upgrading Clippings)"
+  },
+  "upgrade": {
+    "message": "Clippings foi atualizados para Versão 6.3.",
+    "description": "What's New page (appears after upgrading Clippings)"
+  },
+  "upgradeTB": {
+    "message": "Clippings para Thunderbird foi atualizados para Versão 6.1.",
+    "description": "What's New page (appears after upgrading Clippings for Thunderbird)"
+  },
+  "whatsNew": {
+    "message": "Novidades",
+    "description": "What's New page (appears after upgrading Clippings)"
+  },
+  "whatsNew1": {
+    "message": "Melhorias no Gerenciador de Clippings. No Windows, o Gerenciador de Clippings agora lembra sua posição e tamanho de janela",
+    "description": "Description of an enhancement or fix in the new version of Clippings"
+  },
+  "whatsNew2": {
+    "message": "Melhorias no suporte a várias telas no Windows. Janelas de Diálogos e Popup do Clippings agora serão posicionados dentro da janela do navegador a partir da qual foram abertas, ao invés de sempre centralizado na exibição primária",
+    "description": "Description of an enhancement or fix in the new version of Clippings"
+  },
+  "whatsNew3": {
+    "message": "Nova opção para pular Lembretes de Backup se não houver alterações nos clippings desde o último Backup",
+    "description": "Description of an enhancement or fix in the new version of Clippings"
+  },
+  "contribHdg": {
+    "message": "Contribuir",
+    "description": "Contribution CTA in the What's New page"
+  },
+  "contribCTA": {
+    "message": "Apoie o desenvolvimento de $1 por <a href=\"$2\">fazendo uma doação</a>. Saiba mais sobre outras formas de <a href=\"$3\">se envolver</a>!",
+    "description": "Call to action message to make donation or learn more about contributing to Clippings (or Clippings for Thunderbird)"
+  },
+  "linkBlog": {
+    "message": "Blog de AE Creations"
+  },
+  "linkAMO": {
+    "message": "Página de Add-ons do Firefox"
+  },
+  "linkATN": {
+    "message": "Página de Add-ons do Thunderbird"
+  },
+  "linkForum": {
+    "message": "Fóruns de Ajuda e Suporte"
   },
   "keyAlt": {
     "message": "ALT"
