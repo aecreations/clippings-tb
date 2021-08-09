@@ -9,6 +9,14 @@ body[data-laf="true"]:not([data-os="mac"]) #clipping-label-picker.browser-style 
     color: black;
 }
 
+@media (prefers-color-scheme: dark) {
+    body[data-laf="true"][data-os="mac"] #clipping-label-picker.browser-style {
+	background-color: #fdfefd;
+	border-color: #d7d7db;
+	color: black;
+    }
+}
+
 body[data-laf="true"]:not([data-os="mac"]) #clipping-label-picker.browser-style:hover {
     border-color: #b1b1b1;
 }

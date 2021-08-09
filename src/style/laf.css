@@ -12,6 +12,11 @@
     --color-btn-active-bkgd: rgba(12, 12, 13, 0.3);
     --color-btn-border: rgba(12, 12, 13, 0.1);
     --color-btn-text: black;
+    --color-mac-btn-border-t: 1px solid #e7e7e7;
+    --color-mac-btn-border-r: 1px solid #e1e1e1;
+    --color-mac-btn-border-b: 1px solid #d4d4d4;
+    --color-mac-btn-border-l: 1px solid #e5e5e5;
+    --color-mac-btn-bkgd: linear-gradient(to bottom, #fdfefd 0%, #f6f6f6 100%);
     --color-mac-btn-shadow: #f3f3f3;
     --color-tb-bkgd: -moz-field;
     --color-tb-border: rgba(12, 12, 13, 0.2);
@@ -45,6 +50,11 @@
 	--color-btn-active-bkgd: #737373;
 	--color-btn-border: #4a4a4f;
 	--color-btn-text: #f9f9fa;
+	--color-mac-btn-border-t: 1px solid #585858;
+	--color-mac-btn-border-r: 1px solid var(--color-btn-border);
+	--color-mac-btn-border-b: 1px solid var(--color-btn-border);
+	--color-mac-btn-border-l: 1px solid var(--color-btn-border);
+	--color-mac-btn-bkgd: var(--color-btn-bkgd);
 	--color-mac-btn-shadow: #2a2a2e;
 	--color-tb-bkgd: #0c0c0d;
 	--color-tb-border: #4a4a4f;
@@ -146,14 +156,14 @@ body[data-laf="true"]:not([data-os="mac"]) button:not(.ae-button):not(.toolbar-b
 
 body[data-os="mac"] button:not(.ae-button):not(.toolbar-button),
 body[data-os="mac"][data-laf="true"] select.browser-style {
-    border-top: 1px solid #e7e7e7;
-    border-right: 1px solid #e1e1e1;
-    border-bottom: 1px solid #d4d4d4;
-    border-left: 1px solid #e5e5e5;
+    border-top: var(--color-mac-btn-border-t);
+    border-right: var(--color-mac-btn-border-r);
+    border-bottom: var(--color-mac-btn-border-b);
+    border-left: var(--color-mac-btn-border-l);
     border-radius: 4.5px;
     box-shadow: 0px 1px 2px 0px var(--color-mac-btn-shadow);
-    background: linear-gradient(to bottom, #fdfefd 0%, #f6f6f6 100%);
-    color: black;
+    background: var(--color-mac-btn-bkgd);
+    color: var(--color-default-text);
     font-weight: normal;
 }
 
