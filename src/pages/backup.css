@@ -64,7 +64,8 @@ body[data-os="mac"] #backup-now {
     font-weight: 400;
 }
 
-body[data-locale="fr"] #backup-hint {
+body[data-locale="fr"] #backup-hint,
+body[data-locale|="pt"] #backup-hint {
     letter-spacing: -0.3px;
 }
 

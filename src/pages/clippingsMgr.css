@@ -1089,6 +1089,19 @@ ul.fancytree-container {
     top: 18px;
 }
 
+body[data-locale="nl"] #shortcut-list-dlg #shortcut-instrxns {
+    letter-spacing: -0.38px;
+}
+
+body[data-locale="fr"] #shortcut-list-dlg #shortcut-instrxns {
+    letter-spacing: -0.16px;
+}
+
+body[data-locale="de"] #shortcut-list-dlg #shortcut-instrxns {
+    letter-spacing: -0.32px;
+}
+
+
 #shortcut-list-dlg > .dlg-btns {
     width: 100%;
 }
@@ -1178,6 +1191,10 @@ ul.fancytree-container {
     top: 40px;
 }
 
+body[data-locale="de"] #import-dlg {
+    width: 450px;
+}
+
 #import-dlg #import-clippings-filepicker {
     width: 100%;
     margin-top: 2px;
@@ -1264,6 +1281,10 @@ ul.fancytree-container {
     color: black;
 }
 
+body[data-locale="de"] #import-dlg #restore-backup-warning > p {
+    letter-spacing: -0.30px;
+}
+
 #import-dlg progress {
     display: none;
     width: 355px;
@@ -1295,7 +1316,7 @@ ul.fancytree-container {
 }
 
 body[data-locale="de"] #export-dlg #export-format-list-label {
-    letter-spacing: -0.15px;
+    letter-spacing: -0.64px;
 }
 
 #export-dlg fieldset {
@@ -1319,7 +1340,8 @@ body[data-locale="de"] #export-dlg #export-format-list-label {
 
 #import-confirm-msgbox > .msgbox-icon,
 #export-confirm-msgbox > .msgbox-icon,
-#backup-confirm-msgbox > .msgbox-icon {
+#backup-confirm-msgbox > .msgbox-icon,
+#reload-sync-fldr-msgbox > .msgbox-icon {
     margin-top: 8px;
 }
 
@@ -1399,8 +1421,16 @@ body[data-locale="de"] #mini-help-dlg {
     font-weight: bold;
 }
 
+body[data-locale="fr"] #mini-help-dlg #mini-help-intro {
+    letter-spacing: -0.14px;
+}
+
 #show-only-synced-items-reminder {
     --height: 150px;
+}
+
+body[data-locale="de"] #show-only-synced-items-reminder {
+    height: 164px;
 }
 
 #show-only-synced-items-reminder > .dlg-content > .msgbox-info-icon {
