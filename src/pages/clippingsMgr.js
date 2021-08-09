@@ -2308,7 +2308,6 @@ $(document).keydown(async (aEvent) => {
     return;
   }
   
-  // CTRL+W/Cmd+W is automatically handled, so no need to define it here.
   if (aEvent.key == "F1") {
     gCmd.showMiniHelp();
   }
