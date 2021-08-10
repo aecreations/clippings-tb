@@ -204,5 +204,8 @@ body {
 #shortcut-list-content table th:nth-child(2),
 #shortcut-list-content table td:nth-child(2) {
     width: 100%;
+    max-width: 100px;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
