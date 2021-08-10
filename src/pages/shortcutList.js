@@ -43,6 +43,20 @@ $(window).keydown(async (aEvent) => {
 });
 
 
+$(window).on("resize", aEvent => {
+  let height = WNDH_SHORTCUT_LIST;
+  if (gOS == "win") {
+    height += DLG_HEIGHT_ADJ_WINDOWS;
+  }
+
+  let wndInfo = {
+    width: WNDW_SHORTCUT_LIST,
+    height,
+  };
+  messenger.windows.update(messenger.windows.WINDOW_ID_CURRENT, wndInfo);
+});
+
+
 async function initShortcutList()
 {
   $("#shortcut-list-toolbar > #paste-clipping").click(pasteClipping);
@@ -54,16 +68,6 @@ async function initShortcutList()
   $("#shortcut-list-toolbar > #close").click(aEvent => {
     closeDlg();
   });
-  
-  let updWndInfo = {
-    width: WNDW_SHORTCUT_LIST,
-    height: WNDH_SHORTCUT_LIST,
-  };
-  if (gOS == "win") {
-    updWndInfo.height += DLG_HEIGHT_ADJ_WINDOWS;
-  }
-  
-  await messenger.windows.update(messenger.windows.WINDOW_ID_CURRENT, updWndInfo);
 
   let msg = {
     msgID: "get-shct-key-list-html",

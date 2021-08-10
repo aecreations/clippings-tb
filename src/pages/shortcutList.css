@@ -45,10 +45,6 @@ body {
     overflow: hidden;
 }
 
-.icon {
-    float: left;
-}
-
 .toolbar-button {
     flex: 0 1 auto;
     align-self: stretch;
@@ -87,14 +83,6 @@ body {
     background-position: 4px;
     padding-left: 24px;
     padding-right: 6px;
-}
-
-.key-legend {
-    position: absolute;
-    left: 16px;
-    bottom: 24px;
-    font-size: 11px;
-    z-index: 1;
 }
 
 #shortcut-list #shortcut-list-toolbar {

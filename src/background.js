@@ -556,7 +556,8 @@ async function checkHostAppVer()
   }
 
   if (versionCompare(gHostAppVer, maxHostAppVer) > 0) {
-    console.warn("Clippings/mx: Detected unsupported version of Thunderbird.  Disabling Clippings.");
+    // Thunderbird version exceeds strict max supported version
+    // - disable Clippings.
     await messenger.management.setEnabled(aeConst.EXTENSION_ID, false);
   }
 }
@@ -1252,7 +1253,13 @@ function openMigrationStatusDlg()
 function openShortcutListWnd()
 {
   let url = messenger.runtime.getURL("pages/shortcutList.html");
-  openDlgWnd(url, "shctList", { type: "popup", width: 500, height: 164, topOffset: 256 });
+  let width = 436;
+  let height = 272;
+  if (gOS == "win") {
+    height = 286;
+  }
+  
+  openDlgWnd(url, "shctList", { type: "popup", width, height, topOffset: 256 });
 }
 
 
