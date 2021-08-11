@@ -198,7 +198,7 @@ input[type="search"] {
     height: 24px;
 }
 
-select {
+select[size] {
     background-color: var(--color-listbox-bkgd);
     color: var(--color-default-text);
     font: caption;
