@@ -199,6 +199,8 @@ input[type="search"] {
 }
 
 select {
+    background-color: var(--color-listbox-bkgd);
+    color: var(--color-default-text);
     font: caption;
 }
 
