@@ -7,6 +7,7 @@
 const WNDH_OPTIONS_EXPANDED = 486;
 const DLG_HEIGHT_ADJ_WINDOWS = 48;
 const DLG_HEIGHT_ADJ_LOCALE_ES = 20;
+const DLG_HEIGHT_ADJ_LOCALE_DE = 6;
 
 let gOS;
 let gClippingsDB = null;
@@ -56,6 +57,9 @@ $(async () => {
     let lang = messenger.i18n.getUILanguage();
     if (lang == "es-ES") {
       height += DLG_HEIGHT_ADJ_LOCALE_ES;
+    }
+    else if (lang == "de" && gOS == "mac") {
+      height += DLG_HEIGHT_ADJ_LOCALE_DE;
     }
     
     await messenger.windows.update(messenger.windows.WINDOW_ID_CURRENT, { height });
