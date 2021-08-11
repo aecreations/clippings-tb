@@ -1246,7 +1246,13 @@ async function openBackupDlg()
 function openMigrationStatusDlg()
 {
   let url = messenger.runtime.getURL("pages/migrationStatus.html");
-  openDlgWnd(url, "migrnStatus", { type: "detached_panel", width: 540, height: 180});
+  let wndPpty = {
+    type: "popup",
+    width: 540,
+    height: 180,
+  };
+  
+  openDlgWnd(url, "migrnStatus", wndPpty, aeWndPos.WND_MESSENGER);
 }
 
 
@@ -1263,8 +1269,12 @@ function openShortcutListWnd()
 }
 
 
-async function openDlgWnd(aURL, aWndKey, aWndPpty)
+async function openDlgWnd(aURL, aWndKey, aWndPpty, aWndType)
 {
+  if (typeof aWndType != "number") {
+    aWndType = aeWndPos.WND_MSG_COMPOSE;
+  }
+  
   async function openDlgWndHelper()
   {
     let width = aWndPpty.width;
@@ -1272,7 +1282,7 @@ async function openDlgWnd(aURL, aWndKey, aWndPpty)
     let left, top, wndGeom;
 
     if (gPrefs.autoAdjustWndPos) {
-      ({ left, top } = await aeWndPos.calcPopupWndCoords(width, height, aWndPpty.topOffset, aeWndPos.WND_MSG_COMPOSE));
+      ({ left, top } = await aeWndPos.calcPopupWndCoords(width, height, aWndPpty.topOffset, aWndType));
       wndGeom = true;
     }
     else {
