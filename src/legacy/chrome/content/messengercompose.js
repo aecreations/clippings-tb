@@ -6,21 +6,26 @@ var {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
 
 Services.scriptloader.loadSubScript("chrome://clippings/content/tbMsgComposeOverlay.js",
 				    window, "UTF-8");
+Services.scriptloader.loadSubScript("chrome://clippings/content/lib/notifyTools.js",
+				    this, "UTF-8");
 
 
 let gClippingsMxListener = function () {
-  let _clippings = WL.messenger.extension.getBackgroundPage();
   let _cxtMenuData = null;
 
   return {
-    prefsRequested()
+    async prefsRequested()
     {
-      return _clippings.getPrefs();
+      let rv = await notifyTools.notifyBackground({command: "get-prefs"});
+      return rv;
     },
 
     async prefsChanged(aPrefs)
     {
-      await _clippings.setPrefs(aPrefs);
+      await notifyTools.notifyBackground({
+	command: "set-prefs",
+	prefs: aPrefs,
+      });
     },
     
     newClippingDlgOpened(aClippingContent)
@@ -29,20 +34,28 @@ let gClippingsMxListener = function () {
 	return;
       }
 
-      _clippings.openNewClippingDlg(aClippingContent);
+      notifyTools.notifyBackground({
+	command: "open-new-clipping-dlg",
+	clippingContent: aClippingContent,
+      });
     },
 
     clippingsManagerWndOpened()
     {
-      _clippings.openClippingsManager(false);
+      notifyTools.notifyBackground({command: "open-clippings-mgr"});
     },
 
     async clippingsMenuDataRequested(aRootFldrID)
     {
       let rv;
+      let isDirty = await notifyTools.notifyBackground({command: "get-clippings-dirty-flag"});
 
-      if (!_cxtMenuData || _clippings.isDirty()) {
-	rv = _cxtMenuData = await _clippings.getContextMenuData(aRootFldrID);
+      if (!_cxtMenuData || isDirty) {
+	let notifyMsg = {
+	  command: "get-clippings-cxt-menu-data",
+	  rootFldrID: aRootFldrID,
+	};
+	rv = _cxtMenuData = await notifyTools.notifyBackground(notifyMsg);
       }
       else {
 	rv = _cxtMenuData;
@@ -53,22 +66,32 @@ let gClippingsMxListener = function () {
 
     async clippingRequested(aClippingID)
     {
-      let rv = await _clippings.getClipping(aClippingID);
+      let rv = await notifyTools.notifyBackground({
+	command: "get-clipping",
+	clippingID: aClippingID,
+      });
 
       return rv;
     },
 
     async shortcutKeyMapRequested()
     {
-      let rv = await _clippings.getShortcutKeyMap();
-
+      let rv = await notifyTools.notifyBackground({command: "get-shct-key-map"});
       return rv;
+    },
+
+    async shortcutListWndOpened()
+    {
+      let notifyMsg = {
+	command: "open-shct-list-wnd",
+      };
+
+      await notifyTools.notifyBackground(notifyMsg);
     },
 
     async clippingSearchDataRequested()
     {
-      let rv = await _clippings.getClippingSearchData();
-
+      let rv = await notifyTools.notifyBackground({command: "get-clipping-srch-data"});
       return rv;
     }
   };

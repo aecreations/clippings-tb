@@ -100,6 +100,10 @@ select {
     vertical-align: middle;
 }
 
+body[data-laf="true"][data-os="mac"] select.browser-style {
+    height: 24px;
+}
+
 fieldset {
     padding-top: 4px;
     padding-bottom: 12px;
@@ -132,7 +136,7 @@ button {
 }
 
 body[data-os="mac"] button {
-    height: 24px;    
+    height: 26px;
 }
 
 progress {
@@ -190,6 +194,18 @@ body[data-os="win"] #backup-reminder-freq {
 
 body[data-os="win"] #backup-reminder-freq + label {
     vertical-align: 2px;
+}
+
+body[data-locale="fr"] #skip-backup-label {
+    letter-spacing: 0px;
+}
+
+body[data-locale="de"] #skip-backup-label {
+    letter-spacing: 0px;
+}
+
+#wnds-dlgs-settings {
+    margin-top: 8px;
 }
 
 #sync-options .description {
@@ -251,8 +267,8 @@ body[data-os="win"] #backup-reminder-freq + label {
 
 .lightbox {
     top: 64px;
-    padding-left: 28px;
-    padding-right: 28px;
+    padding-left: 22px;
+    padding-right: 22px;
     border-radius: 4px;
     font-size: 15px;
 }
@@ -323,10 +339,79 @@ body[data-os="win"] #backup-reminder-freq + label {
     padding-bottom: 18px;
 }
 
+#wnds-dlgs-opts-dlg {
+    top: 160px;
+    --width: 490px;
+    --height: 226px;
+}
+
+body[data-locale="fr"] #wnds-dlgs-opts-dlg {
+    width: 572px;
+}
+
+body[data-locale="de"] #wnds-dlgs-opts-dlg {
+    width: 530px;
+}
+
+#wnds-dlgs-opts-dlg fieldset {
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--color-fieldset-border);
+}
+
+#wnds-dlgs-opts-dlg #wnds-dlgs-opts-exp-warn {
+    display: none;
+}
+
+#wnds-dlgs-opts-dlg #wnds-dlgs-opts-exp-warn .warning-icon {
+    background-image: url("../img/warning-64.png");
+    float: left;
+    width: 30px;
+    height: 30px;
+    margin-top: 4px;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+body[data-os="mac"] #wnds-dlgs-opts-dlg #wnds-dlgs-opts-exp-warn .warning-icon {
+    background-image: url("../img/warning-64-mac.png");
+}
+
+#wnds-dlgs-opts-dlg #wnds-dlgs-opts-exp-warn-msg {
+    height: 82px;
+    margin: 8px 0 12px 40px;
+    padding: 12px;
+    border-radius: 4px;
+}
+
+body[data-locale="nl"] #wnds-dlgs-opts-dlg #clpmgr-save-wnd-pos-label {
+    letter-spacing: -0.34px;
+}
+
+body[data-locale|="pt"] #wnds-dlgs-opts-dlg #clpmgr-save-wnd-pos-label {
+    letter-spacing: -0.18px;
+}
+
+#wnds-dlgs-opts-dlg #reset-clpmgr-wnd-pos {
+    min-width: 72px;
+    margin-top: 4px;
+}
+
+#wnds-dlgs-opts-dlg #reset-clpmgr-wnd-pos-ack {
+    visibility: hidden;
+    margin-left: 4px;
+    width: 18px;
+    height: 18px;
+    vertical-align: text-bottom;
+}
+
 #sync-clippings-dlg {
     top: 128px;
     --width: 500px;
     --height: 256px;
+}
+
+body[data-locale="de"] #sync-clippings-dlg {
+    width: 530px;
 }
 
 #sync-clippings-dlg fieldset {
@@ -353,7 +438,7 @@ body[data-os="win"] #backup-reminder-freq + label {
 }
 
 #sync-clippings-dlg #sync-cxn-error .msgbox-icon[os="mac"] {
-    background-image: url("chrome://global/skin/icons/warning-64.png");
+    background-image: url("../img/warning-64-mac.png");
 }
 
 #sync-clippings-dlg #generic-error .msgbox-icon {
@@ -369,6 +454,7 @@ body[data-os="win"] #backup-reminder-freq + label {
     font-weight: bold;
 }
 
+#wnds-dlgs-opts-dlg #wnds-dlgs-opts-exp-warn-msg,
 #sync-clippings-dlg #sync-cxn-error .error-msg {
     background-color: #fbfb77;
     color: black;
@@ -415,6 +501,24 @@ body[data-os="win"] #backup-reminder-freq + label {
     margin-left: 12px;
 }
 
+body[data-locale="de"] #sync-clippings-dlg #sync-helper-app-update-check + label {
+    letter-spacing: -0.51px;
+}
+
+body[data-locale|="es"] #sync-clippings-dlg #sync-helper-app-update-check + label {
+    letter-spacing: -0.56px;
+}
+
+body[data-locale|="pt"] #sync-clippings-dlg #sync-helper-app-update-check + label {
+    letter-spacing: -0.56px;
+}
+
+body[data-locale="nl"] #sync-clippings-dlg #sync-helper-app-update-check + label,
+body[data-locale="uk"] #sync-clippings-dlg #sync-helper-app-update-check + label {
+    letter-spacing: -0.65px;
+    margin-right: 0;
+}
+
 #turn-off-sync-clippings-dlg {
     top: 160px;
     --width: 510px;
@@ -427,8 +531,12 @@ body[data-os="win"] #backup-reminder-freq + label {
     height: 48px;
     margin-top: 8px;
     margin-right: 12px;
-    background-image: url("chrome://global/skin/icons/question-64.png");
+    background-image: url("../img/question-64.png");
     background-size: contain;
+}
+
+body[data-os="mac"] #turn-off-sync-clippings-dlg .msgbox-icon {
+    background-image: url("../img/question-64-mac.png");
 }
 
 #turn-off-sync-clippings-ack-dlg {
@@ -475,6 +583,10 @@ body[data-os="win"] #backup-reminder-freq + label {
     top: 72px;
     --width: 410px;
     --height: 320px;
+}
+
+body[data-locale="de"] #about-dlg {
+    height: 326px;
 }
 
 #about-dlg #ext-icon {
@@ -528,6 +640,18 @@ body[data-os="win"] #backup-reminder-freq + label {
 
 #about-dlg #usr-contrib-cta {
     margin-top: 8px;
+}
+
+body[data-locale="de"] #about-dlg #usr-contrib-cta {
+    letter-spacing: -0.1px;
+}
+
+body[data-locale|="pt"] #about-dlg #usr-contrib-cta {
+    letter-spacing: -0.55px;
+}
+
+body[data-locale|="es"] #about-dlg #usr-contrib-cta {
+    letter-spacing: -0.15px;
 }
 
 #about-dlg #usr-contrib-cta-hdg {

@@ -9,6 +9,7 @@
     <title data-i18n="clippingsMgrWndTitle"></title>
 
     <link rel="stylesheet" href="clippingsMgr.css"/>
+    <link rel="stylesheet" href="../style/tooltip.css"/>
   </head>
 
   <body>
@@ -19,9 +20,9 @@
     <div id="toolbar" class="hbox">
       <button id="new-clipping" class="toolbar-button toolbar-button-labelled" data-i18n="tbNewClipping"></button>
       <button id="new-folder" class="toolbar-button toolbar-button-labelled" data-i18n="tbNewFolder"></button>
-      <button id="move" class="toolbar-button"></button>
-      <button id="delete" class="toolbar-button"></button>
-      <button id="undo" class="toolbar-button"></button>
+      <button id="move" class="toolbar-button tooltip"></button>
+      <button id="delete" class="toolbar-button tooltip"></button>
+      <button id="undo" class="toolbar-button tooltip"></button>
       <span id="spacer-1" class="spacer"></span>
       <button id="clippings-mgr-options" class="toolbar-button toolbar-button-labelled"
        data-i18n="tbTools"></button>
@@ -31,7 +32,7 @@
 	<div id="clear-search"></div>
       </div>
       <span id="spacer-3" class="spacer"></span>
-      <button id="help" class="toolbar-button"></button>
+      <button id="help" class="toolbar-button tooltip tooltip-right"></button>
     </div>
     
     <div id="content" class="hbox">
@@ -60,7 +61,7 @@
 	<div id="options-bar" class="hbox">
 	  <div id="shortcut-key-select">
 	    <label for="clipping-key" data-i18n="labelShortcutKey"></label>
-	    <select id="clipping-key">
+	    <select id="clipping-key" class="browser-style">
 	      <option data-i18n="none"></option>
 	      <option>A</option>
 	      <option>B</option>
@@ -99,13 +100,13 @@
 	      <option>9</option>
 	      <option>0</option>
 	    </select>
-	    <button id="show-shortcut-list"></button>
+	    <button id="show-shortcut-list" class="ae-button tooltip tooltip-top"></button>
 	  </div>  <!-- #shortcut-key-select -->
 	  
 	  <div id="options-bar-spacer" class="spacer"></div>
 	  <div id="clipping-label">
 	    <label for="clipping-label-picker" data-i18n="labelLabel"></label>
-	    <select id="clipping-label-picker">
+	    <select id="clipping-label-picker" class="browser-style">
 	      <option value="" data-i18n="none"></option>
 	      <option value="red" data-i18n="labelRed"></option>
 	      <option value="orange" data-i18n="labelOrange"></option>
@@ -209,13 +210,13 @@
       <div class="dlg-content browser-style">
         <label id="import-clippings-label" data-i18n="labelSelImportFile"></label>
 	<div id="import-clippings-filepicker" class="hbox browser-style">
-	  <input type="text" id="import-clippings-file-path" readonly="true"/>
+	  <input type="text" id="import-clippings-file-path" readonly="true" placeholder=""/>
 	  <label id="import-clippings-file-upload-btn" for="import-clippings-file-upload"
 	   data-i18n="btnBrowse"></label>
 	  <input type="file" id="import-clippings-file-upload" accept=".rdf, .json"/>
 	</div>
 	<div id="import-clippings-replc-shct-keys-checkbox" class="browser-style">
-	  <input type="checkbox" id="import-clippings-replc-shct-keys" checked="true"/><label for="import-clippings-replc-shct-keys" data-i18n="cbImportReplcShctKeys"></label>
+	  <input type="checkbox" id="import-clippings-replc-shct-keys" class="checkbox-xs" checked="true"/><label for="import-clippings-replc-shct-keys" data-i18n="cbImportReplcShctKeys"></label>
 	  <br/>
 	</div>
 	<div id="restore-backup-warning">
@@ -319,7 +320,7 @@
 	<label id="move-to-label" for="move-to-fldr-tree"></label>
 	<div id="move-to-fldr-tree"></div>
 	
-	<input type="checkbox" id="copy-instead-of-move"/><label for="copy-instead-of-move" data-i18n="cbCreateCopy"></label>
+	<input type="checkbox" id="copy-instead-of-move" class="checkbox-xs"/><label for="copy-instead-of-move" data-i18n="cbCreateCopy"></label>
 	<div id="move-error"></div>
       </div>
       <div class="dlg-btns">
@@ -352,7 +353,7 @@
     <div id="mini-help-dlg" class="lightbox">
       <div class="dlg-content browser-style">
 	<p class="hlp-hdr" data-i18n="clippingsMgrWndTitle"></p>
-	<p data-i18n="clipMgrIntroDesc"></p>
+	<p id="mini-help-intro" data-i18n="clipMgrIntroDesc"></p>
 	<fieldset>
 	  <legend data-i18n="clipMgrIntroKeybHdg"></legend>
 	  <table id="mini-help-shortcut-key-tbl" class="shortcut-key-tbl"></table>
@@ -390,15 +391,14 @@
     <script src="../lib/contextMenu/jquery.ui.position.min.js"></script>
     <script src="../lib/contextMenu/jquery.contextMenu.min.js"></script>
     <script src="../lib/simpledrag.js"></script>
-    <script src="../lib/jquery-ui/jquery-ui.min.js"></script>
     <script src="../legacy/chrome/content/lib/moment.min.js"></script>
     <script src="../scripts/aeConst.js"></script>
     <script src="../scripts/aeImportExport.js"></script>
     <script src="../scripts/aeDialog.js"></script>
     <script src="../scripts/aeFolderPicker.js"></script>
     <script src="../scripts/aeI18n.js"></script>
-    <script src="../scripts/aeInterxn.js"></script>
     <script src="../scripts/aeAutoSave.js"></script>
+    <script src="../scripts/aePrefs.js"></script>
     <script src="clippingsMgr.js"></script>
   </body>
 </html>

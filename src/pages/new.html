@@ -9,6 +9,7 @@
     <title data-i18n="newClippingDlgTitle"></title>
     
     <link rel="stylesheet" href="new.css"/>
+    <link rel="stylesheet" href="../style/tooltip.css"/>
   </head>
 
   <body>
@@ -29,9 +30,9 @@
         <label data-i18n="labelCreateInFldr"></label>
       </div>
       <div class="hbox folder-picker">
-        <button id="new-clipping-fldr-picker-menubtn" class="ae-button folder-picker-menubtn" value="0"
-	 data-i18n="rootFldrName"></button>
-        <button id="new-folder-btn" class="ae-button"></button>
+        <button id="new-clipping-fldr-picker-menubtn" class="ae-button folder-picker-menubtn"
+	 value="0" data-i18n="rootFldrName"></button>
+        <button id="new-folder-btn" class="ae-button tooltip tooltip-xright"></button>
       </div>
       <div id="new-clipping-fldr-tree-popup" class="folder-tree-popup">
 	<div id="new-clipping-fldr-tree" class="folder-tree"></div>
@@ -48,15 +49,15 @@
             <button id="show-preview" data-i18n="btnPrevw"></button>
           </div>
 	  <div class="row browser-style">
-	    <input type="checkbox" id="create-as-unquoted"/><label for="create-as-unquoted" data-i18n="labelCrtUnq"></label>
+	    <input type="checkbox" id="create-as-unquoted" class="checkbox-xs"/><label for="create-as-unquoted" data-i18n="labelCrtUnq"></label>
 	  </div>
 	  <div class="row browser-style">
-	    <input type="checkbox" id="remove-extra-linebreaks"/><label for="remove-extra-linebreaks" data-i18n="labelRemLnBrk"></label>
+	    <input type="checkbox" id="remove-extra-linebreaks" class="checkbox-xs"/><label for="remove-extra-linebreaks" data-i18n="labelRemLnBrk"></label>
 	  </div>
 	  <div id="shct-key-and-label-opts" class="row hbox">
 	    <div id="shortcut-key-select">
 	      <label for="clipping-key" data-i18n="labelShortcutKey"></label>
-	      <select id="clipping-key">
+	      <select id="clipping-key" class="browser-style">
 		<option data-i18n="none"></option>
 		<option>A</option>
 		<option>B</option>
@@ -95,12 +96,12 @@
 		<option>9</option>
 		<option>0</option>
 	      </select>
-	      <img id="shct-key-tooltip" src="../img/help-tooltip.svg"/>
+	      <span id="shct-key-tooltip-text" class="tooltip tooltip-auto"><img id="shct-key-tooltip" src="../img/help-tooltip.svg"/></span>
 	    </div>
 	    <div id="clipping-options-spacer" class="spacer"></div>
 	    <div id="clipping-label">
 	      <label for="clipping-label-picker" data-i18n="labelLabel"></label>
-	      <select id="clipping-label-picker">
+	      <select id="clipping-label-picker" class="browser-style">
 		<option value="" data-i18n="none"></option>
 		<option value="red" data-i18n="labelRed"></option>
 		<option value="orange" data-i18n="labelOrange"></option>
@@ -172,13 +173,12 @@
     
     <script src="../lib/jquery.js"></script>
     <script src="../lib/fancytree/jquery.fancytree-all-deps.min.js"></script>
-    <script src="../lib/jquery-ui/jquery-ui.min.js"></script>
     <script src="../scripts/aeConst.js"></script>
     <script src="../scripts/aeDialog.js"></script>
     <script src="../scripts/aeFolderPicker.js"></script>
     <script src="../scripts/aeImportExport.js"></script>
     <script src="../scripts/aeI18n.js"></script>
-    <script src="../scripts/aeInterxn.js"></script>
+    <script src="../scripts/aePrefs.js"></script>
     <script src="new.js"></script>
   </body>
 </html>

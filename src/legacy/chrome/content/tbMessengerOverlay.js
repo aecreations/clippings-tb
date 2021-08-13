@@ -54,8 +54,8 @@ window.aecreations.clippings = function () {
 
       aeUtils.log(`initClippings(): Clippings data source successfully loaded.\nHost app: ${aeUtils.getHostAppName()} (version ${aeUtils.getHostAppVersion()})\nOS identifier: ${aeUtils.getOS()}\nInitializing Clippings integration with host app window: ${window.location.href}`);
 
-      window.setTimeout(() => {
-	this.getMxListener().legacyDataMigrationVerified();
+      window.setTimeout(async () => {
+	await this.getMxListener().legacyDataMigrationVerified();
       }, 3000);
 
       _isInitialized = true;

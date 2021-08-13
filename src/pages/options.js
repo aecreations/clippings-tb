@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 let gClippings;
+let gOS;
 let gDialogs = {};
 let gIsActivatingSyncClippings = false;
 
@@ -12,6 +13,27 @@ let gIsActivatingSyncClippings = false;
 function sanitizeHTML(aHTMLStr)
 {
   return DOMPurify.sanitize(aHTMLStr, { SAFE_FOR_JQUERY: true });
+}
+
+
+function capitalize(aString)
+{
+  let rv;
+
+  if (typeof aString != "string") {
+    throw new TypeError("Not a string");
+  }
+  else if (! aString) {
+    rv = "";
+  }
+  else if (aString.length == 1) {
+    rv = aString.toUpperCase();
+  }
+  else {
+    rv = aString[0].toUpperCase().concat(aString.substring(1));
+  }
+
+  return rv;
 }
 
 
@@ -35,8 +57,8 @@ $(async () => {
 
 async function init()
 {
-  let os = gClippings.getOS();
-  document.body.dataset.os = os;
+  let platform = await messenger.runtime.getPlatformInfo();
+  document.body.dataset.os = gOS = platform.os;
 
   let keyCtrl  = messenger.i18n.getMessage("keyCtrl");
   let keyAlt   = messenger.i18n.getMessage("keyAlt");
@@ -44,14 +66,14 @@ async function init()
   let shctModeKeys = `${keyCtrl}+${keyAlt}+V`;
   let shctModeKeysNew = `${keyAlt}+${keyShift}+Y`;
   
-  if (os == "win") {
+  if (gOS == "win") {
     // Cannot use Ctrl+Alt+V - already assigned to a global shortcut for
     // inserting the radical symbol (√) on Windows 10
     $("#shortcut-key").css({ display: "none" });
     $("#shct-label").css({ display: "none" });
     $("#row-shct-key-new").removeClass("indent");
   }
-  else if (os == "mac") {
+  else if (gOS == "mac") {
     let keyOption = messenger.i18n.getMessage("keyOption");
     let keyCmd = messenger.i18n.getMessage("keyCommand");
     shctModeKeys = `${keyOption}${keyCmd}V`;
@@ -64,24 +86,29 @@ async function init()
   $("#shct-label").text(messenger.i18n.getMessage("prefsShctMode", shctModeKeys));
 
   let shctNewLabelTxt = messenger.i18n.getMessage("prefsShctModeNew", shctModeKeysNew);
-  if (os == "win") {
+  if (gOS == "win") {
     shctNewLabelTxt = messenger.i18n.getMessage("prefsShctMode", shctModeKeysNew);
   }
   $("#shct-new-label").text(shctNewLabelTxt);
 
-  let prefs = gClippings.getPrefs();
+  let prefs = await aePrefs.getAllPrefs();
 
   if (! prefs.keyboardPaste) {
     $("#shortcut-key-new").prop("disabled", true);
     $("#shct-new-label").attr("disabled", true);
   }
 
+  let lang = messenger.i18n.getUILanguage();
+  document.body.dataset.locale = lang;
+  document.body.dataset.laf = prefs.enhancedLaF;
+
   $("#sync-intro").html(sanitizeHTML(messenger.i18n.getMessage("syncIntroTB")));
 
   initDialogs();
 
   $("#toggle-sync").click(async (aEvent) => {
-    if (prefs.syncClippings) {
+    let syncClippings = await aePrefs.getPref("syncClippings");
+    if (syncClippings) {
       gDialogs.turnOffSync.showModal();
     }
     else {
@@ -101,48 +128,50 @@ async function init()
   usrContribCTA.append(sanitizeHTML(`<a href="${aeConst.L10N_URL}" class="hyperlink">${messenger.i18n.getMessage("aboutL10n")}</a>`));
   
   $("#html-paste-options").val(prefs.htmlPaste).change(aEvent => {
-    setPref({ htmlPaste: aEvent.target.value });
+    aePrefs.setPrefs({ htmlPaste: aEvent.target.value });
   });
 
   $("#html-auto-line-break").attr("checked", prefs.autoLineBreak).click(aEvent => {
-    setPref({ autoLineBreak: aEvent.target.checked });
+    aePrefs.setPrefs({ autoLineBreak: aEvent.target.checked });
   });
 
   $("#shortcut-key").attr("checked", prefs.keyboardPaste).click(aEvent => {
     let shortcutCb = aEvent.target;
-    setPref({ keyboardPaste: shortcutCb.checked });
+    aePrefs.setPrefs({ keyboardPaste: shortcutCb.checked });
 
-    if (os != "mac") {
+    if (gOS != "mac") {
       $("#shortcut-key-new").prop("disabled", !shortcutCb.checked);
       $("#shct-new-label").attr("disabled", !shortcutCb.checked);
 
       if (! shortcutCb.checked) {
         $("#shortcut-key-new").prop("checked", false);
-        setPref({ wxPastePrefixKey: false });
+        aePrefs.setPrefs({ wxPastePrefixKey: false });
       }
     }
   });
 
   $("#shortcut-key-new").attr("checked", prefs.wxPastePrefixKey).click(aEvent => {
-    setPref({ wxPastePrefixKey: aEvent.target.checked });
+    aePrefs.setPrefs({ wxPastePrefixKey: aEvent.target.checked });
   });
 
   $("#auto-inc-plchldrs-start-val").val(prefs.autoIncrPlchldrStartVal).click(aEvent => {
-    setPref({ autoIncrPlchldrStartVal: aEvent.target.valueAsNumber });
+    aePrefs.setPrefs({ autoIncrPlchldrStartVal: aEvent.target.valueAsNumber });
   });
 
   $("#check-spelling").attr("checked", prefs.checkSpelling).click(aEvent => {
-    setPref({ checkSpelling: aEvent.target.checked });
+    aePrefs.setPrefs({ checkSpelling: aEvent.target.checked });
   });
 
   $("#backup-filename-with-date").attr("checked", prefs.backupFilenameWithDate).click(aEvent => {
-    setPref({ backupFilenameWithDate: aEvent.target.checked });
+    aePrefs.setPrefs({ backupFilenameWithDate: aEvent.target.checked });
   });
 
-  $("#backup-reminder").prop("checked", (prefs.backupRemFrequency != aeConst.BACKUP_REMIND_NEVER)).click(async (aEvent) => {
+  $("#backup-reminder").attr("checked", (prefs.backupRemFrequency != aeConst.BACKUP_REMIND_NEVER)).click(async (aEvent) => {
     if (aEvent.target.checked) {
       $("#backup-reminder-freq").prop("disabled", false);
-      setPref({
+      $("#skip-backup-if-no-chg").prop("disabled", false);
+      $("#skip-backup-label").removeAttr("disabled");
+      aePrefs.setPrefs({
         backupRemFrequency: Number($("#backup-reminder-freq").val()),
         backupRemFirstRun: false,
         lastBackupRemDate: new Date().toString(),
@@ -150,12 +179,14 @@ async function init()
     }
     else {
       $("#backup-reminder-freq").prop("disabled", true);
-      setPref({ backupRemFrequency: aeConst.BACKUP_REMIND_NEVER });
+      $("#skip-backup-if-no-chg").prop("disabled", true);
+      $("#skip-backup-label").attr("disabled", true);
+      aePrefs.setPrefs({ backupRemFrequency: aeConst.BACKUP_REMIND_NEVER });
     }
 
-    gClippings.clearBackupNotificationInterval();
+    await messenger.runtime.sendMessage({msgID: "clear-backup-notifcn-intv"});
     if (aEvent.target.checked) {
-      gClippings.setBackupNotificationInterval();
+      messenger.runtime.sendMessage({msgID: "set-backup-notifcn-intv"});
     }
   });
 
@@ -168,15 +199,23 @@ async function init()
   }
   
   $("#backup-reminder-freq").change(async (aEvent) => {
-    setPref({
+    aePrefs.setPrefs({
       backupRemFrequency: Number(aEvent.target.value),
       backupRemFirstRun: false,
       lastBackupRemDate: new Date().toString(),
     });
 
-    gClippings.clearBackupNotificationInterval();
-    gClippings.setBackupNotificationInterval();
-  });   
+    await messenger.runtime.sendMessage({msgID: "clear-backup-notifcn-intv"});
+    messenger.runtime.sendMessage({msgID: "set-backup-notifcn-intv"});
+  });
+
+  $("#skip-backup-if-no-chg").attr("checked", prefs.skipBackupRemIfUnchg).click(aEvent => {
+    aePrefs.setPrefs({skipBackupRemIfUnchg: aEvent.target.checked});
+  });
+
+  $("#wnds-dlgs-settings").on("click", aEvent => {
+    gDialogs.wndsDlgsOpts.showModal();
+  });
 
   if (prefs.syncClippings) {
     $("#sync-settings").show();
@@ -204,22 +243,105 @@ async function init()
 }
 
 
-function setPref(aPref)
-{
-  messenger.storage.local.set(aPref);
-}
-
-
 function initDialogs()
 {
-  let osName = gClippings.getOS();
-  $(".msgbox-icon").attr("os", osName);
+  $(".msgbox-icon").attr("os", gOS);
   
+  gDialogs.wndsDlgsOpts = new aeDialog("#wnds-dlgs-opts-dlg");
+  gDialogs.wndsDlgsOpts.setProps({
+    resetClpMgrWndPos: false,
+  });
+  gDialogs.wndsDlgsOpts.onFirstInit = function ()
+  {   
+    if (gOS != "win") {
+      let os = gOS == "mac" ? "macOS" : capitalize(gOS);
+      $("#wnds-dlgs-opts-dlg").css({height: "320px"});
+      $("#wnds-dlgs-opts-exp-warn-msg").text(messenger.i18n.getMessage("wndsDlgsOptsExpWarn", os));
+      $("#wnds-dlgs-opts-exp-warn").show();
+    }
+
+    $("#clpmgr-save-wnd-pos").on("click", aEvent => {
+      $("#reset-clpmgr-wnd-pos").prop("disabled", !aEvent.target.checked);
+    });
+
+    $("#reset-clpmgr-wnd-pos").on("click", aEvent => {
+      this.resetClpMgrWndPos = true;
+      $("#reset-clpmgr-wnd-pos-ack").css({visibility: "visible"});
+    });
+  };
+  gDialogs.wndsDlgsOpts.onInit = async function ()
+  {
+    let prefs = await aePrefs.getAllPrefs();
+    $("#auto-pos-wnds").prop("checked", prefs.autoAdjustWndPos);
+    $("#clpmgr-save-wnd-pos").prop("checked", prefs.clippingsMgrSaveWndGeom);
+    $("#reset-clpmgr-wnd-pos").prop("disabled", !$("#clpmgr-save-wnd-pos").prop("checked"));
+  };
+  gDialogs.wndsDlgsOpts.onAccept = async function (aEvent)
+  {
+    let autoAdjustWndPos = $("#auto-pos-wnds").prop("checked");
+    let clippingsMgrSaveWndGeom = $("#clpmgr-save-wnd-pos").prop("checked");
+    await aePrefs.setPrefs({autoAdjustWndPos, clippingsMgrSaveWndGeom});
+
+    let isClippingsMgrOpen;
+    try {
+      isClippingsMgrOpen = await messenger.runtime.sendMessage({msgID: "ping-clippings-mgr"});
+    }
+    catch (e) {}
+
+    if (isClippingsMgrOpen) {
+      let saveWndGeom = this.resetClpMgrWndPos ? false : clippingsMgrSaveWndGeom;
+      await messenger.runtime.sendMessage({
+        msgID: "toggle-save-clipman-wnd-geom",
+        saveWndGeom,
+      });
+
+      if (! saveWndGeom) {
+        await this._purgeSavedClpMgrWndGeom();
+      }
+    }
+    else {
+      if (this.resetClpMgrWndPos || !clippingsMgrSaveWndGeom) {
+        await this._purgeSavedClpMgrWndGeom();
+      }
+    }
+
+    this.close();
+  };
+  gDialogs.wndsDlgsOpts._purgeSavedClpMgrWndGeom = async function ()
+  {   
+    await aePrefs.setPrefs({
+      clippingsMgrWndGeom: null,
+      clippingsMgrTreeWidth: null,
+    });
+  };
+  gDialogs.wndsDlgsOpts.onUnload = function ()
+  {
+    this.resetClpMgrWndPos = false;
+    $("#reset-clpmgr-wnd-pos").prop("disabled", false);
+    $("#reset-clpmgr-wnd-pos-ack").css({visibility: "hidden"});
+  };
+
   gDialogs.syncClippings = new aeDialog("#sync-clippings-dlg");
-  gDialogs.syncClippings.oldShowSyncItemsOpt = null;
-  gDialogs.syncClippings.isCanceled = false;
-  gDialogs.syncClippings.onInit = () => {
-    gDialogs.syncClippings.isCanceled = false;
+  gDialogs.syncClippings.setProps({
+    oldShowSyncItemsOpt: null,
+    isCanceled: false,
+  });
+  gDialogs.syncClippings.onFirstInit = function ()
+  {
+    if (gOS == "win") {
+      $("#example-sync-path").text(messenger.i18n.getMessage("syncFileDirExWin"));
+    }
+    else if (gOS == "mac") {
+      $("#example-sync-path").text(messenger.i18n.getMessage("syncFileDirExMac"));
+    }
+    else {
+      $("#example-sync-path").text(messenger.i18n.getMessage("syncFileDirExLinux"));
+    }
+    $("#sync-conxn-error-detail").html(sanitizeHTML(messenger.i18n.getMessage("errSyncConxnDetail")));
+  };
+  gDialogs.syncClippings.onInit = function ()
+  {
+    this.isCanceled = false;
     $("#sync-clippings-dlg .dlg-accept").hide();
     $("#sync-clippings-dlg .dlg-cancel").text(messenger.i18n.getMessage("btnCancel"));
     $("#sync-err-detail").text("");
@@ -234,41 +356,27 @@ function initDialogs()
     deckSyncError.hide();
     deckSyncSettings.hide();
 
+    let that = this;
     let lang = messenger.i18n.getUILanguage();
     let msg = { msgID: "get-app-version" };
     let sendNativeMsg = messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
     sendNativeMsg.then(aResp => {
       console.info("Sync Clippings helper app version: " + aResp.appVersion);
+      return aePrefs.getAllPrefs();
 
-      let prefs = gClippings.getPrefs();
-      
-      $("#sync-helper-app-update-check").prop("checked", prefs.syncHelperCheckUpdates);
-      $("#show-only-sync-items").prop("checked", prefs.cxtMenuSyncItemsOnly);
+    }).then(aPrefs => {
+      $("#sync-helper-app-update-check").prop("checked", aPrefs.syncHelperCheckUpdates);
+      $("#show-only-sync-items").prop("checked", aPrefs.cxtMenuSyncItemsOnly);
 
-      gDialogs.syncClippings.oldShowSyncItemsOpt = $("#show-only-sync-items").prop("checked");
-
-      if (lang == "de") {
-        $("#sync-clippings-dlg").css({ width: "542px" });
-        $("#sync-helper-app-update-check + label").css({ letterSpacing: "-0.5px" });
-      }
-      else if (lang == "pt-BR") {
-        $("#sync-helper-app-update-check + label").css({ letterSpacing: "-0.56px" });
-      }
-      else if (lang == "nl" || lang == "uk") {
-        $("#sync-helper-app-update-check + label").css({
-          letterSpacing: "-0.65px",
-          marginRight: "0",
-        });
-      }
+      that.oldShowSyncItemsOpt = $("#show-only-sync-items").prop("checked");
 
       let msg = { msgID: "get-sync-dir" };
       return messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
       
     }).then(aResp => {
-      if (! gDialogs.syncClippings.isCanceled) {
+      if (! that.isCanceled) {
         if (lang == "es-ES") {
           $("#sync-clippings-dlg").css({ width: "606px" });
-          $("#sync-helper-app-update-check + label").css({ letterSpacing: "-0.56px" });
         }
       }
       $("#sync-clippings-dlg .dlg-accept").show();
@@ -302,9 +410,8 @@ function initDialogs()
       }
     });
   };
-  gDialogs.syncClippings.onAccept = () => {
-    let that = gDialogs.syncClippings;
-
+  gDialogs.syncClippings.onAccept = function ()
+  {
     let syncFldrPath = $("#sync-fldr-curr-location").val();
 
     // Sanitize the sync folder path value.
@@ -316,7 +423,7 @@ function initDialogs()
       return;
     }
 
-    setPref({
+    aePrefs.setPrefs({
       syncHelperCheckUpdates: $("#sync-helper-app-update-check").prop("checked"),
       cxtMenuSyncItemsOnly: $("#show-only-sync-items").prop("checked"),
     });
@@ -331,6 +438,8 @@ function initDialogs()
     log(msg);
 
     let setSyncFilePath = messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
+    let that = this;
+    
     setSyncFilePath.then(aResp => {
       log("Received response to 'set-sync-dir':");
       log(aResp);
@@ -340,7 +449,7 @@ function initDialogs()
 	  if (gIsActivatingSyncClippings) {
             // Don't do the following if Sync Clippings was already turned on
             // and no changes to settings were made.
-            setPref({
+            aePrefs.setPrefs({
               syncClippings: true,
               clippingsMgrShowSyncItemsOnlyRem: true,
             });
@@ -370,30 +479,19 @@ function initDialogs()
       console.error(aErr);
     });
   };
-  gDialogs.syncClippings.onUnload = () => {
+  gDialogs.syncClippings.onUnload = function ()
+  {
     $("#sync-clippings-dlg").css({ height: "256px" });
     gDialogs.syncClippings.isCanceled = true;
   };
-
-  // Dialog UI strings
-  if (osName == "win") {
-    $("#example-sync-path").text(messenger.i18n.getMessage("syncFileDirExWin"));
-  }
-  else if (osName == "mac") {
-    $("#example-sync-path").text(messenger.i18n.getMessage("syncFileDirExMac"));
-  }
-  else {
-    $("#example-sync-path").text(messenger.i18n.getMessage("syncFileDirExLinux"));
-  }
-  $("#sync-conxn-error-detail").html(sanitizeHTML(messenger.i18n.getMessage("errSyncConxnDetail")));
-
+  
   gDialogs.turnOffSync = new aeDialog("#turn-off-sync-clippings-dlg");
   $("#turn-off-sync-clippings-dlg > .dlg-btns > .dlg-btn-yes").click(aEvent => {
     let that = gDialogs.turnOffSync;
     that.close();
 
     gClippings.enableSyncClippings(false).then(aOldSyncFldrID => {
-      setPref({ syncClippings: false });
+      aePrefs.setPrefs({ syncClippings: false });
       $("#sync-settings").hide();
       $("#toggle-sync").text(messenger.i18n.getMessage("syncTurnOn"));
       $("#sync-status").removeClass("sync-status-on").text(messenger.i18n.getMessage("syncStatusOff"));
@@ -409,34 +507,38 @@ function initDialogs()
   });
 
   gDialogs.turnOffSyncAck = new aeDialog("#turn-off-sync-clippings-ack-dlg");
-  gDialogs.turnOffSyncAck.oldSyncFldrID = null;
-  gDialogs.turnOffSyncAck.onInit = () => {
+  gDialogs.turnOffSyncAck.setProps({
+    oldSyncFldrID: null,
+  });
+  gDialogs.turnOffSyncAck.onInit = function ()
+  {
     $("#delete-sync-fldr").prop("checked", true);
   };
-  gDialogs.turnOffSyncAck.onAfterAccept = () => {
-    let that = gDialogs.turnOffSyncAck;
+  gDialogs.turnOffSyncAck.onAfterAccept = function ()
+  {
     let removeSyncFldr = $("#delete-sync-fldr").prop("checked");
     let syncClippingsListeners = gClippings.getSyncClippingsListeners().getListeners();
 
     for (let listener of syncClippingsListeners) {
-      listener.onAfterDeactivate(removeSyncFldr, that.oldSyncFldrID);
+      listener.onAfterDeactivate(removeSyncFldr, this.oldSyncFldrID);
     }
   };
 
   gDialogs.about = new aeDialog("#about-dlg");
-  gDialogs.about.extInfo = null;
-  gDialogs.about.onInit = () => {
-    let that = gDialogs.about;
-    
+  gDialogs.about.setProps({
+    extInfo: null,
+  });
+  gDialogs.about.onInit = function ()
+  {
     let diagDeck = $("#about-dlg > .dlg-content #diag-info .deck");
     diagDeck.children("#sync-diag-loading").show();
     diagDeck.children("#sync-diag").hide();
     $("#about-dlg > .dlg-content #diag-info #sync-diag-detail").hide();
     $("#about-dlg > .dlg-content #diag-info #sync-file-size").text("");
 
-    if (! that.extInfo) {
+    if (! this.extInfo) {
       let extManifest = messenger.runtime.getManifest();
-      that.extInfo = {
+      this.extInfo = {
         name: extManifest.name,
         version: extManifest.version,
         description: extManifest.description,
@@ -444,31 +546,21 @@ function initDialogs()
       };
     }
 
-    $("#about-dlg > .dlg-content #ext-name").text(that.extInfo.name);
-    $("#about-dlg > .dlg-content #ext-ver").text(messenger.i18n.getMessage("aboutExtVer", that.extInfo.version));
-    $("#about-dlg > .dlg-content #ext-desc").text(that.extInfo.description);
-    $("#about-dlg > .dlg-content #ext-home-pg").attr("href", that.extInfo.homePgURL);
-
-    let lang = messenger.i18n.getUILanguage();
-    if (lang == "de") {
-      $("#usr-contrib-cta").css({ letterSpacing: "-0.1px" });
-    }
-    else if (lang == "pt-BR") {
-      $("#ext-desc").css({ letterSpacing: "-0.55px" });
-    }
-    else if (lang == "es-ES") {
-      $("#sync-ver-label").css({ letterSpacing: "-0.15px" });
-    }
+    $("#about-dlg > .dlg-content #ext-name").text(this.extInfo.name);
+    $("#about-dlg > .dlg-content #ext-ver").text(messenger.i18n.getMessage("aboutExtVer", this.extInfo.version));
+    $("#about-dlg > .dlg-content #ext-desc").text(this.extInfo.description);
+    $("#about-dlg > .dlg-content #ext-home-pg").attr("href", this.extInfo.homePgURL);
   };
-  gDialogs.about.onShow = () => {
+  gDialogs.about.onShow = async function ()
+  {
     let msg = { msgID: "get-app-version" };
     let sendNativeMsg = messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
     sendNativeMsg.then(aResp => {
-      $("#about-dlg > .dlg-content #diag-info #sync-ver").text(aResp.appVersion);     
+      $("#about-dlg > .dlg-content #diag-info #sync-ver").text(aResp.appVersion);
+      return aePrefs.getPref("syncClippings");
 
-      let prefs = gClippings.getPrefs();
-
-      if (prefs.syncClippings) {
+    }).then(aPrefSyncClpgs => {
+      if (!!aPrefSyncClpgs) {
         let msg = { msgID: "get-sync-file-info" };
         return messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
       }
@@ -510,9 +602,11 @@ function initDialogs()
   };
   
   gDialogs.syncClippingsHelp = new aeDialog("#sync-clippings-help-dlg");
-
-  // Sync Clippings help dialog content.
-  $("#sync-clippings-help-dlg > .dlg-content").html(sanitizeHTML(messenger.i18n.getMessage("syncHelpTB")));
+  gDialogs.syncClippingsHelp.onFirstInit = function ()
+  {
+    // Sync Clippings help dialog content.
+    $("#sync-clippings-help-dlg > .dlg-content").html(sanitizeHTML(messenger.i18n.getMessage("syncHelpTB")));
+  };
 }
 
 
@@ -521,8 +615,7 @@ $(window).keydown(aEvent => {
   function isAccelKeyPressed()
   {
     let rv;
-    let os = gClippings.getOS();
-    if (os == "mac") {
+    if (gOS == "mac") {
       rv = aEvent.metaKey;
     }
     else {

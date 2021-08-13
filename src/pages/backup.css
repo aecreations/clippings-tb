@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url("../style/dialog.css");
+@import url("../style/lightbox.css");
 
 
 body {
@@ -40,6 +41,10 @@ select.browser-style {
     font-size: 13px;
 }
 
+body[data-laf="true"][data-os="mac"] select.browser-style {
+    height: 26px;
+}
+
 #backup-now {
     min-width: 160px;
     height: 48px;
@@ -49,10 +54,19 @@ select.browser-style {
     font-weight: 600;
 }
 
+body[data-laf="true"]:not([data-os="mac"]) #backup-now {
+    border-radius: 6px;
+}
+
 body[data-os="mac"] #backup-now {
     height: 26px;
     font-size: 15px !important;
     font-weight: 400;
+}
+
+body[data-locale="fr"] #backup-hint,
+body[data-locale|="pt"] #backup-hint {
+    letter-spacing: -0.3px;
 }
 
 #backup-reminder-freq {
@@ -78,4 +92,29 @@ body[data-os="mac"] #backup-now {
 
 body[data-os="mac"] #dlg-buttons > button {
     height: 26px;
+}
+
+/*
+ * Dialog boxes
+ */
+
+.lightbox {
+    border-radius: 2px;
+}
+
+.lightbox .msgbox-info-icon {
+    width: 32px;
+    height: 32px;
+    margin-top: 10px;
+    margin-right: 12px;
+    float: left;
+}
+
+.lightbox .msgbox-info-icon {
+    background-image: url("../img/info.svg");
+    background-size: contain;
+}
+
+#backup-confirm-msgbox {
+    top: 64px;
 }

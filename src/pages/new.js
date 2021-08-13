@@ -5,9 +5,11 @@
 
 
 const WNDH_OPTIONS_EXPANDED = 486;
-const DLG_HEIGHT_ADJ_WINDOWS = 36;
-const DLG_HEIGHT_ADJ_LOCALE_ES = 16;
+const DLG_HEIGHT_ADJ_WINDOWS = 48;
+const DLG_HEIGHT_ADJ_LOCALE_ES = 20;
+const DLG_HEIGHT_ADJ_LOCALE_DE = 6;
 
+let gOS;
 let gClippingsDB = null;
 let gClippings = null;
 let gParentFolderID = 0;
@@ -15,6 +17,7 @@ let gSrcURL = "";
 let gCreateInFldrMenu;
 let gFolderPickerPopup;
 let gNewFolderDlg, gPreviewDlg;
+let gPrefs;
 
 
 // Page initialization
@@ -39,17 +42,24 @@ $(async () => {
     return;
   };
 
-  document.body.dataset.os = gClippings.getOS();
+  let platform = await messenger.runtime.getPlatformInfo();
+  document.body.dataset.os = gOS = platform.os;
+
+  gPrefs = await aePrefs.getAllPrefs();
+  document.body.dataset.laf = gPrefs.enhancedLaF;
 
   $("#btn-expand-options").click(async (aEvent) => {
     let height = WNDH_OPTIONS_EXPANDED;
-    if (gClippings.getOS() == "win") {
+    if (gOS == "win") {
       height += DLG_HEIGHT_ADJ_WINDOWS;
     }
     
     let lang = messenger.i18n.getUILanguage();
     if (lang == "es-ES") {
       height += DLG_HEIGHT_ADJ_LOCALE_ES;
+    }
+    else if (lang == "de" && gOS == "mac") {
+      height += DLG_HEIGHT_ADJ_LOCALE_DE;
     }
     
     await messenger.windows.update(messenger.windows.WINDOW_ID_CURRENT, { height });
@@ -67,11 +77,21 @@ $(async () => {
       return;
     }
 
-    $("#clipping-name").val(aResp.name).select().focus();
-    $("#clipping-text").val(aResp.content).attr("spellcheck", aResp.checkSpelling);
+    let clippingName = $("#clipping-name")[0];
+    clippingName.value = aResp.name;
+    clippingName.focus();
+    
+    $("#clipping-text").val(aResp.content).attr("spellcheck", aResp.checkSpelling)
+      .focus(aEvent => {
+        aEvent.target.select();
+      });
     gSrcURL = aResp.url || "";
   });
 
+  $("#clipping-name").focus(aEvent => {
+    aEvent.target.select();
+  });
+  
   $("#clipping-name").blur(aEvent => {
     let name = aEvent.target.value;
     if (! name) {
@@ -84,12 +104,15 @@ $(async () => {
   initLabelPicker();
   initShortcutKeyMenu();
 
-  $("#new-folder-btn").click(aEvent => { gNewFolderDlg.showModal() });
+  let newFolderBtn = $("#new-folder-btn");
+  newFolderBtn.attr("title", messenger.i18n.getMessage("btnNewFolder"));
+  newFolderBtn.click(aEvent => { gNewFolderDlg.showModal() });
+  
   $("#show-preview").click(aEvent => { gPreviewDlg.showModal() });
   $("#btn-accept").click(aEvent => { accept(aEvent) });
   $("#btn-cancel").click(aEvent => { cancel(aEvent) });
 
-  $(document).tooltip(aeInterxn.getTooltipOpts());
+  window.focus();
 
   // Fix for Fx57 bug where bundled page loaded using
   // browser.windows.create won't show contents unless resized.
@@ -133,34 +156,37 @@ $(window).on("contextmenu", aEvent => {
 function showInitError()
 {
   let errorMsgBox = new aeDialog("#create-clipping-error-msgbox");
-  errorMsgBox.onInit = () => {
+  errorMsgBox.onInit = function ()
+  {
     let errMsgElt = $("#create-clipping-error-msgbox > .dlg-content > .msgbox-error-msg");
     errMsgElt.text(messenger.i18n.getMessage("initError"));
   };
-  errorMsgBox.onAccept = () => {
-    errorMsgBox.close();
+  errorMsgBox.onAccept = function ()
+  {
+    this.close();
     closeDlg();
   };
+  
   errorMsgBox.showModal();
 }
 
 
 function initDialogs()
 {
-  let osName = gClippings.getOS();
-  $(".msgbox-error-icon").attr("os", osName);
+  $(".msgbox-error-icon").attr("os", gOS);
   
   gNewFolderDlg = new aeDialog("#new-folder-dlg");
-  gNewFolderDlg.firstInit = true;
-  gNewFolderDlg.fldrTree = null;
-  gNewFolderDlg.selectedFldrNode = null;
+  gNewFolderDlg.setProps({
+    fldrTree: null,
+    selectedFldrNode: null,
+  });
 
-  gNewFolderDlg.resetTree = function () {
-    let that = gNewFolderDlg;
-    let fldrTree = that.fldrTree.getTree();
+  gNewFolderDlg.resetTree = function ()
+  {
+    let fldrTree = this.fldrTree.getTree();
     fldrTree.clear();
-    that.fldrTree = null;
-    that.selectedFldrNode = null;
+    this.fldrTree = null;
+    this.selectedFldrNode = null;
 
     // Remove and recreate the Fancytree <div> element.
     $("#new-folder-dlg-fldr-tree").children().remove();
@@ -168,28 +194,68 @@ function initDialogs()
     parentElt.children("#new-folder-dlg-fldr-tree").remove();
     $('<div id="new-folder-dlg-fldr-tree" class="folder-tree"></div>').appendTo("#new-folder-dlg-fldr-tree-popup");
   };
+
+  gNewFolderDlg.onFirstInit = function ()
+  {
+    let fldrPickerMnuBtn = $("#new-folder-dlg-fldr-picker-mnubtn");
+    let fldrPickerPopup = $("#new-folder-dlg-fldr-tree-popup");
+
+    fldrPickerMnuBtn.click(aEvent => {
+      if (fldrPickerPopup.css("visibility") == "visible") {
+        fldrPickerPopup.css({ visibility: "hidden" });
+        $("#new-folder-dlg-fldr-tree-popup-bkgrd-ovl").hide();
+      }
+      else {
+        fldrPickerPopup.css({ visibility: "visible" });
+        $("#new-folder-dlg-fldr-tree-popup-bkgrd-ovl").show();
+      }
+    });
+    
+    $("#new-fldr-name").on("blur", aEvent => {
+      if (! aEvent.target.value) {
+        aEvent.target.value = messenger.i18n.getMessage("newFolder");
+      }
+    });
+  };
   
-  gNewFolderDlg.onInit = () => {
-    let that = gNewFolderDlg;
+  gNewFolderDlg.onInit = function ()
+  {
     let parentDlgFldrPickerMnuBtn = $("#new-clipping-fldr-picker-menubtn");
     let fldrPickerMnuBtn = $("#new-folder-dlg-fldr-picker-mnubtn");
     let fldrPickerPopup = $("#new-folder-dlg-fldr-tree-popup");
     let selectedFldrID = parentDlgFldrPickerMnuBtn.val();
     let selectedFldrName = parentDlgFldrPickerMnuBtn.text();
-
-    that.fldrTree = new aeFolderPicker(
+    let rootFldrID = aeConst.ROOT_FOLDER_ID;
+    let rootFldrName = messenger.i18n.getMessage("rootFldrName");
+    let rootFldrCls = aeFolderPicker.ROOT_FOLDER_CLS;
+    
+    if (gPrefs.syncClippings) {
+      if (gPrefs.newClippingSyncFldrsOnly) {
+        rootFldrID = gPrefs.syncFolderID;
+        rootFldrName = messenger.i18n.getMessage("syncFldrName");
+        rootFldrCls = aeFolderPicker.SYNCED_ROOT_FOLDER_CLS;
+      }
+      else if (gPrefs.cxtMenuSyncItemsOnly) {
+        $("#new-folder-dlg-fldr-tree").addClass("show-sync-items-only");
+      }
+    }
+    
+    this.fldrTree = new aeFolderPicker(
       "#new-folder-dlg-fldr-tree",
       gClippingsDB,
+      rootFldrID,
+      rootFldrName,
+      rootFldrCls,
       selectedFldrID
     );
 
-    that.fldrTree.onSelectFolder = aFolderData => {
-      that.selectedFldrNode = aFolderData.node;
+    this.fldrTree.onSelectFolder = aFolderData => {
+      this.selectedFldrNode = aFolderData.node;
 
       let fldrID = aFolderData.node.key;
       fldrPickerMnuBtn.val(fldrID).text(aFolderData.node.title);
 
-      if (fldrID == gClippings.getSyncFolderID()) {
+      if (fldrID == gPrefs.syncFolderID) {
         fldrPickerMnuBtn.attr("syncfldr", "true");
       }
       else {
@@ -201,48 +267,28 @@ function initDialogs()
     };
 
     fldrPickerMnuBtn.val(selectedFldrID).text(selectedFldrName);
-    if (selectedFldrID == gClippings.getSyncFolderID()) {
+    if (selectedFldrID == gPrefs.syncFolderID) {
       fldrPickerMnuBtn.attr("syncfldr", "true");
     }
     else {
       fldrPickerMnuBtn.removeAttr("syncfldr");
     }
 
-    if (that.firstInit) {
-      fldrPickerMnuBtn.click(aEvent => {
-        if (fldrPickerPopup.css("visibility") == "visible") {
-          fldrPickerPopup.css({ visibility: "hidden" });
-          $("#new-folder-dlg-fldr-tree-popup-bkgrd-ovl").hide();
-        }
-        else {
-          fldrPickerPopup.css({ visibility: "visible" });
-          $("#new-folder-dlg-fldr-tree-popup-bkgrd-ovl").show();
-        }
-      })
-      
-      $("#new-fldr-name").on("blur", aEvent => {
-        if (! aEvent.target.value) {
-          aEvent.target.value = messenger.i18n.getMessage("newFolder");
-        }
-      });
-      
-      that.firstInit = false;
-    }
-
     $("#new-fldr-name").val(messenger.i18n.getMessage("newFolder"));
   };
 
-  gNewFolderDlg.onShow = () => {
+  gNewFolderDlg.onShow = function ()
+  {
     $("#new-fldr-name").select().focus();
   };
   
-  gNewFolderDlg.onAccept = aEvent => {
-    let that = gNewFolderDlg;
-    let newFldrDlgTree = that.fldrTree.getTree();
+  gNewFolderDlg.onAccept = function (aEvent)
+  {
+    let newFldrDlgTree = this.fldrTree.getTree();
     let parentFldrID = aeConst.ROOT_FOLDER_ID;
 
-    if (that.selectedFldrNode) {
-      parentFldrID = Number(that.selectedFldrNode.key);
+    if (this.selectedFldrNode) {
+      parentFldrID = Number(this.selectedFldrNode.key);
     }
     else {
       // User didn't choose a different parent folder.
@@ -295,14 +341,17 @@ function initDialogs()
         $("#new-clipping-fldr-picker-menubtn").text(newFldrName).val(aFldrID);       
         gParentFolderID = aFldrID;
         
-        that.resetTree();
+        this.resetTree();
 
         let clipgsLstrs = gClippings.getClippingsListeners();
         clipgsLstrs.forEach(aListener => {
           aListener.newFolderCreated(aFldrID, newFolder, aeConst.ORIGIN_HOSTAPP);
         });
-        
-        that.close();
+
+        return unsetClippingsUnchangedFlag();
+
+      }).then(() => {
+        this.close();
       });
     }).catch(aErr => {
       window.alert(aErr);
@@ -310,7 +359,8 @@ function initDialogs()
   };
 
   gPreviewDlg = new aeDialog("#preview-dlg");
-  gPreviewDlg.onShow = () => {
+  gPreviewDlg.onShow = function ()
+  {
     let content = $("#clipping-text").val();
 
     if ($("#create-as-unquoted")[0].checked) {
@@ -323,19 +373,25 @@ function initDialogs()
     $("#clipping-preview").val(content);
   };
 
-  gPreviewDlg.onAccept = aEvent => {
-    let that = gPreviewDlg;
-    
+  gPreviewDlg.onAccept = function (aEvent)
+  {
     $("#clipping-preview").val("");
-    that.close();
+    this.close();
   };
 }
 
 
 function initFolderPicker()
 {
-  // Initialize the hidden background that user can click on to dismiss an open
-  // folder picker popup.
+  function selectSyncedClippingsFldr()
+  {
+    $("#new-clipping-fldr-picker-menubtn").val(gPrefs.syncFolderID)
+      .text(messenger.i18n.getMessage("syncFldrName"))
+      .attr("syncfldr", "true");
+  }
+  
+  // Initialize the transparent background that user can click on to dismiss an
+  // open folder picker popup.
   $(".popup-bkgrd").click(aEvent => {
     $(".folder-tree-popup").css({ visibility: "hidden" });
     $(".popup-bkgrd").hide();
@@ -364,9 +420,34 @@ function initFolderPicker()
   // to the width of the New Clipping popup window.
   $("#new-clipping-fldr-tree-popup").css({ width: `${menuBtnWidth + 1}px` });
   
-  $("#new-folder-btn").attr("title", messenger.i18n.getMessage("btnNewFolder"));
+  let rootFldrID = aeConst.ROOT_FOLDER_ID;
+  let rootFldrName = messenger.i18n.getMessage("rootFldrName");
+  let rootFldrCls = aeFolderPicker.ROOT_FOLDER_CLS;
+  let selectedFldrID = aeConst.ROOT_FOLDER_ID;
 
-  gFolderPickerPopup = new aeFolderPicker("#new-clipping-fldr-tree", gClippingsDB);
+  if (gPrefs.syncClippings) {
+    if (gPrefs.newClippingSyncFldrsOnly) {
+      selectSyncedClippingsFldr();
+      rootFldrID = gPrefs.syncFolderID;
+      rootFldrName = messenger.i18n.getMessage("syncFldrName");
+      rootFldrCls = aeFolderPicker.SYNCED_ROOT_FOLDER_CLS;
+    }
+    else if (gPrefs.cxtMenuSyncItemsOnly) {
+      selectSyncedClippingsFldr();
+      $("#new-clipping-fldr-tree").addClass("show-sync-items-only");
+      selectedFldrID = gPrefs.syncFolderID;
+    }
+  }
+  
+  gFolderPickerPopup = new aeFolderPicker(
+    "#new-clipping-fldr-tree",
+    gClippingsDB,
+    rootFldrID,
+    rootFldrName,
+    rootFldrCls,
+    selectedFldrID
+  );
+
   gFolderPickerPopup.onSelectFolder = selectFolder;
 }
 
@@ -378,7 +459,7 @@ function selectFolder(aFolderData)
   let fldrPickerMenuBtn = $("#new-clipping-fldr-picker-menubtn");
   fldrPickerMenuBtn.text(aFolderData.node.title).val(gParentFolderID);
 
-  if (gParentFolderID == gClippings.getSyncFolderID()) {
+  if (gParentFolderID == gPrefs.syncFolderID) {
     fldrPickerMenuBtn.attr("syncfldr", "true");
   }
   else {
@@ -406,9 +487,9 @@ async function initShortcutKeyMenu()
     }
   });
 
-  let keybPasteKeys = await gClippings.getShortcutKeyPrefixStr();
+  let keybPasteKeys = await messenger.runtime.sendMessage({msgID: "get-shct-key-prefix-ui-str"});
   let tooltip = messenger.i18n.getMessage("shctKeyHintTB", keybPasteKeys);
-  $("#shct-key-tooltip").attr("title", tooltip);
+  $("#shct-key-tooltip-text").attr("title", tooltip);
 }
 
 
@@ -419,7 +500,7 @@ function initLabelPicker()
     let color = label;
 
     if (! label) {
-      color = "var(--color-default-text)";
+      color = "black";
     }
     else if (label == "yellow") {
       color = "rgb(200, 200, 0)";
@@ -447,6 +528,15 @@ function formatRemoveLineBreaks(aClippingText)
 {
   let rv = aClippingText.replace(/([^\n])( )?\n([^\n])/gm, "$1 $3");
   return rv;
+}
+
+
+function unsetClippingsUnchangedFlag()
+{
+  if (gPrefs.clippingsUnchanged) {
+    return aePrefs.setPrefs({ clippingsUnchanged: false });
+  }
+  return Promise.resolve();
 }
 
 
@@ -500,11 +590,13 @@ function accept(aEvent)
         aListener.newClippingCreated(aNewClippingID, newClipping, aeConst.ORIGIN_HOSTAPP);
       });
 
-      if (prefs.syncClippings) {
-        let syncFldrID = gClippings.getSyncFolderID();
+      return unsetClippingsUnchangedFlag();
+
+    }).then(() => {
+      if (gPrefs.syncClippings) {
         aeImportExport.setDatabase(gClippingsDB);
         
-        return aeImportExport.exportToJSON(true, true, syncFldrID, false, true);
+        return aeImportExport.exportToJSON(true, true, gPrefs.syncFolderID, false, true);
       }
       return null;
 
@@ -528,8 +620,8 @@ function accept(aEvent)
         log(aMsgResult);
       }
 
-      if (prefs.clippingsMgrAutoShowDetailsPane && isClippingOptionsSet()) {
-        messenger.storage.local.set({
+      if (gPrefs.clippingsMgrAutoShowDetailsPane && isClippingOptionsSet()) {
+        aePrefs.setPrefs({
           clippingsMgrAutoShowDetailsPane: false,
           clippingsMgrDetailsPane: true,
         });

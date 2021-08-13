@@ -71,39 +71,16 @@ window.aecreations.clippings = function () {
       aeUtils.log(aeString.format("gClippings.initClippings(): Initializing Clippings integration with host app window: %s", window.location.href));
 
       let composerCxtMenu = document.getElementById("msgComposeContext");
-      composerCxtMenu.addEventListener("popupshowing", aEvent => {
-	this.initContextMenuItem.apply(this, [aEvent]);
+      composerCxtMenu.addEventListener("popupshowing", async (aEvent) => {
+	let prefs = await this.getMxListener().prefsRequested();
+	this.initContextMenuItem.apply(this, [aEvent, prefs]);
       });
-
-      let prefs = this.getMxListener().prefsRequested();
-      
-      // Enable/disable Clippings paste using the keyboard.
-      let keyEnabled = prefs.keyboardPaste;
-      let keyset = document.getElementById("tasksKeys");
-      let keyElt = document.getElementById("key_ae_clippings");
-      let keyEltMac = document.getElementById("key_ae_clippings_mac");
-      let keyEltNew = document.getElementById("key_ae_clippings_new");
-      let keyEltNewMac = document.getElementById("key_ae_clippings_new_mac");
-
-      if (!keyEnabled && keyElt) {     
-	keyset.removeChild(keyElt);
-	keyset.removeChild(keyEltMac);
-	keyset.removeChild(keyEltNew);
-	keyset.removeChild(keyEltNewMac);
-      }
-      else {
-	let newKeysEnabled = prefs.wxPastePrefixKey;
-	if (! newKeysEnabled) {
-	  keyset.removeChild(keyEltNew);
-	  keyset.removeChild(keyEltNewMac);
-	}
-      }
 
       _isInitialized = true;
     },
 
 
-    initContextMenuItem: function (aEvent)
+    async initContextMenuItem(aEvent, aPrefs)
     {
       if (aEvent.target.id != "msgComposeContext") {
 	return;
@@ -111,10 +88,9 @@ window.aecreations.clippings = function () {
 
       let that = this;
       let mxListener = this.getMxListener();
-      let prefs = mxListener.prefsRequested();
       let clippingsMenu = document.getElementById("ae-clippings-menu-1");
       
-      mxListener.clippingsMenuDataRequested(that._getMnuRootFldrID(prefs)).then(aCxtMenuData => {
+      mxListener.clippingsMenuDataRequested(that._getMnuRootFldrID(aPrefs)).then(aCxtMenuData => {
 	_menu.data = aCxtMenuData;
 	_menu.rebuild();
 
@@ -138,9 +114,7 @@ window.aecreations.clippings = function () {
       const ROOT_FOLDER_ID = 0;
       
       let rv;
-      let prefs = aPrefs || this.getMxListener().prefsRequested();
-
-      rv = prefs.cxtMenuSyncItemsOnly ? prefs.syncFolderID : ROOT_FOLDER_ID;
+      rv = aPrefs.cxtMenuSyncItemsOnly ? aPrefs.syncFolderID : ROOT_FOLDER_ID;
 
       return rv;
     },
@@ -258,7 +232,7 @@ window.aecreations.clippings = function () {
     async initClippingsPopup(aPopup, aMenu) 
     {
       let mxListener = this.getMxListener();
-      let prefs = mxListener.prefsRequested();
+      let prefs = await mxListener.prefsRequested();
       let cxtMenuData = await mxListener.clippingsMenuDataRequested(this._getMnuRootFldrID(prefs));
       
       _menu = aeClippingsMenu.createInstance(aPopup, cxtMenuData);
@@ -283,7 +257,7 @@ window.aecreations.clippings = function () {
 
       let mxListener = this.getMxListener();
       let clipping = await mxListener.clippingRequested(aID);
-      let prefs = mxListener.prefsRequested();
+      let prefs = await mxListener.prefsRequested();
 
       var clippingInfo = aeClippingSubst.getClippingInfo(
 	aID, clipping.name, clipping.text, clipping.parentFolderName
@@ -324,22 +298,8 @@ window.aecreations.clippings = function () {
 	if (hasHTMLTags) {
           var pasteAsRichText;
           if (! hasRestrictedHTMLTags) {
-            var showHTMLPasteOpts = prefs.htmlPaste;
-	    
-            if (showHTMLPasteOpts == aeConstants.HTMLPASTE_ASK_THE_USER) {
-              var dlgArgs = { userCancel: null, pasteAsRichText: null };
-              window.openDialog("chrome://clippings/content/htmlClipping.xhtml", "htmlClipping_dlg", "chrome,modal,centerscreen", dlgArgs, _ext);
-	      
-              if (dlgArgs.userCancel) {
-		return;
-              }
-              pasteAsRichText = dlgArgs.pasteAsRichText;
-            }
-            else {
-              pasteAsRichText = showHTMLPasteOpts == aeConstants.HTMLPASTE_AS_HTML;
-            }
+	    pasteAsRichText = prefs.htmlPaste == aeConstants.HTMLPASTE_AS_HTML;
           }
-          var plainTextClipping = clippingText;
 	  
           if (!pasteAsRichText || hasRestrictedHTMLTags) {
             clippingText = clippingText.replace(/&/g, "&amp;");
@@ -388,21 +348,6 @@ window.aecreations.clippings = function () {
     },
 
 
-    _pasteClipping: function (aClippings)
-    {
-      try {
-	// Paste clipping.  The following function is defined in
-	// "chrome://global/content/globalOverlay.js"
-	goDoCommand('cmd_paste');
-	// SIDE EFFECT: The clipping text will remain on the system clipboard.
-      }
-      catch (e) {
-	// Exception thrown if command is disabled or not applicable
-	aClippings.aeUtils.beep();
-      }
-    },
-
-
     async keyboardInsertClipping(aEvent)
     {
       function sortKeyMap(aKeyMap)
@@ -419,6 +364,13 @@ window.aecreations.clippings = function () {
 	}
 
 	return rv;
+      }
+      // END nested function
+
+      let mxListener = this.getMxListener();
+      let prefs = await mxListener.prefsRequested();
+      if (! (prefs.keyboardPaste && prefs.wxPastePrefixKey)) {
+	return;
       }
       
       _menu.rebuild();
@@ -437,28 +389,20 @@ window.aecreations.clippings = function () {
 	userCancel: null
       };
 
-      let mxListener = this.getMxListener();
       let unsortedKeyMap = await mxListener.shortcutKeyMapRequested();
       let keyMap = sortKeyMap(unsortedKeyMap);
 
       dlgArgs.keyMap = keyMap;
       dlgArgs.keyCount = keyMap.size;
       dlgArgs.srchData = await mxListener.clippingSearchDataRequested();
-
-      let prefs = mxListener.prefsRequested();
       
       // Remember the last mode (shortcut key or search clipping by name).
       dlgArgs.action = prefs.pastePromptAction;
 
       do {
 	if (dlgArgs.action == dlgArgs.SHORTCUT_KEY_HELP) {
-	  dlgArgs.printToExtBrowser = true;
-	  dlgArgs.showInsertClippingCmd = true;
-
-          window.openDialog("chrome://clippings/content/shortcutHelp.xhtml",
-			    "clipkey_help", "centerscreen,resizable", dlgArgs, _ext);
-
 	  await mxListener.prefsChanged({ pastePromptAction: dlgArgs.ACTION_SHORTCUT_KEY });
+	  mxListener.shortcutListWndOpened();
           return;
 	}
 	else if (dlgArgs.action == dlgArgs.ACTION_SHORTCUT_KEY) {

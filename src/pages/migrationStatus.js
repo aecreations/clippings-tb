@@ -16,11 +16,14 @@ $(async () => {
     throw new Error("Clippings/mx::migrationStatus.js: Failed to retrieve parent application window!");
   }
 
-  document.body.dataset.os = gClippings.getOS();
+  let platform = await messenger.runtime.getPlatformInfo();
+  document.body.dataset.os = platform.os;
 
-  let prefs = await messenger.storage.local.get("legacyDataMigrnSuccess");
+  let prefs = await aePrefs.getAllPrefs();
+  document.body.dataset.laf = prefs.enhancedLaF;
 
-  if (prefs.legacyDataMigrnSuccess) {
+  let legacyDataMigrnSuccess = prefs.legacyDataMigrnSuccess;
+  if (legacyDataMigrnSuccess) {
     $("#content-migrn-success-deck").show();
   }
   else {

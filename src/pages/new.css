@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url("../lib/fancytree/skin-win8/ui.fancytree.min.css");
-@import url("../lib/jquery-ui/jquery-ui.min.css");
 @import url("../style/dialog.css");
 @import url("../style/lightbox.css");
 @import url("../style/tooltip.css");
@@ -66,6 +65,10 @@ input[type="text"], textarea {
 
 textarea {
     resize: none;
+}
+
+body[data-laf="true"][data-os="mac"] select.browser-style {
+    height: 22px;
 }
 
 input[type="checkbox"] + label {
@@ -201,6 +204,14 @@ ul.fancytree-container {
     margin-left: 26px;
 }
 
+body[data-locale="de"] #clipping-options {
+    letter-spacing: -0.16px;
+}
+
+body[data-locale|="pt"] #clipping-options {
+    letter-spacing: -0.25px;
+}
+
 #btn-expand-options {
     position: relative;
     top: -24px;
@@ -312,8 +323,8 @@ ul.fancytree-container {
 
 #create-clipping-error-msgbox .msgbox-error-icon {
     float: left;
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
     margin-top: 0;
     margin-right: 12px;
     background-image: url("../img/warning-64.png");
@@ -321,7 +332,7 @@ ul.fancytree-container {
 }
 
 #create-clipping-error-msgbox .msgbox-error-icon[os="mac"] {
-    background-image: url("chrome://global/skin/icons/warning-64.png");
+    background-image: url("../img/warning-64-mac.png");
 }
 
 #create-clipping-error-msgbox .msgbox-error-msg {

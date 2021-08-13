@@ -28,7 +28,7 @@
 
         <div class="row browser-style" style="margin-top:8px">
 	  <input type="checkbox" id="backup-reminder"/><label for="backup-reminder" data-i18n="backupRemind"></label>
-	  <select id="backup-reminder-freq">
+	  <select id="backup-reminder-freq" class="browser-style">
 	    <option value="1" data-i18n="backupRemFreqDaily"></option>
 	    <option value="5" data-i18n="backupRemFreqTwoDays"></option>
 	    <option value="6" data-i18n="backupRemFreqThreeDays"></option>
@@ -49,11 +49,22 @@
       </div>
     </div>
 
+    <!-- Dialog boxes -->
+    <div id="lightbox-bkgrd-ovl" class="lightbox-bkgrd"></div>
+    <div id="backup-confirm-msgbox" class="lightbox">
+      <div class="msgbox-info-icon"></div>
+      <p class="msgbox-content"></p>
+      <div class="dlg-btns">
+	<button class="dlg-accept default" data-i18n="btnOK"></button>
+      </div>
+    </div>
+
     <script src="../lib/jquery.js"></script>
+    <script src="../legacy/chrome/content/lib/moment.min.js"></script>
     <script src="../scripts/aeConst.js"></script>
     <script src="../scripts/aeDialog.js"></script>
-    <script src="../scripts/aeImportExport.js"></script>
     <script src="../scripts/aeI18n.js"></script>
+    <script src="../scripts/aePrefs.js"></script>
     <script src="backup.js"></script>
       
   </body>

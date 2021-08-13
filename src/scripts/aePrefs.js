@@ -33,6 +33,15 @@ let aePrefs = function () {
     showLegacyDataMigrnStatus: null,
     clippingsMgrCleanUpIntv: aeConst.CLIPPINGSMGR_CLEANUP_INTERVAL_MS,
     clippingsMgrAutoSaveIntv: aeConst.CLIPPINGSMGR_AUTOSAVE_INTERVAL_MS,
+    skipBackupRemIfUnchg: true,
+    clippingsUnchanged: false,
+    clippingsMgrSaveWndGeom: false,
+    clippingsMgrSaveWndGeomIntv: 2000,
+    clippingsMgrWndGeom: null,
+    clippingsMgrTreeWidth: null,
+    autoAdjustWndPos: null,
+    enhancedLaF: true,
+    upgradeNotifCount: 0,
   };
 
   return {
@@ -44,6 +53,78 @@ let aePrefs = function () {
     getPrefKeys()
     {
       return Object.keys(_defaultPrefs);
-    }
+    },
+
+    async getPref(aPrefName)
+    {
+      let pref = await messenger.storage.local.get(aPrefName);
+      let rv = pref[aPrefName];
+      
+      return rv;
+    },
+
+    async getAllPrefs()
+    {
+      let rv = await messenger.storage.local.get(this.getPrefKeys());
+      return rv;
+    },
+
+    async setPrefs(aPrefMap)
+    {
+      await messenger.storage.local.set(aPrefMap);
+    },
+
+
+    //
+    // Version upgrade handling
+    //
+
+    hasSantaBarbaraPrefs(aPrefs)
+    {
+      // Version 6.0
+      return aPrefs.hasOwnProperty("htmlPaste");
+    },
+    
+    hasCarpinteriaPrefs(aPrefs)
+    {
+      // Version 6.1
+      return aPrefs.hasOwnProperty("skipBackupRemIfUnchg");
+    },
+
+    async setCarpinteriaPrefs(aPrefs)
+    {
+      let newPrefs = {
+        skipBackupRemIfUnchg: true,
+        clippingsUnchanged: false,
+        clippingsMgrSaveWndGeom: false,
+        clippingsMgrSaveWndGeomIntv: 2000,
+        clippingsMgrWndGeom: null,
+        clippingsMgrTreeWidth: null,
+        autoAdjustWndPos: null,
+        enhancedLaF: true,
+        upgradeNotifCount: 0,
+      };
+
+      let platform = await messenger.runtime.getPlatformInfo();
+      if (platform.os != "linux") {
+        // Fix incorrect default value of pref.
+        newPrefs.clippingsMgrMinzWhenInactv = null;
+      }
+
+      await this._addPrefs(aPrefs, newPrefs);
+    },
+
+    
+    //
+    // Helper methods
+    //
+    
+    async _addPrefs(aCurrPrefs, aNewPrefs)
+    {
+      for (let pref in aNewPrefs) {
+        aCurrPrefs[pref] = aNewPrefs[pref];
+      }
+      await this.setPrefs(aNewPrefs);
+    },
   };
 }();

@@ -4,7 +4,6 @@
 
 @import url("../lib/fancytree/skin-win8/ui.fancytree.min.css");
 @import url("../lib/contextMenu/jquery.contextMenu.css");
-@import url("../lib/jquery-ui/jquery-ui.min.css");
 @import url("../style/laf.css");
 @import url("../style/lightbox.css");
 @import url("../style/tooltip.css");
@@ -199,7 +198,9 @@ input[type="search"] {
     height: 24px;
 }
 
-select {
+select[size] {
+    background-color: var(--color-listbox-bkgd);
+    color: var(--color-default-text);
     font: caption;
 }
 
@@ -888,6 +889,7 @@ ul.fancytree-container {
 #options-bar > #shortcut-key-select {
     order: 1;
     flex: 0 1 auto;
+    margin-top: 3px;
 }
 
 #options-bar > #shortcut-key-select > #clipping-key {
@@ -967,10 +969,18 @@ ul.fancytree-container {
 .lightbox .msgbox-icon,
 .lightbox .msgbox-info-icon {
     float: left;
-    width: 32px;
-    height: 32px;
     margin-top: 0;
     margin-right: 12px;
+}
+
+.lightbox .msgbox-icon {
+    width: 34px;
+    height: 34px;   
+}
+
+.lightbox .msgbox-info-icon {
+    width: 32px;
+    height: 32px;
 }
 
 .lightbox .msgbox-icon {
@@ -984,7 +994,7 @@ ul.fancytree-container {
 }
 
 .lightbox .msgbox-icon[os="mac"] {
-    background-image: url("chrome://global/skin/icons/warning-64.png");
+    background-image: url("../img/warning-64-mac.png");
 }
 
 .lightbox input[type="text"] {
@@ -1081,6 +1091,19 @@ ul.fancytree-container {
     top: 18px;
 }
 
+body[data-locale="nl"] #shortcut-list-dlg #shortcut-instrxns {
+    letter-spacing: -0.38px;
+}
+
+body[data-locale="fr"] #shortcut-list-dlg #shortcut-instrxns {
+    letter-spacing: -0.16px;
+}
+
+body[data-locale="de"] #shortcut-list-dlg #shortcut-instrxns {
+    letter-spacing: -0.32px;
+}
+
+
 #shortcut-list-dlg > .dlg-btns {
     width: 100%;
 }
@@ -1165,9 +1188,13 @@ ul.fancytree-container {
 }
 
 #import-dlg {
-    --width: 398px;
+    --width: 408px;
     --height: 206px;
     top: 40px;
+}
+
+body[data-locale="de"] #import-dlg {
+    width: 450px;
 }
 
 #import-dlg #import-clippings-filepicker {
@@ -1179,17 +1206,23 @@ ul.fancytree-container {
 #import-dlg #import-clippings-file-path {
     order: 1;
     flex: 1 1 auto;
-
-    margin-right: 2px;
+    margin-right: 4px;
+    background-color: transparent;
 }
 
-#import-dlg #import-clippings-file-path,
-#import-dlg #import-clippings-file-path:hover {
-    border-bottom: 1px dotted #b1b1b1;
-    border-top: 1px solid transparent;
-    border-right: 1px solid transparent;
-    border-left: 1px solid transparent;
-    background: transparent;
+#import-dlg #import-clippings-file-path:placeholder-shown {
+    border: none;
+    background-image: url("../img/tbd-edge-l.svg"), url("../img/tbd-bg.svg"), url("../img/tbd-edge-r.svg");
+    background-position: left, center, right;
+    background-repeat: no-repeat, repeat-x, no-repeat;
+    opacity: 1;
+}
+
+#import-dlg #import-clippings-file-path {
+    border: none;
+    background-image: url("../img/tbd-edge-l.svg"), url("../img/tbd-bg-bot.svg"), url("../img/tbd-edge-r.svg");
+    background-position: left, center, right;
+    background-repeat: no-repeat, repeat-x, no-repeat;
 }
 
 #import-dlg #import-clippings-file-upload-btn {
@@ -1238,7 +1271,7 @@ ul.fancytree-container {
 }
 
 #import-dlg #restore-backup-warning > .warning-icon[os="mac"] {
-    background-image: url("chrome://global/skin/icons/warning-64.png");
+    background-image: url("../img/warning-64-mac.png");
 }
 
 #import-dlg #restore-backup-warning > p {
@@ -1248,6 +1281,10 @@ ul.fancytree-container {
     border-radius: 4px;
     background-color: #fbfb77;
     color: black;
+}
+
+body[data-locale="de"] #import-dlg #restore-backup-warning > p {
+    letter-spacing: -0.30px;
 }
 
 #import-dlg progress {
@@ -1280,6 +1317,10 @@ ul.fancytree-container {
     display: block;
 }
 
+body[data-locale="de"] #export-dlg #export-format-list-label {
+    letter-spacing: -0.64px;
+}
+
 #export-dlg fieldset {
     margin-top: 6px;
     margin-bottom: 12px;
@@ -1301,7 +1342,8 @@ ul.fancytree-container {
 
 #import-confirm-msgbox > .msgbox-icon,
 #export-confirm-msgbox > .msgbox-icon,
-#backup-confirm-msgbox > .msgbox-icon {
+#backup-confirm-msgbox > .msgbox-icon,
+#reload-sync-fldr-msgbox > .msgbox-icon {
     margin-top: 8px;
 }
 
@@ -1323,8 +1365,8 @@ ul.fancytree-container {
 
 #move-dlg {
     --width: 342px;
-    --height: 282px;
-    top: 32px;
+    --height: 304px;
+    top: 24px;
 }
 
 #move-dlg #move-to-fldr-tree {
@@ -1334,7 +1376,7 @@ ul.fancytree-container {
 }
 
 #move-dlg #move-to-fldr-tree > .fancytree-container {
-    height: 154px;
+    height: 174px;
     overflow: auto;
 }
 
@@ -1360,8 +1402,18 @@ ul.fancytree-container {
 
 #mini-help-dlg {
     --width: 454px;
-    --height: 320px;
-    top: 14px;
+    --height: 352px;
+    top: 8px;
+}
+
+body[data-os="mac"] #mini-help-dlg {
+    height: 340px;
+    top: 18px;
+}
+
+body[data-locale="de"] #mini-help-dlg {
+    height: 368px;
+    top: 2px;
 }
 
 #shortcut-list-dlg .hlp-hdr,
@@ -1371,8 +1423,16 @@ ul.fancytree-container {
     font-weight: bold;
 }
 
+body[data-locale="fr"] #mini-help-dlg #mini-help-intro {
+    letter-spacing: -0.14px;
+}
+
 #show-only-synced-items-reminder {
     --height: 150px;
+}
+
+body[data-locale="de"] #show-only-synced-items-reminder {
+    height: 164px;
 }
 
 #show-only-synced-items-reminder > .dlg-content > .msgbox-info-icon {

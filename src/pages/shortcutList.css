@@ -1,0 +1,211 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("../style/dialog.css");
+
+
+:root {
+    --toolbar-height: 30px;
+    --col-hdr-height: 20px;
+
+    --color-main-toolbar-bkgd: linear-gradient(to bottom, #d7d7db 0%, #fcfcfc 100%);
+    --color-main-toolbar-text: #0c0c0d;
+    --color-toolbarbtn-hover-bkgd: rgba(12, 12, 13, 0.2);
+    --color-toolbarbtn-active-bkgd: rgba(12, 12, 13, 0.3);
+    --color-toolbarbtn-close-bkgd: transparent;
+    --color-toolbarbtn-close-border: #b1b1b1;
+    --color-toolbarbtn-close-hover-bkgd: rgba(12, 12, 13, 0.1);
+    --color-toolbarbtn-close-active-bkgd: rgba(12, 12, 13, 0.2);
+    --color-th-bkgd: #eee;
+    --color-th-border: #d4d4d4;
+    --color-selected-row: #cbe8f6;
+    --color-active-row: #eff9fe;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+	--color-main-toolbar-bkgd: #38383d;
+	--color-main-toolbar-text: #f9f9fa;
+	--color-toolbarbtn-hover-bkgd: #737373;
+	--color-toolbarbtn-active-bkgd: #b1b1b3;
+	--color-toolbarbtn-close-bkgd: transparent;
+	--color-toolbarbtn-close-border: #737373;
+	--color-toolbarbtn-close-hover-bkgd: #737373;
+	--color-toolbarbtn-close-active-bkgd: #b1b1b3;
+	--color-th-bkgd: #4a4a4f;
+	--color-th-border: #737373;
+	--color-selected-row: #0a84ff;
+	--color-active-row: #003eaa;
+    }
+}
+
+
+body {
+    overflow: hidden;
+}
+
+.toolbar-button {
+    flex: 0 1 auto;
+    align-self: stretch;
+    min-width: 30px;
+    min-height: 24px;
+    margin-left: 0;
+    margin-right: 0;
+    border: 1px solid transparent;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: transparent;
+    color: var(--color-default-text);
+    font: caption;
+    font-size: 11px !important;
+}
+
+.toolbar-button:hover {
+    border: 1px solid transparent;
+    border-radius: 2px;
+    background-color: var(--color-toolbarbtn-hover-bkgd);
+}
+
+.toolbar-button:active {
+    border: 1px solid transparent !important;
+    border-radius: 2px;
+    background-color: var(--color-toolbarbtn-active-bkgd);
+}
+
+.toolbar-button-labelled {
+    background-position: 4px;
+    padding-left: 24px;
+    padding-right: 6px;
+}
+
+.toolbar-button-labelled:active {
+    background-position: 4px;
+    padding-left: 24px;
+    padding-right: 6px;
+}
+
+#shortcut-list #shortcut-list-toolbar {
+    margin: -16px -16px 0 -16px;
+    height: var(--toolbar-height);
+    padding-left: 2px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    background: var(--color-main-toolbar-bkgd);
+    color: var(--color-main-toolbar-text);
+    border-bottom: 1px solid silver;
+}
+
+#shortcut-list #shortcut-list-toolbar button {
+    color: var(--color-main-toolbar-text);
+}
+
+#shortcut-list-toolbar #paste-clipping {
+    order: 1;
+    background-image: url("../img/clipping.svg");
+}
+
+#shortcut-list-toolbar #export-shct-list {
+    order: 2;
+    background-image: url("../img/export.svg");
+}
+
+#shortcut-list-toolbar #export-shct-list:hover {
+    background-image: url("../img/export_hover.svg");
+}
+
+#shortcut-list-toolbar #close {
+    order: 3;
+
+    margin-left: 8px;
+    min-width: 30px;
+    min-height: 24px;
+    border: 1px solid var(--color-toolbarbtn-close-border);
+    border-radius: 3px;
+    background-color: var(--color-toolbarbtn-close-bkgd);
+    font-size: 11px !important;
+}
+
+#shortcut-list-toolbar #close:hover {
+    background-color: var(--color-toolbarbtn-close-hover-bkgd);
+}
+
+#shortcut-list-toolbar #close:active {
+    background-color: var(--color-toolbarbtn-close-active-bkgd);
+}
+
+#shortcut-list-content {
+    margin-left: -16px;
+    margin-right: -16px;
+    height: calc(100% - var(--toolbar-height));
+}
+
+#shortcut-list-content table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    font-size: 12px;
+}
+
+#shortcut-list-content table > thead {
+    display: block;
+    height: var(--col-hdr-height);
+    color: var(--color-default-text);
+}
+
+#shortcut-list-content table > thead > tr {
+    background-color: var(--color-th-bkgd);
+}
+
+#shortcut-list-content table > thead > tr > th {
+    padding: 2px 4px 2px 4px;
+    border-bottom: 1px solid var(--color-th-border);
+    font-weight: normal;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 90px;
+}
+
+#shortcut-list-content table > thead > tr > th:nth-child(1) {
+    border-right: 1px solid var(--color-th-border);
+}
+
+#shortcut-list-content table > tbody {
+    display: block;
+    height: 200px;
+    margin-top: 1px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+#shortcut-list-content table > tbody > tr {
+    height: 22px;
+}
+
+#shortcut-list-content table > tbody > tr > td {
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+#shortcut-list-content table > tbody > tr:active {
+    background-color: var(--color-active-row);
+}
+
+#shortcut-list-content table > tbody > tr.selected-row {
+    background-color: var(--color-selected-row);
+}
+
+#shortcut-list-content table th:nth-child(1),
+#shortcut-list-content table td:nth-child(1) {
+    min-width: 92px;
+}
+
+#shortcut-list-content table th:nth-child(2),
+#shortcut-list-content table td:nth-child(2) {
+    width: 100%;
+    max-width: 100px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

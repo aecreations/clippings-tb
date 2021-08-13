@@ -17,7 +17,6 @@ let gBackupRemIntervalID = null;
 let gIsReloadingSyncFldr = false;
 let gSyncClippingsHelperDwnldPgURL;
 let gForceShowFirstTimeBkupNotif = false;
-let gClippingsMgrRootFldrReseq = false;
 let gMigrateLegacyData = false;
 let gClippingsMgrCleanUpIntvID = null;
 
@@ -154,7 +153,7 @@ let gSyncClippingsListener = {
   {
     function resetCxtMenuSyncItemsOnlyOpt(aRebuildCxtMenu) {
       if (gPrefs.cxtMenuSyncItemsOnly) {
-        messenger.storage.local.set({ cxtMenuSyncItemsOnly: false });
+        aePrefs.setPrefs({ cxtMenuSyncItemsOnly: false });
       }
       if (aRebuildCxtMenu) {
         rebuildContextMenu();
@@ -237,12 +236,23 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
     let currVer = messenger.runtime.getManifest().version;
     log(`Clippings/mx: Upgrading from version ${oldVer} to ${currVer}`);
 
-    gPrefs = await messenger.storage.local.get(aePrefs.getPrefKeys());
+    gPrefs = await aePrefs.getAllPrefs();
 
-    if (! hasSantaBarbaraPrefs()) {
+    if (! aePrefs.hasSantaBarbaraPrefs(gPrefs)) {
       await setDefaultPrefs();
       await migrateLegacyPrefs();
       gMigrateLegacyData = true;
+    }
+
+    if (! aePrefs.hasCarpinteriaPrefs(gPrefs)) {
+      log("Initializing 6.1 user preferences.");
+      await aePrefs.setCarpinteriaPrefs(gPrefs);
+
+      // Enable post-upgrade notifications which users can click on to open the
+      // What's New page.
+      await aePrefs.setPrefs({
+        upgradeNotifCount: aeConst.MAX_NUM_POST_UPGRADE_NOTIFICNS
+      });
     }
 
     init();
@@ -253,7 +263,7 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
 messenger.runtime.onStartup.addListener(async () => {
   log("Clippings/mx: Initializing Clippings during browser startup.");
   
-  gPrefs = await messenger.storage.local.get(aePrefs.getPrefKeys());
+  gPrefs = await aePrefs.getAllPrefs();
   log("Clippings/mx: Successfully retrieved user preferences:");
   log(gPrefs);
 
@@ -266,14 +276,7 @@ async function setDefaultPrefs()
   let defaultPrefs = aePrefs.getDefaultPrefs();
 
   gPrefs = defaultPrefs;
-  await messenger.storage.local.set(defaultPrefs);
-}
-
-
-function hasSantaBarbaraPrefs()
-{
-  // Version 6.0
-  return gPrefs.hasOwnProperty("htmlPaste");
+  await aePrefs.setPrefs(defaultPrefs);
 }
 
 
@@ -317,7 +320,7 @@ async function migrateLegacyPrefs()
     htmlPaste = aeConst.HTMLPASTE_AS_FORMATTED;
   }
   
-  messenger.storage.local.set({
+  aePrefs.setPrefs({
     htmlPaste, autoLineBreak, keyboardPaste, wxPastePrefixKey, pastePromptAction,
     checkSpelling, clippingsMgrDetailsPane, clippingsMgrPlchldrToolbar,
     clippingsMgrStatusBar
@@ -379,7 +382,7 @@ async function init()
     }
     catch (e) {
       console.error("Clippings/mx: migrateClippingsData(): Failed to verify IndexedDB database - cannot migrate legacy Clippings data.");
-      await messenger.storage.local.set({
+      await aePrefs.setPrefs({
         legacyDataMigrnSuccess: false,
         showLegacyDataMigrnStatus: true,
       });
@@ -400,13 +403,39 @@ async function init()
     gHostAppVer = msgr.version;
     log(`Clippings/mx: Host app: ${gHostAppName} (version ${gHostAppVer})`);
 
+    await checkHostAppVer();
+
     gOS = platform.os;
     log("Clippings/mx: OS: " + gOS);
 
-    if (gPrefs.clippingsMgrMinzWhenInactv === null) {
-      gPrefs.clippingsMgrMinzWhenInactv = (gOS == "linux");
+    if (gOS == "linux" && gPrefs.clippingsMgrMinzWhenInactv === null) {
+      await aePrefs.setPrefs({ clippingsMgrMinzWhenInactv: true });
     }
 
+    if (gPrefs.autoAdjustWndPos === null) {
+      let autoAdjustWndPos = gOS == "win";
+      let clippingsMgrSaveWndGeom = autoAdjustWndPos;
+      await aePrefs.setPrefs({ autoAdjustWndPos, clippingsMgrSaveWndGeom });
+    }
+
+    // Use enhanced look and feel UI on Thunderbird 89 and newer. Check for
+    // Thunderbird version at every startup in case it was updated.
+    let enhancedLaF = versionCompare(gHostAppVer, "89.0") >= 0;
+    if (gPrefs.enhancedLaF != enhancedLaF) {
+      await aePrefs.setPrefs({ enhancedLaF });
+    }
+
+    let extVer = messenger.runtime.getManifest().version;
+    
+    aeImportExport.setL10nStrings({
+      shctTitle: messenger.i18n.getMessage("expHTMLTitle"),
+      hostAppInfo: messenger.i18n.getMessage("expHTMLHostAppInfo", [extVer, gHostAppName]),
+      shctKeyInstrxns: messenger.i18n.getMessage("expHTMLShctKeyInstrxnTB"),
+      shctKeyCustNote: "",
+      shctKeyColHdr: messenger.i18n.getMessage("expHTMLShctKeyCol"),
+      clippingNameColHdr: messenger.i18n.getMessage("expHTMLClipNameCol"),
+    });
+    
     gClippingsListener.origin = aeConst.ORIGIN_HOSTAPP;
     gClippingsListeners.add(gClippingsListener);
     gSyncClippingsListeners.add(gSyncClippingsListener);
@@ -420,8 +449,15 @@ async function init()
     }
     
     if (gPrefs.backupRemFirstRun && !gPrefs.lastBackupRemDate) {
-      messenger.storage.local.set({
+      aePrefs.setPrefs({
         lastBackupRemDate: new Date().toString(),
+      });
+    }
+
+    if (gPrefs.upgradeNotifCount > 0) {
+      // Show post-upgrade notification in 1 minute.
+      messenger.alarms.create("show-upgrade-notifcn", {
+        delayInMinutes: aeConst.POST_UPGRADE_NOTIFCN_DELAY_MS / 60000
       });
     }
 
@@ -497,10 +533,33 @@ async function migrateClippingsData()
   log("Clippings/mx: migrateClippingsData(): Migrating clippings from legacy data source");    
   aeImportExport.importFromJSON(clippingsJSONData, true, false);
 
-  await messenger.storage.local.set({
+  await aePrefs.setPrefs({
     legacyDataMigrnSuccess: true,
     showLegacyDataMigrnStatus: true,
   });
+}
+
+
+async function checkHostAppVer()
+{
+  let extInfo = messenger.runtime.getManifest();
+  let maxHostAppVer = extInfo.browser_specific_settings.gecko.strict_max_version;
+
+  if (! maxHostAppVer) {
+    return;
+  }
+
+  log(`Clippings/mx: checkHostAppVer(): Checking compatibility with Thunderbird. Maximum compatible version: ${maxHostAppVer}`);
+
+  if (maxHostAppVer[maxHostAppVer.length - 1] == "*") {
+    maxHostAppVer = maxHostAppVer.substring(0, maxHostAppVer.lastIndexOf(".")) + ".999";
+  }
+
+  if (versionCompare(gHostAppVer, maxHostAppVer) > 0) {
+    // Thunderbird version exceeds strict max supported version
+    // - disable Clippings.
+    await messenger.management.setEnabled(aeConst.EXTENSION_ID, false);
+  }
 }
 
 
@@ -550,7 +609,7 @@ async function enableSyncClippings(aIsEnabled)
         console.error("Clippings/mx: enableSyncClippings(): Failed to create the Synced Clipping folder: " + e);
       }
 
-      await messenger.storage.local.set({ syncFolderID: gSyncFldrID });
+      await aePrefs.setPrefs({ syncFolderID: gSyncFldrID });
       log("Clippings/mx: enableSyncClippings(): Synced Clippings folder ID: " + gSyncFldrID);
       return gSyncFldrID;
     }
@@ -560,7 +619,7 @@ async function enableSyncClippings(aIsEnabled)
     let oldSyncFldrID = gSyncFldrID;
 
     let numUpd = await gClippingsDB.folders.update(gSyncFldrID, { isSync: undefined });
-    await messenger.storage.local.set({ syncFolderID: null });
+    await aePrefs.setPrefs({ syncFolderID: null });
     gSyncFldrID = null;
     return oldSyncFldrID;
   }
@@ -604,7 +663,7 @@ function refreshSyncedClippings(aRebuildClippingsMenu)
     if (gSyncFldrID === null) {
       gSyncFldrID = aSyncFldrID;
       log("Clippings/mx: Synced Clippings folder ID: " + gSyncFldrID);
-      return messenger.storage.local.set({ syncFolderID: gSyncFldrID });
+      return aePrefs.setPrefs({ syncFolderID: gSyncFldrID });
     }
       
     gSyncClippingsListeners.getListeners().forEach(aListener => { aListener.onReloadStart() });
@@ -692,13 +751,11 @@ async function purgeFolderItems(aFolderID, aKeepFolder)
 async function getShortcutKeyPrefixStr()
 {
   let rv = "";
-  let os = getOS();
-
   let keyAlt   = messenger.i18n.getMessage("keyAlt");
   let keyShift = messenger.i18n.getMessage("keyShift");
   let shctModeKeys = `${keyAlt}+${keyShift}+Y`;
 
-  if (os == "mac") {
+  if (gOS == "mac") {
     let keyOption = messenger.i18n.getMessage("keyOption");
     let keyCmd = messenger.i18n.getMessage("keyCommand");
     shctModeKeys = `${keyOption}${keyCmd}V`;
@@ -897,7 +954,7 @@ async function showBackupNotification()
         iconUrl: "img/icon.svg",
       });
 
-      await messenger.storage.local.set({
+      await aePrefs.setPrefs({
         backupRemFirstRun: false,
         backupRemFrequency: aeConst.BACKUP_REMIND_WEEKLY,
         lastBackupRemDate: new Date().toString(),
@@ -922,7 +979,7 @@ async function showBackupNotification()
       clearBackupNotificationInterval();
       setBackupNotificationInterval();
 
-      await messenger.storage.local.set({
+      await aePrefs.setPrefs({
         lastBackupRemDate: new Date().toString(),
       });
     }
@@ -947,6 +1004,21 @@ function clearBackupNotificationInterval()
     window.clearInterval(gBackupRemIntervalID);
     gBackupRemIntervalID = null;
   }
+}
+
+
+async function showWhatsNewNotification()
+{
+  let extName = messenger.i18n.getMessage("extNameTB");
+  await messenger.notifications.create(aeConst.NOTIFY_WHATS_NEW, {
+    type: "basic",
+    title: extName,
+    message: messenger.i18n.getMessage("upgradeNotifcn", extName),
+    iconUrl: "img/icon.svg",
+  });
+
+  let upgradeNotifCount = gPrefs.upgradeNotifCount - 1;
+  aePrefs.setPrefs({upgradeNotifCount});
 }
 
 
@@ -995,7 +1067,7 @@ function showSyncHelperUpdateNotification()
       }
 
     }).then(aNotifID => {
-      messenger.storage.local.set({ lastSyncHelperUpdChkDate: new Date().toString() });
+      aePrefs.setPrefs({ lastSyncHelperUpdChkDate: new Date().toString() });
       
     }).catch(aErr => {
       console.error("Clippings/mx: showSyncHelperUpdateNotification(): Unable to check for updates to the Sync Clippings Helper app at this time.\n" + aErr);
@@ -1027,6 +1099,17 @@ function createClippingNameFromText(aText)
 }
 
 
+function getClippingsBackupData()
+{
+  let excludeSyncFldrID = null;
+  if (gPrefs.syncClippings) {
+    excludeSyncFldrID = gPrefs.syncFolderID;
+  }
+
+  return aeImportExport.exportToJSON(false, false, aeConst.ROOT_FOLDER_ID, excludeSyncFldrID, true);
+}
+
+
 async function openClippingsManager(aBackupMode)
 {
   let clippingsMgrURL = messenger.runtime.getURL("pages/clippingsMgr.html");
@@ -1040,15 +1123,45 @@ async function openClippingsManager(aBackupMode)
   
   async function openClippingsMgrHelper()
   {
+    let width = 760;
+    let height = 410;
+    let topOffset = 200;
+    let left, top;
+    let wndGeom = gPrefs.clippingsMgrWndGeom;
+
+    if (gPrefs.clippingsMgrSaveWndGeom && wndGeom) {
+      width  = wndGeom.w - 1;  // Compensate for workaround to popup window bug.
+      height = wndGeom.h;
+      left   = wndGeom.x;
+      top    = wndGeom.y;
+    }
+    else {
+      if (gPrefs.autoAdjustWndPos) {
+        ({left, top} = await aeWndPos.calcPopupWndCoords(width, height, topOffset, aeWndPos.WND_CURRENTLY_FOCUSED));
+        wndGeom = true;
+      }
+      else {
+        left = Math.ceil((window.screen.availWidth - width) / 2);
+        top = Math.ceil((window.screen.availHeight - height) / 2);
+      }
+    }
+
     let wndInfo = {
       url: clippingsMgrURL,
-      type: "detached_panel",
-      width: 760, height: 410,
-      left:  64,  top: 128,
+      type: "popup",
+      width, height,
+      left, top,
     };
 
     let wnd = await messenger.windows.create(wndInfo);
     gWndIDs.clippingsMgr = wnd.id;
+
+    // Workaround to bug where window position isn't set when calling
+    // `browser.windows.create()`. If unable to get window geometry, then
+    // default to centering on screen.
+    if (wndGeom) {
+      messenger.windows.update(wnd.id, { left, top });
+    }
 
     gClippingsMgrCleanUpIntvID = window.setInterval(async () => {
       log(`Clippings/mx: [Interval ID: ${gClippingsMgrCleanUpIntvID}]: Checking if Clippings Manager is open`);
@@ -1110,35 +1223,91 @@ function openNewClippingDlg(aNewClippingContent)
 }
 
 
-function openBackupDlg()
+async function openBackupDlg()
 {
   let url = messenger.runtime.getURL("pages/backup.html");
-  openDlgWnd(url, "backupFirstRun", { type: "detached_panel", width: 590, height: 410 });
+  let wndKey = "backupFirstRun";
+  let wndPpty = {
+    url,
+    type: "popup",
+    width: 590, height: 410,
+    top: 64, left: 128,
+  };
+
+  // The (x,y) coords set above will be ignored - the popup window will always
+  // be centered on the primary display, where the first-time backup
+  // notification is assumed to appear.
+  let wnd = await messenger.windows.create(wndPpty);
+
+  gWndIDs[wndKey] = wnd.id;
 }
 
 
 function openMigrationStatusDlg()
 {
   let url = messenger.runtime.getURL("pages/migrationStatus.html");
-  openDlgWnd(url, "migrnStatus", { type: "detached_panel", width: 540, height: 180});
+  let wndPpty = {
+    type: "popup",
+    width: 540,
+    height: 180,
+  };
+  
+  openDlgWnd(url, "migrnStatus", wndPpty, aeWndPos.WND_MESSENGER);
 }
 
 
-async function openDlgWnd(aURL, aWndKey, aWndPpty)
+function openShortcutListWnd()
 {
+  let url = messenger.runtime.getURL("pages/shortcutList.html");
+  let width = 436;
+  let height = 272;
+  if (gOS == "win") {
+    height = 286;
+  }
+  
+  openDlgWnd(url, "shctList", { type: "popup", width, height, topOffset: 256 });
+}
+
+
+async function openDlgWnd(aURL, aWndKey, aWndPpty, aWndType)
+{
+  if (typeof aWndType != "number") {
+    aWndType = aeWndPos.WND_MSG_COMPOSE;
+  }
+  
   async function openDlgWndHelper()
   {
+    let width = aWndPpty.width;
+    let height = aWndPpty.height;
+    let left, top, wndGeom;
+
+    if (gPrefs.autoAdjustWndPos) {
+      ({ left, top } = await aeWndPos.calcPopupWndCoords(width, height, aWndPpty.topOffset, aWndType));
+      wndGeom = true;
+    }
+    else {
+      wndGeom = false;
+      left = Math.ceil((window.screen.availWidth - width) / 2);
+      top = Math.ceil((window.screen.availHeight - height) / 2);
+    }
+
     let wnd = await messenger.windows.create({
       url: aURL,
       type: aWndPpty.type,
-      width: aWndPpty.width,
-      height: aWndPpty.height,
-      left: window.screen.availWidth - aWndPpty.width / 2,
-      top:  window.screen.availHeight - aWndPpty.height / 2
+      width, height,
+      left, top,
     });
 
     gWndIDs[aWndKey] = wnd.id;
+
+    // Workaround to bug where window position isn't set when calling
+    // `browser.windows.create()`. If unable to get window geometry, then
+    // default to centering on screen.
+    if (wndGeom) {
+      messenger.windows.update(wnd.id, { left, top });
+    }
   }
+  // END nested function
 
   if (gWndIDs[aWndKey]) {
     try {
@@ -1203,6 +1372,12 @@ function getClipping(aClippingID)
 }
 
 
+function getShortcutKeyListHTML(aIsFullHTMLDoc)
+{
+  return aeImportExport.getShortcutKeyListHTML(aIsFullHTMLDoc);
+}
+
+
 function getShortcutKeyMap()
 {
   let rv = new Map();
@@ -1250,21 +1425,6 @@ function verifyDB()
 }
 
 
-function getOS()
-{
-  return gOS;
-}
-
-function getHostAppName()
-{
-  return gHostAppName;
-}
-
-function getHostAppVer()
-{
-  return gHostAppVer;
-}
-
 function getClippingsListeners()
 {
   return gClippingsListeners.getListeners();
@@ -1285,6 +1445,8 @@ function getSyncClippingsListeners()
   return gSyncClippingsListeners;
 }
 
+// DEPRECATED
+// - These functions are currently called from WindowListener scripts.
 function getPrefs()
 {
   return gPrefs;
@@ -1292,23 +1454,9 @@ function getPrefs()
 
 async function setPrefs(aPrefs)
 {
-  await messenger.storage.local.set(aPrefs);
+  await aePrefs.setPrefs(aPrefs);
 }
-
-function getSyncFolderID()
-{
-  return gSyncFldrID;
-}
-
-function isClippingsMgrRootFldrReseq()
-{
-  return gClippingsMgrRootFldrReseq;
-}
-
-function setClippingsMgrRootFldrReseq(aReseqOnReload)
-{
-  gClippingsMgrRootFldrReseq = aReseqOnReload;
-}
+// END DEPRECATED
 
 function isDirty()
 {
@@ -1383,34 +1531,151 @@ function versionCompare(aVer1, aVer2)
 
 
 //
-// Event listeners
+// Event handlers
 //
 
-messenger.runtime.onMessage.addListener(aRequest => {
+messenger.runtime.onMessage.addListener(async (aRequest) => {
   log(`Clippings/mx: Received message "${aRequest.msgID}"`);
 
   let resp = null;
 
-  if (aRequest.msgID == "init-new-clipping-dlg") {
-    resp = gNewClipping.get();
+  switch (aRequest.msgID) {
+  case "get-env-info":
+    resp = {
+      os: gOS,
+      hostAppName: gHostAppName,
+      hostAppVer:  gHostAppVer,
+    };
+    break;
 
-    if (resp !== null) {
-      resp.checkSpelling = gPrefs.checkSpelling;
-      return Promise.resolve(resp);
+  case "init-new-clipping-dlg":
+    resp = gNewClipping.get();
+    if (! resp) {
+      resp = {};
     }
-  }
-  else if (aRequest.msgID == "close-new-clipping-dlg") {
+    resp.checkSpelling = gPrefs.checkSpelling;
+    break;
+
+  case "close-new-clipping-dlg":
     gWndIDs.newClipping = null;
     gIsDirty = true;
+    break;
+
+  case "get-shct-key-prefix-ui-str":
+    resp = await getShortcutKeyPrefixStr();
+    break;
+
+  case "clear-backup-notifcn-intv":
+    clearBackupNotificationInterval();
+    resp = {};
+    break;
+
+  case "set-backup-notifcn-intv":
+    setBackupNotificationInterval();
+    break;
+
+  case "backup-clippings":
+    openClippingsManager(true);
+    break;
+
+  case "get-shct-key-list-html":
+    resp = await getShortcutKeyListHTML(aRequest.isFullHTMLDoc);
+    break;
+
+  case "get-clippings-backup-data":
+    resp = await getClippingsBackupData();
+    break;
+
+  default:
+    break;
+  }
+
+  if (resp) {
+    return Promise.resolve(resp);
   }
 });
 
+
+messenger.NotifyTools.onNotifyBackground.addListener(async (aMessage) => {
+  log(`Clipping/mx: Received NotifyTools message "${aMessage.command}" from legacy overlay script`);
+
+  let rv = null;
+  let isAsync = false;
+  
+  switch (aMessage.command) {
+  case "get-prefs":
+    rv = gPrefs;
+    isAsync = true;
+    break;
+
+  case "set-prefs":
+    rv = await aePrefs.setPrefs(aMessage.prefs);
+    break;
+
+  case "open-clippings-mgr":
+    openClippingsManager(false);
+    break;
+
+  case "open-new-clipping-dlg":
+    openNewClippingDlg(aMessage.clippingContent);
+    break;
+
+  case "get-clipping":
+    rv = await getClipping(aMessage.clippingID);
+    break;
+
+  case "get-shct-key-map":
+    rv = await getShortcutKeyMap();
+    break;
+
+  case "get-clipping-srch-data":
+    rv = await getClippingSearchData();
+    break;
+
+  case "get-clippings-dirty-flag":
+    rv = isDirty();
+    isAsync = true;
+    break;
+
+  case "get-clippings-cxt-menu-data":
+    rv = await getContextMenuData(aMessage.rootFldrID);
+    isAsync = true;
+    break;
+
+  case "open-migrn-status-dlg":
+    openMigrationStatusDlg();
+    break;
+
+  case "open-shct-list-wnd":
+    openShortcutListWnd();
+    break;
+
+  default:
+    break;
+  }
+
+  if (isAsync) {
+    return Promise.resolve(rv);
+  }
+
+  return rv;
+});
+  
 
 messenger.storage.onChanged.addListener((aChanges, aAreaName) => {
   let changedPrefs = Object.keys(aChanges);
 
   for (let pref of changedPrefs) {
     gPrefs[pref] = aChanges[pref].newValue;
+  }
+});
+
+
+messenger.alarms.onAlarm.addListener(async (aAlarm) => {
+  info(`Clippings/mx: Alarm "${aAlarm.name}" was triggered.`);
+
+  if (aAlarm.name == "show-upgrade-notifcn") {
+    showWhatsNewNotification();
   }
 });
 
@@ -1426,8 +1691,12 @@ messenger.notifications.onClicked.addListener(aNotifID => {
   else if (aNotifID == aeConst.NOTIFY_SYNC_HELPER_UPDATE) {
     messenger.tabs.create({ url: gSyncClippingsHelperDwnldPgURL });
   }
+  else if (aNotifID == aeConst.NOTIFY_WHATS_NEW) {
+    messenger.tabs.create({ url: messenger.runtime.getURL("pages/whatsnew.html") });
+    aePrefs.setPrefs({ upgradeNotifCount: 0 });
+  }
 });
-  
+
 
 window.addEventListener("unhandledrejection", aEvent => {
   aEvent.preventDefault();

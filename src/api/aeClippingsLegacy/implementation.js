@@ -51,6 +51,13 @@ var aeClippingsLegacy = class extends ExtensionCommon.ExtensionAPI {
 	  return rv;
 	},
 
+        async insertClipping(aClippingID)
+        {
+          let wndMediatorSvc = Services.wm;
+          let composerWnd = wndMediatorSvc.getMostRecentWindow("msgcompose");
+          await composerWnd.aecreations.clippings.insertClipping(aClippingID);
+        },
+
 
 	//
         // Helper methods

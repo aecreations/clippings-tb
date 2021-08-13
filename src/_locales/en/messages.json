@@ -65,6 +65,10 @@
     "message": "Browse…"
   },
 
+  "btnReset": {
+    "message": "Reset"
+  },
+
   "migrnStatusTitle": {
     "message": "Clippings Migration Status",
     "description": "Clippings for Thunderbird"
@@ -104,6 +108,11 @@
     "description": "Title bar text of keyboard paste dialog"
   },
 
+  "msgTitle": {
+    "message": "Alert",
+    "description": "Title bar text of alert dialog"
+  },
+  
   "msgUnavail": {
     "message": "The selected action is not available right now."
   },
@@ -257,7 +266,7 @@
   },
 
   "welcWhatsNewDesc": {
-    "message": "Clippings 6.2 comes with many new features and improvements, such as Dark Mode support."
+    "message": "Clippings 6.3 comes with improvements to windows and dialogs, as well as a new setting for backup reminder notifications."
   },
 
   "welcWhatsNewCTA": {
@@ -276,12 +285,12 @@
     "message": "Read the Guide"
   },
 
-  "closeWelcomePg": {
-    "message": "Close This Page"
+  "welcHelpLink": {
+    "message": "Clippings Help"
   },
 
-  "welcLeaveConfirm": {
-    "message": "Are you sure you want to leave the Welcome to Clippings page?"
+  "closeWelcomePg": {
+    "message": "Close This Page"
   },
 
   "welcCancelDlg": {
@@ -582,6 +591,11 @@
     "message": "Reload"
   },
 
+  "mnuMoreTools": {
+    "message": "More",
+    "description": "Submenu of Tools menu in Clippings Manager"
+  },
+
   "mnuRemoveAllSrcURLs": {
     "message": "Remove Source Web Addresses…"
   },
@@ -657,7 +671,7 @@
   },
 
   "mnuPlchldrFmtDateTime": {
-    "message": "Formatted Date/Time...",
+    "message": "Formatted Date/Time…",
     "description": "Clippings Manager - preset (built-in) placeholder menu"
   },
 
@@ -676,7 +690,7 @@
   },
 
   "clipMgrNoItems": {
-    "message": "No clippings found."
+    "message": "No items found."
   },
 
   "clipMgrIntroCmdDel": {
@@ -719,6 +733,11 @@
     "description": "Clippings Manager intro - key binding description"
   },
 
+  "clipMgrIntroCmdDetailsPane": {
+    "message": "Show/hide Details Pane",
+    "description": "Clippings Manager intro - key binding description"
+  },
+
   "clipMgrStatusBar": {
     "message": "$1 items",
     "description": "Status bar text in Clippings Manager, counting the number of clippings and folders"
@@ -726,6 +745,10 @@
 
   "clipMgrRemoveSrcURLsConfirm": {
     "message": "Removed source web page addresses from your clippings."
+  },
+
+  "clipMgrRestoredSrcURLs": {
+    "message": "Restored source web page addresses."
   },
 
   "clipMgrNoUndo": {
@@ -1023,6 +1046,10 @@
     "description": "Label for checkbox option for setting backup notification, appears after checkbox and before the reminder frequency drop-down menu"
   },
 
+  "backupRemSkip": {
+    "message": "Skip reminder if there were no changes since last backup"
+  },
+  
   "backupRemDays": {
     "message": "days",
     "description": "Label appearing after the drop-down menu for backup reminder frequency"
@@ -1191,14 +1218,6 @@
     "description": "Example folder path on Linux."
   },
 
-  "syncFileDirDesc": {
-    "message": "Your Sync Clippings data is stored in this file location.  If you are synchronizing with Thunderbird and want to change the sync file location, you must also change the sync file location in Clippings preferences in Thunderbird to match."
-  },
-
-  "syncFileDirDescTB": {
-    "message": "Your Sync Clippings data is stored in this file location.  If you are synchronizing with Firefox and want to change the sync file location, you must also change the sync file location in Clippings preferences in Firefox to match."
-  },
-
   "errSyncConxn": {
     "message": "Unable to connect to the Sync Clippings helper app. Make sure that the app is installed."
   },
@@ -1263,6 +1282,33 @@
     "message": "Show only synced items in the Clippings menu"
   },
 
+  "wndsAndDlgsOpts": {
+    "message": "Windows and Dialogs…"
+  },
+
+  "wndsDlgsOptsTitle": {
+    "message": "Windows and Dialogs"
+  },
+
+  "wndsDlgsOptsExpWarn": {
+    "message": "These settings are experimental on $1. They may not work properly on systems with multiple displays.",
+    "description": "Warning message in the Windows and Dialogs settings dialog, appearing if using an OS other than Windows"
+  },
+
+  "macOS": {
+    "message": "macOS"
+  },
+
+  "autoPosWnds": {
+    "message": "Automatically position within originating window",
+    "description": "Checkbox option in Windows and Dialogs settings dialog"
+  },
+
+  "clpMgrSaveWndPos": {
+    "message": "Save Clippings Manager window position and size",
+    "description": "Checkbox option in Windows and Dialogs settings dialog"
+  },
+
   "aboutBtn": {
     "message": "About…"
   },
@@ -1277,7 +1323,7 @@
   },
   
   "aboutHomePgLink": {
-    "message": "Visit home page"
+    "message": "Visit website"
   },
 
   "aboutLicLink": {
@@ -1318,7 +1364,73 @@
   "aboutSyncFileSize": {
     "message": "Sync file size:"
   },
-  
+
+  "upgradeNotifcn": {
+    "message": "$1 was recently updated! Click here to see what's new.",
+    "description": "Post-upgrade notification text, with placeholder for extension name (Clippings or Clippings for Thunderbird)"
+  },
+
+  "newVerHdg": {
+    "message": "New Version Installed!",
+    "description": "Header for the What's New page (appears after upgrading Clippings)"
+  },
+
+  "upgrade": {
+    "message": "Clippings has been upgraded to version 6.3.",
+    "description": "What's New page (appears after upgrading Clippings)"
+  },
+
+  "upgradeTB": {
+    "message": "Clippings for Thunderbird has been upgraded to version 6.1.",
+    "description": "What's New page (appears after upgrading Clippings for Thunderbird)"
+  },
+
+  "whatsNew": {
+    "message": "What’s New",
+    "description": "What's New page (appears after upgrading Clippings)"
+  },
+
+  "whatsNew1": {
+    "message": "Improvements to Clippings Manager. On Windows, Clippings Manager now remembers its window size and position",
+    "description": "Description of an enhancement or fix in the new version of Clippings"
+  },
+
+  "whatsNew2": {
+    "message": "Improvements to support for multiple displays on Windows. Clippings popup windows and dialogs will now be positioned within the browser window from which they were opened, instead of always centered on the primary display",
+    "description": "Description of an enhancement or fix in the new version of Clippings"
+  },
+
+  "whatsNew3": {
+    "message": "New option to skip backup reminders if there were no changes to your clippings since the last backup",
+    "description": "Description of an enhancement or fix in the new version of Clippings"
+  },
+
+  "contribHdg": {
+    "message": "Contribute",
+    "description": "Contribution CTA in the What's New page"
+  },
+
+  "contribCTA": {
+    "message": "Support the development of $1 by <a href=\"$2\">making a donation</a>. Learn more about other ways to <a href=\"$3\">get involved</a>!",
+    "description": "Call to action message to make donation or learn more about contributing to Clippings (or Clippings for Thunderbird)"
+  },
+
+  "linkBlog": {
+    "message": "AE Creations blog"
+  },
+
+  "linkAMO": {
+    "message": "Firefox Add-ons page"
+  },
+
+  "linkATN": {
+    "message": "Thunderbird Add-ons page"
+  },
+
+  "linkForum": {
+    "message": "Help and Support forums"
+  },
+
   "keyAlt": {
     "message": "Alt"
   },

@@ -39,6 +39,19 @@
 	"type": "function",
 	"async": true,
 	"parameters": []
+      },
+      {
+	"name": "insertClipping",
+	"description": "Inserts clipping into most recent active message composer window",
+	"type": "function",
+	"async": true,
+	"parameters": [
+	  {
+	    "name": "aClippingID",
+	    "type": "number",
+	    "description": "Clipping ID"
+	  }
+	]
       }
     ]
   }
