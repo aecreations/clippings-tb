@@ -31,6 +31,7 @@ let aePrefs = function () {
     backupFilenameWithDate: true,
     legacyDataMigrnSuccess: null,
     showLegacyDataMigrnStatus: null,
+    legacyDataMigrnErrorMsg: "",
     clippingsMgrCleanUpIntv: aeConst.CLIPPINGSMGR_CLEANUP_INTERVAL_MS,
     clippingsMgrAutoSaveIntv: aeConst.CLIPPINGSMGR_AUTOSAVE_INTERVAL_MS,
     skipBackupRemIfUnchg: true,
@@ -110,6 +111,21 @@ let aePrefs = function () {
         // Fix incorrect default value of pref.
         newPrefs.clippingsMgrMinzWhenInactv = null;
       }
+
+      await this._addPrefs(aPrefs, newPrefs);
+    },
+
+    hasVenturaPrefs(aPrefs)
+    {
+      // Version 6.1.1
+      return aPrefs.hasOwnProperty("legacyDataMigrnErrorMsg");
+    },
+
+    async setVenturaPrefs(aPrefs)
+    {
+      let newPrefs = {
+        legacyDataMigrnErrorMsg: "",
+      };
 
       await this._addPrefs(aPrefs, newPrefs);
     },

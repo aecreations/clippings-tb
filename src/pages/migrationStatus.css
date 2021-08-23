@@ -78,10 +78,15 @@ body {
     color: black;   
 }
 
-#save-confirm-msg {
-    visibility: hidden;
-    margin-left: 8px;
-    color: #006504;
+#error-details {
+    width: calc(100% - 4px);
+    height: 48px;
+    margin-left: 4px;
+    font: message-box;
+    font-size: 13px;
+    border: 0;
+    resize: unset;
+
 }
 
 #dlg-buttons {
