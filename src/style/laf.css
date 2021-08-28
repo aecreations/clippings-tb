@@ -166,19 +166,15 @@ body[data-os="mac"][data-laf="true"] select.browser-style {
     font-weight: normal;
 }
 
-body[data-laf="true"]:not([data-os="mac"]) button:hover:not(.ae-button):not(.toolbar-button),
-body[data-laf="true"]:not([data-os="mac"]) select.browser-style:hover {
-    background-color: var(--color-btn-hover-bkgd);
-}
-
-body[data-laf="true"]:not([data-os="mac"]) button:active:not(.ae-button):not(.toolbar-button),
-body[data-laf="true"]:not([data-os="mac"]) select.browser-style:active {
-    background-color: var(--color-btn-active-bkgd);
-}
-
-body[data-laf="true"]:not([data-os="mac"]) button.default:not(.ae-button):not(.toolbar-button) {
-    border: 2px solid #0060df;
-    border-radius: 3.5px;
+body[data-os="mac"] button.default:not(.ae-button):not(.toolbar-button) {
+    border-top: 1px solid #6fa6f9;
+    border-right: 1px solid #2d7efd;
+    border-bottom: 1px solid #0768ff;
+    border-left: 1px solid #3d89fc;
+    box-shadow: 0px 1px 2px 0px var(--color-mac-btn-shadow);
+    background: linear-gradient(to bottom, #88B6FA 0%, #0364FF 100%);
+    color: -moz-dialog;
+    font-weight: normal;
 }
 
 body[data-os="mac"] button.default:active,
@@ -198,28 +194,23 @@ body[data-os="mac"][data-laf="true"] select.browser-style {
     border-radius: 2px;
 }
 
+body[data-laf="true"]:not([data-os="mac"]) button:hover:not(.ae-button):not(.toolbar-button),
+body[data-laf="true"]:not([data-os="mac"]) select.browser-style:hover {
+    background-color: var(--color-btn-hover-bkgd);
+}
+
+body[data-laf="true"]:not([data-os="mac"]) button:active:not(.ae-button):not(.toolbar-button),
+body[data-laf="true"]:not([data-os="mac"]) select.browser-style:active {
+    background-color: var(--color-btn-active-bkgd);
+}
+
+body[data-laf="true"]:not([data-os="mac"]) button.default:not(.ae-button):not(.toolbar-button) {
+    border: 2px solid #0060df;
+    border-radius: 3.5px;
+}
+
 button.default {
     font-weight: 600;
-}
-
-body[data-os="mac"] button.default:not(.ae-button):not(.toolbar-button) {
-    border-top: 1px solid #6fa6f9;
-    border-right: 1px solid #2d7efd;
-    border-bottom: 1px solid #0768ff;
-    border-left: 1px solid #3d89fc;
-    box-shadow: 0px 1px 2px 0px var(--color-mac-btn-shadow);
-    background: linear-gradient(to bottom, #88B6FA 0%, #0364FF 100%);
-    color: -moz-dialog;
-    font-weight: normal;
-}
-
-body[data-os="mac"] button.default:active,
-body[data-os="mac"] button.default:active:not(.ae-button):not(.toolbar-button) {
-    background: linear-gradient(to bottom, #4B91FF 0%, #0050DC 100%);
-    border-top: 1px solid #2F7FFF;
-    border-right: 1px solid #0768ff;
-    border-bottom: 1px solid #0050dc;
-    border-left: 1px solid #0768ff;
 }
 
 body[data-laf="true"] select.browser-style:focus,
