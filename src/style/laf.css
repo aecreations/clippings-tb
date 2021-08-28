@@ -18,6 +18,11 @@
     --color-mac-btn-border-l: 1px solid #d6d6d6;
     --color-mac-btn-bkgd: linear-gradient(to bottom, #fdfefd 0%, #f6f6f6 100%);
     --color-mac-btn-shadow: #f3f3f3;
+    --color-mac-default-btn-border-t: 1px solid #6fa6f9;
+    --color-mac-default-btn-border-r: 1px solid #2d7efd;
+    --color-mac-default-btn-border-b: 1px solid #0768ff;
+    --color-mac-default-btn-border-l: 1px solid #3d89fc;
+    --color-mac-default-btn-bkgd: linear-gradient(to bottom, #88B6FA 0%, #0364FF 100%);
     --color-tb-bkgd: -moz-field;
     --color-tb-border: rgba(12, 12, 13, 0.2);
     --color-tb-hover-border: rgba(12, 12, 13, 0.3);
@@ -50,12 +55,17 @@
 	--color-btn-active-bkgd: #737373;
 	--color-btn-border: #4a4a4f;
 	--color-btn-text: #f9f9fa;
-	--color-mac-btn-border-t: 1px solid #585858;
+	--color-mac-btn-border-t: 1px solid #636365;
 	--color-mac-btn-border-r: 1px solid var(--color-btn-border);
 	--color-mac-btn-border-b: 1px solid var(--color-btn-border);
 	--color-mac-btn-border-l: 1px solid var(--color-btn-border);
-	--color-mac-btn-bkgd: var(--color-btn-bkgd);
+	--color-mac-btn-bkgd: #565659;
 	--color-mac-btn-shadow: #2a2a2e;
+	--color-mac-default-btn-border-t: 1px solid #317ae8;
+	--color-mac-default-btn-border-r: 1px solid #155bc5;
+	--color-mac-default-btn-border-b: 1px solid #1451b0;
+	--color-mac-default-btn-border-l: 1px solid #155bc5;
+	--color-mac-default-btn-bkgd: linear-gradient(to bottom, #1769e5 0%, #145ece 100%);
 	--color-tb-bkgd: #0c0c0d;
 	--color-tb-border: #4a4a4f;
 	--color-tb-hover-border: #737373;
@@ -167,12 +177,12 @@ body[data-os="mac"][data-laf="true"] select.browser-style {
 }
 
 body[data-os="mac"] button.default:not(.ae-button):not(.toolbar-button) {
-    border-top: 1px solid #6fa6f9;
-    border-right: 1px solid #2d7efd;
-    border-bottom: 1px solid #0768ff;
-    border-left: 1px solid #3d89fc;
+    border-top: var(--color-mac-default-btn-border-t);
+    border-right: var(--color-mac-default-btn-border-r);
+    border-bottom: var(--color-mac-default-btn-border-b);
+    border-left: var(--color-mac-default-btn-border-l);
     box-shadow: 0px 1px 2px 0px var(--color-mac-btn-shadow);
-    background: linear-gradient(to bottom, #88B6FA 0%, #0364FF 100%);
+    background: var(--color-mac-default-btn-bkgd);
     color: -moz-dialog;
     font-weight: normal;
 }
@@ -180,10 +190,10 @@ body[data-os="mac"] button.default:not(.ae-button):not(.toolbar-button) {
 body[data-os="mac"] button.default:active,
 body[data-os="mac"] button:active:not(.ae-button):not(.toolbar-button) {
     background: linear-gradient(to bottom, #4B91FF 0%, #0050DC 100%);
-    border-top: 1px solid #4b91ff;
-    border-right: 1px solid #2f7fff;
+    border-top: 1px solid #4a90fb;
+    border-right: 1px solid #156dfd;
     border-bottom: 1px solid #0050dc;
-    border-left: 1px solid #2f7fff;
+    border-left: 1px solid #156dfd;
 }
 
 body[data-os="mac"] button:not(.ae-button):not(.toolbar-button) {
