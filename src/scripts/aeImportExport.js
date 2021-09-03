@@ -491,7 +491,7 @@ let aeImportExport = function () {
             else {
               htmlSrc += `<tr data-id="${aShctKeyMap[shctKey].id}">`;
             }
-            htmlSrc += `<td>${shctKey}</td><td>${aShctKeyMap[shctKey].name}</td></tr>\n`;
+            htmlSrc += `<td>${shctKey}</td><td>${this._escapeHTML(aShctKeyMap[shctKey].name)}</td></tr>\n`;
 	  }
 
 	  htmlSrc += "</tbody></table>";
