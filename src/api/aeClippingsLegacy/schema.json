@@ -35,7 +35,7 @@
       },
       {
 	"name": "getClippingsFromJSONFile",
-	"description": "Returns the data from the Clippings JSON data file, or null if file does not exist",
+	"description": "Returns the data from the Clippings JSON data file, or null if file does not exist. Throws exception if failed to read data file",
 	"type": "function",
 	"async": true,
 	"parameters": []

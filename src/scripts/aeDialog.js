@@ -164,6 +164,14 @@ class aeDialog
       this._popupTimerID = null;
     }
   }
+
+  isAcceptOnly()
+  {
+    let dlgAcceptElt = $(`${this._dlgEltStor} > .dlg-btns > .dlg-accept`);
+    let dlgCancelElt = $(`${this._dlgEltStor} > .dlg-btns > .dlg-cancel`);
+    
+    return (dlgCancelElt.length == 0 && dlgAcceptElt.length > 0);
+  }
   
   static isOpen()
   {
@@ -187,7 +195,15 @@ class aeDialog
     let openDlgElts = $(".lightbox-show");
 
     if (openDlgElts.length > 0) {
-      $(".lightbox-show .dlg-cancel:not(:disabled)").click();
+      // Normally there should just be 1 dialog open at a time.
+      let cancelBtnElt = $(".lightbox-show .dlg-cancel:not(:disabled)");
+      if (cancelBtnElt.length > 0) {
+        cancelBtnElt.click();
+      }
+      else {
+        // Dialog only has an OK, Close or Done button.
+        $(".lightbox-show .dlg-accept").click();
+      }
     }
 
     this.hidePopups();

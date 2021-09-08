@@ -7,7 +7,7 @@
 const WNDH_OPTIONS_EXPANDED = 486;
 const DLG_HEIGHT_ADJ_WINDOWS = 48;
 const DLG_HEIGHT_ADJ_LOCALE_ES = 20;
-const DLG_HEIGHT_ADJ_LOCALE_DE = 6;
+const DLG_HEIGHT_ADJ_LOCALE_DE = 10;
 
 let gOS;
 let gClippingsDB = null;

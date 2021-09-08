@@ -12,6 +12,7 @@
     --color-main-bkgd: #fefefe;
     --color-main-border-shadow: #e0e0e0;
     --color-secondary-text: #737373;
+    --url-atn-img: url("../img/atn-logo.png");
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,6 +23,7 @@
 	--color-main-bkgd: #2a2a2e;
 	--color-main-border-shadow: #0c0c0d;
 	--color-secondary-text: #f9f9fa;
+	--url-atn-img: url("../img/addons-logo-blue.svg");
     }
 }
 
@@ -119,6 +121,10 @@ button {
 
 #link-website::before {
     background-image: url("../img/website-link-ico.svg");
+}
+
+#link-atn::before {
+    background-image: var(--url-atn-img);
 }
 
 #link-forum::before {

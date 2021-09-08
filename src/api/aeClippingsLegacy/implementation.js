@@ -86,7 +86,16 @@ var aeClippingsLegacy = class extends ExtensionCommon.ExtensionAPI {
 	    rv = await OS.File.read(filePath, { encoding: "utf-8" });
 	  }
 	  catch (e) {
-            rv = null;
+            if (e instanceof OS.File.Error && e.becauseNoSuchFile) {
+              // BUG!!
+              // This never seems to be executed even if the file wasn't found.
+              this._log("aeClippingsLegacy._getDataFromFile(): " + e.operation);
+              throw "File not found";
+            }
+            else {
+              this._log("aeClippingsLegacy._getDataFromFile(): " + e);
+              throw e;
+            }
           }
 
           return rv;

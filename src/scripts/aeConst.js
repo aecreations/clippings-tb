@@ -88,10 +88,11 @@ let aeConst = {
   SYNC_ERROR_UNKNOWN: "Error: undefined",
   SYNC_ERROR_CONXN_FAILED: "Error: Attempt to postMessage on disconnected port",
 
-  DONATE_URL: "https://www.paypal.com/paypalme/aecreations88/19.95cad",
+  DONATE_URL: "https://aecreations.sourceforge.io/clippings/donate.php",
   L10N_URL: "https://crowdin.com/project/clippings",
   BLOG_URL: "https://aecreations.blogspot.com/",
   FORUM_URL: "https://groups.google.com/g/aecreations-help",
   CONTRIB_URL: "https://aecreations.sourceforge.io/clippings/contribute.php",
   HELP_URL: "https://aecreations.sourceforge.io/clippings/help.php",
+  ATN_URL: "https://addons.thunderbird.net/thunderbird/addon/clippings-tb/",
 };

@@ -17,6 +17,7 @@ $(async () => {
   $("#contrib-cta").html(sanitizeHTML(contribCTA));
   
   $("#link-website > a").attr("href", extInfo.homepage_url);
+  $("#link-atn > a").attr("href", aeConst.ATN_URL);
   $("#link-blog > a").attr("href", aeConst.BLOG_URL);
   $("#link-forum > a").attr("href", aeConst.FORUM_URL);
 

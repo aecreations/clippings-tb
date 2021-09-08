@@ -341,16 +341,16 @@ body[data-locale="de"] #skip-backup-label {
 
 #wnds-dlgs-opts-dlg {
     top: 160px;
-    --width: 490px;
+    --width: 500px;
     --height: 226px;
 }
 
 body[data-locale="fr"] #wnds-dlgs-opts-dlg {
-    width: 572px;
+    --width: 572px;
 }
 
 body[data-locale="de"] #wnds-dlgs-opts-dlg {
-    width: 530px;
+    --width: 530px;
 }
 
 #wnds-dlgs-opts-dlg fieldset {
@@ -384,10 +384,6 @@ body[data-os="mac"] #wnds-dlgs-opts-dlg #wnds-dlgs-opts-exp-warn .warning-icon {
 }
 
 body[data-locale="nl"] #wnds-dlgs-opts-dlg #clpmgr-save-wnd-pos-label {
-    letter-spacing: -0.34px;
-}
-
-body[data-locale|="pt"] #wnds-dlgs-opts-dlg #clpmgr-save-wnd-pos-label {
     letter-spacing: -0.18px;
 }
 
@@ -630,8 +626,21 @@ body[data-locale="de"] #about-dlg {
 
 #about-dlg #ext-desc {
     clear: left;
+    margin-right: 0;
     padding-top: 12px;
     font-size: 13px;
+}
+
+body[data-locale="fr"] #about-dlg #ext-desc {
+    letter-spacing: -0.28px;
+}
+
+body[data-locale|="pt"] #about-dlg #ext-desc {
+    letter-spacing: -0.3px;
+}
+
+body[data-locale|="pt"][data-os="mac"] #about-dlg #ext-desc {
+    letter-spacing: -0.55px;
 }
 
 #about-dlg #credits label {

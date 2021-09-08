@@ -6,6 +6,7 @@
 const WNDH_SHORTCUT_LIST = 272;
 const WNDW_SHORTCUT_LIST = 436;
 const DLG_HEIGHT_ADJ_WINDOWS = 14;
+const TOOLBAR_HEIGHT = 50;
 
 let gOS;
 
@@ -44,16 +45,10 @@ $(window).keydown(async (aEvent) => {
 
 
 $(window).on("resize", aEvent => {
-  let height = WNDH_SHORTCUT_LIST;
-  if (gOS == "win") {
-    height += DLG_HEIGHT_ADJ_WINDOWS;
-  }
-
-  let wndInfo = {
-    width: WNDW_SHORTCUT_LIST,
-    height,
-  };
-  messenger.windows.update(messenger.windows.WINDOW_ID_CURRENT, wndInfo);
+  let tblWidth = window.innerWidth;
+  let tblHeight = window.innerHeight - TOOLBAR_HEIGHT;
+  $("#shortcut-list-content > table > thead").css({width: `${tblWidth}px`});
+  $("#shortcut-list-content > table > tbody").css({width: `${tblWidth}px`, height: `${tblHeight}px`});
 });
 
 

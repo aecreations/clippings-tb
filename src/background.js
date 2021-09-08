@@ -255,6 +255,11 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
       });
     }
 
+    if (! aePrefs.hasVenturaPrefs(gPrefs)) {
+      log("Initializing 6.1.1 user preferences.");
+      await aePrefs.setVenturaPrefs(gPrefs);
+    }
+
     init();
   }
 });
@@ -381,7 +386,7 @@ async function init()
       await migrateClippingsData();
     }
     catch (e) {
-      console.error("Clippings/mx: migrateClippingsData(): Failed to verify IndexedDB database - cannot migrate legacy Clippings data.");
+      console.error("Clippings/mx: migrateClippingsData(): Failed to verify IndexedDB database - cannot migrate legacy Clippings data.\n" + e);
       await aePrefs.setPrefs({
         legacyDataMigrnSuccess: false,
         showLegacyDataMigrnStatus: true,
@@ -524,10 +529,20 @@ function initClippingsDB()
 
 async function migrateClippingsData()
 {
-  let clippingsJSONData = await messenger.aeClippingsLegacy.getClippingsFromJSONFile();
+  let clippingsJSONData;
 
-  if (clippingsJSONData === null) {
-    throw new Error("Failed to retrieve data from clippings.json - file not found");
+  try {
+    clippingsJSONData = await messenger.aeClippingsLegacy.getClippingsFromJSONFile();
+  }
+  catch (e) {
+    console.error("Clippings/mx: migrateClippingsData(): " + e);
+    await aePrefs.setPrefs({
+      legacyDataMigrnSuccess: false,
+      showLegacyDataMigrnStatus: true,
+      legacyDataMigrnErrorMsg: e.message,
+    });
+
+    return;
   }
 
   log("Clippings/mx: migrateClippingsData(): Migrating clippings from legacy data source");    
