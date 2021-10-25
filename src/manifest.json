@@ -38,6 +38,7 @@
       "scripts/aeImportExport.js",
       "scripts/aePrefs.js",
       "scripts/aeWndPos.js",
+      "scripts/aeVersionCmp.js",
       "background.js"
     ]
   },

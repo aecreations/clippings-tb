@@ -425,7 +425,7 @@ async function init()
 
     // Use enhanced look and feel UI on Thunderbird 89 and newer. Check for
     // Thunderbird version at every startup in case it was updated.
-    let enhancedLaF = versionCompare(gHostAppVer, "89.0") >= 0;
+    let enhancedLaF = aeVersionCmp(gHostAppVer, "89.0") >= 0;
     if (gPrefs.enhancedLaF != enhancedLaF) {
       await aePrefs.setPrefs({ enhancedLaF });
     }
@@ -570,7 +570,7 @@ async function checkHostAppVer()
     maxHostAppVer = maxHostAppVer.substring(0, maxHostAppVer.lastIndexOf(".")) + ".999";
   }
 
-  if (versionCompare(gHostAppVer, maxHostAppVer) > 0) {
+  if (aeVersionCmp(gHostAppVer, maxHostAppVer) > 0) {
     // Thunderbird version exceeds strict max supported version
     // - disable Clippings.
     await messenger.management.setEnabled(aeConst.EXTENSION_ID, false);
@@ -1066,7 +1066,7 @@ function showSyncHelperUpdateNotification()
       throw new Error("Unable to retrieve Sync Clippings Helper update info - network response was not ok");
 
     }).then(aUpdateInfo => {
-      if (versionCompare(currVer, aUpdateInfo.latestVersion) < 0) {
+      if (aeVersionCmp(currVer, aUpdateInfo.latestVersion) < 0) {
         info(`Clippings/mx: showSyncHelperUpdateNotification(): Found a newer version of Sync Clippings Helper!  Current version: ${currVer}; new version found: ${aUpdateInfo.latestVersion}\nDisplaying user notification.`);
         
         gSyncClippingsHelperDwnldPgURL = aUpdateInfo.downloadPageURL;
@@ -1487,62 +1487,6 @@ function setDirtyFlag(aFlag)
     gIsDirty = aFlag;
   }
 }
-
-
-function versionCompare(aVer1, aVer2)
-{
-  if (typeof aVer1 != "string" || typeof aVer2 != "string") {
-    return false;
-  }
-
-  let v1 = aVer1.split(".");
-  let v2 = aVer2.split(".");
-
-  // Last digit may include pre-release suffix, e.g.: a1, b2, rc1
-  let vs1 = v1[v1.length - 1].toString();
-  let vs2 = v2[v2.length - 1].toString();
-
-  const k = Math.min(v1.length, v2.length);
-  
-  for (let i = 0; i < k; ++ i) {
-    v1[i] = parseInt(v1[i], 10);
-    v2[i] = parseInt(v2[i], 10);
-    
-    if (v1[i] > v2[i]) {
-      return 1;
-    }
-    if (v1[i] < v2[i]) {
-      return -1;
-    }
-  }
-
-  let s1Idx = vs1.search(/[a-z]/);
-  let s2Idx = vs2.search(/[a-z]/);
-
-  // E.g.: 6.0 <=> 6.0a1
-  if (s1Idx == -1 && s2Idx > 0) {
-    return 1;
-  }
-  // E.g.: 6.0rc1 <=> 6.0
-  if (s1Idx > 0 && s2Idx == -1) {
-    return -1;
-  }
-  // E.g.: 6.0b1 <=> 6.0b2
-  if (s1Idx > 0 && s2Idx > 0) {
-    let s1 = vs1.substr(s1Idx);
-    let s2 = vs2.substr(s2Idx);
-
-    if (s1 < s2) {
-      return -1;
-    }
-    if (s1 > s2) {
-      return 1;
-    }
-  }
-  
-  return (v1.length == v2.length ? 0: (v1.length < v2.length ? -1 : 1));
-}
-
 
 
 //
