@@ -338,7 +338,9 @@ function initDialogs()
         let newFldrNode = parentNode.addNode(newFldrNodeData);
         newFldrNode.setActive();
         
-        $("#new-clipping-fldr-picker-menubtn").text(newFldrName).val(aFldrID);       
+        $("#new-clipping-fldr-picker-menubtn").text(newFldrName).val(aFldrID);
+        let mainFldrPickerMenuBtn = $("#new-clipping-fldr-picker-menubtn");
+        mainFldrPickerMenuBtn.text(newFldrName).val(aFldrID).removeAttr("syncfldr");
         gParentFolderID = aFldrID;
         
         this.resetTree();
