@@ -4195,6 +4195,8 @@ async function rebuildClippingsTree()
     }
 
     if (gPrefs.syncClippings) {
+      gSyncedItemsIDs = {};
+      initSyncItemsIDLookupList();
       initSyncedClippingsTree();
 
       if (gPrefs.cxtMenuSyncItemsOnly) {
