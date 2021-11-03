@@ -95,6 +95,10 @@ body[data-os="win"] input[type="checkbox"] + label {
     vertical-align: 2px;
 }
 
+body[data-os="linux"]:not([data-laf="true"]) input[type="checkbox"] + label {
+    vertical-align: 3px;
+}
+
 select {
     margin-bottom: 0 !important;
     vertical-align: middle;
@@ -194,6 +198,10 @@ body[data-os="win"] #backup-reminder-freq {
 
 body[data-os="win"] #backup-reminder-freq + label {
     vertical-align: 2px;
+}
+
+body[data-os="linux"]:not([data-laf="true"]) #backup-reminder-freq + label {
+    vertical-align: -2px;
 }
 
 body[data-locale="fr"] #skip-backup-label {
@@ -494,7 +502,8 @@ body[data-locale="de"] #sync-clippings-dlg {
 #sync-clippings-dlg #sync-fldr-picker #browse-sync-fldr {
     order: 2;
     flex: 0 1 auto;
-    margin-left: 12px;
+    margin-left: 8px;
+    height: 28px;
 }
 
 body[data-locale="de"] #sync-clippings-dlg #sync-helper-app-update-check + label {

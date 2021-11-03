@@ -214,7 +214,8 @@ input[type="checkbox"] + label {
     vertical-align: 0;
 }
 
-body[data-os="win"] input[type="checkbox"] + label {
+body[data-os="win"] input[type="checkbox"] + label,
+body[data-os="linux"]:not([data-laf="true"]) input[type="checkbox"] + label {
     vertical-align: 3px;
 }
 
@@ -487,7 +488,7 @@ body[data-os="win"] input[type="checkbox"] + label {
 
 #clippings-tree {
     order: 1;
-    flex: 0 1 auto;
+    flex: none;
     align-self: stretch;
     width: 228px;
     min-width: 128px;
