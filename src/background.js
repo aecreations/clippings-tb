@@ -1241,11 +1241,18 @@ function openNewClippingDlg(aNewClippingContent)
 async function openBackupDlg()
 {
   let url = messenger.runtime.getURL("pages/backup.html");
+  let lang = browser.i18n.getUILanguage();
   let wndKey = "backupFirstRun";
+  let height = 410;
+  
+  if (lang == "uk") {
+    height = 450;
+  }
+
   let wndPpty = {
     url,
     type: "popup",
-    width: 590, height: 410,
+    width: 590, height,
     top: 64, left: 128,
   };
 
