@@ -192,6 +192,10 @@ body[data-os="win"] #backup-reminder-freq {
     vertical-align: 1px;
 }
 
+body[data-os="linux"]:not([data-laf="true"]) #backup-reminder-freq {
+    vertical-align: 3px;
+}
+
 #backup-reminder-freq + label {
     margin-left: 4px;
 }
@@ -201,7 +205,7 @@ body[data-os="win"] #backup-reminder-freq + label {
 }
 
 body[data-os="linux"]:not([data-laf="true"]) #backup-reminder-freq + label {
-    vertical-align: -2px;
+    vertical-align: 3px;
 }
 
 body[data-locale="fr"] #skip-backup-label {
