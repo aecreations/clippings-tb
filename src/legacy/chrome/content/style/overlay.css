@@ -10,6 +10,7 @@
     --url-clippings-icon: url("chrome://clippings/content/img/clippings16-tb.svg");
     --url-clippings-migrn-succs-icon: url("chrome://clippings/content/img/clippings16-tb-success.svg");
     --url-clippings-migrn-fail-icon: url("chrome://clippings/content/img/clippings16-tb-error.svg");
+    --url-sync-clippings-icon: url("chrome://clippings/content/img/synced-clippings.svg");
 }
 
 @media (prefers-color-scheme: dark) {
@@ -17,6 +18,7 @@
 	--url-clippings-icon: url("chrome://clippings/content/img/clippings16-tb-dk.svg");
 	--url-clippings-migrn-succs-icon: url("chrome://clippings/content/img/clippings16-tb-scss-dk.svg");
 	--url-clippings-migrn-fail-icon: url("chrome://clippings/content/img/clippings16-tb-err-dk.svg");
+	--url-sync-clippings-icon: url("chrome://clippings/content/img/synced-clippings-dk.svg")
     }
 }
 
@@ -75,7 +77,7 @@ menu.ae-clippings-folder-menu[open="true"] {
 
 menu.ae-clippings-sync-folder,
 menu.ae-clippings-sync-folder[open="true"] {
-  list-style-image: url("chrome://clippings/content/img/synced-clippings.svg");
+  list-style-image: var(--url-sync-clippings-icon);
 }
 
 #ae-clippings-clipboard-alert {
