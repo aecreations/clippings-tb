@@ -192,6 +192,10 @@ body[data-os="win"] #backup-reminder-freq {
     vertical-align: 1px;
 }
 
+body[data-os="linux"]:not([data-laf="true"]) #backup-reminder-freq {
+    vertical-align: 3px;
+}
+
 #backup-reminder-freq + label {
     margin-left: 4px;
 }
@@ -201,7 +205,7 @@ body[data-os="win"] #backup-reminder-freq + label {
 }
 
 body[data-os="linux"]:not([data-laf="true"]) #backup-reminder-freq + label {
-    vertical-align: -2px;
+    vertical-align: 3px;
 }
 
 body[data-locale="fr"] #skip-backup-label {
@@ -361,6 +365,10 @@ body[data-locale="de"] #wnds-dlgs-opts-dlg {
     --width: 530px;
 }
 
+body[data-locale="uk"] #wnds-dlgs-opts-dlg {
+    --width: 550px;
+}
+
 #wnds-dlgs-opts-dlg fieldset {
     padding-bottom: 14px;
     border-bottom: 1px solid var(--color-fieldset-border);
@@ -504,6 +512,7 @@ body[data-locale="de"] #sync-clippings-dlg {
     flex: 0 1 auto;
     margin-left: 8px;
     height: 28px;
+    min-width: revert;
 }
 
 body[data-locale="de"] #sync-clippings-dlg #sync-helper-app-update-check + label {
@@ -670,6 +679,10 @@ body[data-locale|="pt"] #about-dlg #usr-contrib-cta {
 
 body[data-locale|="es"] #about-dlg #usr-contrib-cta {
     letter-spacing: -0.15px;
+}
+
+body[data-locale="uk"] #about-dlg #usr-contrib-cta {
+    letter-spacing: -0.5px;
 }
 
 #about-dlg #usr-contrib-cta-hdg {

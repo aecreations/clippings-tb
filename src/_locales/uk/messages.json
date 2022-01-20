@@ -1,0 +1,1159 @@
+{
+  "extName": {
+    "message": "Фрагменти",
+    "description": "Name of the extension - do NOT translate"
+  },
+  "extNameTB": {
+    "message": "Фрагменти для Thunderbird",
+    "description": "Name of the extension for Thunderbird"
+  },
+  "extDesc": {
+    "message": "Зберігайте часто вводимий текст для вставки пізніше.",
+    "description": "Description of the extension"
+  },
+  "browserActionTitle": {
+    "message": "Фрагменти",
+    "description": "Label for toolbar button, context submenu and tooltips"
+  },
+  "cmdDesc": {
+    "message": "Вставити фрагмент за клавішею",
+    "description": "Keyboard shortcut description in Manage Extension Shortcuts"
+  },
+  "hostAppFx": {
+    "message": "Firefox"
+  },
+  "hostAppTb": {
+    "message": "Thunderbird"
+  },
+  "hostAppAll": {
+    "message": "Firefox або Thunderbird"
+  },
+  "btnOK": {
+    "message": "Гаразд"
+  },
+  "btnCancel": {
+    "message": "Скасувати"
+  },
+  "btnClose": {
+    "message": "Зачинити",
+    "description": "Dialog action button"
+  },
+  "btnYes": {
+    "message": "Так"
+  },
+  "btnNo": {
+    "message": "Ні"
+  },
+  "btnDone": {
+    "message": "Виконано"
+  },
+  "btnBrowse": {
+    "message": "Перегляд…"
+  },
+  "btnReset": {
+    "message": "Скинути"
+  },
+  "migrnStatusTitle": {
+    "message": "Статус перенесення Фрагментів",
+    "description": "Clippings for Thunderbird"
+  },
+  "migrnStatusSuccess": {
+    "message": "Ваші фрагменти успішно перенесені.",
+    "description": "Clippings for Thunderbird"
+  },
+  "migrnStatusFail": {
+    "message": "Під час спроби Фрагментів перенести ваші дані, сталася помилка.",
+    "description": "Clippings for Thunderbird"
+  },
+  "migrnFailDetail": {
+    "message": "Клацніть Зберегти щоб Фрагменти зберегли копію ваших даних.",
+    "description": "Clippings for Thunderbird"
+  },
+  "migrnSaveData": {
+    "message": "Зберегти Фрагменти",
+    "description": "Clippings for Thunderbird"
+  },
+  "migrnFailTtip": {
+    "message": "Не вдалося перемістити дані ваших Фрагментів. Клацніть для подробиць.",
+    "description": "Clippings for Thunderbird - tooltip"
+  },
+  "saveConfirm": {
+    "message": "Збережено."
+  },
+  "pasteTitle": {
+    "message": "Вставити фрагмент",
+    "description": "Title bar text of keyboard paste dialog"
+  },
+  "msgTitle": {
+    "message": "Увага",
+    "description": "Title bar text of alert dialog"
+  },
+  "msgUnavail": {
+    "message": "Вибрана дія наразі недоступна."
+  },
+  "msgNoTextSel": {
+    "message": "Не було виділено жодного тексту. Будь ласка, спочатку оберіть текст."
+  },
+  "msgBrwsWndNotFocused": {
+    "message": "Поверніться до вікна браузера та повторіть спробу."
+  },
+  "msgClpgNotFound": {
+    "message": "Не вдалося знайти вибраний фрагмент!"
+  },
+  "msgNoActvBrwsTab": {
+    "message": "Не вдалося вставити фрагмент через відсутність вкладки активного браузера."
+  },
+  "msgRetryPgBusy": {
+    "message": "Сторінка в даний час зайнята. Зачекайте на завершення сторінки, а потім спробуйте ще раз."
+  },
+  "msgRetryPgNotLoaded": {
+    "message": "Не вдалося отримати виділений текст. Перезавантажте сторінку, а потім повторіть спробу."
+  },
+  "msgClipbdEmpty": {
+    "message": "Буфер обміну пустий або не містить тексту."
+  },
+  "msgRunInPrivateChg": {
+    "message": "Налаштування Фрагментів \"Запускати у Приватному вікні\" було нещодавно змінене. Маєте перезапустити Firefox щоб зміна подіяла.",
+    "description": "Message box that appears when attempting to open Clippings Manager immediately after toggling the Run in Private Windows setting"
+  },
+  "msgUnknown": {
+    "message": "Довідка недоступна (залиште мене сам на сам)."
+  },
+  "none": {
+    "message": "Нічого",
+    "description": "Denotes that there is no shortcut key, label or source web address (URL)."
+  },
+  "newClipping": {
+    "message": "Новий фрагмент"
+  },
+  "newFolder": {
+    "message": "Нова тека"
+  },
+  "untitledClipping": {
+    "message": "Безіменний фрагмент"
+  },
+  "untitledFolder": {
+    "message": "Неназвана тека"
+  },
+  "rootFldrName": {
+    "message": "Фрагменти",
+    "description": "Name of root folder"
+  },
+  "labelRed": {
+    "message": "Червоний"
+  },
+  "labelOrange": {
+    "message": "Помаранчевий"
+  },
+  "labelYellow": {
+    "message": "Жовтий"
+  },
+  "labelGreen": {
+    "message": "Зелений"
+  },
+  "labelBlue": {
+    "message": "Синій"
+  },
+  "labelPurple": {
+    "message": "Фіолетовий"
+  },
+  "labelGrey": {
+    "message": "Сірий"
+  },
+  "cxtMenuNew": {
+    "message": "Новий…",
+    "description": "Clippings context menu"
+  },
+  "cxtMenuOpenClippingsMgr": {
+    "message": "Організувати фрагменти",
+    "description": "Clippings context menu"
+  },
+  "cxtMenuNewFromSel": {
+    "message": "Нова форма…",
+    "description": "Clippings context menu in Thunderbird message composer"
+  },
+  "cxtMenuNewFromClipbd": {
+    "message": "Новий з буферу обміну…",
+    "description": "Clippings context menu in Thunderbird message composer"
+  },
+  "cxtMenuShowPasteOpts": {
+    "message": "Показувати варіанти цитування при вставлянні",
+    "description": "Clippings context menu in Thunderbird message composer"
+  },
+  "baMenuResetAutoIncrPlaceholders": {
+    "message": "Скидання авто-інкрементних заповнювачів",
+    "description": "Clippings browser action submenu"
+  },
+  "pasteAsHdg": {
+    "message": "Вставити фрагмент як",
+    "description": "Quote Options dialog in Clippings for Thunderbird"
+  },
+  "pasteAsNormal": {
+    "message": "Звичайний текст",
+    "description": "Quote Options dialog in Clippings for Thunderbird"
+  },
+  "pasteAsQuoted": {
+    "message": "Цитований текст",
+    "description": "Quote Options dialog in Clippings for Thunderbird"
+  },
+  "welcomePageTitle": {
+    "message": "Ласкаво просимо до фрагментів",
+    "description": "Welcome to Clippings (post-installation) page title"
+  },
+  "welcInstallSuccessHdg": {
+    "message": "Ласкаво просимо до Фрагментів!"
+  },
+  "welcInstallSuccessSubh": {
+    "message": "Установку успішно завершено."
+  },
+  "welcWhatsNewHdg": {
+    "message": "Що нового?"
+  },
+  "welcWhatsNewDesc": {
+    "message": "У Фрагментах 6.3 покращений інтерфейс користувача і додане налаштування нагадування про резервне копіювання."
+  },
+  "welcWhatsNewCTA": {
+    "message": "Дізнатися більше"
+  },
+  "welcQuickStartHdg": {
+    "message": "Короткий посібник користувача"
+  },
+  "welcQuickStartDesc": {
+    "message": "Рекомендоване читання для нових користувачів. Вивчайте нові можливості фрагментів всього за кілька хвилин."
+  },
+  "welcQuickStartCTA": {
+    "message": "Прочитати інструкцію"
+  },
+  "welcHelpLink": {
+    "message": "Довідка"
+  },
+  "closeWelcomePg": {
+    "message": "Зачинити цю сторінку"
+  },
+  "welcCancelDlg": {
+    "message": "Повернутися"
+  },
+  "newClippingDlgTitle": {
+    "message": "Новий фрагмент",
+    "description": "New Clipping dialog"
+  },
+  "labelName": {
+    "message": "Назва нового фрагменту:"
+  },
+  "labelContent": {
+    "message": "Текст:"
+  },
+  "labelCreateInFldr": {
+    "message": "Створити у:"
+  },
+  "btnNewFolder": {
+    "message": "Нова тека"
+  },
+  "labelCreateClippingOptions": {
+    "message": "Параметри",
+    "description": "Button to expand clipping options (source URL, label) in New Clipping dialog"
+  },
+  "labelSaveSrcURL": {
+    "message": "Зберегти адресу вихідної веб-сторінки"
+  },
+  "labelShortcutKey": {
+    "message": "Клавіатурне скорочення:"
+  },
+  "labelLabel": {
+    "message": "Мітка:",
+    "description": "Label for the Clipping label menu"
+  },
+  "labelCrtUnq": {
+    "message": "Створити як нецитований текст",
+    "description": "New clipping option available only in Thunderbird"
+  },
+  "labelRemLnBrk": {
+    "message": "Видалити зайві перенесення рядків",
+    "description": "New clipping option available only in Thunderbird"
+  },
+  "labelNewFldrName": {
+    "message": "Назва нової теки:"
+  },
+  "labelCreateAsSubfOf": {
+    "message": "Створити як підтеку:"
+  },
+  "btnPrevw": {
+    "message": "Попередній перегляд…",
+    "description": "Clippings for Thunderbird"
+  },
+  "labelPrevw": {
+    "message": "Попередній перегляд фрагменту:",
+    "description": "Clippings for Thunderbird"
+  },
+  "shortcutKeyHint": {
+    "message": "Щоб швидко вставити цей фрагмент у текстове поле веб-сторінки у Firefox, натисніть $1 після гарячої клавіші."
+  },
+  "shctKeyHintTB": {
+    "message": "Щоб хутко вставити цей фрагмент до повідомлення Thunderbird, натисніть $1 і гарячу клавішу."
+  },
+  "shortcutKeyAssigned": {
+    "message": "'$1' вже призначений"
+  },
+  "initError": {
+    "message": "Фрагменти не працюють, коли налаштування конфіденційності у Firefox занадто обмежені, наприклад, перемикання в режим приватного перегляду. Спробуйте змінити ці налаштування назад до стандартних налаштувань, а потім перезавантажте Firefox і спробуйте ще раз."
+  },
+  "saveClippingError": {
+    "message": "Не вдалося зберегти новий фрагмент. Переконайтесь, що налаштування конфіденційності в Firefox не є занадто обмежувальними (наприклад, увімкнений режим приватного перегляду), а потім перезавантажте Firefox і повторіть спробу."
+  },
+  "shortcutKeyDesc": {
+    "message": "Натисніть гарячу клавішу відповідно фрагменту, який Ви хочете вставити."
+  },
+  "keybPasteDlgF1": {
+    "message": "F1 = список клавіатурних скорочень"
+  },
+  "keybPasteDlgTab": {
+    "message": "TAB = шукати фрагмент за назвою"
+  },
+  "keybPasteDlgTabShctMode": {
+    "message": "TAB = режим клавіші швидкого доступу"
+  },
+  "srchByNameDesc": {
+    "message": "Пошук фрагменту за назвою:"
+  },
+  "numMatches": {
+    "message": "$1 збігів",
+    "description": "Status bar message in Clippings Manager showing the number of matches for the search query."
+  },
+  "insClipping": {
+    "message": "Вставити фрагмент"
+  },
+  "exportHTML": {
+    "message": "Експорт в HTML"
+  },
+  "expHTMLTitle": {
+    "message": "Поєднання клавіш для фрагменту",
+    "description": "HTML export of shortcut key list - page title"
+  },
+  "expHTMLHostAppInfo": {
+    "message": "Фрагменти $1 на $2",
+    "description": "Clippings <extVersion> on <hostApp>"
+  },
+  "expHTMLShctKeyInstrxn": {
+    "message": "Щоб вставити фрагмент у текстове поле веб-сторінки в Firefox, натисніть ALT+SHIFT+Y (Command+Shift+Y на macOS), і  тоді гарячу клавішу."
+  },
+  "expHTMLShctKeyInstrxnTB": {
+    "message": "Щоб вставити фрагмент у повідомлення Thunderbird, натисніть Alt+Shift+Y (Command+Option+V для macOS) і гарячу клавішу.",
+    "description": "Clippings for Thunderbird"
+  },
+  "expHTMLShctKeyCustNote": {
+    "message": "ПРИМІТКА: Гаряча клавіша (клавіші за замовчуванням ALT+SHIFT+Y або Command+Shift+Y) може відрізнятися в залежності від налаштувань Clippings."
+  },
+  "expHTMLShctKeyCol": {
+    "message": "Комбінації клавіш"
+  },
+  "expHTMLClipNameCol": {
+    "message": "Назва фрагмента"
+  },
+  "print": {
+    "message": "Друк",
+    "description": "Shortcut key list in Clippings for Thunderbird"
+  },
+  "htmlFilterDesc": {
+    "message": "Документ HTML"
+  },
+  "errorSaveFailed": {
+    "message": "Помилка збереження"
+  },
+  "plchldrPromptSingleDesc": {
+    "message": "Введіть значення для \"$1\":",
+    "description": "Placeholder prompt dialog - single placeholder, text"
+  },
+  "plchldrPromptMultiDesc": {
+    "message": "Введіть значення наступних заповнювачів.",
+    "description": "Placeholder prompt dialog - multiple placeholders"
+  },
+  "plchldrPmtSelectDesc": {
+    "message": "Оберіть значення для \"$1\":",
+    "description": "Placeholder prompt dialog - single placeholder, select"
+  },
+  "clippingsMgrWndTitle": {
+    "message": "Менеджер фрагментів",
+    "description": "Clippings Manager window title"
+  },
+  "tbNewClipping": {
+    "message": "Новий фрагмент"
+  },
+  "tbNewFolder": {
+    "message": "Нова тека"
+  },
+  "tbMoveOrCopy": {
+    "message": "Перемістити або скопіювати"
+  },
+  "tbDelete": {
+    "message": "Вилучити"
+  },
+  "tbUndo": {
+    "message": "Повернути"
+  },
+  "tbTools": {
+    "message": "Інструменти"
+  },
+  "tbHelp": {
+    "message": "Довідка"
+  },
+  "clipMgrSrchBarHint": {
+    "message": "Знайти фрагменти та теки",
+    "description": "Clippings Manager search bar hint text"
+  },
+  "clipMgrIntroHdg": {
+    "message": "Ласкаво просимо до менеджера фрагментів"
+  },
+  "clipMgrIntroDesc": {
+    "message": "Використовуйте менеджер фрагментів для редагування, перейменування або видалення фрагментів, і організовуйте свої фрагменти у теки."
+  },
+  "clipMgrIntroKeybHdg": {
+    "message": "Гарячі Клавіші"
+  },
+  "clipMgrShowOnlySyncItemsRem": {
+    "message": "Фрагменти будуть показувати лише синхронізовані елементи в меню фрагментів. Ви можете створювати і керувати елементами поза текою Synced Clippings але вони не з'являться в меню фрагментів. Ця опція може бути змінена в налаштуваннях Clippings."
+  },
+  "labelInsPlchldr": {
+    "message": "Вставити заповнювач:",
+    "description": "Clippings Manager - Placeholder Toolbar"
+  },
+  "tbPlchldrPresets": {
+    "message": "Шаблони",
+    "description": "Clippings Manager - Placeholder Toolbar button"
+  },
+  "tbPlchldrCustom": {
+    "message": "Користувацьке",
+    "description": "Clippings Manager - Placeholder Toolbar button"
+  },
+  "tbPlchldrNumeric": {
+    "message": "Числове",
+    "description": "Clippings Manager - Placeholder Toolbar button"
+  },
+  "labelSrcURL": {
+    "message": "Адреса джерела:"
+  },
+  "btnEditSrcURL": {
+    "message": "Редагувати"
+  },
+  "mnuNewFromClipbd": {
+    "message": "Нове з буфера обміну"
+  },
+  "mnuBackup": {
+    "message": "Резервне копіювання…"
+  },
+  "mnuRestoreFromBackup": {
+    "message": "Відновити з резервної копії…"
+  },
+  "mnuImport": {
+    "message": "Імпорт…"
+  },
+  "mnuExport": {
+    "message": "Експорт…"
+  },
+  "mnuReloadSyncFldr": {
+    "message": "Перезавантажити"
+  },
+  "mnuMoreTools": {
+    "message": "Ще",
+    "description": "Submenu of Tools menu in Clippings Manager"
+  },
+  "mnuRemoveAllSrcURLs": {
+    "message": "Видалити  веб-адреси джерела…"
+  },
+  "mnuShowHide": {
+    "message": "Показати/Приховати"
+  },
+  "mnuShowHideDetails": {
+    "message": "Панель подробиць"
+  },
+  "mnuShowHidePlchldrBar": {
+    "message": "Панель заповнювача"
+  },
+  "mnuShowHideStatusBar": {
+    "message": "Рядок стану"
+  },
+  "mnuMaximize": {
+    "message": "Розгорнути"
+  },
+  "mnuMinimizeWhenInactive": {
+    "message": "Згортати при бездіяльності"
+  },
+  "mnuShowExtPrefs": {
+    "message": "Параметри…"
+  },
+  "mnuMoveOrCopy": {
+    "message": "Перемістити або скопіювати…"
+  },
+  "mnuEditLabel": {
+    "message": "Мітка"
+  },
+  "mnuGoToSrcURL": {
+    "message": "Перейти на веб-сторінку джерела"
+  },
+  "mnuPlchldrDate": {
+    "message": "Дата",
+    "description": "Clippings Manager - preset (built-in) placeholder menu"
+  },
+  "mnuPlchldrTime": {
+    "message": "Час",
+    "description": "Clippings Manager - preset (built-in) placeholder menu"
+  },
+  "mnuPlchldrAppName": {
+    "message": "Назва застосунка",
+    "description": "Clippings Manager - preset (built-in) placeholder menu"
+  },
+  "mnuPlchldrUsrAgent": {
+    "message": "Клієнт користувача",
+    "description": "Clippings Manager - preset (built-in) placeholder menu"
+  },
+  "mnuPlchldrClipName": {
+    "message": "Назва фрагмента",
+    "description": "Clippings Manager - preset (built-in) placeholder menu"
+  },
+  "mnuPlchldrFldrName": {
+    "message": "Ім'я батьківської теки",
+    "description": "Clippings Manager - preset (built-in) placeholder menu"
+  },
+  "mnuPlchldrFmtDateTime": {
+    "message": "Форматовані дату/час...",
+    "description": "Clippings Manager - preset (built-in) placeholder menu"
+  },
+  "clipMgrNameHint": {
+    "message": "Назва фрагмента",
+    "description": "Clippings Manager - clipping name textbox hint text"
+  },
+  "clipMgrContentHint": {
+    "message": "Введіть текст фрагмента",
+    "description": "Clippings Manager - clipping content textarea hint text"
+  },
+  "clipMgrShortcutHelpHint": {
+    "message": "Гарячі клавіші"
+  },
+  "clipMgrNoItems": {
+    "message": "Нічого не знайдено."
+  },
+  "clipMgrIntroCmdDel": {
+    "message": "Вилучити вибраний фрагмент чи теку",
+    "description": "Clippings Manager intro - key binding description"
+  },
+  "clipMgrIntroCmdClearSrchBar": {
+    "message": "Очистити панель пошуку",
+    "description": "Clippings Manager intro - key binding description"
+  },
+  "clipMgrIntroCmdSrch": {
+    "message": "Знайти фрагменти та теки",
+    "description": "Clippings Manager intro - key binding description"
+  },
+  "clipMgrIntroCmdClose": {
+    "message": "Зачинити менеджер фрагментів",
+    "description": "Clippings Manager intro - key binding description"
+  },
+  "clipMgrIntroCmdUndo": {
+    "message": "Повернути",
+    "description": "Clippings Manager intro - key binding description"
+  },
+  "clipMgrIntroCmdShowIntro": {
+    "message": "Показати вступ до менеджера фрагментів",
+    "description": "Clippings Manager intro - key binding description"
+  },
+  "clipMgrIntroCmdMaximize": {
+    "message": "Розгорнути вікно",
+    "description": "Clippings Manager intro - key binding description"
+  },
+  "clipMgrIntroCmdRedo": {
+    "message": "Скасувати відміну",
+    "description": "Clippings Manager intro - key binding description"
+  },
+  "clipMgrIntroCmdDetailsPane": {
+    "message": "Показати/сховати панель подробиць",
+    "description": "Clippings Manager intro - key binding description"
+  },
+  "clipMgrStatusBar": {
+    "message": "$1 од.",
+    "description": "Status bar text in Clippings Manager, counting the number of clippings and folders"
+  },
+  "clipMgrRemoveSrcURLsConfirm": {
+    "message": "Видалено адреси веб-сторінок із ваших фрагментів."
+  },
+  "clipMgrRestoredSrcURLs": {
+    "message": "Відновлена адреса веб сторінки-джерела."
+  },
+  "clipMgrNoUndo": {
+    "message": "Скасовувати нічого"
+  },
+  "clipMgrNoRedo": {
+    "message": "Повторювати нічого"
+  },
+  "clipMgrShortcutKeyHelpHdg": {
+    "message": "Поєднання клавіш для фрагменту"
+  },
+  "clipMgrShortcutHelpInstrxn": {
+    "message": "Щоб вставити фрагмент зі списку нижче у веб-сторінку в Firefox, натисніть $1, а потім гарячу клавішу."
+  },
+  "clipMgrShortcutHelpInstrxnTB": {
+    "message": "Аби вставити фрагмент зі списку нижче до повідомлення у Thunderbird, натистніть $1 і гарячу клавішу."
+  },
+  "clipMgrShortcutKeyAssigned": {
+    "message": "Вибрана гаряча клавіша уже була призначена для іншого фрагменту. Будь ласка, виберіть іншу гарячу клавішу."
+  },
+  "clipMgrNoSrcURL": {
+    "message": "У вибраному фрагменті немає вихідної адреси веб-сторінки."
+  },
+  "clipMgrImportConfirm": {
+    "message": "Імпорт з „$1“ успішно завершено."
+  },
+  "btnReload": {
+    "message": "Перезавантажити"
+  },
+  "clipMgrExportConfirm": {
+    "message": "Експорт фрагментів до „$1“ успішно завершено."
+  },
+  "clipMgrBackupConfirm": {
+    "message": "Резервне копіювання до „$1“ успішно завершено."
+  },
+  "clipMgrWarnRemoveSrcURLs": {
+    "message": "Усі адреси веб-сторінок фрагмента, будуть вилучені. Ви дійсно хочете продовжити?"
+  },
+  "placeholderNameHint": {
+    "message": "Літери, числа, підкреслення, без пробілів"
+  },
+  "labelCustPlchldrName": {
+    "message": "Ім'я користувацького наповнювача:"
+  },
+  "labelNumPlchldrName": {
+    "message": "Ім'я чисельного наповнювача:"
+  },
+  "labelCustPlchldrVal": {
+    "message": "Значення за умовчанням (необов’язково):"
+  },
+  "custPlchldrValDesc": {
+    "message": "Розділіть кілька значень за умовчанням символом „|“. Приклад: червоний|зелений|синій"
+  },
+  "numPlchldrDesc": {
+    "message": "Щоразу як фрагмент вставляється, його лічильник вставок автоматично збільшується, поки не буде скинутий кнопкою контекстного меню на панелі інструментів Фрагментів."
+  },
+  "numPlchldrDescTB": {
+    "message": "Щоразу як фрагмент вставляється, його лічильник вставок автоматично збільшується, поки не буде скинутий у контекстному меню Фрагментів."
+  },
+  "dateTimeFmts": {
+    "message": "Доступні формати дати/часу:"
+  },
+  "labelSelImportFile": {
+    "message": "Оберіть файл для імпорту:"
+  },
+  "labelSelBkupFile": {
+    "message": "Виберіть файл резервної копії:"
+  },
+  "statusSavingBkup": {
+    "message": "Збереження файлу резервної копії..."
+  },
+  "statusSavingBkupDone": {
+    "message": "Збереження файлу резервної копії... готове"
+  },
+  "statusSavingBkupFailed": {
+    "message": "Не вдалося виконати резервне копіювання."
+  },
+  "backupError": {
+    "message": "На жаль, сталася помилка під час створення файлу резервної копії:\n\nДокладніше:\n$1"
+  },
+  "cbImportReplcShctKeys": {
+    "message": "Замінити комбінації клавіш"
+  },
+  "warnBackupOverwrite": {
+    "message": "Відновлення з резервної копії замінить усі ваші фрагменти резервною копією. Цю дію не можна скасувати."
+  },
+  "btnImport": {
+    "message": "Імпорт"
+  },
+  "btnRestoreBkup": {
+    "message": "Відновлення з резервної копії"
+  },
+  "importError": {
+    "message": "Помилка читання вибраного файлу. Файл може бути не дійсним файлом Clippings. "
+  },
+  "labelSelExportFmt": {
+    "message": "Виберіть формат для експорту фрагментів:"
+  },
+  "expFmtDescHdg": {
+    "message": "Опис"
+  },
+  "expFmtClippings6": {
+    "message": "Фрагменти"
+  },
+  "expFmtClippings6Desc": {
+    "message": "Базовий формат резервного копіювання й обміну даними Фрагментів між користувачами чи комп'ютерами."
+  },
+  "expFmtHTMLDoc": {
+    "message": "Документ HTML"
+  },
+  "expFmtHTMLDocDesc": {
+    "message": "Експорт даних Clippings у вигляді HTML документа для друку або відображення у веб-браузері."
+  },
+  "expFmtCSV": {
+    "message": "Значення розділені комами (CSV)"
+  },
+  "expFmtCSVDesc": {
+    "message": "Використовуйте формат (CSV), відокремлені комами, для обміну даними фрагментами з іншими програмами. Лише фрагменти та їх назви експортується."
+  },
+  "cbExpInclSrcURLs": {
+    "message": "Видалено адреси веб-сторінок із ваших фрагментів"
+  },
+  "btnExport": {
+    "message": "Експорт"
+  },
+  "statusExportStart": {
+    "message": "Експортування..."
+  },
+  "statusExportDone": {
+    "message": "Експортування... готово"
+  },
+  "statusExportFailed": {
+    "message": "Експорт не вдався."
+  },
+  "exportError": {
+    "message": "Помилка під час експортування даних Clippings.\n\nПодробиці:\n$1"
+  },
+  "labelMoveClipping": {
+    "message": "Перемістити фрагмент до:"
+  },
+  "labelMoveFolder": {
+    "message": "Перемістити теку до:"
+  },
+  "labelCopyClipping": {
+    "message": "Скопіювати фрагмент до:"
+  },
+  "labelCopyFolder": {
+    "message": "Копіювати теку до:"
+  },
+  "cbCreateCopy": {
+    "message": "Створити копію"
+  },
+  "errMoveToSameParent": {
+    "message": "Елемент вже існує у вибраній теці.",
+    "description": "Error message when attempting to move clipping/folder to the same parent folder"
+  },
+  "errMoveToSubfldr": {
+    "message": "Не можна перемістити чи скопіювати до вибраної теки.",
+    "description": "Error message when attempting to move or copy a folder into a subfolder of itself"
+  },
+  "btnMove": {
+    "message": "Перемістити"
+  },
+  "btnCopy": {
+    "message": "Копіювати"
+  },
+  "prefsTitle": {
+    "message": "Параметри фрагментів"
+  },
+  "errPrefPgFailed": {
+    "message": "Не вдалося завантажити сторінку налаштування розширення. Перезапустіть Firefox і повторіть спробу."
+  },
+  "prefsHdgPasteOptions": {
+    "message": "Параметри вставки"
+  },
+  "labelPasteOptions": {
+    "message": "Вставляючи HTML-форматований фрагмент у поле редагування з форматуванням:"
+  },
+  "pasteOptFormatted": {
+    "message": "Вставити як відформатований текст"
+  },
+  "pasteOptRawHTML": {
+    "message": "Вставити як простий текст, зберігаючи HTML-теги"
+  },
+  "cbAutoLineBreak": {
+    "message": "Автоматично розривати рядки, якщо не існують теги <p> або <br>"
+  },
+  "htmlPasteDesc": {
+    "message": "HTML-форматований  фрагмент буде завжди як звичайний текст при вставці в звичайне текстове поле, або якщо фрагмент містить обмежені теги, такі як <script>, <applet>, <object>, <iframe>і т. д."
+  },
+  "prefsShortcutMode": {
+    "message": "Активуйте режим гарячих клавіш, натиснувши на наступні клавіші:"
+  },
+  "prefsShctMode": {
+    "message": "Активуйте режим гарячих клавіш натисненням $1"
+  },
+  "prefsShctModeNew": {
+    "message": "Або скористайтеся клавішами $1"
+  },
+  "prefsShortcutKeyNote": {
+    "message": "Деякі з доступних комбінацій клавіш вже можуть бути призначені <a href=\"https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly\" class=\"hyperlink\">командами Firefox</a> або іншими додатками."
+  },
+  "prefsOutsideShct": {
+    "message": "Щоб змінити клавіатурне скорочення, перейдіть у Керування скороченнями розширень у диспетчері додатків."
+  },
+  "prefsDefaultNumPlchldrStart": {
+    "message": "Стандартне початкове значення для автозбільшення заповнювачів:"
+  },
+  "prefsHdgGeneralOptions": {
+    "message": "Загальні налаштування"
+  },
+  "cbAlwaysSaveSrcURL": {
+    "message": "Завжди зберегати адресу джерельної веб-сторінки"
+  },
+  "cbCheckSpelling": {
+    "message": "Перевірка правопису"
+  },
+  "cbBackupFilenameWithDate": {
+    "message": "Додати дату до імені файлу резервної копії"
+  },
+  "backupRemind": {
+    "message": "Показувати нагадування про резервну копію кожні",
+    "description": "Label for checkbox option for setting backup notification, appears after checkbox and before the reminder frequency drop-down menu"
+  },
+  "backupRemSkip": {
+    "message": "Не нагадувати якщо з останнього збереження не було змін"
+  },
+  "backupRemDays": {
+    "message": "дні",
+    "description": "Label appearing after the drop-down menu for backup reminder frequency"
+  },
+  "backupRemFreqDaily": {
+    "message": "1",
+    "description": "Number of days between backup reminders: once a day"
+  },
+  "backupRemFreqTwoDays": {
+    "message": "2",
+    "description": "Number of days between backup reminders: once every 2 days"
+  },
+  "backupRemFreqThreeDays": {
+    "message": "3",
+    "description": "Number of days between backup reminders: once every 3 days"
+  },
+  "backupRemFreqFiveDays": {
+    "message": "5",
+    "description": "Number of days between backup reminders: once every 5 days"
+  },
+  "backupRemFreqWeekly": {
+    "message": "7",
+    "description": "Number of days between backup reminders: once a week (every 7 days)"
+  },
+  "backupRemFreqTwoWeeks": {
+    "message": "14",
+    "description": "Number of days between backup reminders: once every 2 weeks (every 14 days)"
+  },
+  "backupRemFreqMonthly": {
+    "message": "30",
+    "description": "Number of days between backup reminders: once a month (every 30 days)"
+  },
+  "firstBackupTitle": {
+    "message": "Резервне копіювання",
+    "description": "Title bar text for first-time backup dialog"
+  },
+  "backupNotifyTitle": {
+    "message": "Створити резервну копію Ваших фрагментів"
+  },
+  "backupNotifyMsg": {
+    "message": "Прийшов час створити резервні копії Ваших фрагментів. Натисніть тут, щоб створити резервну копію ваших фрагментів."
+  },
+  "backupNotifyFirstMsg": {
+    "message": "Зберігайте Ваші фрагментів в безпеці, роблячи регулярні резервні копії. Натисніть тут, щоб зробити резервні копії та налаштувати нагадування."
+  },
+  "backupFirstDesc": {
+    "message": "Тримайте ваші фрагменти в безпеці, роблячи регулярні резервні копії. Зачекайте хвилинку, щоб створити резервні копії ваших фрагментів, натиснувши на Резервне копіювання зараз."
+  },
+  "backupNow": {
+    "message": "Створити резервну копію зараз"
+  },
+  "backupHint": {
+    "message": "Ви також можете зробити резервну копію ваших фрагментів будь-коли з Менеджера фрагментів. Просто відкрийте Керування фрагментами, а потім виберіть Інструменти → Резервне копіювання."
+  },
+  "backupPrefsHdg": {
+    "message": "Встановити нагадування про резервну копію"
+  },
+  "backupPrefsHint": {
+    "message": "Цей параметр також може бути змінений в налаштуваннях фрагментів."
+  },
+  "syncFldrName": {
+    "message": "Синхронізовані фрагменти",
+    "description": "The name of the folder containing the user's synchronized clippings."
+  },
+  "syncClippings": {
+    "message": "Синхронізація фрагментів",
+    "description": "The name of the feature for synchronizing clippings between applications or computers."
+  },
+  "syncIntro": {
+    "message": "Ви можете синхронізувати Ваші фрагменти з Thunderbird або іншими версіями Firefox, помістивши фрагменти, якими ви хочете поділитися в спеціальній теці \"Синхронізовані фрагменти\". Синхронізовані фрагменти будуть збережені у файлі у вашій системі. Потребує допоміжної програми <a href=\"http://aecreations.sourceforge.net/clippings/sync.php\" class=\"hyperlink\">Sync Clippings</a>."
+  },
+  "syncIntroTB": {
+    "message": "Можете синхронізувати свої фрагменти з  Firefox чи іншою установкою Thunderbird, помістивши бажані у теку \"Синхронізовані фрагменти\". Вони будуть збережені на вашому комп'ютері. Потрібне помічне розширення <a href=\"http://aecreations.sourceforge.net/clippings/sync.php\" class=\"hyperlink\">Синхронізація фрагментів</a>."
+  },
+  "syncLearnMore": {
+    "message": "Докладніше про синхронізацію фрагментів."
+  },
+  "syncHelp": {
+    "message": "<p class=\"dlg-subhead\">Синхронізовані фрагменти</p><p>Синхронізовані фрагменти дають синхронізувати набори фрагментів між Firefox та Thunderbird щоб вони були доступні в обох програмах. Можете обрати фрагменти до синхронізації створивши їх у спеціальній теці \"Синхронізовані фрагменти\" з меню Новий фрагмент, або переносячи їх у цю ж теку в Керівнику Фрагментів.</p><p>Тека \"Синхронізовані фрагменти\" буде створена автоматично щойно налаштування \"Синхронізувати фрагменти\" буде включене.</p><p class=\"dlg-subhead\">Налаштування</p><p>\"Синхронізувати фрагменти\" має бути включене в усіх програмах де ви хочете мати однакові фрагменти. Функція підтримуєтьяся у Firefox 60 і вище, і Thunderbird 60 і вище (зі встановленими Фрагментами для Thunderbird 5.6 чи новіше).</p><p>Також на вашому комп'ютері має бути встановлена помічна програма Синхронізація Фрагментів щоб тримати вашу теку Синхронізовані фрагменти в актуальному стані. ЇЇ можна завантажити з <a href=\"http://aecreations.sourceforge.net/clippings/sync.php\" class=\"hyperlink\">сайту AE Creations</a>. Встановлена, вона запускатиметься сама зі стартом Firefox і працюватиме на тлі.</p><p>Щоб запустити Синхронізацію Фрагментів, клацніть <b>Включити синхронізацію</b> на сторінці налаштувань Фрагментів. Ви маєте вказати розташування файлу на комп'ютері, куди  буде збережено дані синхронізованих фрагментів, якщо воно ще не вказане.</p>",
+    "description": "Sync Clippings help in Firefox"
+  },
+  "syncHelpTB": {
+    "message": "<p class=\"dlg-subhead\">Синхронізувати фрагменти</p><p>Синхронізація фрагментів дає синхронізувати набори фрагментів між Firefox та Thunderbird аби вони були доступні в обох програмах. Можете обрати фрагменти до синхронізації створивши їх у спеціальній теці \"Синхронізовані фрагменти\" з меню Новий фрагмент, або переносячи їх у цю ж теку в Керівнику Фрагментів.</p><p>Тека \"Синхронізовані фрагменти\" буде створена автоматично щойно налаштування \"Синхронізувати фрагменти\" буде включене.</p><p class=\"dlg-subhead\">Налаштування</p><p>\"Синхронізувати фрагменти\" має бути включене у програмах де ви хочете мати однакові фрагменти. Функція підтримуєтьяся у Firefox 60  і вище (зі встановленими Фрагментами 6.1 чи новіше), і Thunderbird 60 і вище.</p><p>Також на вашому комп'ютері має бути встановлена помічна програма Синхронізація Фрагментів щоб тримати вашу теку Синхронізовані фрагменти в актуальному стані. ЇЇ можна завантажити з <a href=\"http://aecreations.sourceforge.net/clippings/sync.php\" class=\"hyperlink\">сайту AE Creations</a>. Встановлена, вона запускатиметься сама зі стартом Thunderbird, і працюватиме на тлі.</p><p>Щоб запустити Синхронізацію Фрагментів, клацніть <b>Включити синхронізацію</b> на сторінці налаштувань Фрагментів. Ви маєте вказати розташування файлу на комп'ютері, куди  буде збережено дані синхронізованих фрагментів, якщо воно ще не вказане.</p>",
+    "description": "Sync Clippings help in Thunderbird"
+  },
+  "syncStatusOn": {
+    "message": "Синхронізація фрагментів увімкнена."
+  },
+  "syncStatusOff": {
+    "message": "Синхронізацію фрагментів вимкнено."
+  },
+  "syncSettings": {
+    "message": "Налаштування…"
+  },
+  "syncTurnOn": {
+    "message": "Увімкнути синхронізацію"
+  },
+  "syncTurnOff": {
+    "message": "Вимкнути синхронізацію"
+  },
+  "syncTurnOffConf": {
+    "message": "Ви справді хочете вимкнути функцію синхронізації?"
+  },
+  "syncTurnOffAck": {
+    "message": "Синхронізацію фрагментів вимкнено."
+  },
+  "syncTurnOffRmFldr": {
+    "message": "Видаляє теку із меню фрагментів і менеджера фрагментів"
+  },
+  "syncConnect": {
+    "message": "Підключення до додатку Sync Clippings helper..."
+  },
+  "syncFileDir": {
+    "message": "Синхронізація файлу :"
+  },
+  "syncFileDirExample": {
+    "message": "Приклад:"
+  },
+  "syncFileDirExWin": {
+    "message": "C:\\Users\\YourName\\Documents\\Synced Clippings",
+    "description": "Example folder path on Windows."
+  },
+  "syncFileDirExMac": {
+    "message": "/Users/YourName/Documents/Synced Clippings",
+    "description": "Example folder path on macOS."
+  },
+  "syncFileDirExLinux": {
+    "message": "/home/YourName/synced-clippings",
+    "description": "Example folder path on Linux."
+  },
+  "errSyncConxn": {
+    "message": "Не вдається підключитися до додатку для Sync Clipps. Переконайтеся, що додаток встановлений."
+  },
+  "errSyncConxnDetail": {
+    "message": "Необхідний додаток для синхронізації ваших фрагментів. Ви можете завантажити його з веб-сайту <a href=\"http://aecreations.sourceforge.net/clippings/sync.php\" class=\"hyperlink\">AE Creations</a>."
+  },
+  "errSyncOptsInit": {
+    "message": "Не вдалося ініціалізувати налаштування Sync Clippings. Перезапустіть Firefox і повторіть спробу."
+  },
+  "errSync": {
+    "message": "Сталася помилка у додатку Sync Clippings helper."
+  },
+  "errNoDetails": {
+    "message": "Вибачте, для вас немає додаткової інформації про цю помилку."
+  },
+  "syncReloadAck": {
+    "message": "Оновлення теки Synced Clipps. Натисніть \"Перезавантажити\", щоб продовжити."
+  },
+  "deleteSyncFldr": {
+    "message": "Не вдається вилучити теку Synced Clippings тому, що Sync Clippings увімкнено."
+  },
+  "moveSyncFldr": {
+    "message": "Неможливо перемістити теку синхронізованих фрагментів."
+  },
+  "syncPushFailed": {
+    "message": "Не вдається надіслати зміни до теки Synced Clippings тому, що не вдалося підключитися до помічника Sync Clippings. Щоб це виправити, перевстановіть додаток Sync Clippings."
+  },
+  "syncStartupFailedHdg": {
+    "message": "Помилка синхронізації фрагментів"
+  },
+  "syncStartupFailed": {
+    "message": "Не вдалося підключитися до допоміжної програми Sync Clipps. Щоб виправити це, перевстановіть додаток Sync Clippings helper"
+  },
+  "syncUpdateTitle": {
+    "message": "Нова версія помічника Sync Clippings"
+  },
+  "syncUpdateMsg": {
+    "message": "Доступна нова версія додатку Sync Clippings Helper. Натисніть тут, щоб перейти на сторінку завантаження."
+  },
+  "syncOptsHdg": {
+    "message": "Параметри"
+  },
+  "syncUpdateChkOpt": {
+    "message": "Автоматично перевіряти наявність оновлень для Sync Clippings Helper"
+  },
+  "cxtMnuSyncItemsOnly": {
+    "message": "Показувати лише синхронізовані елементи в меню фрагментів"
+  },
+  "wndsAndDlgsOpts": {
+    "message": "Інтерфейс…"
+  },
+  "wndsDlgsOptsTitle": {
+    "message": "Інтерфейс"
+  },
+  "wndsDlgsOptsExpWarn": {
+    "message": "Ці налаштування експериментальні для $1. Вони можуть працювати неправильно між кількома моніторами.",
+    "description": "Warning message in the Windows and Dialogs settings dialog, appearing if using an OS other than Windows"
+  },
+  "macOS": {
+    "message": "macOS"
+  },
+  "autoPosWnds": {
+    "message": "Автоматично розташувати у похідному вікні",
+    "description": "Checkbox option in Windows and Dialogs settings dialog"
+  },
+  "clpMgrSaveWndPos": {
+    "message": "Зберегти розмір і розташування вікна Керівника фрагментів",
+    "description": "Checkbox option in Windows and Dialogs settings dialog"
+  },
+  "aboutBtn": {
+    "message": "Про програму…"
+  },
+  "aboutExtVer": {
+    "message": "версія $1",
+    "description": "Extension version number"
+  },
+  "aboutAuthor": {
+    "message": "Створено AE Creations."
+  },
+  "aboutHomePgLink": {
+    "message": "Відвідайте сторінку"
+  },
+  "aboutLicLink": {
+    "message": "Відомості про ліцензію"
+  },
+  "aboutTrans": {
+    "message": "Переклади, виконані перекладачами Crowdin."
+  },
+  "aboutContribHdg": {
+    "message": "Бажаєте допомогти?",
+    "description": "About dialog text for encouraging users to donate or help with translation"
+  },
+  "aboutDonate": {
+    "message": "Зробити пожертву"
+  },
+  "aboutContribConj": {
+    "message": "або",
+    "description": "Conjunction connecting the CTA hyperlinks for donating or supplying a translation"
+  },
+  "aboutL10n": {
+    "message": "додати переклад."
+  },
+  "aboutSyncVerLabel": {
+    "message": "Версія додатку Sync Clippingss helper: "
+  },
+  "noSyncHelperApp": {
+    "message": "Не встановлено",
+    "description": "Appears when the Sync Clippings helper app is not detected on the system"
+  },
+  "aboutSyncFileSize": {
+    "message": "Розмір файлу синхронізації:"
+  },
+  "upgradeNotifcn": {
+    "message": "$1 було оновлено. Клацніть дізнатися що нового.",
+    "description": "Post-upgrade notification text, with placeholder for extension name (Clippings or Clippings for Thunderbird)"
+  },
+  "newVerHdg": {
+    "message": "Нова версія встановлена!",
+    "description": "Header for the What's New page (appears after upgrading Clippings)"
+  },
+  "upgrade": {
+    "message": "Фрагменти оновлено до версії 6.3.",
+    "description": "What's New page (appears after upgrading Clippings)"
+  },
+  "upgradeTB": {
+    "message": "Фрагменти для Thunderbird оновлено до версії 6.3.",
+    "description": "What's New page (appears after upgrading Clippings for Thunderbird)"
+  },
+  "whatsNew": {
+    "message": "Що нового",
+    "description": "What's New page (appears after upgrading Clippings)"
+  },
+  "whatsNew1": {
+    "message": "Покращено Керівника Фрагментів: у Windows тепер зберігаються розмір і розташування його вікна",
+    "description": "Description of an enhancement or fix in the new version of Clippings"
+  },
+  "whatsNew2": {
+    "message": "Поліпшення підтримки кількох моніторів у Windows. Меню Фрагментів буде тепер виринати у вікні оглядача де воно викликається, а не центрованим на основному моніторі",
+    "description": "Description of an enhancement or fix in the new version of Clippings"
+  },
+  "whatsNew3": {
+    "message": "Нова можливість уникнути нагадувань якщо фрагменти не мінялися від останнього резервного копіювання",
+    "description": "Description of an enhancement or fix in the new version of Clippings"
+  },
+  "contribHdg": {
+    "message": "Долучись",
+    "description": "Contribution CTA in the What's New page"
+  },
+  "contribCTA": {
+    "message": "Підтримайте розробників $1 <a href=\"$2\">внеском</a>. Більше способів <a href=\"$3\">долучитися</a>!",
+    "description": "Call to action message to make donation or learn more about contributing to Clippings (or Clippings for Thunderbird)"
+  },
+  "linkBlog": {
+    "message": "Блог розробника"
+  },
+  "linkAMO": {
+    "message": "Сторінка доданків Firefox"
+  },
+  "linkATN": {
+    "message": "Сторінка доданків Thunderbird"
+  },
+  "linkForum": {
+    "message": "Довідка і форуми підтримки"
+  },
+  "keyAlt": {
+    "message": "Alt"
+  },
+  "keyOption": {
+    "message": "⌥"
+  },
+  "keyCtrl": {
+    "message": "Ctrl"
+  },
+  "keyMacCtrl": {
+    "message": "⌃"
+  },
+  "keyCommand": {
+    "message": "⌘"
+  },
+  "keyShift": {
+    "message": "Shift"
+  },
+  "keyMacShift": {
+    "message": "⇧"
+  },
+  "keyDel": {
+    "message": "Del"
+  },
+  "keyMacDel": {
+    "message": "Delete ⌦"
+  },
+  "keyEsc": {
+    "message": "Esc"
+  },
+  "keySpace": {
+    "message": "Пробіл"
+  },
+  "keyPageUp": {
+    "message": "Сторінку вгору"
+  },
+  "keyPageDown": {
+    "message": "Сторінку вниз"
+  },
+  "keyHome": {
+    "message": "Домівка"
+  },
+  "keyEnd": {
+    "message": "Кінець"
+  },
+  "keyLeft": {
+    "message": "Вліво"
+  },
+  "keyRight": {
+    "message": "Вправо"
+  },
+  "keyUp": {
+    "message": "Вгору"
+  },
+  "keyDown": {
+    "message": "Вниз"
+  },
+  "keyIns": {
+    "message": "Вставка"
+  }
+}

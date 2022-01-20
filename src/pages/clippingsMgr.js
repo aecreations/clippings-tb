@@ -2393,7 +2393,7 @@ $(window).on("click", aEvent => {
 $(window).on("focus", aEvent => {
   // Ensure prefs cache is initialized when the window focus event is fired;
   // it won't be at the time window is opened.
-  if (!! gPrefs.clippingsMgrSaveWndGeom) {
+  if (gPrefs && gPrefs.clippingsMgrSaveWndGeom) {
     setSaveWndGeometryInterval(true);
   }
 });

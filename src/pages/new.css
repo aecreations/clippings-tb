@@ -251,8 +251,17 @@ body[data-locale|="pt"] #clipping-options {
 
 #clipping-options,
 #clipping-options button,
-#clipping-options select{
+#clipping-options select {
     font-size: 12px;
+}
+
+body[data-locale="uk"] #show-preview {
+    letter-spacing: -0.75px;
+}
+
+body[data-locale="uk"] #create-as-unquoted + label,
+body[data-locale="uk"] #remove-extra-linebreaks + label {
+    letter-spacing: -0.75px;
 }
 
 #clipping-options #shct-key-and-label-opts {

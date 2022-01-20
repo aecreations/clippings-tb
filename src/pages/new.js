@@ -8,6 +8,7 @@ const WNDH_OPTIONS_EXPANDED = 486;
 const DLG_HEIGHT_ADJ_WINDOWS = 48;
 const DLG_HEIGHT_ADJ_LOCALE_ES = 20;
 const DLG_HEIGHT_ADJ_LOCALE_DE = 10;
+const DLG_HEIGHT_ADJ_LOCALE_UK = 20;
 
 let gOS;
 let gClippingsDB = null;
@@ -48,18 +49,23 @@ $(async () => {
   gPrefs = await aePrefs.getAllPrefs();
   document.body.dataset.laf = gPrefs.enhancedLaF;
 
+  let lang = messenger.i18n.getUILanguage();
+  document.body.dataset.locale = lang;
+
   $("#btn-expand-options").click(async (aEvent) => {
     let height = WNDH_OPTIONS_EXPANDED;
     if (gOS == "win") {
       height += DLG_HEIGHT_ADJ_WINDOWS;
     }
     
-    let lang = messenger.i18n.getUILanguage();
     if (lang == "es-ES") {
       height += DLG_HEIGHT_ADJ_LOCALE_ES;
     }
     else if (lang == "de" && gOS == "mac") {
       height += DLG_HEIGHT_ADJ_LOCALE_DE;
+    }
+    else if (lang == "uk") {
+      height += DLG_HEIGHT_ADJ_LOCALE_UK;
     }
     
     await messenger.windows.update(messenger.windows.WINDOW_ID_CURRENT, { height });
