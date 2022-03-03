@@ -9,6 +9,7 @@ const DLG_HEIGHT_ADJ_WINDOWS = 48;
 const DLG_HEIGHT_ADJ_LOCALE_ES = 20;
 const DLG_HEIGHT_ADJ_LOCALE_DE = 10;
 const DLG_HEIGHT_ADJ_LOCALE_UK = 20;
+const DLG_HEIGHT_ADJ_LOCALE_ZH = 20;
 
 let gOS;
 let gClippingsDB = null;
@@ -66,6 +67,9 @@ $(async () => {
     }
     else if (lang == "uk") {
       height += DLG_HEIGHT_ADJ_LOCALE_UK;
+    }
+    else if (lang.startsWith("zh") && gOS == "mac") {
+      height += DLG_HEIGHT_ADJ_LOCALE_ZH;
     }
     
     await messenger.windows.update(messenger.windows.WINDOW_ID_CURRENT, { height });
