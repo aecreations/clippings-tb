@@ -36,8 +36,8 @@ let gClippingsSvc = {
   async createClipping(aClippingData)
   {
     let newClippingID = await gClippingsDB.clippings.add(aClippingData);
-    let clpgsLstrs = gClippings.getClippingsListeners();
-    clpgsLstrs.forEach(aListener => {
+    let clippingsLstrs = gClippings.getClippingsListeners();
+    clippingsLstrs.forEach(aListener => {
       aListener.newClippingCreated(newClippingID, aClippingData, aeConst.ORIGIN_CLIPPINGS_MGR);
     });
 
@@ -47,8 +47,8 @@ let gClippingsSvc = {
   async createFolder(aFolderData)
   {
     let newFolderID = await gClippingsDB.folders.add(aFolderData);
-    let clpgsLstrs = gClippings.getClippingsListeners();
-    clpgsLstrs.forEach(aListener => {
+    let clippingsLstrs = gClippings.getClippingsListeners();
+    clippingsLstrs.forEach(aListener => {
       aListener.newFolderCreated(newFolderID, aFolderData, aeConst.ORIGIN_CLIPPINGS_MGR);
     });
 
@@ -73,8 +73,8 @@ let gClippingsSvc = {
       }
     }        
 
-    let clpgsLstrs = gClippings.getClippingsListeners();
-    clpgsLstrs.forEach(aListener => {
+    let clippingsLstrs = gClippings.getClippingsListeners();
+    clippingsLstrs.forEach(aListener => {
       aListener.clippingChanged(aClippingID, newClipping, aOldClipping);
     });
 
@@ -99,8 +99,8 @@ let gClippingsSvc = {
       }
     }        
 
-    let clpgsLstrs = gClippings.getClippingsListeners();
-    clpgsLstrs.forEach(aListener => {
+    let clippingsLstrs = gClippings.getClippingsListeners();
+    clippingsLstrs.forEach(aListener => {
       aListener.folderChanged(aFolderID, newFolder, aOldFolder);
     });
 
@@ -111,8 +111,8 @@ let gClippingsSvc = {
   {
     await gClippingsDB.clippings.delete(aClippingID);
 
-    let clpgsLstrs = gClippings.getClippingsListeners();
-    clpgsLstrs.forEach(aListener => {
+    let clippingsLstrs = gClippings.getClippingsListeners();
+    clippingsLstrs.forEach(aListener => {
       aListener.clippingDeleted(aClippingID);    
     });
   },
@@ -121,8 +121,8 @@ let gClippingsSvc = {
   {
     await gClippingsDB.folders.delete(aFolderID);
 
-    let clpgsLstrs = gClippings.getClippingsListeners();
-    clpgsLstrs.forEach(aListener => {
+    let clippingsLstrs = gClippings.getClippingsListeners();
+    clippingsLstrs.forEach(aListener => {
       aListener.folderDeleted(aFolderID);
     });
   }
@@ -1317,8 +1317,8 @@ let gCmd = {
     
     this.recentAction = this.ACTION_COPYTOFOLDER;
 
-    let clpgsLstrs = gClippings.getClippingsListeners();
-    clpgsLstrs.forEach(aListener => {
+    let clippingsLstrs = gClippings.getClippingsListeners();
+    clippingsLstrs.forEach(aListener => {
       aListener.copyStarted();
     });
 
@@ -1373,7 +1373,7 @@ let gCmd = {
         }).catch(handlePushSyncItemsError);
       }
 
-      clpgsLstrs.forEach(aListener => {
+      clippingsLstrs.forEach(aListener => {
         aListener.copyFinished(newFldrID);
       });
     }).catch(aErr => {
@@ -1866,11 +1866,6 @@ let gCmd = {
     gDialogs.reloadSyncFolder.showModal();
   },
   
-  removeAllSrcURLs: function ()
-  {
-    gDialogs.removeAllSrcURLs.showModal();
-  },
-
   showMiniHelp: function ()
   {
     if ($("#intro-content").css("display") == "none") {
@@ -3227,7 +3222,7 @@ function initDialogs()
   gDialogs.importFromFile.onAccept = function (aEvent)
   {
     let that = this;
-    let clpgsLstrs = gClippings.getClippingsListeners();
+    let clippingsLstrs = gClippings.getClippingsListeners();
    
     function importFile(aAppendItems)
     {
@@ -3260,7 +3255,7 @@ function initDialogs()
           $("#import-progress-bar").hide();
           console.error(e);
           $("#import-error").text(messenger.i18n.getMessage("importError")).show();
-          clpgsLstrs.forEach(aListener => { aListener.importFinished(false) });
+          clippingsLstrs.forEach(aListener => { aListener.importFinished(false) });
 
           return;
         }
@@ -3287,7 +3282,7 @@ function initDialogs()
       gClippingsDB.transaction("rw", gClippingsDB.clippings, gClippingsDB.folders, () => {
         log("Clippings/mx::clippingsMgr.js: gDialogs.importFromFile.onAccept(): Starting restore from backup file.\nDeleting all clippings and folders (except the 'Synced Clippings' folder, if Sync Clippings turned on).");
 
-        clpgsLstrs.forEach(aListener => { aListener.importStarted() });       
+        clippingsLstrs.forEach(aListener => { aListener.importStarted() });       
 	gCmd.recentAction = gCmd.ACTION_RESTORE_BACKUP;
 
         gClippingsDB.folders.each((aItem, aCursor) => {
@@ -3321,7 +3316,7 @@ function initDialogs()
     else {
       info("Clippings/mx::clippingsMgr.js: Import dialog mode: Import File");
       gCmd.recentAction = gCmd.ACTION_IMPORT;
-      clpgsLstrs.forEach(aListener => { aListener.importStarted() });
+      clippingsLstrs.forEach(aListener => { aListener.importStarted() });
       
       importFile(true);
     }
@@ -3456,8 +3451,8 @@ function initDialogs()
   };
   gDialogs.importConfirmMsgBox.onAfterAccept = async function ()
   {
-    let clpgsLstrs = gClippings.getClippingsListeners();
-    clpgsLstrs.forEach(aListener => { aListener.importFinished(true) });
+    let clippingsLstrs = gClippings.getClippingsListeners();
+    clippingsLstrs.forEach(aListener => { aListener.importFinished(true) });
 
     await rebuildClippingsTree();
   };
@@ -3484,16 +3479,6 @@ function initDialogs()
     }
   };
   
-  gDialogs.removeAllSrcURLs = new aeDialog("#remove-all-source-urls-dlg");
-  $("#remove-all-source-urls-dlg > .dlg-btns > .dlg-btn-yes").click(aEvent => {
-    gDialogs.removeAllSrcURLs.close();
-    gCmd.recentAction = gCmd.ACTION_REMOVE_ALL_SRC_URLS;
-    
-    gClippingsDB.clippings.toCollection().modify({ sourceURL: "" }).then(aNumUpd => {
-      gDialogs.removeAllSrcURLsConfirm.openPopup();
-    });
-  });
-
   gDialogs.reloadSyncFolder = new aeDialog("#reload-sync-fldr-msgbox");
   gDialogs.reloadSyncFolder.onAfterAccept = function ()
   {
@@ -3507,11 +3492,13 @@ function initDialogs()
   });
   gDialogs.moveTo.resetTree = function ()
   {
-    let that = gDialogs.moveTo;
-    let fldrTree = that.fldrTree.getTree();
+    if (! this.fldrTree) {
+      return;
+    }
+    let fldrTree = this.fldrTree.getTree();
     fldrTree.clear();
-    that.fldrTree = null;
-    that.selectedFldrNode = null;
+    this.fldrTree = null;
+    this.selectedFldrNode = null;
 
     // Destroy and then recreate the element used to instantiate Fancytree,
     // so that we start fresh when the dialog is invoked again.
@@ -3774,7 +3761,7 @@ async function buildClippingsTree()
         }
 
         let parentNode = aNode.getParent();
-        let clpgsLstrs = gClippings.getClippingsListeners();
+        let clippingsLstrs = gClippings.getClippingsListeners();
         
         if (aData.otherNode) {           
           let newParentID = aeConst.ROOT_FOLDER_ID;
@@ -3802,7 +3789,7 @@ async function buildClippingsTree()
             return;
           }
 
-          clpgsLstrs.forEach(aListener => {
+          clippingsLstrs.forEach(aListener => {
             aListener.dndMoveStarted();
           });
 
@@ -3847,7 +3834,7 @@ async function buildClippingsTree()
           
           gCmd.updateDisplayOrder(oldParentID, destUndoStack, undoInfo, !isReordering).then(() => {
             if (isReordering) {
-              clpgsLstrs.forEach(aListener => {
+              clippingsLstrs.forEach(aListener => {
                 aListener.dndMoveFinished();
               });
               return;
@@ -3858,7 +3845,7 @@ async function buildClippingsTree()
               aNode.setExpanded();
             }
 
-            clpgsLstrs.forEach(aListener => {
+            clippingsLstrs.forEach(aListener => {
               aListener.dndMoveFinished();
             });
 	  });
