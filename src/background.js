@@ -962,7 +962,7 @@ async function showBackupNotification()
     if (gPrefs.backupRemFirstRun) {
       info("Clippings/mx: showBackupNotification(): Showing first-time backup reminder.");
 
-      await messenger.notifications.create(aeConst.NOTIFY_BACKUP_REMIND_FIRSTRUN_ID, {
+      await messenger.notifications.create("backup-reminder-firstrun", {
         type: "basic",
         title: messenger.i18n.getMessage("backupNotifyTitle"),
         message: messenger.i18n.getMessage("backupNotifyFirstMsg"),
@@ -984,7 +984,7 @@ async function showBackupNotification()
       info("Clippings/mx: showBackupNotification(): Last backup reminder: "
            + gPrefs.lastBackupRemDate);
 
-      await messenger.notifications.create(aeConst.NOTIFY_BACKUP_REMIND_ID, {
+      await messenger.notifications.create("backup-reminder", {
         type: "basic",
         title: messenger.i18n.getMessage("backupNotifyTitle"),
         message: messenger.i18n.getMessage("backupNotifyMsg"),
@@ -1025,7 +1025,7 @@ function clearBackupNotificationInterval()
 async function showWhatsNewNotification()
 {
   let extName = messenger.i18n.getMessage("extNameTB");
-  await messenger.notifications.create(aeConst.NOTIFY_WHATS_NEW, {
+  await messenger.notifications.create("whats-new", {
     type: "basic",
     title: extName,
     message: messenger.i18n.getMessage("upgradeNotifcn", extName),
@@ -1070,7 +1070,7 @@ function showSyncHelperUpdateNotification()
         info(`Clippings/mx: showSyncHelperUpdateNotification(): Found a newer version of Sync Clippings Helper!  Current version: ${currVer}; new version found: ${aUpdateInfo.latestVersion}\nDisplaying user notification.`);
         
         gSyncClippingsHelperDwnldPgURL = aUpdateInfo.downloadPageURL;
-        return messenger.notifications.create(aeConst.NOTIFY_SYNC_HELPER_UPDATE, {
+        return messenger.notifications.create("sync-helper-update", {
           type: "basic",
           title: messenger.i18n.getMessage("syncUpdateTitle"),
           message: messenger.i18n.getMessage("syncUpdateMsg"),
@@ -1647,17 +1647,17 @@ messenger.alarms.onAlarm.addListener(async (aAlarm) => {
 
 
 messenger.notifications.onClicked.addListener(aNotifID => {
-  if (aNotifID == aeConst.NOTIFY_BACKUP_REMIND_ID) {
+  if (aNotifID == "backup-reminder") {
     // Open Clippings Manager in backup mode.
     openClippingsManager(true);
   }
-  else if (aNotifID == aeConst.NOTIFY_BACKUP_REMIND_FIRSTRUN_ID) {
+  else if (aNotifID == "backup-reminder-firstrun") {
     openBackupDlg();
   }
-  else if (aNotifID == aeConst.NOTIFY_SYNC_HELPER_UPDATE) {
+  else if (aNotifID == "sync-helper-update") {
     messenger.tabs.create({ url: gSyncClippingsHelperDwnldPgURL });
   }
-  else if (aNotifID == aeConst.NOTIFY_WHATS_NEW) {
+  else if (aNotifID == "whats-new") {
     messenger.tabs.create({ url: messenger.runtime.getURL("pages/whatsnew.html") });
     aePrefs.setPrefs({ upgradeNotifCount: 0 });
   }
