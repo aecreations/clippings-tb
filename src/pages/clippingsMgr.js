@@ -1178,6 +1178,10 @@ let gCmd = {
     this.recentAction = this.ACTION_MOVETOFOLDER;
           
     gClippingsDB.clippings.get(aClippingID).then(aClipping => {
+      if (! aClipping) {
+        throw new Error("Clipping not found for ID " + aClippingID);
+      }
+      
       oldParentFldrID = aClipping.parentFolderID;
       return gClippingsSvc.updateClipping(aClippingID, { parentFolderID: aNewParentFldrID }, aClipping);
     }).then(aNumUpd => {
@@ -1213,7 +1217,9 @@ let gCmd = {
           }
         }).catch(handlePushSyncItemsError);
       }
-    }).catch(aErr => { console.error(aErr) });
+    }).catch(aErr => {
+      console.error("Clippings/wx::clippingsMgr.js: gCmd.moveClippingIntrl(): " + aErr);
+    });
   },
 
   copyClippingIntrl: function (aClippingID, aDestFldrID, aDestUndoStack)
@@ -1223,6 +1229,10 @@ let gCmd = {
     let clippingCpy = {};
    
     gClippingsDB.clippings.get(aClippingID).then(aClipping => {
+      if (! aClipping) {
+        throw new Error("Clipping not found for ID " + aClippingID);
+      }
+      
       let tree = getClippingsTree();
       let parentFldrNode;
       if (aDestFldrID == aeConst.ROOT_FOLDER_ID) {
@@ -1260,11 +1270,11 @@ let gCmd = {
 
       if (gSyncedItemsIDs[aDestFldrID + "F"]) {
         gClippings.pushSyncFolderUpdates().then(() => {
-          gSyncedItemsIDs[aClippingID + "C"] = 1;
+          gSyncedItemsIDs[aNewClippingID + "C"] = 1;
         }).catch(handlePushSyncItemsError);
       }
     }).catch(aErr => {
-      console.error(aErr);
+      console.error("Clippings/wx::clippingsMgr.js: gCmd.copyClippingIntrl(): " + aErr);
     });
   },
   
@@ -1278,6 +1288,10 @@ let gCmd = {
     this.recentAction = this.ACTION_MOVETOFOLDER;
     
     gClippingsDB.folders.get(aFolderID).then(aFolder => {
+      if (! aFolder) {
+        throw new Error("Folder not found for ID " + aFolderID);
+      }
+      
       oldParentFldrID = aFolder.parentFolderID;
       let folderCpy = {
         parentFolderID: aNewParentFldrID,
@@ -1308,7 +1322,9 @@ let gCmd = {
           gSyncedItemsIDs[aFolderID + "F"] = 1;
         }
       }
-    }).catch(aErr => { console.error(aErr) });
+    }).catch(aErr => {
+      console.error("Clippings/wx::clippingsMgr.js: gCmd.moveFolderIntrl(): " + aErr);
+    });
   },
 
   copyFolderIntrl: function (aFolderID, aDestFldrID, aDestUndoStack)
@@ -1325,6 +1341,10 @@ let gCmd = {
     let folderCpy = {};
       
     gClippingsDB.folders.get(aFolderID).then(aFolder => {
+      if (! aFolder) {
+        throw new Error("Folder not found for ID " + aFolderID);
+      }
+      
       let tree = getClippingsTree();
       let parentFldrNode;
       if (aDestFldrID == aeConst.ROOT_FOLDER_ID) {
@@ -1369,7 +1389,7 @@ let gCmd = {
 
       if (gSyncedItemsIDs[aDestFldrID + "F"]) {
         gClippings.pushSyncFolderUpdates().then(() => {
-          gSyncedItemsIDs[aFolderID + "F"] = 1;
+          gSyncedItemsIDs[newFldrID + "F"] = 1;
         }).catch(handlePushSyncItemsError);
       }
 
@@ -1378,7 +1398,6 @@ let gCmd = {
       });
     }).catch(aErr => {
       console.error("Clippings/mx::clippingsMgr.js: gCmd.copyFolderIntrl(): " + aErr);
-      window.alert("Error copying folder: " + aErr);
     });
   },
   
@@ -1390,6 +1409,10 @@ let gCmd = {
       let oldName = "";
       
       gClippingsDB.folders.get(aFolderID).then(aFolder => {
+        if (! aFolder) {
+          throw new Error("Folder not found for ID " + aFolderID);
+        }
+        
         oldName = aFolder.name;
 
         if (aName == oldName) {
@@ -1439,6 +1462,10 @@ let gCmd = {
       let oldName = "";
       
       gClippingsDB.clippings.get(aClippingID).then(aClipping => {
+        if (! aClipping) {
+          throw new Error("Clipping not found for ID " + aClippingID);
+        }
+        
         oldName = aClipping.name;
 
         if (aName == oldName) {
@@ -1488,6 +1515,10 @@ let gCmd = {
       let oldContent = "";
       
       gClippingsDB.clippings.get(aClippingID).then(aClipping => {
+        if (! aClipping) {
+          throw new Error("Clipping not found for ID " + aClippingID);
+        }
+        
         oldContent = aClipping.content;
 
         if (aContent == oldContent) {
@@ -1537,6 +1568,10 @@ let gCmd = {
     this.recentAction = this.ACTION_SETLABEL;      
 
     gClippingsDB.clippings.get(aClippingID).then(aClipping => {
+      if (! aClipping) {
+        throw new Error("Clipping not found for ID " + aClippingID);
+      }
+      
       oldLabel = aClipping.label;
       return gClippingsSvc.updateClipping(aClippingID, { label: aLabel }, aClipping);
 
