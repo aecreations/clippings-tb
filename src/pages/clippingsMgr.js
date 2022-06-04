@@ -2269,11 +2269,12 @@ $(window).on("unload", aEvent => {
   if (! gIsClippingsTreeEmpty) {
     let tree = getClippingsTree();
     let selectedNode = tree.activeNode;
-    let id = parseInt(selectedNode.key);
-
-    if (! selectedNode.folder) {
-      let content = $("#clipping-text").val();
-      gCmd.editClippingContentIntrl(id, content);
+    if (selectedNode) {
+      let id = parseInt(selectedNode.key);
+      if (! selectedNode.folder) {
+        let content = $("#clipping-text").val();
+        gCmd.editClippingContentIntrl(id, content);
+      }
     }
   }
   
