@@ -56,6 +56,32 @@ let aeImportExport = function () {
       return _importFileTypes.includes(aFile.type);
     },
 
+    isValidClippingsJSON(aImportRawJSON)
+    {
+      let rv = false;
+      let importData;
+
+      try {
+	importData = JSON.parse(aImportRawJSON);
+      }
+      catch (e) {
+	// SyntaxError - Raw JSON data is invalid.
+	return rv;
+      }
+
+      let knownVersions = [
+	this.CLIPPINGS_JSON_VER,
+	this.CLIPPINGS_JSON_VER_WITH_SEQ,
+      ];
+
+      rv = ("userClippingsRoot" in importData
+	    && importData.userClippingsRoot instanceof Array
+	    && "version" in importData
+	    && knownVersions.includes(importData.version));
+
+      return rv;
+    },
+
     importFromJSON(aImportRawJSON, aReplaceShortcutKeys, aAppendItems, aDestFolderID)
     {
       if (! _db) {
