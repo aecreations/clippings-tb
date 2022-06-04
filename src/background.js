@@ -1500,27 +1500,24 @@ function setDirtyFlag(aFlag)
 // Event handlers
 //
 
-messenger.runtime.onMessage.addListener(async (aRequest) => {
-  log(`Clippings/mx: Received message "${aRequest.msgID}"`);
-
-  let resp = null;
+messenger.runtime.onMessage.addListener(aRequest => {
+  log(`Clippings/mx: Received MailExtension message "${aRequest.msgID}"`);
 
   switch (aRequest.msgID) {
   case "get-env-info":
-    resp = {
+    let envInfo = {
       os: gOS,
       hostAppName: gHostAppName,
       hostAppVer:  gHostAppVer,
     };
-    break;
+    return Promise.resolve(envInfo);
 
   case "init-new-clipping-dlg":
-    resp = gNewClipping.get();
-    if (! resp) {
-      resp = {};
+    let newClipping = gNewClipping.get();
+    if (newClipping !== null) {
+      newClipping.checkSpelling = gPrefs.checkSpelling;
     }
-    resp.checkSpelling = gPrefs.checkSpelling;
-    break;
+    return Promise.resolve(newClipping);
 
   case "close-new-clipping-dlg":
     gWndIDs.newClipping = null;
@@ -1528,13 +1525,10 @@ messenger.runtime.onMessage.addListener(async (aRequest) => {
     break;
 
   case "get-shct-key-prefix-ui-str":
-    resp = await getShortcutKeyPrefixStr();
-    break;
+    return Promise.resolve(getShortcutKeyPrefixStr());
 
   case "clear-backup-notifcn-intv":
-    clearBackupNotificationInterval();
-    resp = {};
-    break;
+    return clearBackupNotificationInterval();
 
   case "set-backup-notifcn-intv":
     setBackupNotificationInterval();
@@ -1545,19 +1539,33 @@ messenger.runtime.onMessage.addListener(async (aRequest) => {
     break;
 
   case "get-shct-key-list-html":
-    resp = await getShortcutKeyListHTML(aRequest.isFullHTMLDoc);
-    break;
+    return getShortcutKeyListHTML(aRequest.isFullHTMLDoc);
 
   case "get-clippings-backup-data":
-    resp = await getClippingsBackupData();
+    return getClippingsBackupData();
+
+  case "enable-sync-clippings":
+    return enableSyncClippings(aRequest.isEnabled);
+
+  case "refresh-synced-clippings":
+    refreshSyncedClippings(aRequest.rebuildClippingsMenu);
     break;
+
+  case "push-sync-fldr-updates":
+    return pushSyncFolderUpdates();
+    
+  case "purge-fldr-items":
+    return purgeFolderItems(aRequest.folderID);
+
+  case "rebuild-cxt-menu":
+    rebuildContextMenu();
+    break;
+
+  case "verify-db":
+    return verifyDB();
 
   default:
     break;
-  }
-
-  if (resp) {
-    return Promise.resolve(resp);
   }
 });
 

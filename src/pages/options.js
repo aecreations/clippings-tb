@@ -232,17 +232,20 @@ async function init()
     gDialogs.syncClippings.showModal();
   });
 
-  $("#browse-sync-fldr").click(aEvent => {
-    let msg = { msgID: "sync-dir-folder-picker" };
-    let sendNativeMsg = browser.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
-
-    sendNativeMsg.then(aResp => {
-      if (aResp.syncFilePath) {
-        $("#sync-fldr-curr-location").val(aResp.syncFilePath);
-      }
-    }).catch(aErr => {
+  $("#browse-sync-fldr").click(async (aEvent) => {
+    let msg = { msgID:"sync-dir-folder-picker"};
+    let resp;
+    try {
+      resp = await browser.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
+    }
+    catch (e) {
       window.alert("The Sync Clippings helper app responded with an error.\n\n" + aErr);
-    });
+      return;
+    }
+
+    if (resp.syncFilePath) {
+      $("#sync-fldr-curr-location").val(aResp.syncFilePath);
+    }
   });
   
   $("#show-sync-help").click(aEvent => {
@@ -428,7 +431,7 @@ function initDialogs()
       }
     });
   };
-  gDialogs.syncClippings.onAccept = function ()
+  gDialogs.syncClippings.onAccept = async function ()
   {
     let syncFldrPath = $("#sync-fldr-curr-location").val();
 
@@ -448,55 +451,64 @@ function initDialogs()
 
     let rebuildClippingsMenu = $("#show-only-sync-items").prop("checked") != gDialogs.syncClippings.oldShowSyncItemsOpt;
 
-    let msg = {
+    let natMsg = {
       msgID: "set-sync-dir",
       filePath: syncFldrPath
     };
     log("Sending message 'set-sync-dir' with params:");
-    log(msg);
+    log(natMsg);
 
-    let setSyncFilePath = messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
-    let that = this;
+    let natMsgResp;
+    try {
+      natMsgResp = await messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg);
+    }
+    catch (e) {
+      console.error("Error received from Sync Clippings Helper app: " + e);
+      return;
+    }
     
-    setSyncFilePath.then(aResp => {
-      log("Received response to 'set-sync-dir':");
-      log(aResp);
+    log("Received response to 'set-sync-dir':");
+    log(natMsgResp);
 
-      if (aResp.status == "ok") {
-        gClippings.enableSyncClippings(true).then(aSyncFldrID => {
-	  if (gIsActivatingSyncClippings) {
-            // Don't do the following if Sync Clippings was already turned on
-            // and no changes to settings were made.
-            aePrefs.setPrefs({
-              syncClippings: true,
-              clippingsMgrShowSyncItemsOnlyRem: true,
-            });
+    if (natMsgResp.status != "ok") {
+      window.alert(`The Sync Clippings helper app responded with an error.\n\nStatus: ${aResp.status}\nDetails: ${aResp.details}`);
+      this.close();
+      return;
+    }
 
-            $("#sync-settings").show();
-            $("#toggle-sync").text(messenger.i18n.getMessage("syncTurnOff"));
-            $("#sync-status").addClass("sync-status-on").text(messenger.i18n.getMessage("syncStatusOn"));
-
-	    gIsActivatingSyncClippings = false;
-	  }
-
-          gClippings.refreshSyncedClippings(rebuildClippingsMenu);  // Asynchronous function.
-          
-	  let syncClippingsListeners = gClippings.getSyncClippingsListeners().getListeners();
-	  for (let listener of syncClippingsListeners) {
-	    listener.onActivate(aSyncFldrID);
-	  }
-	  
-	  that.close();
-        });
-      }
-      else {
-        window.alert(`The Sync Clippings helper app responded with an error.\n\nStatus: ${aResp.status}\nDetails: ${aResp.details}`);
-        that.close();
-      }     
-    }).catch(aErr => {
-      console.error(aErr);
+    let syncFldrID = await browser.runtime.sendMessage({
+      msgID: "enable-sync-clippings",
+      isEnabled: true,
     });
+
+    if (gIsActivatingSyncClippings) {
+      // Don't do the following if Sync Clippings was already turned on
+      // and no changes to settings were made.
+      aePrefs.setPrefs({
+        syncClippings: true,
+        clippingsMgrShowSyncItemsOnlyRem: true,
+      });
+
+      $("#sync-settings").show();
+      $("#toggle-sync").text(messenger.i18n.getMessage("syncTurnOff"));
+      $("#sync-status").addClass("sync-status-on").text(messenger.i18n.getMessage("syncStatusOn"));
+
+      gIsActivatingSyncClippings = false;
+    }
+
+    browser.runtime.sendMessage({
+      msgID: "refresh-synced-clippings",
+      rebuildClippingsMenu,
+    });
+    
+    let syncClippingsListeners = gClippings.getSyncClippingsListeners().getListeners();
+    for (let listener of syncClippingsListeners) {
+      listener.onActivate(syncFldrID);
+    }
+    
+    this.close();
   };
+
   gDialogs.syncClippings.onUnload = function ()
   {
     $("#sync-clippings-dlg").css({ height: "256px" });
@@ -504,25 +516,29 @@ function initDialogs()
   };
   
   gDialogs.turnOffSync = new aeDialog("#turn-off-sync-clippings-dlg");
-  $("#turn-off-sync-clippings-dlg > .dlg-btns > .dlg-btn-yes").click(aEvent => {
-    let that = gDialogs.turnOffSync;
-    that.close();
+  gDialogs.turnOffSync.onFirstInit = async function () {
+    $("#turn-off-sync-clippings-dlg > .dlg-btns > .dlg-btn-yes").click(async (aEvent) => {
+      this.close();
 
-    gClippings.enableSyncClippings(false).then(aOldSyncFldrID => {
-      aePrefs.setPrefs({ syncClippings: false });
+      let oldSyncFldrID = await browser.runtime.sendMessage({
+        msgID: "enable-sync-clippings",
+        isEnabled: false,
+      });
+
+      aePrefs.setPrefs({syncClippings: false});
       $("#sync-settings").hide();
       $("#toggle-sync").text(messenger.i18n.getMessage("syncTurnOn"));
       $("#sync-status").removeClass("sync-status-on").text(messenger.i18n.getMessage("syncStatusOff"));
 
       let syncClippingsListeners = gClippings.getSyncClippingsListeners().getListeners();
       for (let listener of syncClippingsListeners) {
-	listener.onDeactivate(aOldSyncFldrID);
+	listener.onDeactivate(oldSyncFldrID);
       }
 
-      gDialogs.turnOffSyncAck.oldSyncFldrID = aOldSyncFldrID;
+      gDialogs.turnOffSyncAck.oldSyncFldrID = oldSyncFldrID;
       gDialogs.turnOffSyncAck.showModal();
     });
-  });
+  };
 
   gDialogs.turnOffSyncAck = new aeDialog("#turn-off-sync-clippings-ack-dlg");
   gDialogs.turnOffSyncAck.setProps({

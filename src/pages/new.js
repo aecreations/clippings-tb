@@ -35,7 +35,7 @@ $(async () => {
   }
 
   try {
-    await gClippings.verifyDB();
+    await browser.runtime.sendMessage({msgID: "verify-db"});
   }
   catch (e) {
     showInitError();
@@ -350,8 +350,8 @@ function initDialogs()
         
         this.resetTree();
 
-        let clipgsLstrs = gClippings.getClippingsListeners();
-        clipgsLstrs.forEach(aListener => {
+        let clippingsLstrs = gClippings.getClippingsListeners();
+        clippingsLstrs.forEach(aListener => {
           aListener.newFolderCreated(aFldrID, newFolder, aeConst.ORIGIN_HOSTAPP);
         });
 
@@ -549,8 +549,6 @@ function unsetClippingsUnchangedFlag()
 
 function accept(aEvent)
 {
-  let prefs = gClippings.getPrefs();
-  
   let name = $("#clipping-name").val();
   let content = $("#clipping-text").val();
 
@@ -592,8 +590,8 @@ function accept(aEvent)
       return gClippingsDB.clippings.add(newClipping);
 
     }).then(aNewClippingID => {
-      let clipgsLstrs = gClippings.getClippingsListeners();
-      clipgsLstrs.forEach(aListener => {
+      let clippingsLstrs = gClippings.getClippingsListeners();
+      clippingsLstrs.forEach(aListener => {
         aListener.newClippingCreated(aNewClippingID, newClipping, aeConst.ORIGIN_HOSTAPP);
       });
 

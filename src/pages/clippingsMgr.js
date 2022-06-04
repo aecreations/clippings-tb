@@ -723,7 +723,8 @@ let gShortcutKey = {
         }
         
         if (gSyncedItemsIDs[clippingID + "C"]) {
-          gClippings.pushSyncFolderUpdates().catch(handlePushSyncItemsError);
+          browser.runtime.sendMessage({msgID: "push-sync-fldr-updates"})
+            .catch(handlePushSyncItemsError);
         }
       });
     }).catch (aErr => {
@@ -986,7 +987,8 @@ let gCmd = {
 
       if (gSyncedItemsIDs[parentFolderID + "F"]) {
         gSyncedItemsIDs[aNewClippingID + "C"] = 1;
-        gClippings.pushSyncFolderUpdates().catch(handlePushSyncItemsError);
+        browser.runtime.sendMessage({msgID: "push-sync-fldr-updates"})
+          .catch(handlePushSyncItemsError);
       }
     });
   },
@@ -1025,7 +1027,8 @@ let gCmd = {
 
       if (gSyncedItemsIDs[parentFldrID + "F"]) {
         gSyncedItemsIDs[aNewClippingID + "C"] = 1;
-        gClippings.pushSyncFolderUpdates().catch(handlePushSyncItemsError);
+        browser.runtime.sendMessage({msgID: "push-sync-fldr-updates"})
+          .catch(handlePushSyncItemsError);
       }
     });
   },
@@ -1074,7 +1077,8 @@ let gCmd = {
 
       if (gSyncedItemsIDs[parentFolderID + "F"]) {
         gSyncedItemsIDs[aNewFolderID + "F"] = 1;
-        gClippings.pushSyncFolderUpdates().catch(handlePushSyncItemsError);
+        browser.runtime.sendMessage({msgID: "push-sync-fldr-updates"})
+          .catch(handlePushSyncItemsError);
       }
     });
   },
@@ -1134,7 +1138,7 @@ let gCmd = {
         }
 
         if (gSyncedItemsIDs[parentFolderID + "F"]) {
-          gClippings.pushSyncFolderUpdates().then(() => {
+          browser.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
             delete gSyncedItemsIDs[id + "F"];
           }).catch(handlePushSyncItemsError);
         }
@@ -1159,7 +1163,7 @@ let gCmd = {
         }
 
         if (gSyncedItemsIDs[parentFolderID + "F"]) {
-          gClippings.pushSyncFolderUpdates().then(() => {
+          browser.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
             delete gSyncedItemsIDs[id + "C"];
           }).catch(handlePushSyncItemsError);
         }
@@ -1199,7 +1203,7 @@ let gCmd = {
       }
 
       if (gSyncedItemsIDs[aNewParentFldrID + "F"] || gSyncedItemsIDs[oldParentFldrID + "F"]) {
-        gClippings.pushSyncFolderUpdates().then(() => {
+        browser.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
           // Remove clipping from synced items lookup array if it was moved out
           // of a synced folder.
           if (gSyncedItemsIDs[aClippingID + "C"] && !gSyncedItemsIDs[aNewParentFldrID + "F"]) {
@@ -1259,7 +1263,7 @@ let gCmd = {
       }
 
       if (gSyncedItemsIDs[aDestFldrID + "F"]) {
-        gClippings.pushSyncFolderUpdates().then(() => {
+        browser.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
           gSyncedItemsIDs[aClippingID + "C"] = 1;
         }).catch(handlePushSyncItemsError);
       }
@@ -1298,7 +1302,7 @@ let gCmd = {
       }
 
       if (gSyncedItemsIDs[aNewParentFldrID + "F"] || gSyncedItemsIDs[oldParentFldrID + "F"]) {
-        gClippings.pushSyncFolderUpdates().then(() => {
+        browser.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
           if (gSyncedItemsIDs[aFolderID + "F"] && !gSyncedItemsIDs[aNewParentFldrID + "F"]) {
             delete gSyncedItemsIDs[aFolderID + "F"];
           }
@@ -1368,7 +1372,7 @@ let gCmd = {
       }
 
       if (gSyncedItemsIDs[aDestFldrID + "F"]) {
-        gClippings.pushSyncFolderUpdates().then(() => {
+        browser.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
           gSyncedItemsIDs[aFolderID + "F"] = 1;
         }).catch(handlePushSyncItemsError);
       }
@@ -1415,7 +1419,7 @@ let gCmd = {
         }
 
         if (gSyncedItemsIDs[aFolderID + "F"]) {
-          gClippings.pushSyncFolderUpdates().then(() => {
+          browser.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
             aFnResolve();
           }).catch(aErr => {
             handlePushSyncItemsError(aErr);
@@ -1464,7 +1468,7 @@ let gCmd = {
         }
 
         if (gSyncedItemsIDs[aClippingID + "C"]) {
-          gClippings.pushSyncFolderUpdates().then(() => {
+          browser.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
             aFnResolve();
           }).catch(aErr => {
             handlePushSyncItemsError(aErr);
@@ -1513,7 +1517,7 @@ let gCmd = {
         }
 
         if (gSyncedItemsIDs[aClippingID + "C"]) {
-          gClippings.pushSyncFolderUpdates().then(() => {
+          browser.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
             aFnResolve();
           }).catch(aErr => {
             handlePushSyncItemsError(aErr);
@@ -1566,7 +1570,7 @@ let gCmd = {
       }
 
       if (gSyncedItemsIDs[aClippingID + "C"]) {
-        return gClippings.pushSyncFolderUpdates();
+        return browser.runtime.sendMessage({msgID: "push-sync-fldr-updates"});
       }
     }).catch(aErr => {
       handlePushSyncItemsError(aErr);
@@ -1622,11 +1626,11 @@ let gCmd = {
           }
 
           if (! aSuppressClippingsMenuRebuild) {
-            gClippings.rebuildContextMenu();
+            browser.runtime.sendMessage({msgID: "rebuild-cxt-menu"});
           }
 
           if (aFolderID == gPrefs.syncFolderID || gSyncedItemsIDs[aFolderID + "F"] !== undefined) {
-            gClippings.pushSyncFolderUpdates().then(() => {
+            browser.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
               log("Clippings/mx::clippingsMgr.js::gCmd.updateDisplayOrder(): Saved the display order for synced items.");
             });
           }
@@ -1860,8 +1864,12 @@ let gCmd = {
 
   reloadSyncFolder: function ()
   {
-    this.recentAction = this.ACTION_RELOAD_SYNC_FLDR;   
-    gClippings.refreshSyncedClippings();
+    this.recentAction = this.ACTION_RELOAD_SYNC_FLDR;
+    browser.runtime.sendMessage({
+      msgID: "refresh-synced-clippings",
+      rebuildClippingsMenu: false,
+    });
+    
     aeDialog.cancelDlgs();
     gDialogs.reloadSyncFolder.showModal();
   },
@@ -4529,7 +4537,7 @@ async function saveWindowGeometry()
   // Stop saving window geometry if window is maximized, due to bugs/limitations
   // with detecting and getting geometry of maximized windows.
   if (window.outerWidth >= scrWidth) {
-    warn("Clippings/wx::clippingsMgr.js: saveWindowGeometry(): Not saving window geometry for maximized window.");
+    warn("Clippings/mx::clippingsMgr.js: saveWindowGeometry(): Not saving window geometry for maximized window.");
     return;
   }
 
@@ -4543,7 +4551,7 @@ async function saveWindowGeometry()
       x: window.screenX, y: window.screenY,
     };
 
-    log("Clippings/wx::clippingsMgr.js: saveWindowGeometry():");
+    log("Clippings/mx::clippingsMgr.js: saveWindowGeometry():");
     log(clippingsMgrWndGeom);
 
     await aePrefs.setPrefs({ clippingsMgrWndGeom });
