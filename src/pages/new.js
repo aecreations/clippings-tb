@@ -607,26 +607,26 @@ function accept(aEvent)
 
     }).then(aSyncData => {
       if (aSyncData) {
-        let msg = {
+        let natMsg = {
           msgID: "set-synced-clippings",
           syncData: aSyncData.userClippingsRoot,
         };
 
         log("Clippings/mx::new.js: accept(): Sending message 'set-synced-clippings' to the Sync Clippings helper app.  Message data:");
-        log(msg);
+        log(natMsg);
         
-        return messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
+        return messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg);
       }
       return null;
 
-    }).then(async (aMsgResult) => {
-      if (aMsgResult) {
+    }).then(async (aResp) => {
+      if (aResp) {
         log("Clippings/mx::new.js: accept(): Response from the Sync Clippings helper app:");
-        log(aMsgResult);
+        log(aResp);
       }
 
       if (gPrefs.clippingsMgrAutoShowDetailsPane && isClippingOptionsSet()) {
-        aePrefs.setPrefs({
+        await aePrefs.setPrefs({
           clippingsMgrAutoShowDetailsPane: false,
           clippingsMgrDetailsPane: true,
         });

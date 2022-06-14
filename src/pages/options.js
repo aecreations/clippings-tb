@@ -233,7 +233,7 @@ async function init()
   });
 
   $("#browse-sync-fldr").click(async (aEvent) => {
-    let natMsg = { msgID:"sync-dir-folder-picker"};
+    let natMsg = {msgID:"sync-dir-folder-picker"};
     let resp;
     try {
       resp = await browser.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg);
@@ -374,9 +374,8 @@ function initDialogs()
 
     let that = this;
     let lang = messenger.i18n.getUILanguage();
-    let msg = { msgID: "get-app-version" };
-    let sendNativeMsg = messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
-    sendNativeMsg.then(aResp => {
+    let natMsg = {msgID: "get-app-version"};
+    messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg).then(aResp => {
       console.info("Sync Clippings helper app version: " + aResp.appVersion);
 
       if (aeVersionCmp(aResp.appVersion, "1.2b1") < 0) {
@@ -391,8 +390,8 @@ function initDialogs()
 
       that.oldShowSyncItemsOpt = $("#show-only-sync-items").prop("checked");
 
-      let msg = { msgID: "get-sync-dir" };
-      return messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
+      let natMsg = {msgID: "get-sync-dir"};
+      return messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg);
       
     }).then(aResp => {
       if (! that.isCanceled) {
@@ -408,7 +407,7 @@ function initDialogs()
       $("#sync-fldr-curr-location").val(aResp.syncFilePath).focus().select();
 
     }).catch(aErr => {
-      console.error("Clippings/wx::options.js: Error returned from syncClippings native app: " + aErr);
+      console.error("Clippings/mx::options.js: Error returned from syncClippings native app: " + aErr);
       
       $("#sync-clippings-dlg .dlg-cancel").text(messenger.i18n.getMessage("btnClose"));
 
@@ -431,6 +430,7 @@ function initDialogs()
       }
     });
   };
+
   gDialogs.syncClippings.onAccept = async function ()
   {
     let syncFldrPath = $("#sync-fldr-curr-location").val();
@@ -585,18 +585,18 @@ function initDialogs()
     $("#about-dlg > .dlg-content #ext-desc").text(this.extInfo.description);
     $("#about-dlg > .dlg-content #ext-home-pg").attr("href", this.extInfo.homePgURL);
   };
+
   gDialogs.about.onShow = async function ()
   {
-    let msg = { msgID: "get-app-version" };
-    let sendNativeMsg = messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
-    sendNativeMsg.then(aResp => {
+    let natMsg = {msgID: "get-app-version"};
+    messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg).then(aResp => {
       $("#about-dlg > .dlg-content #diag-info #sync-ver").text(aResp.appVersion);
       return aePrefs.getPref("syncClippings");
 
     }).then(aPrefSyncClpgs => {
       if (!!aPrefSyncClpgs) {
-        let msg = { msgID: "get-sync-file-info" };
-        return messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
+        let natMsg = {msgID: "get-sync-file-info"};
+        return messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg);
       }
       else {
         return null;
@@ -625,7 +625,7 @@ function initDialogs()
 
     }).catch(aErr => {
       // Native app is not installed.
-      log("Clippings/wx: About dialog: Error returned from native app: " + aErr);
+      log("Clippings/mx: About dialog: Error returned from native app: " + aErr);
       $("#about-dlg > .dlg-content #diag-info #sync-ver").text(messenger.i18n.getMessage("noSyncHelperApp"));
       
     }).finally(() => {

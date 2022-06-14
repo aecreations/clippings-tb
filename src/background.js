@@ -641,15 +641,12 @@ async function enableSyncClippings(aIsEnabled)
 }
 
 
-// TO DO: Make this an asynchronous function.
-// This can only be done after converting aeImportExport.importFromJSON()
-// to an asynchronous method.
 function refreshSyncedClippings(aRebuildClippingsMenu)
 {
   log("Clippings/mx: refreshSyncedClippings(): Retrieving synced clippings from the Sync Clippings helper app...");
 
-  let msg = { msgID: "get-synced-clippings" };
-  let getSyncedClippings = messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
+  let natMsg = {msgID: "get-synced-clippings"};
+  let getSyncedClippings = messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg);
   let syncJSONData = "";
 
   getSyncedClippings.then(aResp => {
@@ -714,17 +711,17 @@ async function pushSyncFolderUpdates()
   }
   
   let syncData = await aeImportExport.exportToJSON(true, true, gSyncFldrID, false, true);
-  let msg = {
+  let natMsg = {
     msgID: "set-synced-clippings",
     syncData: syncData.userClippingsRoot,
   };
 
   info("Clippings/mx: pushSyncFolderUpdates(): Pushing Synced Clippings folder updates to the Sync Clippings helper app. Message data:");
-  log(msg);
+  log(natMsg);
 
-  let msgResult;
+  let resp;
   try {
-    msgResult = await messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
+    resp = await messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg);
   }
   catch (e) {
     console.error("Clippings/mx: pushSyncFolderUpdates(): " + e);
@@ -732,7 +729,7 @@ async function pushSyncFolderUpdates()
   }
 
   log("Clippings/mx: pushSyncFolderUpdates(): Response from native app:");
-  log(msgResult);
+  log(resp);
 }
 
 
@@ -1037,7 +1034,7 @@ async function showWhatsNewNotification()
 }
 
 
-function showSyncHelperUpdateNotification()
+async function showSyncHelperUpdateNotification()
 {
   if (!gPrefs.syncClippings || !gPrefs.syncHelperCheckUpdates) {
     return;
@@ -1052,41 +1049,50 @@ function showSyncHelperUpdateNotification()
 
   if (!gPrefs.lastSyncHelperUpdChkDate || diff.days >= aeConst.SYNC_HELPER_CHECK_UPDATE_FREQ_DAYS) {
     let currVer = "";
-    let msg = { msgID: "get-app-version" };
-    let sendNativeMsg = messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
-    sendNativeMsg.then(aResp => {
-      currVer = aResp.appVersion;
-      log("Clippings/mx: showSyncHelperUpdateNotification(): Current version of the Sync Clippings Helper app: " + currVer);
-      return fetch(aeConst.SYNC_HELPER_CHECK_UPDATE_URL);
+    let natMsg = {msgID: "get-app-version"};
+    let resp;
+    try {
+      resp = await messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg);
+    }
+    catch (e) {
+      console.error("Clippings/mx: showSyncHelperUpdateNotification(): Unable to connect to Sync Clippings Helper App\n" + e);
+      return;
+    }
 
-    }).then(aFetchResp => {
-      if (aFetchResp.ok) {       
-        return aFetchResp.json();
-      }
-      throw new Error("Unable to retrieve Sync Clippings Helper update info - network response was not ok");
+    currVer = resp.appVersion;
+    log("Clippings/mx: showSyncHelperUpdateNotification(): Current version of the Sync Clippings Helper app: " + currVer);
 
-    }).then(aUpdateInfo => {
-      if (aeVersionCmp(currVer, aUpdateInfo.latestVersion) < 0) {
-        info(`Clippings/mx: showSyncHelperUpdateNotification(): Found a newer version of Sync Clippings Helper!  Current version: ${currVer}; new version found: ${aUpdateInfo.latestVersion}\nDisplaying user notification.`);
-        
-        gSyncClippingsHelperDwnldPgURL = aUpdateInfo.downloadPageURL;
-        return messenger.notifications.create("sync-helper-update", {
-          type: "basic",
-          title: messenger.i18n.getMessage("syncUpdateTitle"),
-          message: messenger.i18n.getMessage("syncUpdateMsg"),
-          iconUrl: "img/syncClippingsApp.svg",
-        });
-      }
-      else {
-        return null;
-      }
+    let fetchResp;
+    try {
+      fetchResp = await fetch(aeConst.SYNC_HELPER_CHECK_UPDATE_URL);
+    }
+    catch (e) {
+      console.error("Clippings/mx: showSyncHelperUpdateNotification(): Unable to check for updates to the Sync Clippings Helper app at this time.\n" + e);
+      return;
+    }
+    
+    if (! fetchResp.ok) {
+      console.error(`Clippings/mx: showSyncHelperUpdateNotification(): HTTP status ${fetchResp.status} (${fetchResp.statusText}) received from URL ${fetchResp.url}`);
+      return;
+    }
+    
+    let updateInfo = await fetchResp.json();
 
-    }).then(aNotifID => {
-      aePrefs.setPrefs({ lastSyncHelperUpdChkDate: new Date().toString() });
+    if (aeVersionCmp(currVer, updateInfo.latestVersion) < 0) {
+      info(`Clippings/mx: showSyncHelperUpdateNotification(): Found a newer version of Sync Clippings Helper!  Current version: ${currVer}; new version found: ${updateInfo.latestVersion}\nDisplaying user notification.`);
       
-    }).catch(aErr => {
-      console.error("Clippings/mx: showSyncHelperUpdateNotification(): Unable to check for updates to the Sync Clippings Helper app at this time.\n" + aErr);
-    });
+      gSyncClippingsHelperDwnldPgURL = updateInfo.downloadPageURL;
+      messenger.notifications.create("sync-helper-update", {
+        type: "basic",
+        title: messenger.i18n.getMessage("syncUpdateTitle"),
+        message: messenger.i18n.getMessage("syncUpdateMsg"),
+        iconUrl: "img/syncClippingsApp.svg",
+      });
+
+      aePrefs.setPrefs({
+        lastSyncHelperUpdChkDate: new Date().toString()
+      });
+    }
   }
 }
 

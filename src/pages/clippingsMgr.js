@@ -441,7 +441,7 @@ let gClippingsListener = {
       gClippingsDB.folders.where("parentFolderID").equals(id).each((aItem, aCursor) => {
         let newFldrNode = aFolderNode.addChildren({
           key: aItem.id + "F",
-          title: sanitizeTreeNodeTitle(DEBUG_TREE ? `${aItem.name} [key=${aID}C]` : aItem.name),
+          title: sanitizeTreeNodeTitle(DEBUG_TREE ? `${aItem.name} [key=${aItem.id}F]` : aItem.name),
           folder: true,
           children: []
         });
@@ -451,7 +451,7 @@ let gClippingsListener = {
         return gClippingsDB.clippings.where("parentFolderID").equals(id).each((aItem, aCursor) => {
           aFolderNode.addChildren({
             key: aItem.id + "C",
-            title: sanitizeTreeNodeTitle(DEBUG_TREE ? `${aItem.name} [key=${aID}C]` : aItem.name)
+            title: sanitizeTreeNodeTitle(DEBUG_TREE ? `${aItem.name} [key=${aItem.id}C]` : aItem.name)
           });
         });
 
