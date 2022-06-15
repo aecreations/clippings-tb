@@ -17,7 +17,7 @@ let gDialogs = {};
 let gOpenerWndID;
 let gIsMaximized;
 let gSuppressAutoMinzWnd;
-let gSyncedItemsIDs = {};
+let gSyncedItemsIDs = new Set();
 let gIsBackupMode = false;
 let gErrorPushSyncItems = false;
 let gReorderedTreeNodeNextSibling = null;
@@ -525,7 +525,7 @@ let gSyncClippingsListener = {
   onDeactivate(aOldSyncFolderID)
   {
     log(`Clippings/mx::clippingsMgr.js::gSyncClippingsListener.onDeactivate(): ID of old sync folder: ${aOldSyncFolderID}`);
-    gSyncedItemsIDs = {};
+    gSyncedItemsIDs.clear();
 
     gReloadSyncFldrBtn.hide();
     
@@ -722,7 +722,7 @@ let gShortcutKey = {
           aePrefs.setPrefs({ clippingsUnchanged: false });
         }
         
-        if (gSyncedItemsIDs[clippingID + "C"]) {
+        if (gSyncedItemsIDs.has(clippingID + "C")) {
           browser.runtime.sendMessage({msgID: "push-sync-fldr-updates"})
             .catch(handlePushSyncItemsError);
         }
@@ -985,8 +985,8 @@ let gCmd = {
         });
       }
 
-      if (gSyncedItemsIDs[parentFolderID + "F"]) {
-        gSyncedItemsIDs[aNewClippingID + "C"] = 1;
+      if (gSyncedItemsIDs.has(parentFolderID + "F")) {
+        gSyncedItemsIDs.add(aNewClippingID + "C");
         browser.runtime.sendMessage({msgID: "push-sync-fldr-updates"})
           .catch(handlePushSyncItemsError);
       }
@@ -1025,8 +1025,8 @@ let gCmd = {
         });
       }
 
-      if (gSyncedItemsIDs[parentFldrID + "F"]) {
-        gSyncedItemsIDs[aNewClippingID + "C"] = 1;
+      if (gSyncedItemsIDs.has(parentFldrID + "F")) {
+        gSyncedItemsIDs.add(aNewClippingID + "C");
         browser.runtime.sendMessage({msgID: "push-sync-fldr-updates"})
           .catch(handlePushSyncItemsError);
       }
@@ -1075,8 +1075,8 @@ let gCmd = {
         });
       }
 
-      if (gSyncedItemsIDs[parentFolderID + "F"]) {
-        gSyncedItemsIDs[aNewFolderID + "F"] = 1;
+      if (gSyncedItemsIDs.has(parentFolderID + "F")) {
+        gSyncedItemsIDs.add(aNewFolderID + "F");
         browser.runtime.sendMessage({msgID: "push-sync-fldr-updates"})
           .catch(handlePushSyncItemsError);
       }
@@ -1137,9 +1137,9 @@ let gCmd = {
           });
         }
 
-        if (gSyncedItemsIDs[parentFolderID + "F"]) {
+        if (gSyncedItemsIDs.has(parentFolderID + "F")) {
           browser.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
-            delete gSyncedItemsIDs[id + "F"];
+            gSyncedItemsIDs.delete(id + "F");
           }).catch(handlePushSyncItemsError);
         }
       });
@@ -1162,9 +1162,9 @@ let gCmd = {
           });
         }
 
-        if (gSyncedItemsIDs[parentFolderID + "F"]) {
+        if (gSyncedItemsIDs.has(parentFolderID + "F")) {
           browser.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
-            delete gSyncedItemsIDs[id + "C"];
+            gSyncedItemsIDs.delete(id + "C");
           }).catch(handlePushSyncItemsError);
         }
       });
@@ -1206,18 +1206,19 @@ let gCmd = {
         this.redoStack.push(state);
       }
 
-      if (gSyncedItemsIDs[aNewParentFldrID + "F"] || gSyncedItemsIDs[oldParentFldrID + "F"]) {
+      if (gSyncedItemsIDs.has(aNewParentFldrID + "F")
+          || gSyncedItemsIDs.has(oldParentFldrID + "F")) {
         browser.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
-          // Remove clipping from synced items lookup array if it was moved out
-          // of a synced folder.
-          if (gSyncedItemsIDs[aClippingID + "C"] && !gSyncedItemsIDs[aNewParentFldrID + "F"]) {
-            delete gSyncedItemsIDs[aClippingID + "C"];
+          // Remove clipping from synced items set if it was moved out of a
+          // synced folder.
+          if (gSyncedItemsIDs.has(aClippingID + "C")
+              && !gSyncedItemsIDs.has(aNewParentFldrID + "F")) {
+            gSyncedItemsIDs.delete(aClippingID + "C");
           }
 
-          // Add clipping to synced items lookup array if moved to a synced
-          // folder.
-          if (gSyncedItemsIDs[aNewParentFldrID + "F"]) {
-            gSyncedItemsIDs[aClippingID + "C"] = 1;
+          // Add clipping to synced items set if moved to a synced folder.
+          if (gSyncedItemsIDs.has(aNewParentFldrID + "F")) {
+            gSyncedItemsIDs.add(aClippingID + "C");
           }
         }).catch(handlePushSyncItemsError);
       }
@@ -1272,9 +1273,9 @@ let gCmd = {
         });
       }
 
-      if (gSyncedItemsIDs[aDestFldrID + "F"]) {
+      if (gSyncedItemsIDs.has(aDestFldrID + "F")) {
         browser.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
-          gSyncedItemsIDs[aNewClippingID + "C"] = 1;
+          gSyncedItemsIDs.add(aNewClippingID + "C");
         }).catch(handlePushSyncItemsError);
       }
     }).catch(aErr => {
@@ -1315,15 +1316,17 @@ let gCmd = {
         });
       }
 
-      if (gSyncedItemsIDs[aNewParentFldrID + "F"] || gSyncedItemsIDs[oldParentFldrID + "F"]) {
+      if (gSyncedItemsIDs.has(aNewParentFldrID + "F")
+          || gSyncedItemsIDs.has(oldParentFldrID + "F")) {
         browser.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
-          if (gSyncedItemsIDs[aFolderID + "F"] && !gSyncedItemsIDs[aNewParentFldrID + "F"]) {
-            delete gSyncedItemsIDs[aFolderID + "F"];
+          if (gSyncedItemsIDs.has(aFolderID + "F")
+              && !gSyncedItemsIDs.has(aNewParentFldrID + "F")) {
+            gSyncedItemsIDs.delete(aFolderID + "F");
           }
         }).catch(handlePushSyncItemsError);
 
-        if (gSyncedItemsIDs[aNewParentFldrID + "F"]) {
-          gSyncedItemsIDs[aFolderID + "F"] = 1;
+        if (gSyncedItemsIDs.has(aNewParentFldrID + "F")) {
+          gSyncedItemsIDs.add(aFolderID + "F");
         }
       }
     }).catch(aErr => {
@@ -1391,9 +1394,9 @@ let gCmd = {
         });
       }
 
-      if (gSyncedItemsIDs[aDestFldrID + "F"]) {
+      if (gSyncedItemsIDs.has(aDestFldrID + "F")) {
         browser.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
-          gSyncedItemsIDs[newFldrID + "F"] = 1;
+          gSyncedItemsIDs.add(newFldrID + "F");
         }).catch(handlePushSyncItemsError);
       }
 
@@ -1441,7 +1444,7 @@ let gCmd = {
           });
         }
 
-        if (gSyncedItemsIDs[aFolderID + "F"]) {
+        if (gSyncedItemsIDs.has(aFolderID + "F")) {
           browser.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
             aFnResolve();
           }).catch(aErr => {
@@ -1494,7 +1497,7 @@ let gCmd = {
           });
         }
 
-        if (gSyncedItemsIDs[aClippingID + "C"]) {
+        if (gSyncedItemsIDs.has(aClippingID + "C")) {
           browser.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
             aFnResolve();
           }).catch(aErr => {
@@ -1547,7 +1550,7 @@ let gCmd = {
           });
         }
 
-        if (gSyncedItemsIDs[aClippingID + "C"]) {
+        if (gSyncedItemsIDs.has(aClippingID + "C")) {
           browser.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
             aFnResolve();
           }).catch(aErr => {
@@ -1604,7 +1607,7 @@ let gCmd = {
         });
       }
 
-      if (gSyncedItemsIDs[aClippingID + "C"]) {
+      if (gSyncedItemsIDs.has(aClippingID + "C")) {
         return browser.runtime.sendMessage({msgID: "push-sync-fldr-updates"});
       }
     }).catch(aErr => {
@@ -1664,7 +1667,7 @@ let gCmd = {
             browser.runtime.sendMessage({msgID: "rebuild-cxt-menu"});
           }
 
-          if (aFolderID == gPrefs.syncFolderID || gSyncedItemsIDs[aFolderID + "F"] !== undefined) {
+          if (aFolderID == gPrefs.syncFolderID || gSyncedItemsIDs.has(aFolderID + "F")) {
             browser.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
               log("Clippings/mx::clippingsMgr.js::gCmd.updateDisplayOrder(): Saved the display order for synced items.");
             });
@@ -3339,13 +3342,13 @@ function initDialogs()
           }
 
           let fldrID = aItem.id + "F";         
-          if (! (fldrID in gSyncedItemsIDs)) {
+          if (! gSyncedItemsIDs.has(fldrID)) {
             gClippingsSvc.deleteFolder(parseInt(fldrID));
           }
         }).then(() => {
           return gClippingsDB.clippings.each((aItem, aCursor) => {
             let clpgID = aItem.id + "C";
-            if (! (clpgID in gSyncedItemsIDs)) {
+            if (! gSyncedItemsIDs.has(clpgID)) {
               gClippingsSvc.deleteClipping(parseInt(clpgID));
             }
           });
@@ -4229,7 +4232,7 @@ async function rebuildClippingsTree()
     }
 
     if (gPrefs.syncClippings) {
-      gSyncedItemsIDs = {};
+      gSyncedItemsIDs.clear();
       initSyncItemsIDLookupList();
       initSyncedClippingsTree();
 
@@ -4266,12 +4269,12 @@ function initSyncItemsIDLookupList()
     return new Promise((aFnResolve, aFnReject) => {
       gClippingsDB.transaction("r", gClippingsDB.clippings, gClippingsDB.folders, () => {
         gClippingsDB.folders.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
-          gSyncedItemsIDs[aItem.id + "F"] = 1;
+          gSyncedItemsIDs.add(`${aItem.id}F`);
           initSyncItemsIDLookupListHelper(aItem.id);
           
         }).then(() => {
           return gClippingsDB.clippings.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
-            gSyncedItemsIDs[aItem.id + "C"] = 1;
+            gSyncedItemsIDs.add(`${aItem.id}C`);
           });
 
         }).then(() => {
@@ -4291,7 +4294,7 @@ function initSyncItemsIDLookupList()
     }
 
     // Include the ID of the root Synced Clippings folder.
-    gSyncedItemsIDs[gPrefs.syncFolderID + "F"] = 1;
+    gSyncedItemsIDs.add(`${gPrefs.syncFolderID}F`);
 
     initSyncItemsIDLookupListHelper(gPrefs.syncFolderID).then(() => {
       aFnResolve();
