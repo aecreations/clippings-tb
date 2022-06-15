@@ -1817,10 +1817,16 @@ let gCmd = {
   
   openExtensionPrefs: function ()
   {
-    messenger.runtime.openOptionsPage();
-
+    try {
+      messenger.runtime.openOptionsPage();  // BUG!!  Doesn't work on Thunderbird 102.0b5
+    }
+    catch (e) {
+      console.error("Clippings/mx::clippingsMgr.js: Error opening MailExtension options page: " + e);
+    }
+/***
     // Workaround to extension preferences page not focused if already open.
     messenger.runtime.sendMessage({ msgID: "focus-extension-prefs-pg" });
+***/
   },
   
   backup: function ()
