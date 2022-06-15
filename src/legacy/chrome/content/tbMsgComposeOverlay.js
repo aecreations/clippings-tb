@@ -68,7 +68,7 @@ window.aecreations.clippings = function () {
       var popup1 = document.getElementById("ae-clippings-popup-1");
       await this.initClippingsPopup(popup1, menu1);
 
-      aeUtils.log(aeString.format("gClippings.initClippings(): Initializing Clippings integration with host app window: %s", window.location.href));
+      aeUtils.log(aeString.format("Clippings::tbMsgComposeOverlay.js: aecreations.clippings.initClippings(): Initializing Clippings integration with host app window: %s", window.location.href));
 
       let composerCxtMenu = document.getElementById("msgComposeContext");
       composerCxtMenu.addEventListener("popupshowing", async (aEvent) => {
@@ -185,7 +185,7 @@ window.aecreations.clippings = function () {
       var focusedWnd = document.commandDispatcher.focusedWindow;
       var focusedElt = document.commandDispatcher.focusedElement;
 
-      aeUtils.log("gClippings.getSelectedText(): focusedElt = " + focusedElt);
+      aeUtils.log("Clippings::tbMsgComposeOverlay.js: aecreations.clippings.getSelectedText(): focusedElt = " + focusedElt);
       if (focusedElt instanceof HTMLInputElement) {
 	// Subject line text box
 	rv = focusedElt.value.substring(focusedElt.selectionStart, focusedElt.selectionEnd);
@@ -244,7 +244,7 @@ window.aecreations.clippings = function () {
 
       _menu.build();
       
-      aeUtils.log("gClippings.initClippingsPopup(): Data source initialization completed.");
+      aeUtils.log("Clippings::tbMsgComposeOverlay.js: aecreations.clippings.initClippingsPopup(): Data source initialization completed.");
     },
 
 
