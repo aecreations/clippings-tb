@@ -55,7 +55,7 @@ body[data-laf="true"][data-os="mac"] select.browser-style {
 }
 
 body[data-laf="true"]:not([data-os="mac"]) #backup-now {
-    border-radius: 6px;
+    border-radius: 5px;
 }
 
 body[data-os="mac"] #backup-now {
@@ -97,10 +97,6 @@ body[data-os="mac"] #dlg-buttons > button {
 /*
  * Dialog boxes
  */
-
-.lightbox {
-    border-radius: 2px;
-}
 
 .lightbox .msgbox-info-icon {
     width: 32px;

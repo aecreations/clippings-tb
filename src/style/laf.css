@@ -159,7 +159,7 @@ body[data-laf="true"]:not([data-os="mac"]) button:not(.ae-button):not(.toolbar-b
     outline: 0 !important;
     transition-duration: 250ms;
     transition-property: box-shadow, border;
-    border-radius: 3px;
+    border-radius: 4px;
     background-color: var(--color-btn-bkgd);
     color: var(--color-btn-text);
 }
@@ -215,12 +215,19 @@ body[data-laf="true"]:not([data-os="mac"]) select.browser-style:active {
 }
 
 body[data-laf="true"]:not([data-os="mac"]) button.default:not(.ae-button):not(.toolbar-button) {
-    border: 2px solid #0060df;
-    border-radius: 3.5px;
+    border: 1px solid #0060df;
+    background-color: #0060df;
+    color: #fff;
 }
 
-button.default {
-    font-weight: 600;
+body[data-laf="true"]:not([data-os="mac"]) button.default:hover:not(.ae-button):not(.toolbar-button) {
+    border: 1px solid #003eaa;
+    background-color: #003eaa;
+}
+
+body[data-laf="true"]:not([data-os="mac"]) button.default:active:not(.ae-button):not(.toolbar-button) {
+    border: 1px solid #002275;
+    background-color: #002275;
 }
 
 body[data-laf="true"] select.browser-style:focus,

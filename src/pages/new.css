@@ -104,7 +104,7 @@ body[data-os="linux"]:not([data-laf="true"]) input[type="checkbox"] + label {
 /* Styling for the folder picker drop-down menu and New Folder button. */
 .ae-button {
     border: 1px solid var(--color-btn-border);
-    border-radius: 2px;
+    border-radius: 3px;
     background-color: var(--color-btn-bkgd);
     color: var(--color-btn-text);
 }
@@ -314,10 +314,6 @@ body:not([data-locale="uk"]):not([data-locale|="pt"]):not([data-locale|="es"]) #
 
 #dlg-buttons {
     z-index: 1;
-}
-
-.lightbox {
-    border-radius: 2px;
 }
 
 #new-folder-dlg {
