@@ -18,6 +18,7 @@ let gCreateInFldrMenu;
 let gFolderPickerPopup;
 let gNewFolderDlg, gPreviewDlg;
 let gPrefs;
+let gSyncedFldrIDs = new Set();
 
 
 // Page initialization
@@ -50,6 +51,10 @@ $(async () => {
 
   let lang = messenger.i18n.getUILanguage();
   document.body.dataset.locale = lang;
+
+  if (gPrefs.syncClippings) {
+    initSyncItemsIDLookupList();
+  }
 
   $("#btn-expand-options").click(async (aEvent) => {
     let height = WNDH_OPTIONS_EXPANDED;
@@ -309,6 +314,13 @@ function initDialogs()
       displayOrder: 0,
     };
 
+    if (gPrefs.syncClippings) {
+      // Set static ID on new folder if it is a synced folder.
+      if (gSyncedFldrIDs.has(parentFldrID)) {
+        newFolder.sid = aeUUID();
+      }
+    }
+
     gClippingsDB.transaction("rw", gClippingsDB.clippings, gClippingsDB.folders, () => {
       gClippingsDB.folders.where("parentFolderID").equals(parentFldrID).count().then(aNumFldrs => {
         numItemsInParent += aNumFldrs;
@@ -317,6 +329,13 @@ function initDialogs()
       }).then(aNumClippings => {
         numItemsInParent += aNumClippings;
         newFolder.displayOrder = numItemsInParent;
+        return gClippingsDB.folders.get(parentFldrID);
+
+      }).then(aFolder => {        
+        if (aFolder && aFolder.id != gPrefs.syncFolderID && "sid" in aFolder) {
+          newFolder.parentFldrSID = aFolder.sid;
+        }
+
         return gClippingsDB.folders.add(newFolder);
 
       }).then(aFldrID => {
@@ -517,6 +536,37 @@ function initLabelPicker()
 }
 
 
+function initSyncItemsIDLookupList()
+{
+  function initSyncItemsIDLookupListHelper(aFolderID)
+  {
+    return new Promise((aFnResolve, aFnReject) => {
+      gClippingsDB.folders.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
+        gSyncedFldrIDs.add(aItem.id);
+        initSyncItemsIDLookupListHelper(aItem.id);
+
+      }).then(() => {
+        aFnResolve();
+      });
+    }).catch(aErr => { aFnReject(aErr) });
+  }
+  // END nested helper function
+
+  return new Promise((aFnResolve, aFnReject) => {
+    if (! gPrefs.syncClippings) {
+      aFnResolve();
+    }
+
+    // Include the ID of the root Synced Clippings folder.
+    gSyncedFldrIDs.add(gPrefs.syncFolderID);
+
+    initSyncItemsIDLookupListHelper(gPrefs.syncFolderID).then(() => {
+      aFnResolve();
+    }).catch(aErr => { aFnReject(aErr) });
+  });
+}
+
+
 function isClippingOptionsSet()
 {
   return ($("#clipping-key")[0].selectedIndex != 0
@@ -579,6 +629,12 @@ function accept(aEvent)
     sourceURL: "",
   };
 
+  if (gPrefs.syncClippings) {
+    if (gSyncedFldrIDs.has(newClipping.parentFolderID)) {
+      newClipping.sid = aeUUID();
+    }
+  }
+
   gClippingsDB.transaction("rw", gClippingsDB.clippings, gClippingsDB.folders, () => {
     gClippingsDB.folders.where("parentFolderID").equals(gParentFolderID).count().then(aNumFldrs => {
       numItemsInParent += aNumFldrs;
@@ -587,6 +643,12 @@ function accept(aEvent)
     }).then(aNumClippings => {
       numItemsInParent += aNumClippings;
       newClipping.displayOrder = numItemsInParent;
+      return gClippingsDB.folders.get(gParentFolderID);
+
+    }).then(aFolder => {
+      if (aFolder && aFolder.id != gPrefs.syncFolderID && "sid" in aFolder) {
+        newClipping.parentFldrSID = aFolder.sid;
+      }
       return gClippingsDB.clippings.add(newClipping);
 
     }).then(aNewClippingID => {
