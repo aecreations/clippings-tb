@@ -1609,6 +1609,13 @@ messenger.runtime.onMessage.addListener(aRequest => {
   case "verify-db":
     return verifyDB();
 
+  case "open-ext-prefs-pg":
+    messenger.tabs.create({
+      active: true,
+      url: "/pages/options.html",
+    });
+    break;
+
   default:
     break;
   }

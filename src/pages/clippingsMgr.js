@@ -2351,16 +2351,16 @@ let gCmd = {
   
   openExtensionPrefs: function ()
   {
-    try {
-      messenger.runtime.openOptionsPage();  // BUG!!  Doesn't work on Thunderbird 102.0b5
+    if (aeVersionCmp(gEnvInfo.hostAppVer, "102.0") >= 0) {
+      // Temporary workaround to Thunderbird bug, see next comment.
+      messenger.runtime.sendMessage({msgID: "open-ext-prefs-pg"});
+      return;
     }
-    catch (e) {
-      console.error("Clippings/mx::clippingsMgr.js: Error opening MailExtension options page: " + e);
-    }
-/***
+
+    messenger.runtime.openOptionsPage();  // BUG!!  Doesn't work on Thunderbird 102.0b5
+
     // Workaround to extension preferences page not focused if already open.
     messenger.runtime.sendMessage({ msgID: "focus-extension-prefs-pg" });
-***/
   },
   
   backup: function ()
