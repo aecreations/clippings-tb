@@ -140,18 +140,74 @@ $(window).keydown(aEvent => {
     if (aEvent.target.tagName == "TEXTAREA") {
       return;
     }
-    if (aeDialog.isOpen()) {
-      aeDialog.acceptDlgs();
+
+    if (aEvent.target.tagName == "BUTTON" && aEvent.target.id != "btn-accept"
+        && !aEvent.target.classList.contains("dlg-accept")) {
+      aEvent.target.click();
       return;
     }
-    accept(aEvent);
+
+    if (aEvent.target.tagName == "UL" && aEvent.target.classList.contains("ui-fancytree")) {
+      let selectedFldrNodeKey;
+      let fldrData;
+
+      if (aeDialog.isOpen()) {
+        // New Folder modal lightbox.
+        gNewFolderDlg.selectAndCloseFolderPicker();
+        $("#new-folder-dlg-fldr-picker-mnubtn").focus();
+      }
+      else {
+        selectAndCloseFolderPicker();
+        $("#new-clipping-fldr-picker-menubtn").focus();
+      }
+
+      return;
+    }
+
+    if (aeDialog.isOpen()) {
+      // Avoid duplicate invocation due to pressing ENTER while OK button
+      // is focused in the New Clipping dialog.
+      if (! aEvent.target.classList.contains("dlg-accept")) {
+        aeDialog.acceptDlgs();
+      }
+      return;
+    }
+
+    if (aEvent.target.id != "btn-accept") {
+      accept(aEvent);
+    }
   }
   else if (aEvent.key == "Escape") {
+    if (aEvent.target.tagName == "UL" && aEvent.target.classList.contains("ui-fancytree")) {
+      if (aeDialog.isOpen()) {
+        // New Folder modal lightbox.
+        gNewFolderDlg.closeFolderPicker();
+        $("#new-folder-dlg-fldr-picker-mnubtn").focus();
+      }
+      else {
+        closeFolderPicker();
+        $("#new-clipping-fldr-picker-menubtn").focus();
+      }
+
+      return;
+    }
+    
     if (aeDialog.isOpen()) {
       aeDialog.cancelDlgs();
       return;
     }
     cancel(aEvent);
+  }
+  else if (aEvent.key == "ArrowDown") {
+    if (aEvent.target.classList.contains("folder-picker-menubtn")) {
+      if (aeDialog.isOpen()) {
+        // New Folder modal lightbox.
+        gNewFolderDlg.openFolderPicker();
+      }
+      else {
+        openFolderPicker();
+      }
+    }
   }
 });
 
@@ -191,6 +247,52 @@ function initDialogs()
     selectedFldrNode: null,
   });
 
+    gNewFolderDlg.openFolderPicker = function ()
+  {
+    $("#new-folder-dlg-fldr-tree-popup").css({visibility: "visible"});
+    $("#new-folder-dlg-fldr-tree-popup-bkgrd-ovl").show();
+    this.fldrTree.getContainer().focus();
+  };
+
+  gNewFolderDlg.selectFolder = function (aFolderData)
+  {
+    this.selectedFldrNode = aFolderData.node;
+
+    let fldrID = aFolderData.node.key;
+    let fldrPickerMnuBtn = $("#new-folder-dlg-fldr-picker-mnubtn");
+    fldrPickerMnuBtn.val(fldrID).text(aFolderData.node.title);
+
+    if (fldrID == gPrefs.syncFolderID) {
+      fldrPickerMnuBtn.attr("syncfldr", "true");
+    }
+    else {
+      fldrPickerMnuBtn.removeAttr("syncfldr");
+    }
+
+    $("#new-folder-dlg-fldr-tree-popup").css({visibility: "hidden"});
+    $("#new-folder-dlg-fldr-tree-popup-bkgrd-ovl").hide();
+
+  };
+
+  gNewFolderDlg.selectAndCloseFolderPicker = function ()
+  {
+    let fldrPickerTree = gNewFolderDlg.fldrTree.getTree();
+    selectedFldrNodeKey = fldrPickerTree.activeNode.key;
+    let fldrData = {
+      node: {
+        key: selectedFldrNodeKey,
+        title: fldrPickerTree.activeNode.title,
+      }
+    };
+    gNewFolderDlg.selectFolder(fldrData);
+  };
+
+  gNewFolderDlg.closeFolderPicker = function ()
+  {
+    $("#new-folder-dlg-fldr-tree-popup").css({visibility: "hidden"});
+    $("#new-folder-dlg-fldr-tree-popup-bkgrd-ovl").hide();
+  };
+
   gNewFolderDlg.resetTree = function ()
   {
     let fldrTree = this.fldrTree.getTree();
@@ -207,17 +309,14 @@ function initDialogs()
 
   gNewFolderDlg.onFirstInit = function ()
   {
-    let fldrPickerMnuBtn = $("#new-folder-dlg-fldr-picker-mnubtn");
     let fldrPickerPopup = $("#new-folder-dlg-fldr-tree-popup");
 
-    fldrPickerMnuBtn.click(aEvent => {
+    $("#new-folder-dlg-fldr-picker-mnubtn").click(aEvent => {
       if (fldrPickerPopup.css("visibility") == "visible") {
-        fldrPickerPopup.css({ visibility: "hidden" });
-        $("#new-folder-dlg-fldr-tree-popup-bkgrd-ovl").hide();
+        this.closeFolderPicker();
       }
       else {
-        fldrPickerPopup.css({ visibility: "visible" });
-        $("#new-folder-dlg-fldr-tree-popup-bkgrd-ovl").show();
+        this.openFolderPicker();
       }
     });
     
@@ -260,20 +359,7 @@ function initDialogs()
     );
 
     this.fldrTree.onSelectFolder = aFolderData => {
-      this.selectedFldrNode = aFolderData.node;
-
-      let fldrID = aFolderData.node.key;
-      fldrPickerMnuBtn.val(fldrID).text(aFolderData.node.title);
-
-      if (fldrID == gPrefs.syncFolderID) {
-        fldrPickerMnuBtn.attr("syncfldr", "true");
-      }
-      else {
-        fldrPickerMnuBtn.removeAttr("syncfldr");
-      }
-      
-      fldrPickerPopup.css({ visibility: "hidden" });
-      $("#new-folder-dlg-fldr-tree-popup-bkgrd-ovl").hide();
+      this.selectFolder(aFolderData);
     };
 
     fldrPickerMnuBtn.val(selectedFldrID).text(selectedFldrName);
@@ -428,12 +514,11 @@ function initFolderPicker()
     let popup = $("#new-clipping-fldr-tree-popup");
 
     if (popup.css("visibility") == "hidden") {
-      popup.css({ visibility: "visible" });
-      $(".popup-bkgrd").show();
+      openFolderPicker();
     }
     else {
-      popup.css({ visibility: "hidden" });
-      $(".popup-bkgrd").hide();
+      closeFolderPicker();
+      aEvent.target.focus();
     }
   });
 
@@ -478,6 +563,14 @@ function initFolderPicker()
 }
 
 
+function openFolderPicker()
+{
+  $("#new-clipping-fldr-tree-popup").css({visibility: "visible"});
+  $(".popup-bkgrd").show();
+  gFolderPickerPopup.getContainer().focus();
+}
+
+
 function selectFolder(aFolderData)
 {
   gParentFolderID = Number(aFolderData.node.key);
@@ -492,7 +585,28 @@ function selectFolder(aFolderData)
     fldrPickerMenuBtn.removeAttr("syncfldr");
   }
   
-  $("#new-clipping-fldr-tree-popup").css({ visibility: "hidden" });
+  $("#new-clipping-fldr-tree-popup").css({visibility: "hidden"});
+  $(".popup-bkgrd").hide();
+}
+
+
+function selectAndCloseFolderPicker()
+{
+  let fldrPickerTree = gFolderPickerPopup.getTree();
+  selectedFldrNodeKey = fldrPickerTree.activeNode.key;
+  let fldrData = {
+    node: {
+      key: selectedFldrNodeKey,
+      title: fldrPickerTree.activeNode.title,
+    }
+  };
+  selectFolder(fldrData);
+}
+
+
+function closeFolderPicker()
+{
+  $("#new-clipping-fldr-tree-popup").css({visibility: "hidden"});
   $(".popup-bkgrd").hide();
 }
 
