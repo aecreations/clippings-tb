@@ -255,17 +255,22 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
     if (! aePrefs.hasCarpinteriaPrefs(gPrefs)) {
       log("Initializing 6.1 user preferences.");
       await aePrefs.setCarpinteriaPrefs(gPrefs);
-
-      // Enable post-upgrade notifications which users can click on to open the
-      // What's New page.
-      await aePrefs.setPrefs({
-        upgradeNotifCount: aeConst.MAX_NUM_POST_UPGRADE_NOTIFICNS
-      });
     }
 
     if (! aePrefs.hasVenturaPrefs(gPrefs)) {
       log("Initializing 6.1.1 user preferences.");
       await aePrefs.setVenturaPrefs(gPrefs);
+    }
+
+    if (! aePrefs.hasCorralDeTierraPrefs(gPrefs)) {
+      log("Initializing 6.2 user preferences.");
+      await aePrefs.setCorralDeTierraPrefs(gPrefs);
+
+      // Enable post-update notifications which users can click on to open the
+      // What's New page.
+      await aePrefs.setPrefs({
+        upgradeNotifCount: aeConst.MAX_NUM_POST_UPGRADE_NOTIFICNS
+      });
     }
 
     init();
@@ -1286,7 +1291,7 @@ function openNewClippingDlg(aNewClippingContent)
 async function openBackupDlg()
 {
   let url = messenger.runtime.getURL("pages/backup.html");
-  let lang = browser.i18n.getUILanguage();
+  let lang = messenger.i18n.getUILanguage();
   let wndKey = "backupFirstRun";
   let height = 412;
   
@@ -1546,7 +1551,7 @@ function setDirtyFlag(aFlag)
 //
 
 messenger.runtime.onMessage.addListener(aRequest => {
-  log(`Clippings/mx: Received MailExtension message "${aRequest.msgID}"`);
+  log(`Clippings/mx: Background script received MailExtension message "${aRequest.msgID}"`);
 
   switch (aRequest.msgID) {
   case "get-env-info":
