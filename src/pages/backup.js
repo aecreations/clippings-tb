@@ -162,11 +162,23 @@ function log(aMessage)
 
 $(window).keydown(aEvent => {
   if (aEvent.key == "Enter") {
+    if (aEvent.target.tagName == "BUTTON" && aEvent.target.id != "btn-accept"
+        && !aEvent.target.classList.contains("dlg-accept")) {
+      aEvent.target.click();
+      aEvent.preventDefault();
+      return;
+    }
+
+    // Prevent duplicate invocation of default action button in modal dialogs.
     if (aeDialog.isOpen()) {
-      aeDialog.acceptDlgs();
+      if (! aEvent.target.classList.contains("default")) {
+        aeDialog.acceptDlgs();
+      }
     }
     else {
-      backup();
+      if (aEvent.target.id != "btn-accept") {
+        backup();
+      }
     }
   }
   else if (aEvent.key == "Escape") {
