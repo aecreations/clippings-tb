@@ -820,7 +820,14 @@ let gReloadSyncFldrBtn = {
     }
 
     reloadBtn.title = messenger.i18n.getMessage("btnReload");
+    reloadBtn.setAttribute("tabindex", "0");
+    reloadBtn.setAttribute("role", "button");
     reloadBtn.addEventListener("click", aEvent => { gCmd.reloadSyncFolder() });
+    reloadBtn.addEventListener("keydown", aEvent => {
+      if (aEvent.key == "Enter" || aEvent.key == " ") {
+        aEvent.target.click();
+      }
+    });
     
     syncFldrSpanElt.appendChild(reloadBtn);
   },
