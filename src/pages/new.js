@@ -4,6 +4,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+const WNDH_NORMAL = 412;
+const WNDH_NORMAL_WINDOWS = 448;
 const WNDH_OPTIONS_EXPANDED = 486;
 const DLG_HEIGHT_ADJ_WINDOWS = 48;
 const DLG_HEIGHT_ADJ_LOCALE = 20;
@@ -36,7 +38,7 @@ $(async () => {
   }
 
   try {
-    await browser.runtime.sendMessage({msgID: "verify-db"});
+    await messenger.runtime.sendMessage({msgID: "verify-db"});
   }
   catch (e) {
     showInitError();
@@ -56,25 +58,13 @@ $(async () => {
     initSyncItemsIDLookupList();
   }
 
-  $("#btn-expand-options").click(async (aEvent) => {
-    let height = WNDH_OPTIONS_EXPANDED;
-    if (gOS == "win") {
-      height += DLG_HEIGHT_ADJ_WINDOWS;
-    }
-    
-    if (lang.startsWith("es") || lang.startsWith("pt") || lang == "uk") {
-      height += DLG_HEIGHT_ADJ_LOCALE;
-    }
-    else if (lang == "de" && gOS == "mac") {
-      height += DLG_HEIGHT_ADJ_LOCALE_DE;
-    }
-    else if (lang.startsWith("zh") && gOS == "mac") {
-      height += DLG_HEIGHT_ADJ_LOCALE;
-    }
-    
-    await messenger.windows.update(messenger.windows.WINDOW_ID_CURRENT, { height });
-    $("#clipping-options").show();
-    $("#new-clipping-fldr-tree-popup").addClass("new-clipping-fldr-tree-popup-fixpos");
+  if (gPrefs.showNewClippingOpts) {
+    expandOptions(true);
+  }
+
+  $("#btn-expand-options").data("isExpanded", gPrefs.showNewClippingOpts).click(aEvent => {
+    let isExpanded = $(aEvent.target).data("isExpanded");
+    expandOptions(! isExpanded);
   });
   
   $("#clipping-text").attr("placeholder", messenger.i18n.getMessage("clipMgrContentHint"));
@@ -133,6 +123,41 @@ $(async () => {
     focused: true,
   });
 });
+
+
+async function expandOptions(aIsOptionsExpanded)
+{
+  let lang = messenger.i18n.getUILanguage();
+
+  if (aIsOptionsExpanded) {
+    let height = WNDH_OPTIONS_EXPANDED;
+    if (document.body.dataset.os == "win") {
+      height += DLG_HEIGHT_ADJ_WINDOWS;
+    } 
+    if (lang == "uk" || lang.startsWith("pt") || lang.startsWith("es")) {
+      height += DLG_HEIGHT_ADJ_LOCALE;
+    }
+
+    await messenger.windows.update(messenger.windows.WINDOW_ID_CURRENT, {height});
+    $("#clipping-options").show();
+    $("#new-clipping-fldr-tree-popup").addClass("new-clipping-fldr-tree-popup-fixpos");
+    $("#btn-expand-options").addClass("expanded");
+  }
+  else {
+    let height = WNDH_NORMAL;
+    if (document.body.dataset.os == "win") {
+      height = WNDH_NORMAL_WINDOWS;
+    } 
+
+    $("#clipping-options").hide();
+    $("#new-clipping-fldr-tree-popup").removeClass("new-clipping-fldr-tree-popup-fixpos");
+    $("#btn-expand-options").removeClass("expanded");
+    await messenger.windows.update(messenger.windows.WINDOW_ID_CURRENT, {height});
+  }
+
+  $("#btn-expand-options").data("isExpanded", aIsOptionsExpanded);
+  await aePrefs.setPrefs({showNewClippingOpts: aIsOptionsExpanded});
+}
 
 
 $(window).keydown(aEvent => {
