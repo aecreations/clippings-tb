@@ -1735,7 +1735,7 @@ let gCmd = {
       }
 
       if (gSyncedItemsIDs.has(aDestFldrID + "F")) {
-        browser.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
+        messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
           gSyncedItemsIDs.add(aNewClippingID + "C");
           gSyncedItemsIDMap.set(sid, aNewClippingID + "C");
         }).catch(handlePushSyncItemsError);
@@ -1829,7 +1829,7 @@ let gCmd = {
 
         if (gSyncedItemsIDs.has(aNewParentFldrID + "F")
             || gSyncedItemsIDs.has(oldParentFldrID + "F")) {
-          browser.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
+          messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
             if (gSyncedItemsIDs.has(aFolderID + "F")
                 && !gSyncedItemsIDs.has(aNewParentFldrID + "F")) {
               gSyncedItemsIDs.delete(aFolderID + "F");
@@ -1861,7 +1861,7 @@ let gCmd = {
     
     this.recentAction = this.ACTION_COPYTOFOLDER;
 
-    let clippingsLstrs = gClippings.getClippingsListeners().getListeners();
+    let clippingsLstrs = gClippings.getClippingsListeners();
     clippingsLstrs.forEach(aListener => {
       aListener.copyStarted();
     });
@@ -2314,7 +2314,7 @@ let gCmd = {
   
   showShortcutList: function ()
   {
-    gDialogs.shortcutList.showModal();
+    gDialogs.shortcutList.showModal(false);
   },
 
   insertCustomPlaceholder: function ()
@@ -3017,7 +3017,25 @@ $(document).keydown(async (aEvent) => {
     gCmd.redo();
   }
   else if (aEvent.key == "Enter") {
-    aeDialog.acceptDlgs();
+    if (aEvent.target.tagName == "BUTTON" && !aEvent.target.classList.contains("dlg-accept")) {
+      aEvent.target.click();
+      aEvent.preventDefault();
+      return;
+    }
+
+    if (aEvent.target.tagName == "INPUT" && aEvent.target.type == "file") {
+      // File ficker in the Import modal dialog.
+      aEvent.target.click();
+      return;
+    }
+
+    // Prevent duplicate invocation of default action button in modal dialogs.
+    if (aeDialog.isOpen()) {
+      if (! aEvent.target.classList.contains("default")) {
+        aeDialog.acceptDlgs();
+        aEvent.preventDefault();
+      }
+    }
   }
   else if (aEvent.key == "Escape") {
     if (gSearchBox.isActivated()) {
@@ -3651,14 +3669,30 @@ function initDialogs()
       });
     });    
   };
+
   gDialogs.shortcutList.onInit = async function ()
   {
-    aeImportExport.getShortcutKeyListHTML(false).then(aShctListHTML => {
-      $("#shortcut-list-content").append(sanitizeHTML(aShctListHTML));
-    }).catch(aErr => {
-      console.error("Clippings/mx::clippingsMgr.js: gDialogs.shortcutList.onInit(): " + aErr);
-    });
+    let shctListHTML;
+    try {
+      shctListHTML = await aeImportExport.getShortcutKeyListHTML(false);
+    }
+    catch (e) {
+      console.error("Clippings/mx::clippingsMgr.js: gDialogs.shortcutList.onInit(): " + e);
+      return;
+    }
+
+    $("#shortcut-list-content").append(sanitizeHTML(shctListHTML));
+    let tbodyElt = $("#shortcut-list-dlg > #shortcut-list-content > table > tbody");
+    tbodyElt.attr("tabindex", "0");
+
+    let dlgElts = [
+      tbodyElt[0],
+      $("#shortcut-list-dlg > .dlg-btns > #export-shct-list")[0],
+      $("#shortcut-list-dlg > .dlg-btns > .dlg-accept")[0],
+    ];
+    this.initKeyboardNavigation(dlgElts);
   };
+
   gDialogs.shortcutList.onUnload = function ()
   {
     $("#shortcut-list-content").empty();
@@ -3870,6 +3904,7 @@ function initDialogs()
     IMP_REPLACE: 1,
     mode: 0,
   });
+
   gDialogs.importFromFile.onFirstInit = function ()
   {
     $("#import-clippings-file-upload").on("change", aEvent => {
@@ -3891,8 +3926,17 @@ function initDialogs()
       if (this.mode == this.IMP_REPLACE && !gIsClippingsTreeEmpty) {
         $("#restore-backup-warning").show();
       }
+    }).on("focus", aEvent => {
+      $("#import-clippings-file-upload-btn").addClass("focused");
+    }).on("blur", aEvent => {
+      $("#import-clippings-file-upload-btn").removeClass("focused");
     });
+
+    $("#import-clippings-file-path").on("contextmenu", aEvent => {
+      aEvent.preventDefault();
+    }).on("focus", aEvent => { aEvent.target.select() });
   };
+
   gDialogs.importFromFile.onInit = function ()
   {
     if (this.mode == this.IMP_REPLACE) {
@@ -4187,6 +4231,13 @@ function initDialogs()
   };
   
   gDialogs.reloadSyncFolder = new aeDialog("#reload-sync-fldr-msgbox");
+  gDialogs.reloadSyncFolder.onShow = function ()
+  {
+    setTimeout(() => {
+      let acceptBtn = $("#reload-sync-fldr-msgbox > .dlg-btns > .dlg-accept")[0];
+      acceptBtn.focus();
+    }, 100);
+  };
   gDialogs.reloadSyncFolder.onAfterAccept = function ()
   {
     rebuildClippingsTree();
@@ -4197,6 +4248,7 @@ function initDialogs()
     fldrTree: null,
     selectedFldrNode: null,
   });
+  
   gDialogs.moveTo.resetTree = function ()
   {
     if (! this.fldrTree) {
@@ -4212,8 +4264,9 @@ function initDialogs()
     $("#move-to-fldr-tree").children().remove();
     let parentElt = $("#move-to-fldr-tree").parent();
     parentElt.children("#move-to-fldr-tree").remove();
-    $('<div id="move-to-fldr-tree"></div>').insertAfter("#move-to-label");
+    $('<div id="move-to-fldr-tree"></div>').insertAfter("#activate-move-to-fldr-tree");
   };
+
   gDialogs.moveTo.onFirstInit = function ()
   {
     $("#copy-instead-of-move").click(aEvent => {
@@ -4237,6 +4290,7 @@ function initDialogs()
       }
     });    
   };
+
   gDialogs.moveTo.onInit = function ()
   {
     if (this.fldrTree) {
@@ -4249,11 +4303,16 @@ function initDialogs()
         aeConst.ROOT_FOLDER_ID,
         messenger.i18n.getMessage("rootFldrName")
       );
-
-      this.fldrTree.onSelectFolder = aFolderData => {
-        this.selectedFldrNode = aFolderData.node;
-      };
     }
+
+    // Workaround to allow keyboard navigation into the folder tree list.
+    $("#activate-move-to-fldr-tree").on("focus", aEvent => {
+      try {
+        this.fldrTree.getContainer().focus();
+      }
+      // Ignore thrown exception; it still works.
+      catch {}
+    });
 
     $("#copy-instead-of-move").prop("checked", false);
     $("#move-dlg-action-btn").text(messenger.i18n.getMessage("btnMove"));
@@ -4281,10 +4340,7 @@ function initDialogs()
     let id = parseInt(selectedNode.key);
     let parentNode = selectedNode.getParent();
 
-    // Handle case where default selection of root folder node wasn't changed.
-    if (this.selectedFldrNode === null) {
-      this.selectedFldrNode = this.fldrTree.getTree().getNodeByKey(Number(aeConst.ROOT_FOLDER_ID).toString());
-    }
+    this.selectedFldrNode = this.fldrTree.getTree().activeNode;
     
     let parentFolderID = (parentNode.isRootNode() ? aeConst.ROOT_FOLDER_ID : parseInt(parentNode.key));
     let destFolderID = parseInt(this.selectedFldrNode.key);
@@ -4345,7 +4401,11 @@ function initDialogs()
   gDialogs.showOnlySyncedItemsReminder = new aeDialog("#show-only-synced-items-reminder");
   gDialogs.showOnlySyncedItemsReminder.onShow = function ()
   {
-    aePrefs.setPrefs({ clippingsMgrShowSyncItemsOnlyRem: false });
+    aePrefs.setPrefs({clippingsMgrShowSyncItemsOnlyRem: false});
+    setTimeout(() => {
+      let acceptBtn = $("#show-only-synced-items-reminder > .dlg-btns > .dlg-accept")[0];
+      acceptBtn.focus();
+    }, 100);
   };
 
   gDialogs.moveSyncFldr = new aeDialog("#move-sync-fldr-msgbox");
