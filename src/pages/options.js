@@ -341,7 +341,33 @@ function initDialogs()
   gDialogs.syncClippings.setProps({
     oldShowSyncItemsOpt: null,
     isCanceled: false,
+    lastFocusedElt: null,
   });
+
+  gDialogs.syncClippings._initKeyboardNav = function (aVisibleDeckID, aIsBrwsSyncFldrBtnVisible)
+  {
+    let focusableElts = [];
+
+    if (aVisibleDeckID == "sync-folder-location") {
+      focusableElts.push(
+        $("#sync-fldr-curr-location")[0],
+        $("#sync-helper-app-update-check")[0],
+        $("#show-only-sync-items")[0],
+        $("#sync-clippings-dlg .dlg-accept")[0],
+        $("#sync-clippings-dlg .dlg-cancel")[0],
+      );
+
+      if (aIsBrwsSyncFldrBtnVisible) {
+        focusableElts.splice(1, 0, $("#browse-sync-fldr")[0]);
+      }
+    }
+    else {
+      // Only the "Close" button appears for errors.
+      focusableElts.push($("#sync-clippings-dlg .dlg-cancel")[0]);
+    }
+    this.initKeyboardNavigation(focusableElts);
+  };
+
   gDialogs.syncClippings.onFirstInit = function ()
   {
     if (gOS == "win") {
@@ -354,6 +380,7 @@ function initDialogs()
       $("#example-sync-path").text(messenger.i18n.getMessage("syncFileDirExLinux"));
     }
     $("#sync-conxn-error-detail").html(sanitizeHTML(messenger.i18n.getMessage("errSyncConxnDetail")));
+    $("#sync-fldr-curr-location").on("focus", aEvent => { aEvent.target.select() });
   };
   gDialogs.syncClippings.onInit = function ()
   {
@@ -373,6 +400,7 @@ function initDialogs()
     deckSyncSettings.hide();
 
     let that = this;
+    let isBrwsSyncFldrVisible = true;
     let lang = messenger.i18n.getUILanguage();
     let natMsg = {msgID: "get-app-version"};
     messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg).then(aResp => {
@@ -380,6 +408,7 @@ function initDialogs()
 
       if (aeVersionCmp(aResp.appVersion, "1.2b1") < 0) {
         $("#browse-sync-fldr").hide();
+        isBrwsSyncFldrVisible = false;
       }
       
       return aePrefs.getAllPrefs();
@@ -399,12 +428,14 @@ function initDialogs()
           $("#sync-clippings-dlg").css({ width: "606px" });
         }
       }
+
+      $("#sync-fldr-curr-location").val(aResp.syncFilePath);
       $("#sync-clippings-dlg .dlg-accept").show();
       $("#sync-clippings-dlg .dlg-cancel").text(messenger.i18n.getMessage("btnCancel"));
 
       deckSyncChk.hide();
       deckSyncSettings.show();
-      $("#sync-fldr-curr-location").val(aResp.syncFilePath).focus().select();
+      this._initKeyboardNav("sync-folder-location", isBrwsSyncFldrVisible);
 
     }).catch(aErr => {
       console.error("Clippings/mx::options.js: Error returned from syncClippings native app: " + aErr);
@@ -420,14 +451,18 @@ function initDialogs()
         deckSyncChk.hide();
         deckSyncSettings.hide();
         deckSyncError.show();
+        $("#sync-clippings-dlg .dlg-accept").hide();
         $("#sync-err-detail").text(messenger.i18n.getMessage("errNoDetails"));
       }
       else {
         deckSyncChk.hide();
         deckSyncSettings.hide();
         deckSyncError.show();
+        $("#sync-clippings-dlg .dlg-accept").hide();
         $("#sync-err-detail").text(messenger.i18n.getMessage("errSyncOptsInit"));
       }
+
+      this._initKeyboardNav(null, false);
     });
   };
 
@@ -511,8 +546,9 @@ function initDialogs()
 
   gDialogs.syncClippings.onUnload = function ()
   {
-    $("#sync-clippings-dlg").css({ height: "256px" });
+    $("#sync-clippings-dlg").css({height: "256px"});
     gDialogs.syncClippings.isCanceled = true;
+    this.lastFocusedElt?.focus();
   };
   
   gDialogs.turnOffSync = new aeDialog("#turn-off-sync-clippings-dlg");
@@ -664,15 +700,29 @@ $(window).keydown(aEvent => {
     return (aEvent.target.tagName == "INPUT" || aEvent.target.tagName == "TEXTAREA");
   }
 
-  if (aEvent.key == "Enter" && aeDialog.isOpen()) {
-    aeDialog.acceptDlgs();
-
-    // Don't trigger any further actions that would have occurred if the
-    // ENTER key was pressed.
+  if (aEvent.key == "Enter") {
+    if (aeDialog.isOpen()) {
+      if (aEvent.target.tagName == "BUTTON" && !aEvent.target.classList.contains("default")) {
+        aEvent.target.click();
+      }
+      else {
+        aeDialog.acceptDlgs();
+      }
+    }
+    else {
+      if (aEvent.target.tagName == "BUTTON") {
+        aEvent.target.click();
+      }
+    }
     aEvent.preventDefault();
   }
   else if (aEvent.key == "Escape" && aeDialog.isOpen()) {
     aeDialog.cancelDlgs();
+  }
+  else if (aEvent.key == " ") {
+    if (aEvent.target.tagName == "A") {
+      aEvent.target.click();
+    }
   }
   else if (aEvent.key == "/" || aEvent.key == "'") {
     if (! isTextboxFocused(aEvent)) {
