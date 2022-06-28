@@ -3017,14 +3017,24 @@ $(document).keydown(async (aEvent) => {
     gCmd.redo();
   }
   else if (aEvent.key == "Enter") {
+    log("Clippings/mx::clippingsMgr.js: ENTER key pressed!  Target element:");
+    log(aEvent.target);
+
+    // Thunderbird-specific. Ignore ENTER key press if the button for reloading
+    // the Synced Clippings folder is focused.
+    if (aEvent.target.tagName == "SPAN" && aEvent.target.id == "reload-sync-fldr-btn") {
+      // Event handler attached to element already handles the ENTER key.
+      return;
+    }
+    
     if (aEvent.target.tagName == "BUTTON" && !aEvent.target.classList.contains("dlg-accept")) {
       aEvent.target.click();
       aEvent.preventDefault();
       return;
     }
 
+    // File picker in the Import modal dialog.
     if (aEvent.target.tagName == "INPUT" && aEvent.target.type == "file") {
-      // File ficker in the Import modal dialog.
       aEvent.target.click();
       return;
     }
