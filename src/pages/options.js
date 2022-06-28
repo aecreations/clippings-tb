@@ -575,6 +575,13 @@ function initDialogs()
       gDialogs.turnOffSyncAck.showModal();
     });
   };
+  gDialogs.turnOffSync.onShow = function ()
+  {
+    setTimeout(() => {
+      $("#turn-off-sync-clippings-dlg > .dlg-btns > .dlg-accept")[0].focus();
+    }, 10);
+  };
+
 
   gDialogs.turnOffSyncAck = new aeDialog("#turn-off-sync-clippings-ack-dlg");
   gDialogs.turnOffSyncAck.setProps({
