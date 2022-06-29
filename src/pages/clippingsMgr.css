@@ -253,19 +253,23 @@ body[data-os="linux"]:not([data-laf="true"]) input[type="checkbox"] + label {
 
 .toolbar-button:hover {
     border: 1px solid transparent;
-    border-radius: 2px;
+    border-radius: 3px;
     background-color: var(--color-toolbarbtn-hover-bkgd);
 }
 
 .toolbar-button:active {
     border: 1px solid transparent !important;
-    border-radius: 2px;
+    border-radius: 3px;
     background-color: var(--color-toolbarbtn-active-bkgd);
 }
 
 .toolbar-button-menu-open {
-    Border-radius: 2px 2px 0px 0px;
+    Border-radius: 3px 3px 0px 0px;
     background-color: var(--color-toolbar-menubtn-open);
+}
+
+#plchldr-presets.toolbar-button-menu-open {
+    border-radius: 0px 0px 3px 3px;
 }
 
 .toolbar-button-labelled {
@@ -1247,8 +1251,8 @@ body[data-locale="de"] #import-dlg {
     box-shadow: 0 0 0 0 transparent;
     background-color: var(--color-btn-bkgd);
 
-    transition-duration: 250ms;
-    transition-property: box-shadow, border;    
+    transition-duration: 200ms;
+    transition-property: box-shadow;
 }
 
 #import-dlg #import-clippings-file-upload-btn.focused {
