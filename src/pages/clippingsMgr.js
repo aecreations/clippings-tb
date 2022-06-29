@@ -1392,7 +1392,7 @@ let gCmd = {
     });
   },
 
-  moveClippingOrFolder: function ()
+  async moveClippingOrFolder()
   {
     if (gIsClippingsTreeEmpty) {
       return;
@@ -1401,6 +1401,18 @@ let gCmd = {
     let tree = getClippingsTree();
     let selectedNode = tree.activeNode;
     if (selectedNode && selectedNode.isFolder()) {
+      // Disallow if New Clipping dialog is open to prevent errors due to saving
+      // a new clipping into a non-existent folder.
+      let pingResp;
+      try {
+        pingResp = await browser.runtime.sendMessage({msgID: "ping-new-clipping-dlg"});
+      }
+      catch {}
+      if (pingResp) {
+        gDialogs.actionUnavailable.openPopup();
+        return;
+      }
+
       let folderID = parseInt(selectedNode.key);
       if (folderID == gPrefs.syncFolderID) {
         window.setTimeout(() => {gDialogs.moveSyncFldr.showModal()});
@@ -1411,7 +1423,7 @@ let gCmd = {
     gDialogs.moveTo.showModal();
   },
   
-  deleteClippingOrFolder: function (aDestUndoStack)
+  async deleteClippingOrFolder(aDestUndoStack)
   {
     if (gIsClippingsTreeEmpty) {
       return;
@@ -1428,6 +1440,16 @@ let gCmd = {
     let sid, parentFldrSID;  // Permanent IDs for synced items.
     
     if (selectedNode.isFolder()) {
+      let pingResp;
+      try {
+        pingResp = await browser.runtime.sendMessage({msgID: "ping-new-clipping-dlg"});
+      }
+      catch {}
+      if (pingResp) {
+        gDialogs.actionUnavailable.openPopup();
+        return;
+      }
+      
       if (id == gPrefs.syncFolderID) {
         window.setTimeout(() => {gDialogs.deleteSyncFldr.showModal()}, 100);
         return;
@@ -2472,8 +2494,20 @@ let gCmd = {
     });
   },
   
-  restoreFromBackup: function ()
+  async restoreFromBackup()
   {
+    // Disallow if New Clipping dialog is open to prevent errors due to saving
+    // a new clipping into a non-existent folder.
+    let pingResp;
+    try {
+      pingResp = await browser.runtime.sendMessage({msgID: "ping-new-clipping-dlg"});
+    }
+    catch {}
+    if (pingResp) {
+      gDialogs.actionUnavailable.openPopup();
+      return;
+    }
+    
     gDialogs.importFromFile.mode = gDialogs.importFromFile.IMP_REPLACE;
     gDialogs.importFromFile.showModal();
   },
@@ -2489,8 +2523,19 @@ let gCmd = {
     gDialogs.exportToFile.showModal();
   },
 
-  reloadSyncFolder: function ()
+  async reloadSyncFolder()
   {
+    let pingResp;
+    try {
+      pingResp = await browser.runtime.sendMessage({msgID: "ping-new-clipping-dlg"});
+    }
+    catch {}
+
+    if (pingResp) {
+      gDialogs.actionUnavailable.openPopup();
+      return;
+    }
+    
     this.recentAction = this.ACTION_RELOAD_SYNC_FLDR;
     messenger.runtime.sendMessage({
       msgID: "refresh-synced-clippings",
@@ -2513,6 +2558,17 @@ let gCmd = {
 
   async undo()
   {
+    let pingResp;
+    try {
+      pingResp = await browser.runtime.sendMessage({msgID: "ping-new-clipping-dlg"});
+    }
+    catch {}
+
+    if (pingResp) {
+      gDialogs.actionUnavailable.openPopup();
+      return;
+    }
+    
     if (this.undoStack.length == 0) {
       window.setTimeout(() => { gDialogs.noUndoNotify.openPopup() }, 100);
       return;
@@ -2649,6 +2705,17 @@ let gCmd = {
 
   async redo()
   {
+    let pingResp;
+    try {
+      pingResp = await browser.runtime.sendMessage({msgID: "ping-new-clipping-dlg"});
+    }
+    catch {}
+
+    if (pingResp) {
+      gDialogs.actionUnavailable.openPopup();
+      return;
+    }
+    
     if (this.redoStack.length == 0) {
       window.setTimeout(() => { gDialogs.noRedoNotify.openPopup() }, 100);
       return;
@@ -3634,6 +3701,7 @@ function initDialogs()
 
   gDialogs.noUndoNotify = new aeDialog("#no-undo-msgbar");
   gDialogs.noRedoNotify = new aeDialog("#no-redo-msgbar");
+  gDialogs.actionUnavailable = new aeDialog("#action-not-available");
 
   gDialogs.shortcutList = new aeDialog("#shortcut-list-dlg");
   gDialogs.shortcutList.onFirstInit = async function ()
