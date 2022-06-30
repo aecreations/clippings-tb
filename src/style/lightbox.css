@@ -106,11 +106,6 @@
     animation-duration: 0.25s;
 }
 
-.msgbar-warn {
-    border: 1px solid #ffe900;
-    background-color: #ffe900;
-}
-
 @keyframes fadeout {
     from {
 	opacity: 1.0;
