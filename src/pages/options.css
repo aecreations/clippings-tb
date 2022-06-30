@@ -603,7 +603,7 @@ body[data-os="mac"] #turn-off-sync-clippings-dlg .msgbox-icon {
 
 #sync-clippings-help-dlg {
     --width: 600px;
-    --height: 488px;
+    --height: 424px;
 }
 
 #sync-clippings-help-dlg .dlg-content {
