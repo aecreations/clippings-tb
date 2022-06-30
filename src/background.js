@@ -185,11 +185,11 @@ let gSyncClippingsListener = {
     gIsReloadingSyncFldr = false;
     rebuildContextMenu();
 
-    log("Clippings/wx: gSyncClippingsListeners.onReloadFinish(): Setting static IDs on synced items that don't already have them.");
+    log("Clippings/mx: gSyncClippingsListeners.onReloadFinish(): Setting static IDs on synced items that don't already have them.");
     let isStaticIDsAdded = await addStaticIDs(gSyncFldrID);
 
     if (isStaticIDsAdded) {
-      log("Clippings/wx: gSyncClippingsListeners.onReloadFinish(): Static IDs added to synced items.  Saving sync file.");
+      log("Clippings/mx: gSyncClippingsListeners.onReloadFinish(): Static IDs added to synced items.  Saving sync file.");
       await pushSyncFolderUpdates();
     }
   },
@@ -627,7 +627,7 @@ function addStaticIDs(aFolderID)
         if (! ("sid" in aItem)) {
           let sid = aeUUID();
           gClippingsDB.folders.update(aItem.id, {sid});
-          log(`Clippings/wx: addStaticIDs(): Static ID added to folder ${aItem.id} - "${aItem.name}"`);
+          log(`Clippings/mx: addStaticIDs(): Static ID added to folder ${aItem.id} - "${aItem.name}"`);
           rv = true;
         }
         addStaticIDs(aItem.id);
@@ -636,7 +636,7 @@ function addStaticIDs(aFolderID)
           if (! ("sid" in aItem)) {
             let sid = aeUUID();
             gClippingsDB.clippings.update(aItem.id, {sid});
-            log(`Clippings/wx: addStaticIDs(): Static ID added to clipping ${aItem.id} - "${aItem.name}"`);
+            log(`Clippings/mx: addStaticIDs(): Static ID added to clipping ${aItem.id} - "${aItem.name}"`);
             rv = true;
           }
         });

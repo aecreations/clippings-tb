@@ -1763,7 +1763,7 @@ let gCmd = {
         }).catch(handlePushSyncItemsError);
       }
     }).catch(aErr => {
-      console.error("Clippings/wx::clippingsMgr.js: gCmd.copyClippingIntrl(): " + aErr);
+      console.error("Clippings/mx::clippingsMgr.js: gCmd.copyClippingIntrl(): " + aErr);
     });
   },
   
@@ -1871,7 +1871,7 @@ let gCmd = {
           aFnResolve();
         }
       }).catch(aErr => {
-        console.error("Clippings/wx::clippingsMgr.js: gCmd.moveFolderIntrl(): " + aErr);
+        console.error("Clippings/mx::clippingsMgr.js: gCmd.moveFolderIntrl(): " + aErr);
         aFnReject(aErr);
       });
     });
