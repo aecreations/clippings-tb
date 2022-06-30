@@ -88,6 +88,7 @@ input[type="number"] {
 }
 
 input[type="checkbox"] + label {
+    margin-left: 1px;
     vertical-align: 0;
 }
 

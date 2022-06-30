@@ -211,12 +211,13 @@ select[size] {
 }
 
 input[type="checkbox"] + label {
+    margin-left: 1px;
     vertical-align: 0;
 }
 
 body[data-os="win"] input[type="checkbox"] + label,
 body[data-os="linux"]:not([data-laf="true"]) input[type="checkbox"] + label {
-    vertical-align: 3px;
+    vertical-align: 2.5px;
 }
 
 .hbox, .vbox {
