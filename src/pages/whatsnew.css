@@ -6,7 +6,7 @@
 
 
 :root {
-    --url-bkgd-img: url("../img/bkgrd.png");
+    --url-bkgd-img: none;
     --color-bkgd: #ededf0;
     --color-main-border: #ddd;
     --color-main-bkgd: #fefefe;
