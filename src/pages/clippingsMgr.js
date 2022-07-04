@@ -17,7 +17,8 @@ let gDialogs = {};
 let gOpenerWndID;
 let gIsMaximized;
 let gSuppressAutoMinzWnd;
-let gSyncedItemsIDs = {};
+let gSyncedItemsIDs = new Set();
+let gSyncedItemsIDMap = new Map();
 let gIsBackupMode = false;
 let gErrorPushSyncItems = false;
 let gReorderedTreeNodeNextSibling = null;
@@ -36,8 +37,8 @@ let gClippingsSvc = {
   async createClipping(aClippingData)
   {
     let newClippingID = await gClippingsDB.clippings.add(aClippingData);
-    let clpgsLstrs = gClippings.getClippingsListeners();
-    clpgsLstrs.forEach(aListener => {
+    let clippingsLstrs = gClippings.getClippingsListeners();
+    clippingsLstrs.forEach(aListener => {
       aListener.newClippingCreated(newClippingID, aClippingData, aeConst.ORIGIN_CLIPPINGS_MGR);
     });
 
@@ -47,8 +48,8 @@ let gClippingsSvc = {
   async createFolder(aFolderData)
   {
     let newFolderID = await gClippingsDB.folders.add(aFolderData);
-    let clpgsLstrs = gClippings.getClippingsListeners();
-    clpgsLstrs.forEach(aListener => {
+    let clippingsLstrs = gClippings.getClippingsListeners();
+    clippingsLstrs.forEach(aListener => {
       aListener.newFolderCreated(newFolderID, aFolderData, aeConst.ORIGIN_CLIPPINGS_MGR);
     });
 
@@ -73,8 +74,8 @@ let gClippingsSvc = {
       }
     }        
 
-    let clpgsLstrs = gClippings.getClippingsListeners();
-    clpgsLstrs.forEach(aListener => {
+    let clippingsLstrs = gClippings.getClippingsListeners();
+    clippingsLstrs.forEach(aListener => {
       aListener.clippingChanged(aClippingID, newClipping, aOldClipping);
     });
 
@@ -99,8 +100,8 @@ let gClippingsSvc = {
       }
     }        
 
-    let clpgsLstrs = gClippings.getClippingsListeners();
-    clpgsLstrs.forEach(aListener => {
+    let clippingsLstrs = gClippings.getClippingsListeners();
+    clippingsLstrs.forEach(aListener => {
       aListener.folderChanged(aFolderID, newFolder, aOldFolder);
     });
 
@@ -111,8 +112,8 @@ let gClippingsSvc = {
   {
     await gClippingsDB.clippings.delete(aClippingID);
 
-    let clpgsLstrs = gClippings.getClippingsListeners();
-    clpgsLstrs.forEach(aListener => {
+    let clippingsLstrs = gClippings.getClippingsListeners();
+    clippingsLstrs.forEach(aListener => {
       aListener.clippingDeleted(aClippingID);    
     });
   },
@@ -121,8 +122,8 @@ let gClippingsSvc = {
   {
     await gClippingsDB.folders.delete(aFolderID);
 
-    let clpgsLstrs = gClippings.getClippingsListeners();
-    clpgsLstrs.forEach(aListener => {
+    let clippingsLstrs = gClippings.getClippingsListeners();
+    clippingsLstrs.forEach(aListener => {
       aListener.folderDeleted(aFolderID);
     });
   }
@@ -190,12 +191,26 @@ let gClippingsListener = {
 
       // Clipping created outside Clippings Manager. Add to undo stack.
       if (aOrigin == aeConst.ORIGIN_HOSTAPP) {
-        gCmd.undoStack.push({
+        let state = {
           action: gCmd.ACTION_CREATENEW,
           id: newClipping.id,
           itemType: gCmd.ITEMTYPE_CLIPPING,
           parentFldrID: newClipping.parentFolderID,
-        });
+        };
+
+        if (gPrefs.syncClippings) {
+          // BUG!!  "Dead object" error thrown from aData, because the
+          // New Clipping dialog, where the aData parameter is populated from,
+          // will be closed by the time these lines are reached.
+          if ("sid" in aData) {
+            state.sid = aData.sid;
+          }
+          if ("parentFldrSID" in aData) {
+            state.parentFldrSID = aData.parentFldrSID;
+          }
+        }
+        
+        gCmd.undoStack.push(state);
       }
     });
   },
@@ -256,12 +271,23 @@ let gClippingsListener = {
 
       // Folder created outside Clippings Manager. Add to undo stack.
       if (aOrigin == aeConst.ORIGIN_HOSTAPP) {
-        gCmd.undoStack.push({
+        let state = {
           action: gCmd.ACTION_CREATENEWFOLDER,
           id: newFolder.id,
           itemType: gCmd.ITEMTYPE_FOLDER,
           parentFldrID: newFolder.parentFolderID,
-        });
+        };
+
+        if (gPrefs.syncClippings) {
+          if ("sid" in aData) {
+            state.sid = aData.sid;
+          }
+          if ("parentFldrSID" in aData) {
+            state.parentFldrSID = aData.parentFldrSID;
+          }
+        }
+        
+        gCmd.undoStack.push(state);
       }
     });
   },
@@ -441,7 +467,7 @@ let gClippingsListener = {
       gClippingsDB.folders.where("parentFolderID").equals(id).each((aItem, aCursor) => {
         let newFldrNode = aFolderNode.addChildren({
           key: aItem.id + "F",
-          title: sanitizeTreeNodeTitle(DEBUG_TREE ? `${aItem.name} [key=${aID}C]` : aItem.name),
+          title: sanitizeTreeNodeTitle(DEBUG_TREE ? `${aItem.name} [key=${aItem.id}F]` : aItem.name),
           folder: true,
           children: []
         });
@@ -451,7 +477,7 @@ let gClippingsListener = {
         return gClippingsDB.clippings.where("parentFolderID").equals(id).each((aItem, aCursor) => {
           aFolderNode.addChildren({
             key: aItem.id + "C",
-            title: sanitizeTreeNodeTitle(DEBUG_TREE ? `${aItem.name} [key=${aID}C]` : aItem.name)
+            title: sanitizeTreeNodeTitle(DEBUG_TREE ? `${aItem.name} [key=${aItem.id}C]` : aItem.name)
           });
         });
 
@@ -525,7 +551,8 @@ let gSyncClippingsListener = {
   onDeactivate(aOldSyncFolderID)
   {
     log(`Clippings/mx::clippingsMgr.js::gSyncClippingsListener.onDeactivate(): ID of old sync folder: ${aOldSyncFolderID}`);
-    gSyncedItemsIDs = {};
+    gSyncedItemsIDs.clear();
+    gSyncedItemsIDMap.clear();
 
     gReloadSyncFldrBtn.hide();
     
@@ -577,6 +604,7 @@ let gSearchBox = {
     $("#search-box").focus(aEvent => {
       gSearchBox.activate();
     });
+    $("#search-box").blur(aEvent => { gSearchBox.deactivate() });
 
     $("#search-box").keyup(aEvent => {
       this.updateSearch();
@@ -617,7 +645,6 @@ let gSearchBox = {
     if (numMatches === undefined) {
       // User cleared search box by deleting all search text
       setStatusBarMsg();
-      this._isActive = false;
     }
     else {
       setStatusBarMsg(messenger.i18n.getMessage("numMatches", numMatches));
@@ -635,6 +662,11 @@ let gSearchBox = {
   {
     this._isActive = true;
   },
+
+  deactivate()
+  {
+    this._isActive = false;
+  },
   
   reset: function ()
   {
@@ -642,7 +674,6 @@ let gSearchBox = {
     $("#search-box").val("").focus();
     $("#clear-search").css({ visibility: "hidden" });
     setStatusBarMsg();
-    this._isActive = false;
   }
 };
 
@@ -722,8 +753,9 @@ let gShortcutKey = {
           aePrefs.setPrefs({ clippingsUnchanged: false });
         }
         
-        if (gSyncedItemsIDs[clippingID + "C"]) {
-          gClippings.pushSyncFolderUpdates().catch(handlePushSyncItemsError);
+        if (gSyncedItemsIDs.has(clippingID + "C")) {
+          messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"})
+            .catch(handlePushSyncItemsError);
         }
       });
     }).catch (aErr => {
@@ -792,7 +824,14 @@ let gReloadSyncFldrBtn = {
     }
 
     reloadBtn.title = messenger.i18n.getMessage("btnReload");
+    reloadBtn.setAttribute("tabindex", "0");
+    reloadBtn.setAttribute("role", "button");
     reloadBtn.addEventListener("click", aEvent => { gCmd.reloadSyncFolder() });
+    reloadBtn.addEventListener("keydown", aEvent => {
+      if (aEvent.key == "Enter" || aEvent.key == " ") {
+        aEvent.target.click();
+      }
+    });
     
     syncFldrSpanElt.appendChild(reloadBtn);
   },
@@ -857,7 +896,82 @@ let gCmd = {
     length: 0,
     _stack: [],
 
-    push(aState) {
+    push(aState)
+    {
+      if (gPrefs.syncClippings) {
+        if ([gCmd.ACTION_MOVETOFOLDER, gCmd.ACTION_COPYTOFOLDER,
+             gCmd.ACTION_CREATENEW, gCmd.ACTION_CREATENEWFOLDER]
+            .includes(aState.action)) {
+          if ("sid" in aState) {
+            if (! gSyncedItemsIDMap.has(aState.sid)) {
+              delete aState.sid;
+            }
+          }
+          else {
+            // Add static ID if it is a synced item.
+            let sfx = "";
+            if (aState.itemType == gCmd.ITEMTYPE_CLIPPING) {
+              sfx = "C";
+            }
+            else if (aState.itemType == gCmd.ITEMTYPE_FOLDER) {
+              sfx = "F";
+            }
+
+            for (let [key, value] of gSyncedItemsIDMap) {
+              if (value == `${aState.id}${sfx}`) {
+                aState.sid = key;
+                break;
+              }
+            }
+          }
+        }
+        else if (aState.action == gCmd.ACTION_MOVETOFOLDER) {
+          if (! ("newParentFldrSID" in aState)) {
+            let isNewParentFldrSynced = false;
+            for (let [key, value] of gSyncedItemsIDMap) {
+              if (value == `${aState.newParentFldrID}F`) {
+                aState.newParentFldrSID = key;
+                isNewParentFldrSynced = true;
+                break;
+              }
+            }
+            // Remote static ID on the item if it wasn't moved to a
+            // synced folder.
+            if (!isNewParentFldrSynced && aState.newParentFldrID != gPrefs.syncFolderID) {
+              delete aState.sid;
+            }
+          }
+          if (! ("oldParentFldrSID" in aState)) {
+            for (let [key, value] of gSyncedItemsIDMap) {
+              if (value == `${aState.oldParentFldrID}F`) {
+                aState.oldParentFldrSID = key;
+                break;
+              }
+            }            
+          }
+        }
+        else if ([gCmd.ACTION_DELETECLIPPING, gCmd.ACTION_DELETEFOLDER].includes(aState.action)) {
+          // The static ID of a synced item is no longer needed because it is
+          // moved to the hidden deleted items folder.
+          delete aState.sid;
+        }
+        else if (aState.action == gCmd.ACTION_CHANGEPOSITION) {
+          if (aState.nextSiblingNodeKey) {
+            if (! ("nextSiblingSID" in aState)) {
+              for (let [key, value] of gSyncedItemsIDMap) {
+                if (value == aState.nextSiblingNodeKey) {
+                  aState.nextSiblingSID = key;
+                  break;
+                }
+              }
+            }
+          }
+          else {
+            delete aState.nextSiblingSID;
+          }
+        }
+      }
+
       this._stack.push(aState);
       this.length++;
     },
@@ -880,6 +994,47 @@ let gCmd = {
     clear() {
       this._stack = [];
       this.length = 0;
+    },
+
+    refreshSyncedItems()
+    {
+      if (! gPrefs.syncClippings) {
+        return;
+      }
+
+      for (let item of this._stack) {
+        if ("sid" in item) {
+          let xid = gSyncedItemsIDMap.get(item.sid);
+          item.id = parseInt(xid);
+          if ("nodeKey" in item) {
+            item.nodeKey = xid;
+          }
+        }
+        if ("parentFldrSID" in item) {
+          let xpfid = gSyncedItemsIDMap.get(item.parentFldrSID);
+          if ("parentFolderID" in item) {
+            item.parentFolderID = parseInt(xpfid);
+          }
+          else {
+            item.parentFldrID = parseInt(xpfid);
+          }
+        }
+        if ("oldParentFldrSID" in item) {
+          let xopfid = gSyncedItemsIDMap.get(item.oldParentFldrSID);
+          item.oldParentFldrID = parseInt(xopfid);
+        }
+        if ("newParentFldrSID" in item) {
+          let xnpfid = gSyncedItemsIDMap.get(item.newParentFldrSID);
+          item.newParentFldrID = parseInt(xnpfid);
+        }
+        if ("destFldrSID" in item) {
+          let xdfid = gSyncedItemsIDMap.get(item.destFldrSID);
+          item.destFldrID = parseInt(xdfid);
+        }
+        if ("nextSiblingSID" in item) {
+          item.nextSiblingNodeKey = gSyncedItemsIDMap.get(item.nextSiblingSID);
+        }
+      };
     }
   },
 
@@ -890,6 +1045,54 @@ let gCmd = {
 
     push(aState)
     {
+      if (gPrefs.syncClippings) {
+        if ([gCmd.ACTION_DELETECLIPPING, gCmd.ACTION_DELETEFOLDER,
+             gCmd.ACTION_MOVETOFOLDER].includes(aState.action)) {
+          if ("sid" in aState) {
+            if (! gSyncedItemsIDMap.has(aState.sid)) {
+              delete aState.sid;
+            }
+          }
+          else {
+            let sfx = "";
+            if (aState.itemType == gCmd.ITEMTYPE_CLIPPING) {
+              sfx = "C";
+            }
+            else if (aState.itemType == gCmd.ITEMTYPE_FOLDER) {
+              sfx = "F";
+            }
+
+            for (let [key, value] of gSyncedItemsIDMap) {
+              if (value == `${aState.id}${sfx}`) {
+                aState.sid = key;
+                break;
+              }
+            }
+          }
+        }
+        else if ([gCmd.ACTION_COPYTOFOLDER, gCmd.ACTION_CREATENEW, gCmd.ACTION_CREATENEWFOLDER]
+                 .includes(aState.action)) {
+          // The static ID of a synced item is no longer needed because it is
+          // moved to the hidden deleted items folder.
+          delete aState.sid;
+        }
+        else if (aState.action == gCmd.ACTION_CHANGEPOSITION) {
+          if (aState.nextSiblingNodeKey) {
+            if (! ("nextSiblingSID" in aState)) {
+              for (let [key, value] of gSyncedItemsIDMap) {
+                if (value == aState.nextSiblingNodeKey) {
+                  aState.nextSiblingSID = key;
+                  break;
+                }
+              }
+            }
+          }
+          else {
+            delete aState.nextSiblingSID;
+          }
+        }
+      }
+
       this._lastUndo = aState;
       this.length = (this.length == 0 ? 1 : 1);
     },
@@ -905,9 +1108,52 @@ let gCmd = {
       return rv;
     },
 
-    clear() {
+    clear()
+    {
       this._stack = [];
       this.length = 0;
+    },
+
+    refreshSyncedItems()
+    {
+      if (! gPrefs.syncClippings) {
+        return;
+      }
+      if (! this._lastUndo) {
+        return;
+      }
+
+      if ("sid" in this._lastUndo) {
+        let xid = gSyncedItemsIDMap.get(this._lastUndo.sid);
+        this._lastUndo.id = parseInt(xid);
+        if ("nodeKey" in this._lastUndo) {
+          this._lastUndo.nodeKey = xid;
+        }
+      }
+      if ("parentFldrSID" in this._lastUndo) {
+        let xpfid = gSyncedItemsIDMap.get(this._lastUndo.parentFldrSID);
+        if ("parentFolderID" in this._lastUndo) {
+          this._lastUndo.parentFolderID = parseInt(xpfid);
+        }
+        else {
+          this._lastUndo.parentFldrID = parseInt(xpfid);
+        }
+      }
+      if ("oldParentFldrSID" in this._lastUndo) {
+        let xopfid = gSyncedItemsIDMap.get(this._lastUndo.oldParentFldrSID);
+        this._lastUndo.oldParentFldrID = parseInt(xopfid);
+      }
+      if ("newParentFldrSID" in this._lastUndo) {
+        let xnpfid = gSyncedItemsIDMap.get(this._lastUndo.newParentFldrSID);
+        this._lastUndo.newParentFldrID = parseInt(xnpfid);        
+      }
+      if ("destFldrSID" in this._lastUndo) {
+        let dfid = gSyncedItemsIDMap.get(this._lastUndo.destFldrSID);
+        this._lastUndo.destFldrID = parseInt(dfid);
+      }
+      if ("nextSiblingSID" in this._lastUndo) {
+        this._lastUndo.nextSiblingNodeKey = gSyncedItemsIDMap.get(this._lastUndo.nextSiblingSID);
+      }
     }
   },
   
@@ -966,27 +1212,52 @@ let gCmd = {
       name,
       content: "",
       shortcutKey: "",
-      parentFolderID: parentFolderID,
+      parentFolderID,
       label: "",
       sourceURL: "",
       displayOrder,      
     };
-      
-    gClippingsSvc.createClipping(newClipping).then(aNewClippingID => {
+
+    if (gSyncedItemsIDs.has(parentFolderID + "F")) {
+      newClipping.sid = aeUUID();
+    }
+
+    let parentFldrSID;
+
+    gClippingsDB.folders.get(parentFolderID).then(aFolder => {
+      if (aFolder && aFolder.id != gPrefs.syncFolderID && "sid" in aFolder) {
+        parentFldrSID = aFolder.sid;
+      }
+      return gClippingsSvc.createClipping(newClipping);
+
+    }).then(aNewClippingID => {
       this._unsetClippingsUnchangedFlag();
       
       if (aDestUndoStack == this.UNDO_STACK) {
-        this.undoStack.push({
+        let state = {
           action: this.ACTION_CREATENEW,
           id: aNewClippingID,
           itemType: this.ITEMTYPE_CLIPPING,
           parentFldrID: parentFolderID,
-        });
+        };
+
+        if (gSyncedItemsIDs.has(parentFolderID + "F")) {
+          if ("sid" in newClipping) {
+            state.sid = newClipping.sid;
+          }
+          if (parentFldrSID) {
+            state.parentFldrSID = parentFldrSID;
+          }
+        }
+
+        this.undoStack.push(state);
       }
 
-      if (gSyncedItemsIDs[parentFolderID + "F"]) {
-        gSyncedItemsIDs[aNewClippingID + "C"] = 1;
-        gClippings.pushSyncFolderUpdates().catch(handlePushSyncItemsError);
+      if (gSyncedItemsIDs.has(parentFolderID + "F")) {
+        gSyncedItemsIDs.add(aNewClippingID + "C");
+        gSyncedItemsIDMap.set(newClipping.sid, aNewClippingID + "C");
+        messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"})
+          .catch(handlePushSyncItemsError);
       }
     });
   },
@@ -998,7 +1269,7 @@ let gCmd = {
     }
     
     let tree = getClippingsTree();
-    let parentFldrID = aParentFolderID;
+    let parentFolderID = aParentFolderID;
 
     this.recentAction = this.ACTION_CREATENEW;
 
@@ -1006,26 +1277,49 @@ let gCmd = {
       name: aName,
       content: aContent,
       shortcutKey: "",
-      parentFolderID: aParentFolderID,
+      parentFolderID,
       label: "",
       sourceURL: "",
       displayOrder: 999999,      
     };
 
-    gClippingsSvc.createClipping(newClipping).then(aNewClippingID => {
+    if (gSyncedItemsIDs.has(parentFolderID + "F")) {
+      newClipping.sid = aeUUID();
+    }
+
+    let parentFldrSID;
+
+    gClippingsDB.folders.get(parentFolderID).then(aFolder => {
+      if (aFolder && aFolder.id != gPrefs.syncFolderID && "sid" in aFolder) {
+        parentFldrSID = aFolder.sid
+      }
+      return gClippingsSvc.createClipping(newClipping);
+
+    }).then(aNewClippingID => {
       this._unsetClippingsUnchangedFlag();
       
       if (aDestUndoStack == this.UNDO_STACK) {
-        this.undoStack.push({
+        let state = {
           action: this.ACTION_CREATENEW,
           id: aNewClippingID,
           itemType: this.ITEMTYPE_CLIPPING
-        });
+        };
+
+        if (gSyncedItemsIDs.has(parentFolderID + "F")) {
+          state.sid = newClipping.sid;
+          if (parentFldrSID) {
+            state.parentFldrSID = parentFldrSID;
+          }
+        }
+
+        this.undoStack.push(state);
       }
 
-      if (gSyncedItemsIDs[parentFldrID + "F"]) {
-        gSyncedItemsIDs[aNewClippingID + "C"] = 1;
-        gClippings.pushSyncFolderUpdates().catch(handlePushSyncItemsError);
+      if (gSyncedItemsIDs.has(parentFolderID + "F")) {
+        gSyncedItemsIDs.add(aNewClippingID + "C");
+        gSyncedItemsIDMap.set(newClipping.sid, aNewClippingID + "C");
+        messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"})
+          .catch(handlePushSyncItemsError);
       }
     });
   },
@@ -1060,26 +1354,49 @@ let gCmd = {
       displayOrder,
     };
 
-    gClippingsSvc.createFolder(newFolder).then(aNewFolderID => {
+    if (gSyncedItemsIDs.has(parentFolderID + "F")) {
+      newFolder.sid = aeUUID();
+    }
+
+    let parentFldrSID;
+
+    gClippingsDB.folders.get(parentFolderID).then(aFolder => {
+      if (aFolder && aFolder.id != gPrefs.syncFolderID && "sid" in aFolder) {
+        parentFldrSID = aFolder.sid
+      }
+      return gClippingsSvc.createFolder(newFolder);
+
+    }).then(aNewFolderID => {
       this._unsetClippingsUnchangedFlag();
 
       if (aDestUndoStack == this.UNDO_STACK) {
-        this.undoStack.push({
+        let state = {
           action: this.ACTION_CREATENEWFOLDER,
           id: aNewFolderID,
           itemType: this.ITEMTYPE_FOLDER,
           parentFldrID: parentFolderID,
-        });
+        };
+
+        if (gSyncedItemsIDs.has(parentFolderID + "F")) {
+          state.sid = newFolder.sid;
+          if (parentFldrSID) {
+            state.parentFldrSID = parentFldrSID;
+          }
+        }
+        
+        this.undoStack.push(state);
       }
 
-      if (gSyncedItemsIDs[parentFolderID + "F"]) {
-        gSyncedItemsIDs[aNewFolderID + "F"] = 1;
-        gClippings.pushSyncFolderUpdates().catch(handlePushSyncItemsError);
+      if (gSyncedItemsIDs.has(parentFolderID + "F")) {
+        gSyncedItemsIDs.add(aNewFolderID + "F");
+        gSyncedItemsIDMap.set(newFolder.sid, aNewFolderID + "F");
+        messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"})
+          .catch(handlePushSyncItemsError);
       }
     });
   },
 
-  moveClippingOrFolder: function ()
+  async moveClippingOrFolder()
   {
     if (gIsClippingsTreeEmpty) {
       return;
@@ -1088,6 +1405,18 @@ let gCmd = {
     let tree = getClippingsTree();
     let selectedNode = tree.activeNode;
     if (selectedNode && selectedNode.isFolder()) {
+      // Disallow if New Clipping dialog is open to prevent errors due to saving
+      // a new clipping into a non-existent folder.
+      let pingResp;
+      try {
+        pingResp = await browser.runtime.sendMessage({msgID: "ping-new-clipping-dlg"});
+      }
+      catch {}
+      if (pingResp) {
+        gDialogs.actionUnavailable.openPopup();
+        return;
+      }
+
       let folderID = parseInt(selectedNode.key);
       if (folderID == gPrefs.syncFolderID) {
         window.setTimeout(() => {gDialogs.moveSyncFldr.showModal()});
@@ -1098,7 +1427,7 @@ let gCmd = {
     gDialogs.moveTo.showModal();
   },
   
-  deleteClippingOrFolder: function (aDestUndoStack)
+  async deleteClippingOrFolder(aDestUndoStack)
   {
     if (gIsClippingsTreeEmpty) {
       return;
@@ -1112,127 +1441,262 @@ let gCmd = {
 
     let id = parseInt(selectedNode.key);
     let parentFolderID = this._getParentFldrIDOfTreeNode(selectedNode);
+    let sid, parentFldrSID;  // Permanent IDs for synced items.
     
     if (selectedNode.isFolder()) {
+      let pingResp;
+      try {
+        pingResp = await browser.runtime.sendMessage({msgID: "ping-new-clipping-dlg"});
+      }
+      catch {}
+      if (pingResp) {
+        gDialogs.actionUnavailable.openPopup();
+        return;
+      }
+      
       if (id == gPrefs.syncFolderID) {
         window.setTimeout(() => {gDialogs.deleteSyncFldr.showModal()}, 100);
         return;
       }
-      
-      this.recentAction = this.ACTION_DELETEFOLDER;
 
-      gClippingsSvc.updateFolder(id, { parentFolderID: aeConst.DELETED_ITEMS_FLDR_ID }).then(aNumUpd => {
-        this._unsetClippingsUnchangedFlag();
-
-        if (aDestUndoStack == this.UNDO_STACK) {
-          this.undoStack.push({
-            action: this.ACTION_DELETEFOLDER,
-            itemType: this.ITEMTYPE_FOLDER,
-            id,
-            parentFolderID
-          });
+      gClippingsDB.folders.get(id).then(aFolder => {
+        if (! aFolder) {
+          throw new Error("No folder found for ID " + id);
         }
 
-        if (gSyncedItemsIDs[parentFolderID + "F"]) {
-          gClippings.pushSyncFolderUpdates().then(() => {
-            delete gSyncedItemsIDs[id + "F"];
-          }).catch(handlePushSyncItemsError);
+        if ("sid" in aFolder) {
+          sid = aFolder.sid;
         }
-      });
-    }
-    else {
-      this.recentAction = this.ACTION_DELETECLIPPING;
+        return gClippingsDB.folders.get(parentFolderID);
 
-      gClippingsSvc.updateClipping(id, {
-        parentFolderID: aeConst.DELETED_ITEMS_FLDR_ID,
-        shortcutKey: ""
+      }).then(aFolder => {
+        if (aFolder && aFolder.id != gPrefs.syncFolderID && "sid" in aFolder) {
+          parentFldrSID = aFolder.sid;
+        }
+
+        let folderChg = {
+          parentFolderID: aeConst.DELETED_ITEMS_FLDR_ID,
+          sid: undefined,
+        };
+
+        this.recentAction = this.ACTION_DELETEFOLDER;
+        return gClippingsSvc.updateFolder(id, folderChg);
+
       }).then(aNumUpd => {
         this._unsetClippingsUnchangedFlag();
 
         if (aDestUndoStack == this.UNDO_STACK) {
-          this.undoStack.push({
+          let state = {
+            action: this.ACTION_DELETEFOLDER,
+            itemType: this.ITEMTYPE_FOLDER,
+            id,
+            parentFolderID
+          };
+          if (gSyncedItemsIDs.has(parentFolderID + "F")) {
+            state.sid = sid;
+            if (parentFldrSID) {
+              state.parentFldrSID = parentFldrSID;
+            }
+          }
+          
+          this.undoStack.push(state);
+        }
+
+        if (gSyncedItemsIDs.has(parentFolderID + "F")) {
+          messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
+            gSyncedItemsIDs.delete(id + "F");
+            gSyncedItemsIDMap.delete(sid);
+          }).catch(handlePushSyncItemsError);
+        }
+      }).catch(aErr => {
+        console.error("Clippings/mx::clippingsMgr.js: gCmd.deleteClippingOrFolder(): " + aErr);
+      });
+    }
+    else {
+      gClippingsDB.clippings.get(id).then(aClipping => {
+        if (! aClipping) {
+          throw new Error("No clipping found for ID " + id);
+        }
+
+        if ("sid" in aClipping) {
+          sid = aClipping.sid;
+        }
+        return gClippingsDB.folders.get(parentFolderID);
+
+      }).then(aFolder => {
+        if (aFolder && aFolder.id != gPrefs.syncFolderID && "sid" in aFolder) {
+          parentFldrSID = aFolder.sid;
+        }
+
+        let clippingChg = {
+          parentFolderID: aeConst.DELETED_ITEMS_FLDR_ID,
+          shortcutKey: "",
+          sid: undefined,
+        };
+
+        this.recentAction = this.ACTION_DELETECLIPPING;        
+        return gClippingsSvc.updateClipping(id, clippingChg);
+
+      }).then(aNumUpd => {
+        this._unsetClippingsUnchangedFlag();
+
+        if (aDestUndoStack == this.UNDO_STACK) {
+          let state = {
             action: this.ACTION_DELETECLIPPING,
             itemType: this.ITEMTYPE_CLIPPING,
             id,
             parentFolderID
-          });
+          };
+          if (gSyncedItemsIDs.has(parentFolderID + "F")) {
+            state.sid = sid;
+            if (parentFldrSID) {
+              state.parentFldrSID = parentFldrSID;
+            }
+          }
+          
+          this.undoStack.push(state);
         }
 
-        if (gSyncedItemsIDs[parentFolderID + "F"]) {
-          gClippings.pushSyncFolderUpdates().then(() => {
-            delete gSyncedItemsIDs[id + "C"];
+        if (gSyncedItemsIDs.has(parentFolderID + "F")) {
+          messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
+            gSyncedItemsIDs.delete(id + "C");
+            gSyncedItemsIDMap.delete(sid);
           }).catch(handlePushSyncItemsError);
         }
+      }).catch(aErr => {
+        console.error("Clippings/mx::clippingsMgr.js: gCmd.deleteClippingOrFolder(): " + aErr);
       });
     }
   },
 
   // Internal commands are NOT meant to be invoked directly from the UI.
-  moveClippingIntrl: function (aClippingID, aNewParentFldrID, aDestUndoStack)
+  moveClippingIntrl(aClippingID, aNewParentFldrID, aDestUndoStack)
   {
     if (gIsClippingsTreeEmpty) {
       unsetEmptyClippingsState();
     }
 
-    let oldParentFldrID;
-    this.recentAction = this.ACTION_MOVETOFOLDER;
-          
-    gClippingsDB.clippings.get(aClippingID).then(aClipping => {
-      if (! aClipping) {
-        throw new Error("Clipping not found for ID " + aClippingID);
-      }
-      
-      oldParentFldrID = aClipping.parentFolderID;
-      return gClippingsSvc.updateClipping(aClippingID, { parentFolderID: aNewParentFldrID }, aClipping);
-    }).then(aNumUpd => {
-      this._unsetClippingsUnchangedFlag();
+    return new Promise((aFnResolve, aFnReject) => {
+      let oldParentFldrID, sid, oldParentFldrSID, newParentFldrSID,
+          clippingChg, clipping;
+      this.recentAction = this.ACTION_MOVETOFOLDER;
 
-      let state = {
-        action: this.ACTION_MOVETOFOLDER,
-        itemType: this.ITEMTYPE_CLIPPING,
-        id: aClippingID,
-        oldParentFldrID,
-        newParentFldrID: aNewParentFldrID
-      };
-      
-      if (aDestUndoStack == this.UNDO_STACK) {
-        this.undoStack.push(state);
-      }
-      else if (aDestUndoStack == this.REDO_STACK) {
-        this.redoStack.push(state);
-      }
+      gClippingsDB.clippings.get(aClippingID).then(aClipping => {
+        if (! aClipping) {
+          throw new Error("Clipping not found for ID " + aClippingID);
+        }
 
-      if (gSyncedItemsIDs[aNewParentFldrID + "F"] || gSyncedItemsIDs[oldParentFldrID + "F"]) {
-        gClippings.pushSyncFolderUpdates().then(() => {
-          // Remove clipping from synced items lookup array if it was moved out
-          // of a synced folder.
-          if (gSyncedItemsIDs[aClippingID + "C"] && !gSyncedItemsIDs[aNewParentFldrID + "F"]) {
-            delete gSyncedItemsIDs[aClippingID + "C"];
+        clipping = aClipping;
+        oldParentFldrID = aClipping.parentFolderID;
+        if ("sid" in aClipping) {
+          sid = aClipping.sid;
+        }
+        clippingChg = {
+          parentFolderID: aNewParentFldrID,
+        };
+
+        if (gSyncedItemsIDs.has(aNewParentFldrID + "F")) {
+          if (! sid) {
+            // Set permanent ID of synced item if it wasn't already so.
+            sid = aeUUID();
           }
+          clippingChg.sid = sid;
+        }
+        else {
+          clippingChg.sid = undefined;
+        }
 
-          // Add clipping to synced items lookup array if moved to a synced
-          // folder.
-          if (gSyncedItemsIDs[aNewParentFldrID + "F"]) {
-            gSyncedItemsIDs[aClippingID + "C"] = 1;
+        if (oldParentFldrID == aeConst.DELETED_ITEMS_FLDR_ID) {
+          return null;
+        }
+        return gClippingsDB.folders.get(oldParentFldrID);
+
+      }).then(aFolder => {
+        if (aFolder && oldParentFldrID != gPrefs.syncFolderID && "sid" in aFolder) {
+          oldParentFldrSID = aFolder.sid;
+        }
+
+        if (aNewParentFldrID == aeConst.DELETED_ITEMS_FLDR_ID) {
+          return null;
+        }
+        return gClippingsDB.folders.get(aNewParentFldrID);
+
+      }).then(aFolder => {
+        if (aFolder && aNewParentFldrID != gPrefs.syncFolderID && "sid" in aFolder) {
+          newParentFldrSID = aFolder.sid;
+        }
+        return gClippingsSvc.updateClipping(aClippingID, clippingChg, clipping);
+
+      }).then(aNumUpd => {
+        this._unsetClippingsUnchangedFlag();
+
+        let state = {
+          action: this.ACTION_MOVETOFOLDER,
+          itemType: this.ITEMTYPE_CLIPPING,
+          id: aClippingID,
+          oldParentFldrID,
+          newParentFldrID: aNewParentFldrID
+        };
+
+        if (gSyncedItemsIDs.has(aNewParentFldrID + "F")) {
+          if ("sid" in clippingChg) {
+            state.sid = clippingChg.sid;
           }
-        }).catch(handlePushSyncItemsError);
-      }
-    }).catch(aErr => {
-      console.error("Clippings/wx::clippingsMgr.js: gCmd.moveClippingIntrl(): " + aErr);
+          else {
+            state.sid = sid;
+          }
+          if (newParentFldrSID) {
+            state.newParentFldrSID = newParentFldrSID;
+          }
+        }
+        if (oldParentFldrSID) {
+          state.oldParentFldrSID = oldParentFldrSID;
+        }
+
+        if (gSyncedItemsIDs.has(aNewParentFldrID + "F")
+            || gSyncedItemsIDs.has(oldParentFldrID + "F")) {
+          messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
+            // Remove clipping from synced items set if it was moved out of a
+            // synced folder.
+            if (gSyncedItemsIDs.has(aClippingID + "C")
+                && !gSyncedItemsIDs.has(aNewParentFldrID + "F")) {
+              gSyncedItemsIDs.delete(aClippingID + "C");
+              gSyncedItemsIDMap.delete(sid);
+            }
+
+            // Add clipping to synced items set if moved to a synced folder.
+            if (gSyncedItemsIDs.has(aNewParentFldrID + "F")) {
+              gSyncedItemsIDs.add(aClippingID + "C");
+              gSyncedItemsIDMap.set(sid, aClippingID + "C");
+            }
+            this._pushToUndoStack(aDestUndoStack, state);
+            aFnResolve();
+          }).catch(handlePushSyncItemsError);
+        }
+        else {
+          this._pushToUndoStack(aDestUndoStack, state);
+          aFnResolve();
+        }
+      }).catch(aErr => {
+        console.error("Clippings/mx::clippingsMgr.js: gCmd.moveClippingIntrl(): " + aErr);
+        aFnReject(aErr);
+      });
     });
   },
 
-  copyClippingIntrl: function (aClippingID, aDestFldrID, aDestUndoStack)
+  copyClippingIntrl(aClippingID, aDestFldrID, aDestUndoStack)
   {
     this.recentAction = this.ACTION_COPYTOFOLDER;
 
     let clippingCpy = {};
+    let clipping, sid, destFldrSID;
    
     gClippingsDB.clippings.get(aClippingID).then(aClipping => {
       if (! aClipping) {
         throw new Error("Clipping not found for ID " + aClippingID);
       }
-      
+
+      clipping = aClipping;
       let tree = getClippingsTree();
       let parentFldrNode;
       if (aDestFldrID == aeConst.ROOT_FOLDER_ID) {
@@ -1254,97 +1718,189 @@ let gCmd = {
         displayOrder
       };
 
+      if (gSyncedItemsIDs.has(aDestFldrID + "F")) {
+        sid = aeUUID();
+        clippingCpy.sid = sid;
+      }
+
+      if (aDestFldrID == aeConst.DELETED_ITEMS_FLDR_ID) {
+        return null;
+      }
+      return gClippingsDB.folders.get(aDestFldrID);
+
+    }).then(aFolder => {
+      if (aFolder && aFolder.id != gPrefs.syncFolderID && "sid" in aFolder) {
+        destFldrSID = aFolder.sid;
+      }
+
       return gClippingsSvc.createClipping(clippingCpy);
 
     }).then(aNewClippingID => {
       this._unsetClippingsUnchangedFlag();
 
       if (aDestUndoStack == this.UNDO_STACK) {
-        this.undoStack.push({
+        let state = {
           action: this.ACTION_COPYTOFOLDER,
           id: aNewClippingID,
           itemType: this.ITEMTYPE_CLIPPING,
           destFldrID: aDestFldrID,
-        });
+        };
+
+        if (gSyncedItemsIDs.has(aDestFldrID + "F")) {
+          if ("sid" in clipping) {
+            state.sid = clipping.sid;
+          }
+          else {
+            state.sid = sid;
+          }
+          if (destFldrSID) {
+            state.destFldrSID = destFldrSID;
+          }
+        }
+        this.undoStack.push(state);
       }
 
-      if (gSyncedItemsIDs[aDestFldrID + "F"]) {
-        gClippings.pushSyncFolderUpdates().then(() => {
-          gSyncedItemsIDs[aNewClippingID + "C"] = 1;
+      if (gSyncedItemsIDs.has(aDestFldrID + "F")) {
+        messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
+          gSyncedItemsIDs.add(aNewClippingID + "C");
+          gSyncedItemsIDMap.set(sid, aNewClippingID + "C");
         }).catch(handlePushSyncItemsError);
       }
     }).catch(aErr => {
-      console.error("Clippings/wx::clippingsMgr.js: gCmd.copyClippingIntrl(): " + aErr);
+      console.error("Clippings/mx::clippingsMgr.js: gCmd.copyClippingIntrl(): " + aErr);
     });
   },
   
-  moveFolderIntrl: function (aFolderID, aNewParentFldrID, aDestUndoStack)
+  moveFolderIntrl(aFolderID, aNewParentFldrID, aDestUndoStack)
   {
     if (gIsClippingsTreeEmpty) {
       unsetEmptyClippingsState();
     }
 
-    let oldParentFldrID;
-    this.recentAction = this.ACTION_MOVETOFOLDER;
-    
-    gClippingsDB.folders.get(aFolderID).then(aFolder => {
-      if (! aFolder) {
-        throw new Error("Folder not found for ID " + aFolderID);
-      }
-      
-      oldParentFldrID = aFolder.parentFolderID;
-      let folderCpy = {
-        parentFolderID: aNewParentFldrID,
-      };
-      return gClippingsSvc.updateFolder(aFolderID, folderCpy, aFolder);
+    return new Promise((aFnResolve, aFnReject) => {
+      let oldParentFldrID, sid, oldParentFldrSID, newParentFldrSID,
+          folderChg, folder;
+      this.recentAction = this.ACTION_MOVETOFOLDER;
 
-    }).then(aNumUpd => {
-      this._unsetClippingsUnchangedFlag();
+      gClippingsDB.folders.get(aFolderID).then(aFolder => {
+        if (! aFolder) {
+          throw new Error("Folder not found for ID " + aFolderID);
+        }
 
-      if (aDestUndoStack == this.UNDO_STACK) {
-        this.undoStack.push({
+        folder = aFolder;
+        oldParentFldrID = aFolder.parentFolderID;
+        if ("sid" in aFolder) {
+          sid = aFolder.sid;
+        }
+        folderChg = {
+          parentFolderID: aNewParentFldrID,
+        };
+
+        if (gSyncedItemsIDs.has(aNewParentFldrID + "F")) {
+          if (! sid) {
+            // Set permanent ID of synced item if it wasn't already so.
+            sid = aeUUID();
+          }
+          folderChg.sid = sid;
+        }
+        else {
+          folderChg.sid = undefined;
+        }
+        if (oldParentFldrID == aeConst.DELETED_ITEMS_FLDR_ID) {
+          return null;
+        }
+        return gClippingsDB.folders.get(oldParentFldrID);
+
+      }).then(aFolder => {
+        if (aFolder && oldParentFldrID != gPrefs.syncFolderID && "sid" in aFolder) {
+          oldParentFldrSID = aFolder.sid;
+        }
+
+        if (aNewParentFldrID == aeConst.DELETED_ITEMS_FLDR_ID) {
+          return null;
+        }
+        return gClippingsDB.folders.get(aNewParentFldrID);
+
+      }).then(aFolder => {
+        if (aFolder && aNewParentFldrID != gPrefs.syncFolderID && "sid" in aFolder) {
+          newParentFldrSID = aFolder.sid;
+        }
+        return gClippingsSvc.updateFolder(aFolderID, folderChg, folder);
+
+      }).then(aNumUpd => {
+        this._unsetClippingsUnchangedFlag();
+
+        let state = {
           action: this.ACTION_MOVETOFOLDER,
           itemType: this.ITEMTYPE_FOLDER,
           id: aFolderID,
           oldParentFldrID,
           newParentFldrID: aNewParentFldrID
-        });
-      }
+        };
 
-      if (gSyncedItemsIDs[aNewParentFldrID + "F"] || gSyncedItemsIDs[oldParentFldrID + "F"]) {
-        gClippings.pushSyncFolderUpdates().then(() => {
-          if (gSyncedItemsIDs[aFolderID + "F"] && !gSyncedItemsIDs[aNewParentFldrID + "F"]) {
-            delete gSyncedItemsIDs[aFolderID + "F"];
+        if (gSyncedItemsIDs.has(aNewParentFldrID + "F")) {
+          if ("sid" in folderChg) {
+            state.sid = folderChg.sid;
           }
-        }).catch(handlePushSyncItemsError);
-
-        if (gSyncedItemsIDs[aNewParentFldrID + "F"]) {
-          gSyncedItemsIDs[aFolderID + "F"] = 1;
+          else {
+            state.sid = sid;
+          }
+          if (newParentFldrSID) {
+            state.newParentFldrSID = newParentFldrSID;
+          }
         }
-      }
-    }).catch(aErr => {
-      console.error("Clippings/wx::clippingsMgr.js: gCmd.moveFolderIntrl(): " + aErr);
+        if (oldParentFldrSID) {
+          state.oldParentFldrSID = oldParentFldrSID;
+        }
+
+        if (gSyncedItemsIDs.has(aNewParentFldrID + "F")
+            || gSyncedItemsIDs.has(oldParentFldrID + "F")) {
+          messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
+            if (gSyncedItemsIDs.has(aFolderID + "F")
+                && !gSyncedItemsIDs.has(aNewParentFldrID + "F")) {
+              gSyncedItemsIDs.delete(aFolderID + "F");
+              gSyncedItemsIDMap.delete(sid);
+            }
+
+            if (gSyncedItemsIDs.has(aNewParentFldrID + "F")) {
+              gSyncedItemsIDs.add(aFolderID + "F");
+              gSyncedItemsIDMap.set(sid, aFolderID + "F");
+            }
+            this._pushToUndoStack(aDestUndoStack, state);
+            aFnResolve();
+          }).catch(handlePushSyncItemsError);
+        }
+        else {
+          this._pushToUndoStack(aDestUndoStack, state);
+          aFnResolve();
+        }
+      }).catch(aErr => {
+        console.error("Clippings/mx::clippingsMgr.js: gCmd.moveFolderIntrl(): " + aErr);
+        aFnReject(aErr);
+      });
     });
   },
 
-  copyFolderIntrl: function (aFolderID, aDestFldrID, aDestUndoStack)
+  copyFolderIntrl(aFolderID, aDestFldrID, aDestUndoStack)
   {
     let newFldrID = null;
     
     this.recentAction = this.ACTION_COPYTOFOLDER;
 
-    let clpgsLstrs = gClippings.getClippingsListeners();
-    clpgsLstrs.forEach(aListener => {
+    let clippingsLstrs = gClippings.getClippingsListeners();
+    clippingsLstrs.forEach(aListener => {
       aListener.copyStarted();
     });
 
     let folderCpy = {};
+    let folder, sid, destFldrSID;
       
     gClippingsDB.folders.get(aFolderID).then(aFolder => {
       if (! aFolder) {
         throw new Error("Folder not found for ID " + aFolderID);
       }
-      
+
+      folder = aFolder;
       let tree = getClippingsTree();
       let parentFldrNode;
       if (aDestFldrID == aeConst.ROOT_FOLDER_ID) {
@@ -1355,12 +1911,28 @@ let gCmd = {
       }
       let parentFldrChildNodes = parentFldrNode.getChildren();
       let displayOrder = parentFldrChildNodes ? parentFldrChildNodes.length : 0;
-      
+
       folderCpy = {
         name: aFolder.name,
         parentFolderID: aDestFldrID,
         displayOrder,
       };
+
+      if (gSyncedItemsIDs.has(aDestFldrID + "F")) {
+        sid = aeUUID();
+        folderCpy.sid = sid;
+      }
+
+      if (aDestFldrID == aeConst.DELETED_ITEMS_FLDR_ID) {
+        return null;
+      }
+      return gClippingsDB.folders.get(aDestFldrID);
+
+    }).then(aFolder => {
+      if (aFolder && aFolder.id != gPrefs.syncFolderID && "sid" in aFolder) {
+        destFldrSID = aFolder.sid;
+      }
+      
       return gClippingsSvc.createFolder(folderCpy);
       
     }).then(aNewFolderID => {
@@ -1379,21 +1951,34 @@ let gCmd = {
       this._unsetClippingsUnchangedFlag();
 
       if (aDestUndoStack == this.UNDO_STACK) {
-        this.undoStack.push({
+        let state = {
           action: this.ACTION_COPYTOFOLDER,
           id: newFldrID,
           itemType: this.ITEMTYPE_FOLDER,
           destFldrID: aDestFldrID,
-        });
+        };
+        if (gSyncedItemsIDs.has(aDestFldrID + "F")) {
+          if ("sid" in folder) {
+            state.sid = folder.sid;
+          }
+          else {
+            state.sid = sid;
+          }
+          if (destFldrSID) {
+            state.destFldrSID = destFldrSID;
+          }
+        }
+        this.undoStack.push(state);
       }
 
-      if (gSyncedItemsIDs[aDestFldrID + "F"]) {
-        gClippings.pushSyncFolderUpdates().then(() => {
-          gSyncedItemsIDs[newFldrID + "F"] = 1;
+      if (gSyncedItemsIDs.has(aDestFldrID + "F")) {
+        messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
+          gSyncedItemsIDs.add(newFldrID + "F");
+          gSyncedItemsIDMap.set(sid, newFldrID + "F");
         }).catch(handlePushSyncItemsError);
       }
 
-      clpgsLstrs.forEach(aListener => {
+      clippingsLstrs.forEach(aListener => {
         aListener.copyFinished(newFldrID);
       });
     }).catch(aErr => {
@@ -1401,44 +1986,52 @@ let gCmd = {
     });
   },
   
-  editFolderNameIntrl(aFolderID, aName, aDestUndoStack)
+  editFolderNameIntrl: function (aFolderID, aName, aDestUndoStack)
   {
-     let that = this;
+    let that = this;
     
     return new Promise((aFnResolve, aFnReject) => {
       let oldName = "";
+      let sid;
       
       gClippingsDB.folders.get(aFolderID).then(aFolder => {
         if (! aFolder) {
           throw new Error("Folder not found for ID " + aFolderID);
         }
-        
+
         oldName = aFolder.name;
 
         if (aName == oldName) {
           return 0;
         }
 
+        if ("sid" in aFolder) {
+          sid = aFolder.sid;
+        }
+
 	that.recentAction = that.ACTION_EDITNAME;
         return gClippingsSvc.updateFolder(aFolderID, { name: aName }, aFolder);
 
       }).then(aNumUpd => {
-        if (aNumUpd > 0) {
-          this._unsetClippingsUnchangedFlag();
-        }
+        this._unsetClippingsUnchangedFlag();
 
         if (aNumUpd && aDestUndoStack == that.UNDO_STACK) {
-          that.undoStack.push({
+          let state = {
             action: that.ACTION_EDITNAME,
             id: aFolderID,
             name: aName,
             oldName,
             itemType: that.ITEMTYPE_FOLDER
-          });
+          };
+          if (gSyncedItemsIDs.has(aFolderID + "F")) {
+            state.sid = sid;
+          }
+
+          that.undoStack.push(state);
         }
 
-        if (gSyncedItemsIDs[aFolderID + "F"]) {
-          gClippings.pushSyncFolderUpdates().then(() => {
+        if (gSyncedItemsIDs.has(aFolderID + "F")) {
+          messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
             aFnResolve();
           }).catch(aErr => {
             handlePushSyncItemsError(aErr);
@@ -1452,22 +2045,26 @@ let gCmd = {
         aFnReject(aErr);
       });
     });
- },
+  },
 
-  editClippingNameIntrl(aClippingID, aName, aDestUndoStack)
+  editClippingNameIntrl: function (aClippingID, aName, aDestUndoStack)
   {
     let that = this;
     
     return new Promise((aFnResolve, aFnReject) => {
       let oldName = "";
+      let sid;
       
       gClippingsDB.clippings.get(aClippingID).then(aClipping => {
         if (! aClipping) {
           throw new Error("Clipping not found for ID " + aClippingID);
         }
-        
-        oldName = aClipping.name;
 
+        if ("sid" in aClipping) {
+          sid = aClipping.sid;
+        }
+
+        oldName = aClipping.name;
         if (aName == oldName) {
           return 0;
         }
@@ -1476,22 +2073,25 @@ let gCmd = {
         return gClippingsSvc.updateClipping(aClippingID, { name: aName }, aClipping);
 
       }).then(aNumUpd => {
-        if (aNumUpd > 0) {
-          this._unsetClippingsUnchangedFlag();
-        }
+        this._unsetClippingsUnchangedFlag();
 
         if (aNumUpd && aDestUndoStack == that.UNDO_STACK) {
-          that.undoStack.push({
+          let state = {
             action: that.ACTION_EDITNAME,
             id: aClippingID,
             name: aName,
             oldName,
             itemType: that.ITEMTYPE_CLIPPING
-          });
+          };
+          if (gSyncedItemsIDs.has(aClippingID + "C")) {
+            state.sid = sid;
+          }
+          
+          that.undoStack.push(state);
         }
 
-        if (gSyncedItemsIDs[aClippingID + "C"]) {
-          gClippings.pushSyncFolderUpdates().then(() => {
+        if (gSyncedItemsIDs.has(aClippingID + "C")) {
+          messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
             aFnResolve();
           }).catch(aErr => {
             handlePushSyncItemsError(aErr);
@@ -1507,20 +2107,24 @@ let gCmd = {
     });
   },
 
-  editClippingContentIntrl(aClippingID, aContent, aDestUndoStack)
+  editClippingContentIntrl: function (aClippingID, aContent, aDestUndoStack)
   {
     let that = this;
     
     return new Promise((aFnResolve, aFnReject) => {
       let oldContent = "";
+      let sid;
       
       gClippingsDB.clippings.get(aClippingID).then(aClipping => {
         if (! aClipping) {
           throw new Error("Clipping not found for ID " + aClippingID);
         }
-        
-        oldContent = aClipping.content;
 
+        if ("sid" in aClipping) {
+          sid = aClipping.sid;
+        }
+
+        oldContent = aClipping.content;
         if (aContent == oldContent) {
           return 0;
         }
@@ -1529,22 +2133,25 @@ let gCmd = {
         return gClippingsSvc.updateClipping(aClippingID, { content: aContent }, aClipping);
 
       }).then(aNumUpd => {
-        if (aNumUpd > 0) {
-          this._unsetClippingsUnchangedFlag();
-        }
+        this._unsetClippingsUnchangedFlag();
 
         if (aNumUpd && aDestUndoStack == that.UNDO_STACK) {
-          that.undoStack.push({
+          let state = {
             action: that.ACTION_EDITCONTENT,
             id: aClippingID,
             content: aContent,
             oldContent,
             itemType: that.ITEMTYPE_CLIPPING
-          });
+          };
+          if (gSyncedItemsIDs.has(aClippingID + "C")) {
+            state.sid = sid;
+          }
+          
+          that.undoStack.push(state);
         }
 
-        if (gSyncedItemsIDs[aClippingID + "C"]) {
-          gClippings.pushSyncFolderUpdates().then(() => {
+        if (gSyncedItemsIDs.has(aClippingID + "C")) {
+          messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
             aFnResolve();
           }).catch(aErr => {
             handlePushSyncItemsError(aErr);
@@ -1563,7 +2170,7 @@ let gCmd = {
   setLabelIntrl: function (aClippingID, aLabel, aDestUndoStack)
   {
     let selectedNode = getClippingsTree().activateKey(aClippingID + "C");
-    let oldLabel;
+    let oldLabel, sid;
 
     this.recentAction = this.ACTION_SETLABEL;      
 
@@ -1571,8 +2178,12 @@ let gCmd = {
       if (! aClipping) {
         throw new Error("Clipping not found for ID " + aClippingID);
       }
-      
+
       oldLabel = aClipping.label;
+
+      if ("sid" in aClipping) {
+        sid = aClipping.sid;
+      }
       return gClippingsSvc.updateClipping(aClippingID, { label: aLabel }, aClipping);
 
     }).then(aNumUpd => {
@@ -1592,16 +2203,21 @@ let gCmd = {
 
       this._unsetClippingsUnchangedFlag();
       if (aDestUndoStack == this.UNDO_STACK) {
-        this.undoStack.push({
+        let state = {
           action: this.ACTION_SETLABEL,
           id: aClippingID,
           label: aLabel,
           oldLabel
-        });
+        };
+        if (gSyncedItemsIDs.has(aClippingID + "C")) {
+          state.sid = sid;
+        }
+        
+        this.undoStack.push(state);
       }
 
-      if (gSyncedItemsIDs[aClippingID + "C"]) {
-        return gClippings.pushSyncFolderUpdates();
+      if (gSyncedItemsIDs.has(aClippingID + "C")) {
+        return messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"});
       }
     }).catch(aErr => {
       handlePushSyncItemsError(aErr);
@@ -1657,11 +2273,11 @@ let gCmd = {
           }
 
           if (! aSuppressClippingsMenuRebuild) {
-            gClippings.rebuildContextMenu();
+            messenger.runtime.sendMessage({msgID: "rebuild-cxt-menu"});
           }
 
-          if (aFolderID == gPrefs.syncFolderID || gSyncedItemsIDs[aFolderID + "F"] !== undefined) {
-            gClippings.pushSyncFolderUpdates().then(() => {
+          if (aFolderID == gPrefs.syncFolderID || gSyncedItemsIDs.has(aFolderID + "F")) {
+            messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
               log("Clippings/mx::clippingsMgr.js::gCmd.updateDisplayOrder(): Saved the display order for synced items.");
             });
           }
@@ -1724,7 +2340,7 @@ let gCmd = {
   
   showShortcutList: function ()
   {
-    gDialogs.shortcutList.showModal();
+    gDialogs.shortcutList.showModal(false);
   },
 
   insertCustomPlaceholder: function ()
@@ -1810,7 +2426,13 @@ let gCmd = {
   
   openExtensionPrefs: function ()
   {
-    messenger.runtime.openOptionsPage();
+    if (aeVersionCmp(gEnvInfo.hostAppVer, "102.0") >= 0) {
+      // Temporary workaround to Thunderbird bug, see next comment.
+      messenger.runtime.sendMessage({msgID: "open-ext-prefs-pg"});
+      return;
+    }
+
+    messenger.runtime.openOptionsPage();  // BUG!!  Doesn't work on Thunderbird 102.0b5
 
     // Workaround to extension preferences page not focused if already open.
     messenger.runtime.sendMessage({ msgID: "focus-extension-prefs-pg" });
@@ -1876,8 +2498,20 @@ let gCmd = {
     });
   },
   
-  restoreFromBackup: function ()
+  async restoreFromBackup()
   {
+    // Disallow if New Clipping dialog is open to prevent errors due to saving
+    // a new clipping into a non-existent folder.
+    let pingResp;
+    try {
+      pingResp = await browser.runtime.sendMessage({msgID: "ping-new-clipping-dlg"});
+    }
+    catch {}
+    if (pingResp) {
+      gDialogs.actionUnavailable.openPopup();
+      return;
+    }
+    
     gDialogs.importFromFile.mode = gDialogs.importFromFile.IMP_REPLACE;
     gDialogs.importFromFile.showModal();
   },
@@ -1893,19 +2527,29 @@ let gCmd = {
     gDialogs.exportToFile.showModal();
   },
 
-  reloadSyncFolder: function ()
+  async reloadSyncFolder()
   {
-    this.recentAction = this.ACTION_RELOAD_SYNC_FLDR;   
-    gClippings.refreshSyncedClippings();
+    let pingResp;
+    try {
+      pingResp = await browser.runtime.sendMessage({msgID: "ping-new-clipping-dlg"});
+    }
+    catch {}
+
+    if (pingResp) {
+      gDialogs.actionUnavailable.openPopup();
+      return;
+    }
+    
+    this.recentAction = this.ACTION_RELOAD_SYNC_FLDR;
+    messenger.runtime.sendMessage({
+      msgID: "refresh-synced-clippings",
+      rebuildClippingsMenu: false,
+    });
+    
     aeDialog.cancelDlgs();
     gDialogs.reloadSyncFolder.showModal();
   },
   
-  removeAllSrcURLs: function ()
-  {
-    gDialogs.removeAllSrcURLs.showModal();
-  },
-
   showMiniHelp: function ()
   {
     if ($("#intro-content").css("display") == "none") {
@@ -1916,8 +2560,19 @@ let gCmd = {
     }
   },
 
-  undo: function ()
+  async undo()
   {
+    let pingResp;
+    try {
+      pingResp = await browser.runtime.sendMessage({msgID: "ping-new-clipping-dlg"});
+    }
+    catch {}
+
+    if (pingResp) {
+      gDialogs.actionUnavailable.openPopup();
+      return;
+    }
+    
     if (this.undoStack.length == 0) {
       window.setTimeout(() => { gDialogs.noUndoNotify.openPopup() }, 100);
       return;
@@ -1926,39 +2581,39 @@ let gCmd = {
     let undo = this.undoStack.pop();
 
     if (undo.action == this.ACTION_DELETECLIPPING) {
-      this.moveClippingIntrl(undo.id, undo.parentFolderID);
+      await this.moveClippingIntrl(undo.id, undo.parentFolderID);
       this.redoStack.push(undo);
     }
     else if (undo.action == this.ACTION_DELETEFOLDER) {
-      this.moveFolderIntrl(undo.id, undo.parentFolderID);
+      await this.moveFolderIntrl(undo.id, undo.parentFolderID);
       this.redoStack.push(undo);
     }
     else if (undo.action == this.ACTION_MOVETOFOLDER) {
       if (undo.itemType == this.ITEMTYPE_CLIPPING) {
-        this.moveClippingIntrl(undo.id, undo.oldParentFldrID);
+        await this.moveClippingIntrl(undo.id, undo.oldParentFldrID);
         this.redoStack.push(undo);
       }
       else if (undo.itemType == this.ITEMTYPE_FOLDER) {
-        this.moveFolderIntrl(undo.id, undo.oldParentFldrID);
+        await this.moveFolderIntrl(undo.id, undo.oldParentFldrID);
         this.redoStack.push(undo);
       }
     }
     else if (undo.action == this.ACTION_COPYTOFOLDER) {
       if (undo.itemType == this.ITEMTYPE_CLIPPING) {
-        this.moveClippingIntrl(undo.id, aeConst.DELETED_ITEMS_FLDR_ID);
+        await this.moveClippingIntrl(undo.id, aeConst.DELETED_ITEMS_FLDR_ID);
         this.redoStack.push(undo);
       }
       else if (undo.itemType == this.ITEMTYPE_FOLDER) {
-        this.moveFolderIntrl(undo.id, aeConst.DELETED_ITEMS_FLDR_ID);
+        await this.moveFolderIntrl(undo.id, aeConst.DELETED_ITEMS_FLDR_ID);
         this.redoStack.push(undo);
       }
     }
     else if (undo.action == this.ACTION_CREATENEW) {
-      this.moveClippingIntrl(undo.id, aeConst.DELETED_ITEMS_FLDR_ID);
+      await this.moveClippingIntrl(undo.id, aeConst.DELETED_ITEMS_FLDR_ID);
       this.redoStack.push(undo);
     }
     else if (undo.action == this.ACTION_CREATENEWFOLDER) {
-      this.moveFolderIntrl(undo.id, aeConst.DELETED_ITEMS_FLDR_ID);
+      await this.moveFolderIntrl(undo.id, aeConst.DELETED_ITEMS_FLDR_ID);
       this.redoStack.push(undo);
     }
     else if (undo.action == this.ACTION_EDITNAME) {
@@ -1968,7 +2623,7 @@ let gCmd = {
           clpNode.title = undo.oldName;
           $("#clipping-name").val(undo.oldName).select();
           this.redoStack.push(undo);
-        });
+        }).catch(aErr => {});
       }
       else if (undo.itemType == this.ITEMTYPE_FOLDER) {
         this.editFolderNameIntrl(undo.id, undo.oldName).then(() => {
@@ -1976,7 +2631,7 @@ let gCmd = {
           fldrNode.title = undo.oldName;
           $("#clipping-name").val(undo.oldName).select();
           this.redoStack.push(undo);
-        });
+        }).catch(aErr => {});
       }
     }
     else if (undo.action == this.ACTION_EDITCONTENT) {
@@ -1984,7 +2639,7 @@ let gCmd = {
         getClippingsTree().activateKey(undo.id + "C");
         $("#clipping-text").val(undo.oldContent).select();
         this.redoStack.push(undo);
-      });
+      }).catch(aErr => {});
     }
     else if (undo.action == this.ACTION_SETLABEL) {
       this.setLabelIntrl(undo.id, undo.oldLabel);
@@ -2017,13 +2672,54 @@ let gCmd = {
       }
 
       this.updateDisplayOrder(parentFldrID);
+
       undo.nextSiblingNodeKey = redoNextSiblingNode ? redoNextSiblingNode.key : null;
+      if (gPrefs.syncClippings) {
+        // Change the static ID of the next sibling node.
+        if (redoNextSiblingNode) {
+          for (let [key, value] of gSyncedItemsIDMap) {
+            if (value == redoNextSiblingNode.key) {
+              undo.nextSiblingSID = key;
+              break;
+            }
+          }
+
+        }
+        else {
+          delete undo.nextSiblingSID;
+        }
+      }
+
       this.redoStack.push(undo);
+    }
+    else if (undo.action == gCmd.ACTION_REMOVE_ALL_SRC_URLS) {
+      let numUpdates = [];
+      for (let clippingID in undo.clippingsWithSrcURLs) {
+        numUpdates.push(gClippingsDB.clippings.update(Number(clippingID), {
+          sourceURL: undo.clippingsWithSrcURLs[clippingID],
+        }));
+      }
+
+      Promise.all(numUpdates).then(aResults => {
+        this.redoStack.push(undo);
+        gDialogs.restoreSrcURLs.openPopup();
+      });
     }
   },
 
-  redo: function ()
+  async redo()
   {
+    let pingResp;
+    try {
+      pingResp = await browser.runtime.sendMessage({msgID: "ping-new-clipping-dlg"});
+    }
+    catch {}
+
+    if (pingResp) {
+      gDialogs.actionUnavailable.openPopup();
+      return;
+    }
+    
     if (this.redoStack.length == 0) {
       window.setTimeout(() => { gDialogs.noRedoNotify.openPopup() }, 100);
       return;
@@ -2032,39 +2728,39 @@ let gCmd = {
     let redo = this.redoStack.pop();
 
     if (redo.action == this.ACTION_DELETECLIPPING) {
-      this.moveClippingIntrl(redo.id, aeConst.DELETED_ITEMS_FLDR_ID);
+      await this.moveClippingIntrl(redo.id, aeConst.DELETED_ITEMS_FLDR_ID);
       this.undoStack.push(redo);
     }
     else if (redo.action == this.ACTION_DELETEFOLDER) {
-      this.moveFolderIntrl(redo.id, aeConst.DELETED_ITEMS_FLDR_ID);
+      await this.moveFolderIntrl(redo.id, aeConst.DELETED_ITEMS_FLDR_ID);
       this.undoStack.push(redo);
     }
     else if (redo.action == this.ACTION_MOVETOFOLDER) {
       if (redo.itemType == this.ITEMTYPE_CLIPPING) {
-        this.moveClippingIntrl(redo.id, redo.newParentFldrID);
+        await this.moveClippingIntrl(redo.id, redo.newParentFldrID);
         this.undoStack.push(redo);
       }
       else if (redo.itemType == this.ITEMTYPE_FOLDER) {
-        this.moveFolderIntrl(redo.id, redo.newParentFldrID);
+        await this.moveFolderIntrl(redo.id, redo.newParentFldrID);
         this.undoStack.push(redo);
       }
     }
     else if (redo.action == this.ACTION_COPYTOFOLDER) {
       if (redo.itemType == this.ITEMTYPE_CLIPPING) {
-        this.moveClippingIntrl(redo.id, redo.destFldrID);
+        await this.moveClippingIntrl(redo.id, redo.destFldrID);
         this.undoStack.push(redo);
       }
       else if (redo.itemType == this.ITEMTYPE_FOLDER) {
-        this.moveFolderIntrl(redo.id, redo.destFldrID);
+        await this.moveFolderIntrl(redo.id, redo.destFldrID);
         this.undoStack.push(redo);
       }
     }
     else if (redo.action == this.ACTION_CREATENEW) {
-      this.moveClippingIntrl(redo.id, redo.parentFldrID);
+      await this.moveClippingIntrl(redo.id, redo.parentFldrID);
       this.undoStack.push(redo);
     }
     else if (redo.action == this.ACTION_CREATENEWFOLDER) {
-      this.moveFolderIntrl(redo.id, redo.parentFldrID);
+      await this.moveFolderIntrl(redo.id, redo.parentFldrID);
       this.undoStack.push(redo);
     }
     else if (redo.action == this.ACTION_EDITNAME) {
@@ -2074,7 +2770,7 @@ let gCmd = {
           clpNode.title = redo.name;
           $("#clipping-name").val(redo.name).select();
           this.undoStack.push(redo);
-        });
+        }).catch(aErr => {});
       }
       else if (redo.itemType == this.ITEMTYPE_FOLDER) {
         this.editFolderNameIntrl(redo.id, redo.name).then(() => {
@@ -2082,7 +2778,7 @@ let gCmd = {
           fldrNode.title = redo.name;
           $("#clipping-name").val(redo.name).select();
           this.undoStack.push(redo);
-        });
+        }).catch(aErr => {});
       }
     }
     else if (redo.action == this.ACTION_EDITCONTENT) {
@@ -2090,7 +2786,7 @@ let gCmd = {
         getClippingsTree().activateKey(redo.id + "C");
         $("#clipping-text").val(redo.content).select();
         this.undoStack.push(redo);
-      });
+      }).catch(aErr => {});
     }
     else if (redo.action == this.ACTION_SETLABEL) {
       this.setLabelIntrl(redo.id, redo.label);
@@ -2122,8 +2818,36 @@ let gCmd = {
       }
 
       this.updateDisplayOrder(parentFldrID);
+
       redo.nextSiblingNodeKey = undoNextSiblingNode ? undoNextSiblingNode.key : null;
+      if (gPrefs.syncClippings) {
+        // Change the static ID of the next sibling node.
+        if (undoNextSiblingNode) {
+          for (let [key, value] of gSyncedItemsIDMap) {
+            if (value == undoNextSiblingNode.key) {
+              redo.nextSiblingSID = key;
+              break;
+            }
+          }          
+        }
+        else {
+          delete redo.nextSiblingSID;
+        }
+      }
+
       this.undoStack.push(redo);
+    }
+    else if (redo.action == this.ACTION_REMOVE_ALL_SRC_URLS) {
+      let clippingIDs = Object.keys(redo.clippingsWithSrcURLs);
+      let numUpdates = [];
+      clippingIDs.forEach((aClippingID, aIndex, aArray) => {
+        numUpdates.push(gClippingsDB.clippings.update(Number(aClippingID), { sourceURL: "" }));
+      });
+
+      Promise.all(numUpdates).then(aResults => {
+        this.undoStack.push(redo);
+        gDialogs.removeAllSrcURLsConfirm.openPopup();
+      });
     }
   },
   
@@ -2194,6 +2918,16 @@ let gCmd = {
   {
     if (gPrefs.clippingsUnchanged) {
       aePrefs.setPrefs({ clippingsUnchanged: false });
+    }
+  },
+
+  _pushToUndoStack(aDestUndoStack, aState)
+  {
+    if (aDestUndoStack == this.UNDO_STACK) {
+      this.undoStack.push(aState);
+    }
+    else if (aDestUndoStack == this.REDO_STACK) {
+      this.redoStack.push(aState);
     }
   },
 };
@@ -2301,11 +3035,12 @@ $(window).on("unload", aEvent => {
   if (! gIsClippingsTreeEmpty) {
     let tree = getClippingsTree();
     let selectedNode = tree.activeNode;
-    let id = parseInt(selectedNode.key);
-
-    if (! selectedNode.folder) {
-      let content = $("#clipping-text").val();
-      gCmd.editClippingContentIntrl(id, content);
+    if (selectedNode) {
+      let id = parseInt(selectedNode.key);
+      if (! selectedNode.folder) {
+        let content = $("#clipping-text").val();
+        gCmd.editClippingContentIntrl(id, content);
+      }
     }
   }
   
@@ -2353,7 +3088,35 @@ $(document).keydown(async (aEvent) => {
     gCmd.redo();
   }
   else if (aEvent.key == "Enter") {
-    aeDialog.acceptDlgs();
+    log("Clippings/mx::clippingsMgr.js: ENTER key pressed!  Target element:");
+    log(aEvent.target);
+
+    // Thunderbird-specific. Ignore ENTER key press if the button for reloading
+    // the Synced Clippings folder is focused.
+    if (aEvent.target.tagName == "SPAN" && aEvent.target.id == "reload-sync-fldr-btn") {
+      // Event handler attached to element already handles the ENTER key.
+      return;
+    }
+    
+    if (aEvent.target.tagName == "BUTTON" && !aEvent.target.classList.contains("dlg-accept")) {
+      aEvent.target.click();
+      aEvent.preventDefault();
+      return;
+    }
+
+    // File picker in the Import modal dialog.
+    if (aEvent.target.tagName == "INPUT" && aEvent.target.type == "file") {
+      aEvent.target.click();
+      return;
+    }
+
+    // Prevent duplicate invocation of default action button in modal dialogs.
+    if (aeDialog.isOpen()) {
+      if (! aEvent.target.classList.contains("default")) {
+        aeDialog.acceptDlgs();
+        aEvent.preventDefault();
+      }
+    }
   }
   else if (aEvent.key == "Escape") {
     if (gSearchBox.isActivated()) {
@@ -2942,6 +3705,7 @@ function initDialogs()
 
   gDialogs.noUndoNotify = new aeDialog("#no-undo-msgbar");
   gDialogs.noRedoNotify = new aeDialog("#no-redo-msgbar");
+  gDialogs.actionUnavailable = new aeDialog("#action-not-available");
 
   gDialogs.shortcutList = new aeDialog("#shortcut-list-dlg");
   gDialogs.shortcutList.onFirstInit = async function ()
@@ -2987,14 +3751,30 @@ function initDialogs()
       });
     });    
   };
+
   gDialogs.shortcutList.onInit = async function ()
   {
-    aeImportExport.getShortcutKeyListHTML(false).then(aShctListHTML => {
-      $("#shortcut-list-content").append(sanitizeHTML(aShctListHTML));
-    }).catch(aErr => {
-      console.error("Clippings/mx::clippingsMgr.js: gDialogs.shortcutList.onInit(): " + aErr);
-    });
+    let shctListHTML;
+    try {
+      shctListHTML = await aeImportExport.getShortcutKeyListHTML(false);
+    }
+    catch (e) {
+      console.error("Clippings/mx::clippingsMgr.js: gDialogs.shortcutList.onInit(): " + e);
+      return;
+    }
+
+    $("#shortcut-list-content").append(sanitizeHTML(shctListHTML));
+    let tbodyElt = $("#shortcut-list-dlg > #shortcut-list-content > table > tbody");
+    tbodyElt.attr("tabindex", "0");
+
+    let dlgElts = [
+      tbodyElt[0],
+      $("#shortcut-list-dlg > .dlg-btns > #export-shct-list")[0],
+      $("#shortcut-list-dlg > .dlg-btns > .dlg-accept")[0],
+    ];
+    this.initKeyboardNavigation(dlgElts);
   };
+
   gDialogs.shortcutList.onUnload = function ()
   {
     $("#shortcut-list-content").empty();
@@ -3206,6 +3986,7 @@ function initDialogs()
     IMP_REPLACE: 1,
     mode: 0,
   });
+
   gDialogs.importFromFile.onFirstInit = function ()
   {
     $("#import-clippings-file-upload").on("change", aEvent => {
@@ -3227,8 +4008,17 @@ function initDialogs()
       if (this.mode == this.IMP_REPLACE && !gIsClippingsTreeEmpty) {
         $("#restore-backup-warning").show();
       }
+    }).on("focus", aEvent => {
+      $("#import-clippings-file-upload-btn").addClass("focused");
+    }).on("blur", aEvent => {
+      $("#import-clippings-file-upload-btn").removeClass("focused");
     });
+
+    $("#import-clippings-file-path").on("contextmenu", aEvent => {
+      aEvent.preventDefault();
+    }).on("focus", aEvent => { aEvent.target.select() });
   };
+
   gDialogs.importFromFile.onInit = function ()
   {
     if (this.mode == this.IMP_REPLACE) {
@@ -3262,7 +4052,7 @@ function initDialogs()
   gDialogs.importFromFile.onAccept = function (aEvent)
   {
     let that = this;
-    let clpgsLstrs = gClippings.getClippingsListeners();
+    let clippingsLstrs = gClippings.getClippingsListeners();
    
     function importFile(aAppendItems)
     {
@@ -3285,6 +4075,9 @@ function initDialogs()
         
         try {
           if (importFile.name.endsWith(".json")) {
+            if (! aeImportExport.isValidClippingsJSON(rawData)) {
+              throw new Error(`Import file "${importFile.name}" is invalid.`);
+            }
             aeImportExport.importFromJSON(rawData, replaceShortcutKeys, aAppendItems);
           }
           else if (importFile.name.endsWith(".rdf")) {
@@ -3293,9 +4086,9 @@ function initDialogs()
         }
         catch (e) {
           $("#import-progress-bar").hide();
-          console.error(e);
+          warn(e);
           $("#import-error").text(messenger.i18n.getMessage("importError")).show();
-          clpgsLstrs.forEach(aListener => { aListener.importFinished(false) });
+          clippingsLstrs.forEach(aListener => { aListener.importFinished(false) });
 
           return;
         }
@@ -3322,7 +4115,7 @@ function initDialogs()
       gClippingsDB.transaction("rw", gClippingsDB.clippings, gClippingsDB.folders, () => {
         log("Clippings/mx::clippingsMgr.js: gDialogs.importFromFile.onAccept(): Starting restore from backup file.\nDeleting all clippings and folders (except the 'Synced Clippings' folder, if Sync Clippings turned on).");
 
-        clpgsLstrs.forEach(aListener => { aListener.importStarted() });       
+        clippingsLstrs.forEach(aListener => { aListener.importStarted() });       
 	gCmd.recentAction = gCmd.ACTION_RESTORE_BACKUP;
 
         gClippingsDB.folders.each((aItem, aCursor) => {
@@ -3332,13 +4125,13 @@ function initDialogs()
           }
 
           let fldrID = aItem.id + "F";         
-          if (! (fldrID in gSyncedItemsIDs)) {
+          if (! gSyncedItemsIDs.has(fldrID)) {
             gClippingsSvc.deleteFolder(parseInt(fldrID));
           }
         }).then(() => {
           return gClippingsDB.clippings.each((aItem, aCursor) => {
             let clpgID = aItem.id + "C";
-            if (! (clpgID in gSyncedItemsIDs)) {
+            if (! gSyncedItemsIDs.has(clpgID)) {
               gClippingsSvc.deleteClipping(parseInt(clpgID));
             }
           });
@@ -3356,7 +4149,7 @@ function initDialogs()
     else {
       info("Clippings/mx::clippingsMgr.js: Import dialog mode: Import File");
       gCmd.recentAction = gCmd.ACTION_IMPORT;
-      clpgsLstrs.forEach(aListener => { aListener.importStarted() });
+      clippingsLstrs.forEach(aListener => { aListener.importStarted() });
       
       importFile(true);
     }
@@ -3491,8 +4284,8 @@ function initDialogs()
   };
   gDialogs.importConfirmMsgBox.onAfterAccept = async function ()
   {
-    let clpgsLstrs = gClippings.getClippingsListeners();
-    clpgsLstrs.forEach(aListener => { aListener.importFinished(true) });
+    let clippingsLstrs = gClippings.getClippingsListeners();
+    clippingsLstrs.forEach(aListener => { aListener.importFinished(true) });
 
     await rebuildClippingsTree();
   };
@@ -3519,17 +4312,14 @@ function initDialogs()
     }
   };
   
-  gDialogs.removeAllSrcURLs = new aeDialog("#remove-all-source-urls-dlg");
-  $("#remove-all-source-urls-dlg > .dlg-btns > .dlg-btn-yes").click(aEvent => {
-    gDialogs.removeAllSrcURLs.close();
-    gCmd.recentAction = gCmd.ACTION_REMOVE_ALL_SRC_URLS;
-    
-    gClippingsDB.clippings.toCollection().modify({ sourceURL: "" }).then(aNumUpd => {
-      gDialogs.removeAllSrcURLsConfirm.openPopup();
-    });
-  });
-
   gDialogs.reloadSyncFolder = new aeDialog("#reload-sync-fldr-msgbox");
+  gDialogs.reloadSyncFolder.onShow = function ()
+  {
+    setTimeout(() => {
+      let acceptBtn = $("#reload-sync-fldr-msgbox > .dlg-btns > .dlg-accept")[0];
+      acceptBtn.focus();
+    }, 100);
+  };
   gDialogs.reloadSyncFolder.onAfterAccept = function ()
   {
     rebuildClippingsTree();
@@ -3540,21 +4330,25 @@ function initDialogs()
     fldrTree: null,
     selectedFldrNode: null,
   });
+  
   gDialogs.moveTo.resetTree = function ()
   {
-    let that = gDialogs.moveTo;
-    let fldrTree = that.fldrTree.getTree();
+    if (! this.fldrTree) {
+      return;
+    }
+    let fldrTree = this.fldrTree.getTree();
     fldrTree.clear();
-    that.fldrTree = null;
-    that.selectedFldrNode = null;
+    this.fldrTree = null;
+    this.selectedFldrNode = null;
 
     // Destroy and then recreate the element used to instantiate Fancytree,
     // so that we start fresh when the dialog is invoked again.
     $("#move-to-fldr-tree").children().remove();
     let parentElt = $("#move-to-fldr-tree").parent();
     parentElt.children("#move-to-fldr-tree").remove();
-    $('<div id="move-to-fldr-tree"></div>').insertAfter("#move-to-label");
+    $('<div id="move-to-fldr-tree"></div>').insertAfter("#activate-move-to-fldr-tree");
   };
+
   gDialogs.moveTo.onFirstInit = function ()
   {
     $("#copy-instead-of-move").click(aEvent => {
@@ -3578,6 +4372,7 @@ function initDialogs()
       }
     });    
   };
+
   gDialogs.moveTo.onInit = function ()
   {
     if (this.fldrTree) {
@@ -3590,11 +4385,16 @@ function initDialogs()
         aeConst.ROOT_FOLDER_ID,
         messenger.i18n.getMessage("rootFldrName")
       );
-
-      this.fldrTree.onSelectFolder = aFolderData => {
-        this.selectedFldrNode = aFolderData.node;
-      };
     }
+
+    // Workaround to allow keyboard navigation into the folder tree list.
+    $("#activate-move-to-fldr-tree").on("focus", aEvent => {
+      try {
+        this.fldrTree.getContainer().focus();
+      }
+      // Ignore thrown exception; it still works.
+      catch {}
+    });
 
     $("#copy-instead-of-move").prop("checked", false);
     $("#move-dlg-action-btn").text(messenger.i18n.getMessage("btnMove"));
@@ -3622,10 +4422,7 @@ function initDialogs()
     let id = parseInt(selectedNode.key);
     let parentNode = selectedNode.getParent();
 
-    // Handle case where default selection of root folder node wasn't changed.
-    if (this.selectedFldrNode === null) {
-      this.selectedFldrNode = this.fldrTree.getTree().getNodeByKey(Number(aeConst.ROOT_FOLDER_ID).toString());
-    }
+    this.selectedFldrNode = this.fldrTree.getTree().activeNode;
     
     let parentFolderID = (parentNode.isRootNode() ? aeConst.ROOT_FOLDER_ID : parseInt(parentNode.key));
     let destFolderID = parseInt(this.selectedFldrNode.key);
@@ -3686,7 +4483,11 @@ function initDialogs()
   gDialogs.showOnlySyncedItemsReminder = new aeDialog("#show-only-synced-items-reminder");
   gDialogs.showOnlySyncedItemsReminder.onShow = function ()
   {
-    aePrefs.setPrefs({ clippingsMgrShowSyncItemsOnlyRem: false });
+    aePrefs.setPrefs({clippingsMgrShowSyncItemsOnlyRem: false});
+    setTimeout(() => {
+      let acceptBtn = $("#show-only-synced-items-reminder > .dlg-btns > .dlg-accept")[0];
+      acceptBtn.focus();
+    }, 100);
   };
 
   gDialogs.moveSyncFldr = new aeDialog("#move-sync-fldr-msgbox");
@@ -3798,7 +4599,8 @@ async function buildClippingsTree()
         return true;
       },
 
-      dragDrop: function (aNode, aData) {
+      dragDrop(aNode, aData)
+      {
         if (gIsClippingsTreeEmpty) {
           return;
         }
@@ -3808,8 +4610,23 @@ async function buildClippingsTree()
           return;
         }
 
+        function getStaticID(aSyncedItemID)
+        {
+          let rv;
+          if (gPrefs.syncClippings) {
+            for (let [key, value] of gSyncedItemsIDMap) {
+              if (value == aSyncedItemID) {
+                rv = key;
+                break;
+              }
+            }
+          }
+          return rv;
+        }
+        // END nested function
+        
         let parentNode = aNode.getParent();
-        let clpgsLstrs = gClippings.getClippingsListeners();
+        let clippingsLstrs = gClippings.getClippingsListeners();
         
         if (aData.otherNode) {           
           let newParentID = aeConst.ROOT_FOLDER_ID;
@@ -3831,13 +4648,13 @@ async function buildClippingsTree()
 
           let id = parseInt(aData.otherNode.key);
           let prefs = gClippings.getPrefs();
-          if (gPrefs.syncClippings && id == gPrefs.syncFolderID
+          if (gPrefs.syncClippings && aData.otherNode.isFolder() && id == gPrefs.syncFolderID
               && newParentID != aeConst.ROOT_FOLDER_ID) {
             warn("The Synced Clippings folder cannot be moved.");
             return;
           }
 
-          clpgsLstrs.forEach(aListener => {
+          clippingsLstrs.forEach(aListener => {
             aListener.dndMoveStarted();
           });
 
@@ -3876,13 +4693,29 @@ async function buildClippingsTree()
               itemType: (aNode.folder ? gCmd.ITEMTYPE_FOLDER : gCmd.ITEMTYPE_CLIPPING),
               nextSiblingNodeKey: (nextSiblingNode ? nextSiblingNode.key : null),
             };
+
+            if (gPrefs.syncClippings) {
+              let sfx = aData.otherNode.isFolder() ? "F" : "C";
+              let syncedNodeKey = `${undoInfo.id}${sfx}`;
+
+              if (gSyncedItemsIDs.has(syncedNodeKey)) {
+                undoInfo.sid = getStaticID(syncedNodeKey);
+                if (nextSiblingNode) {
+                  undoInfo.nextSiblingSID = getStaticID(undoInfo.nextSiblingNodeKey);
+                }
+                if (newParentID != gPrefs.syncFolderID && gSyncedItemsIDs.has(`${newParentID}F`)) {
+                  undoInfo.parentFldrSID = getStaticID(`${newParentID}F`);
+                }
+              }
+            }
+
             log("Clippings/mx::clippingsMgr.js: Saving undo info for clipping/folder reordering:");
             log(undoInfo);
           }
           
           gCmd.updateDisplayOrder(oldParentID, destUndoStack, undoInfo, !isReordering).then(() => {
             if (isReordering) {
-              clpgsLstrs.forEach(aListener => {
+              clippingsLstrs.forEach(aListener => {
                 aListener.dndMoveFinished();
               });
               return;
@@ -3893,7 +4726,7 @@ async function buildClippingsTree()
               aNode.setExpanded();
             }
 
-            clpgsLstrs.forEach(aListener => {
+            clippingsLstrs.forEach(aListener => {
               aListener.dndMoveFinished();
             });
 	  });
@@ -4025,7 +4858,7 @@ async function buildClippingsTree()
           }
 
           let folderID = parseInt(selectedNode.key);
-          return (folderID == gPrefs.syncFolderID);
+          return (selectedNode.isFolder() && folderID == gPrefs.syncFolderID);
         }
       },
       labelSubmenu: {
@@ -4121,7 +4954,7 @@ async function buildClippingsTree()
           }
 
           let folderID = parseInt(selectedNode.key);
-          return (folderID == gPrefs.syncFolderID);
+          return (selectedNode.isFolder() && folderID == gPrefs.syncFolderID);
         }
       }
     }
@@ -4156,6 +4989,10 @@ function buildClippingsTreeHelper(aFolderID)
         }
         else {
           folderNode.displayOrder = aItem.displayOrder;
+        }
+
+        if ("sid" in aItem) {
+          folderNode.sid = aItem.sid;
         }
         
         let childNodes = await buildClippingsTreeHelper(aItem.id);
@@ -4230,7 +5067,7 @@ async function rebuildClippingsTree()
     }
 
     if (gPrefs.syncClippings) {
-      gSyncedItemsIDs = {};
+      gSyncedItemsIDs.clear();
       initSyncItemsIDLookupList();
       initSyncedClippingsTree();
 
@@ -4267,12 +5104,21 @@ function initSyncItemsIDLookupList()
     return new Promise((aFnResolve, aFnReject) => {
       gClippingsDB.transaction("r", gClippingsDB.clippings, gClippingsDB.folders, () => {
         gClippingsDB.folders.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
-          gSyncedItemsIDs[aItem.id + "F"] = 1;
+          gSyncedItemsIDs.add(`${aItem.id}F`);
+
+          // Initialize permanent ID of synced folder.
+          let sid = aItem.sid;
+          gSyncedItemsIDMap.set(sid, `${aItem.id}F`);
           initSyncItemsIDLookupListHelper(aItem.id);
           
         }).then(() => {
           return gClippingsDB.clippings.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
-            gSyncedItemsIDs[aItem.id + "C"] = 1;
+            gSyncedItemsIDs.add(`${aItem.id}C`);
+
+            // Initialize permanent ID of synced clipping, similar to what was
+            // done above for folders.
+            let sid = aItem.sid;
+            gSyncedItemsIDMap.set(sid, `${aItem.id}C`);
           });
 
         }).then(() => {
@@ -4286,15 +5132,21 @@ function initSyncItemsIDLookupList()
   // END nested helper function
 
   return new Promise((aFnResolve, aFnReject) => {
-    let prefs = gClippings.getPrefs();
     if (! gPrefs.syncClippings) {
       aFnResolve();
     }
 
     // Include the ID of the root Synced Clippings folder.
-    gSyncedItemsIDs[gPrefs.syncFolderID + "F"] = 1;
+    gSyncedItemsIDs.add(`${gPrefs.syncFolderID}F`);
 
     initSyncItemsIDLookupListHelper(gPrefs.syncFolderID).then(() => {
+      if (gCmd.undoStack.length > 0) {
+        gCmd.undoStack.refreshSyncedItems();
+      }
+      if (gCmd.redoStack.length > 0) {
+        gCmd.redoStack.refreshSyncedItems();
+      }
+      
       aFnResolve();
     }).catch(aErr => {
       aFnReject(aErr);
@@ -4577,7 +5429,7 @@ async function saveWindowGeometry()
   // Stop saving window geometry if window is maximized, due to bugs/limitations
   // with detecting and getting geometry of maximized windows.
   if (window.outerWidth >= scrWidth) {
-    warn("Clippings/wx::clippingsMgr.js: saveWindowGeometry(): Not saving window geometry for maximized window.");
+    warn("Clippings/mx::clippingsMgr.js: saveWindowGeometry(): Not saving window geometry for maximized window.");
     return;
   }
 
@@ -4591,7 +5443,7 @@ async function saveWindowGeometry()
       x: window.screenX, y: window.screenY,
     };
 
-    log("Clippings/wx::clippingsMgr.js: saveWindowGeometry():");
+    log("Clippings/mx::clippingsMgr.js: saveWindowGeometry():");
     log(clippingsMgrWndGeom);
 
     await aePrefs.setPrefs({ clippingsMgrWndGeom });
@@ -4680,12 +5532,6 @@ function handlePushSyncItemsError(aError)
     errorMsgBox.showModal();
     gErrorPushSyncItems = true;
   }
-}
-
-
-function onError(aError)
-{
-  console.error(aError);
 }
 
 

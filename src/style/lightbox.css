@@ -62,6 +62,10 @@
     font-size: 12px;
 }
 
+.lightbox {
+    border-radius: 3px;
+}
+
 .panel-bkgrd {
     display: none;
     position: fixed;
@@ -111,16 +115,24 @@
     }
 }
 
-.msgbar-icon, .msgbar-content, .msgbar-dismiss {
+.msgbar-icon, .msgbar-warn-icon, .msgbar-content, .msgbar-dismiss {
     display: inline-block;
 }
 
-.msgbar .msgbar-icon {
+.msgbar .msgbar-icon,
+.msgbar .msgbar-warn-icon {
     width: 16px;
     height: 16px;
     margin: 4px;
-    background-image: url("chrome://global/skin/icons/info.svg");
     background-size: contain;
+}
+
+.msgbar .msgbar-icon {
+    background-image: url("chrome://global/skin/icons/info.svg");
+}
+
+.msgbar .msgbar-warn-icon {
+    background-image: url("chrome://global/skin/icons/warning.svg");
 }
 
 .msgbar .msgbar-content {
@@ -160,6 +172,7 @@
 .panel > .dlg-btns > button {
     min-width: 72px;
     min-height: 24px;
+    border-radius: 3.5px;
     text-align: center;
     font-size: 12px !important;
 }

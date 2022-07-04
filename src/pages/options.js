@@ -232,17 +232,20 @@ async function init()
     gDialogs.syncClippings.showModal();
   });
 
-  $("#browse-sync-fldr").click(aEvent => {
-    let msg = { msgID: "sync-dir-folder-picker" };
-    let sendNativeMsg = browser.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
+  $("#browse-sync-fldr").click(async (aEvent) => {
+    let natMsg = {msgID:"sync-dir-folder-picker"};
+    let resp;
+    try {
+      resp = await browser.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg);
+    }
+    catch (e) {
+      window.alert("The Sync Clippings helper app responded with an error.\n\n" + e);
+      return;
+    }
 
-    sendNativeMsg.then(aResp => {
-      if (aResp.syncFilePath) {
-        $("#sync-fldr-curr-location").val(aResp.syncFilePath);
-      }
-    }).catch(aErr => {
-      window.alert("The Sync Clippings helper app responded with an error.\n\n" + aErr);
-    });
+    if (resp.syncFilePath) {
+      $("#sync-fldr-curr-location").val(resp.syncFilePath);
+    }
   });
   
   $("#show-sync-help").click(aEvent => {
@@ -338,7 +341,33 @@ function initDialogs()
   gDialogs.syncClippings.setProps({
     oldShowSyncItemsOpt: null,
     isCanceled: false,
+    lastFocusedElt: null,
   });
+
+  gDialogs.syncClippings._initKeyboardNav = function (aVisibleDeckID, aIsBrwsSyncFldrBtnVisible)
+  {
+    let focusableElts = [];
+
+    if (aVisibleDeckID == "sync-folder-location") {
+      focusableElts.push(
+        $("#sync-fldr-curr-location")[0],
+        $("#sync-helper-app-update-check")[0],
+        $("#show-only-sync-items")[0],
+        $("#sync-clippings-dlg .dlg-accept")[0],
+        $("#sync-clippings-dlg .dlg-cancel")[0],
+      );
+
+      if (aIsBrwsSyncFldrBtnVisible) {
+        focusableElts.splice(1, 0, $("#browse-sync-fldr")[0]);
+      }
+    }
+    else {
+      // Only the "Close" button appears for errors.
+      focusableElts.push($("#sync-clippings-dlg .dlg-cancel")[0]);
+    }
+    this.initKeyboardNavigation(focusableElts);
+  };
+
   gDialogs.syncClippings.onFirstInit = function ()
   {
     if (gOS == "win") {
@@ -351,6 +380,7 @@ function initDialogs()
       $("#example-sync-path").text(messenger.i18n.getMessage("syncFileDirExLinux"));
     }
     $("#sync-conxn-error-detail").html(sanitizeHTML(messenger.i18n.getMessage("errSyncConxnDetail")));
+    $("#sync-fldr-curr-location").on("focus", aEvent => { aEvent.target.select() });
   };
   gDialogs.syncClippings.onInit = function ()
   {
@@ -370,14 +400,15 @@ function initDialogs()
     deckSyncSettings.hide();
 
     let that = this;
+    let isBrwsSyncFldrVisible = true;
     let lang = messenger.i18n.getUILanguage();
-    let msg = { msgID: "get-app-version" };
-    let sendNativeMsg = messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
-    sendNativeMsg.then(aResp => {
+    let natMsg = {msgID: "get-app-version"};
+    messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg).then(aResp => {
       console.info("Sync Clippings helper app version: " + aResp.appVersion);
 
       if (aeVersionCmp(aResp.appVersion, "1.2b1") < 0) {
         $("#browse-sync-fldr").hide();
+        isBrwsSyncFldrVisible = false;
       }
       
       return aePrefs.getAllPrefs();
@@ -388,8 +419,8 @@ function initDialogs()
 
       that.oldShowSyncItemsOpt = $("#show-only-sync-items").prop("checked");
 
-      let msg = { msgID: "get-sync-dir" };
-      return messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
+      let natMsg = {msgID: "get-sync-dir"};
+      return messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg);
       
     }).then(aResp => {
       if (! that.isCanceled) {
@@ -397,15 +428,17 @@ function initDialogs()
           $("#sync-clippings-dlg").css({ width: "606px" });
         }
       }
+
+      $("#sync-fldr-curr-location").val(aResp.syncFilePath);
       $("#sync-clippings-dlg .dlg-accept").show();
       $("#sync-clippings-dlg .dlg-cancel").text(messenger.i18n.getMessage("btnCancel"));
 
       deckSyncChk.hide();
       deckSyncSettings.show();
-      $("#sync-fldr-curr-location").val(aResp.syncFilePath).focus().select();
+      this._initKeyboardNav("sync-folder-location", isBrwsSyncFldrVisible);
 
     }).catch(aErr => {
-      console.error("Clippings/wx::options.js: Error returned from syncClippings native app: " + aErr);
+      console.error("Clippings/mx::options.js: Error returned from syncClippings native app: " + aErr);
       
       $("#sync-clippings-dlg .dlg-cancel").text(messenger.i18n.getMessage("btnClose"));
 
@@ -418,17 +451,22 @@ function initDialogs()
         deckSyncChk.hide();
         deckSyncSettings.hide();
         deckSyncError.show();
+        $("#sync-clippings-dlg .dlg-accept").hide();
         $("#sync-err-detail").text(messenger.i18n.getMessage("errNoDetails"));
       }
       else {
         deckSyncChk.hide();
         deckSyncSettings.hide();
         deckSyncError.show();
+        $("#sync-clippings-dlg .dlg-accept").hide();
         $("#sync-err-detail").text(messenger.i18n.getMessage("errSyncOptsInit"));
       }
+
+      this._initKeyboardNav(null, false);
     });
   };
-  gDialogs.syncClippings.onAccept = function ()
+
+  gDialogs.syncClippings.onAccept = async function ()
   {
     let syncFldrPath = $("#sync-fldr-curr-location").val();
 
@@ -448,81 +486,102 @@ function initDialogs()
 
     let rebuildClippingsMenu = $("#show-only-sync-items").prop("checked") != gDialogs.syncClippings.oldShowSyncItemsOpt;
 
-    let msg = {
+    let natMsg = {
       msgID: "set-sync-dir",
       filePath: syncFldrPath
     };
     log("Sending message 'set-sync-dir' with params:");
-    log(msg);
+    log(natMsg);
 
-    let setSyncFilePath = messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
-    let that = this;
+    let resp;
+    try {
+      resp = await messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg);
+    }
+    catch (e) {
+      console.error("Error received from Sync Clippings Helper app: " + e);
+      return;
+    }
     
-    setSyncFilePath.then(aResp => {
-      log("Received response to 'set-sync-dir':");
-      log(aResp);
+    log("Received response to 'set-sync-dir':");
+    log(resp);
 
-      if (aResp.status == "ok") {
-        gClippings.enableSyncClippings(true).then(aSyncFldrID => {
-	  if (gIsActivatingSyncClippings) {
-            // Don't do the following if Sync Clippings was already turned on
-            // and no changes to settings were made.
-            aePrefs.setPrefs({
-              syncClippings: true,
-              clippingsMgrShowSyncItemsOnlyRem: true,
-            });
+    if (resp.status != "ok") {
+      window.alert(`The Sync Clippings helper app responded with an error.\n\nStatus: ${resp.status}\nDetails: ${resp.details}`);
+      this.close();
+      return;
+    }
 
-            $("#sync-settings").show();
-            $("#toggle-sync").text(messenger.i18n.getMessage("syncTurnOff"));
-            $("#sync-status").addClass("sync-status-on").text(messenger.i18n.getMessage("syncStatusOn"));
-
-	    gIsActivatingSyncClippings = false;
-	  }
-
-          gClippings.refreshSyncedClippings(rebuildClippingsMenu);  // Asynchronous function.
-          
-	  let syncClippingsListeners = gClippings.getSyncClippingsListeners().getListeners();
-	  for (let listener of syncClippingsListeners) {
-	    listener.onActivate(aSyncFldrID);
-	  }
-	  
-	  that.close();
-        });
-      }
-      else {
-        window.alert(`The Sync Clippings helper app responded with an error.\n\nStatus: ${aResp.status}\nDetails: ${aResp.details}`);
-        that.close();
-      }     
-    }).catch(aErr => {
-      console.error(aErr);
+    let syncFldrID = await browser.runtime.sendMessage({
+      msgID: "enable-sync-clippings",
+      isEnabled: true,
     });
+
+    if (gIsActivatingSyncClippings) {
+      // Don't do the following if Sync Clippings was already turned on
+      // and no changes to settings were made.
+      aePrefs.setPrefs({
+        syncClippings: true,
+        clippingsMgrShowSyncItemsOnlyRem: true,
+      });
+
+      $("#sync-settings").show();
+      $("#toggle-sync").text(messenger.i18n.getMessage("syncTurnOff"));
+      $("#sync-status").addClass("sync-status-on").text(messenger.i18n.getMessage("syncStatusOn"));
+
+      gIsActivatingSyncClippings = false;
+    }
+
+    browser.runtime.sendMessage({
+      msgID: "refresh-synced-clippings",
+      rebuildClippingsMenu,
+    });
+    
+    let syncClippingsListeners = gClippings.getSyncClippingsListeners().getListeners();
+    for (let listener of syncClippingsListeners) {
+      listener.onActivate(syncFldrID);
+    }
+    
+    this.close();
   };
+
   gDialogs.syncClippings.onUnload = function ()
   {
-    $("#sync-clippings-dlg").css({ height: "256px" });
+    $("#sync-clippings-dlg").css({height: "256px"});
     gDialogs.syncClippings.isCanceled = true;
+    this.lastFocusedElt?.focus();
   };
   
   gDialogs.turnOffSync = new aeDialog("#turn-off-sync-clippings-dlg");
-  $("#turn-off-sync-clippings-dlg > .dlg-btns > .dlg-btn-yes").click(aEvent => {
-    let that = gDialogs.turnOffSync;
-    that.close();
+  gDialogs.turnOffSync.onFirstInit = async function () {
+    $("#turn-off-sync-clippings-dlg > .dlg-btns > .dlg-btn-yes").click(async (aEvent) => {
+      this.close();
 
-    gClippings.enableSyncClippings(false).then(aOldSyncFldrID => {
-      aePrefs.setPrefs({ syncClippings: false });
+      let oldSyncFldrID = await browser.runtime.sendMessage({
+        msgID: "enable-sync-clippings",
+        isEnabled: false,
+      });
+
+      aePrefs.setPrefs({syncClippings: false});
       $("#sync-settings").hide();
       $("#toggle-sync").text(messenger.i18n.getMessage("syncTurnOn"));
       $("#sync-status").removeClass("sync-status-on").text(messenger.i18n.getMessage("syncStatusOff"));
 
       let syncClippingsListeners = gClippings.getSyncClippingsListeners().getListeners();
       for (let listener of syncClippingsListeners) {
-	listener.onDeactivate(aOldSyncFldrID);
+	listener.onDeactivate(oldSyncFldrID);
       }
 
-      gDialogs.turnOffSyncAck.oldSyncFldrID = aOldSyncFldrID;
+      gDialogs.turnOffSyncAck.oldSyncFldrID = oldSyncFldrID;
       gDialogs.turnOffSyncAck.showModal();
     });
-  });
+  };
+  gDialogs.turnOffSync.onShow = function ()
+  {
+    setTimeout(() => {
+      $("#turn-off-sync-clippings-dlg > .dlg-btns > .dlg-accept")[0].focus();
+    }, 10);
+  };
+
 
   gDialogs.turnOffSyncAck = new aeDialog("#turn-off-sync-clippings-ack-dlg");
   gDialogs.turnOffSyncAck.setProps({
@@ -569,18 +628,18 @@ function initDialogs()
     $("#about-dlg > .dlg-content #ext-desc").text(this.extInfo.description);
     $("#about-dlg > .dlg-content #ext-home-pg").attr("href", this.extInfo.homePgURL);
   };
+
   gDialogs.about.onShow = async function ()
   {
-    let msg = { msgID: "get-app-version" };
-    let sendNativeMsg = messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
-    sendNativeMsg.then(aResp => {
+    let natMsg = {msgID: "get-app-version"};
+    messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg).then(aResp => {
       $("#about-dlg > .dlg-content #diag-info #sync-ver").text(aResp.appVersion);
       return aePrefs.getPref("syncClippings");
 
     }).then(aPrefSyncClpgs => {
       if (!!aPrefSyncClpgs) {
-        let msg = { msgID: "get-sync-file-info" };
-        return messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
+        let natMsg = {msgID: "get-sync-file-info"};
+        return messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg);
       }
       else {
         return null;
@@ -609,7 +668,7 @@ function initDialogs()
 
     }).catch(aErr => {
       // Native app is not installed.
-      log("Clippings/wx: About dialog: Error returned from native app: " + aErr);
+      log("Clippings/mx: About dialog: Error returned from native app: " + aErr);
       $("#about-dlg > .dlg-content #diag-info #sync-ver").text(messenger.i18n.getMessage("noSyncHelperApp"));
       
     }).finally(() => {
@@ -648,15 +707,29 @@ $(window).keydown(aEvent => {
     return (aEvent.target.tagName == "INPUT" || aEvent.target.tagName == "TEXTAREA");
   }
 
-  if (aEvent.key == "Enter" && aeDialog.isOpen()) {
-    aeDialog.acceptDlgs();
-
-    // Don't trigger any further actions that would have occurred if the
-    // ENTER key was pressed.
+  if (aEvent.key == "Enter") {
+    if (aeDialog.isOpen()) {
+      if (aEvent.target.tagName == "BUTTON" && !aEvent.target.classList.contains("default")) {
+        aEvent.target.click();
+      }
+      else {
+        aeDialog.acceptDlgs();
+      }
+    }
+    else {
+      if (aEvent.target.tagName == "BUTTON") {
+        aEvent.target.click();
+      }
+    }
     aEvent.preventDefault();
   }
   else if (aEvent.key == "Escape" && aeDialog.isOpen()) {
     aeDialog.cancelDlgs();
+  }
+  else if (aEvent.key == " ") {
+    if (aEvent.target.tagName == "A") {
+      aEvent.target.click();
+    }
   }
   else if (aEvent.key == "/" || aEvent.key == "'") {
     if (! isTextboxFocused(aEvent)) {

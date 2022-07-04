@@ -68,7 +68,7 @@ window.aecreations.clippings = function () {
       var popup1 = document.getElementById("ae-clippings-popup-1");
       await this.initClippingsPopup(popup1, menu1);
 
-      aeUtils.log(aeString.format("gClippings.initClippings(): Initializing Clippings integration with host app window: %s", window.location.href));
+      aeUtils.log(aeString.format("Clippings::tbMsgComposeOverlay.js: aecreations.clippings.initClippings(): Initializing Clippings integration with host app window: %s", window.location.href));
 
       let composerCxtMenu = document.getElementById("msgComposeContext");
       composerCxtMenu.addEventListener("popupshowing", async (aEvent) => {
@@ -185,7 +185,7 @@ window.aecreations.clippings = function () {
       var focusedWnd = document.commandDispatcher.focusedWindow;
       var focusedElt = document.commandDispatcher.focusedElement;
 
-      aeUtils.log("gClippings.getSelectedText(): focusedElt = " + focusedElt);
+      aeUtils.log("Clippings::tbMsgComposeOverlay.js: aecreations.clippings.getSelectedText(): focusedElt = " + focusedElt);
       if (focusedElt instanceof HTMLInputElement) {
 	// Subject line text box
 	rv = focusedElt.value.substring(focusedElt.selectionStart, focusedElt.selectionEnd);
@@ -244,7 +244,7 @@ window.aecreations.clippings = function () {
 
       _menu.build();
       
-      aeUtils.log("gClippings.initClippingsPopup(): Data source initialization completed.");
+      aeUtils.log("Clippings::tbMsgComposeOverlay.js: aecreations.clippings.initClippingsPopup(): Data source initialization completed.");
     },
 
 
@@ -252,31 +252,31 @@ window.aecreations.clippings = function () {
     {
       // Must explicitly close the message compose context menu - otherwise it
       // may reappear while the paste options dialog is open.
-      var cxtMenu = document.getElementById("msgComposeContext");
+      let cxtMenu = document.getElementById("msgComposeContext");
       cxtMenu.hidePopup();
 
       let mxListener = this.getMxListener();
       let clipping = await mxListener.clippingRequested(aID);
       let prefs = await mxListener.prefsRequested();
 
-      var clippingInfo = aeClippingSubst.getClippingInfo(
+      let clippingInfo = aeClippingSubst.getClippingInfo(
 	aID, clipping.name, clipping.text, clipping.parentFolderName
       );
-      var clippingText = aeClippingSubst.processClippingText(clippingInfo, window,
+      let clippingText = aeClippingSubst.processClippingText(clippingInfo, window,
 							     prefs.autoIncrPlchldrStartVal);
-      var pasteAsQuotation = false;
+      let pasteAsQuotation = false;
       
       // Paste clipping into subject line
-      var focusedElt = document.commandDispatcher.focusedElement;
+      let focusedElt = document.commandDispatcher.focusedElement;
       if (focusedElt instanceof HTMLInputElement) {
-	var textbox = focusedElt;
+	let textbox = focusedElt;
 	ins.aeInsertTextIntoTextbox(textbox, clippingText);
       }
 
       // If "Show Options When Pasting" is enabled, ask the user if the
       // clipping should be pasted as normal or quoted text.
       if (_showPasteOpts) {
-	var dlgArgs = { userCancel: null };
+	let dlgArgs = { userCancel: null };
 	window.openDialog("chrome://clippings/content/pasteOptions.xhtml", "ae_clippings_pasteopt_dlg", "chrome,centerscreen,modal", dlgArgs, _ext);
 
 	if (dlgArgs.userCancel) {
@@ -286,17 +286,21 @@ window.aecreations.clippings = function () {
 	pasteAsQuotation = dlgArgs.pasteOption == 1;
       }
       
-      var contentFrame = document.getElementById("content-frame");
-      var editor = contentFrame.getEditor(contentFrame.contentWindow);
+      let contentFrame = document.getElementById("messageEditor");
+      if (! contentFrame) {
+	// Thunderbird versions older than 102.0
+	contentFrame = document.getElementById("content-frame");
+      }
+      let editor = contentFrame.getEditor(contentFrame.contentWindow);
 
       // Composing email in rich text (HTML)
       if (gMsgCompose.composeHTML) {
-	var htmlEditor = editor.QueryInterface(Components.interfaces.nsIHTMLEditor);
-	var hasHTMLTags = clippingText.search(/<[a-z1-6]+( [a-z]+(\="?.*"?)?)*>/i) != -1;
-	var hasRestrictedHTMLTags = clippingText.search(/<\?|<%|<!DOCTYPE|(<\b(html|head|body|meta|script|applet|embed|object|i?frame|frameset)\b)/i) != -1;
+	editor = editor.QueryInterface(Components.interfaces.nsIHTMLEditor);	
+	let hasHTMLTags = clippingText.search(/<[a-z1-6]+( [a-z]+(\="?.*"?)?)*>/i) != -1;
+	let hasRestrictedHTMLTags = clippingText.search(/<\?|<%|<!DOCTYPE|(<\b(html|head|body|meta|script|applet|embed|object|i?frame|frameset)\b)/i) != -1;
 
 	if (hasHTMLTags) {
-          var pasteAsRichText;
+          let pasteAsRichText;
           if (! hasRestrictedHTMLTags) {
 	    pasteAsRichText = prefs.htmlPaste == aeConstants.HTMLPASTE_AS_HTML;
           }
@@ -310,8 +314,8 @@ window.aecreations.clippings = function () {
 	else {
           // Could be plain text but with angle brackets, e.g. for denoting URLs
           // or email addresses, e.g. <joel_user@acme.com>, <http://www.acme.com>
-          var hasOpenAngleBrackets = clippingText.search(/</) != -1;
-          var hasCloseAngleBrackets = clippingText.search(/>/) != -1;
+          let hasOpenAngleBrackets = clippingText.search(/</) != -1;
+          let hasCloseAngleBrackets = clippingText.search(/>/) != -1;
 
           if (hasOpenAngleBrackets) {
             clippingText = clippingText.replace(/</g, "&lt;");
@@ -321,8 +325,8 @@ window.aecreations.clippings = function () {
           }
 	}
 
-	var autoLineBreak = prefs.autoLineBreak;
-	var hasLineBreakTags = clippingText.search(/<br|<p/i) != -1;
+	let autoLineBreak = prefs.autoLineBreak;
+	let hasLineBreakTags = clippingText.search(/<br|<p/i) != -1;
 	if (autoLineBreak && !hasLineBreakTags) {
           clippingText = clippingText.replace(/\n/g, "<br>");
 	}
@@ -340,7 +344,7 @@ window.aecreations.clippings = function () {
       }
       
       if (gMsgCompose.composeHTML) {
-	htmlEditor.insertHTML(clippingText);
+	editor.insertHTML(clippingText);
       }
       else {
 	editor.insertText(clippingText);

@@ -52,7 +52,7 @@ window.aecreations.clippings = function () {
 	return;
       }
 
-      aeUtils.log(`initClippings(): Clippings data source successfully loaded.\nHost app: ${aeUtils.getHostAppName()} (version ${aeUtils.getHostAppVersion()})\nOS identifier: ${aeUtils.getOS()}\nInitializing Clippings integration with host app window: ${window.location.href}`);
+      aeUtils.log(`Clippings::tbMessengerOverlay.js: window.aecreations.initClippings(): Clippings data source successfully loaded.\nHost app: ${aeUtils.getHostAppName()} (version ${aeUtils.getHostAppVersion()})\nOS identifier: ${aeUtils.getOS()}\nInitializing Clippings integration with host app window: ${window.location.href}`);
 
       window.setTimeout(async () => {
 	await this.getMxListener().legacyDataMigrationVerified();

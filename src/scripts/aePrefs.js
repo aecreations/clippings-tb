@@ -43,6 +43,7 @@ let aePrefs = function () {
     autoAdjustWndPos: null,
     enhancedLaF: true,
     upgradeNotifCount: 0,
+    showNewClippingOpts: false,
   };
 
   return {
@@ -127,6 +128,18 @@ let aePrefs = function () {
         legacyDataMigrnErrorMsg: "",
       };
 
+      await this._addPrefs(aPrefs, newPrefs);
+    },
+
+    hasCorralDeTierraPrefs(aPrefs)
+    {
+      // Version 6.2
+      return aPrefs.hasOwnProperty("showNewClippingOpts");
+    },
+
+    async setCorralDeTierraPrefs(aPrefs)
+    {
+      let newPrefs = {showNewClippingOpts: false};
       await this._addPrefs(aPrefs, newPrefs);
     },
 

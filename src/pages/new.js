@@ -4,6 +4,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+const WNDH_NORMAL = 412;
+const WNDH_NORMAL_WINDOWS = 448;
 const WNDH_OPTIONS_EXPANDED = 486;
 const DLG_HEIGHT_ADJ_WINDOWS = 48;
 const DLG_HEIGHT_ADJ_LOCALE = 20;
@@ -18,6 +20,7 @@ let gCreateInFldrMenu;
 let gFolderPickerPopup;
 let gNewFolderDlg, gPreviewDlg;
 let gPrefs;
+let gSyncedFldrIDs = new Set();
 
 
 // Page initialization
@@ -35,7 +38,7 @@ $(async () => {
   }
 
   try {
-    await gClippings.verifyDB();
+    await messenger.runtime.sendMessage({msgID: "verify-db"});
   }
   catch (e) {
     showInitError();
@@ -51,25 +54,17 @@ $(async () => {
   let lang = messenger.i18n.getUILanguage();
   document.body.dataset.locale = lang;
 
-  $("#btn-expand-options").click(async (aEvent) => {
-    let height = WNDH_OPTIONS_EXPANDED;
-    if (gOS == "win") {
-      height += DLG_HEIGHT_ADJ_WINDOWS;
-    }
-    
-    if (lang.startsWith("es") || lang.startsWith("pt") || lang == "uk") {
-      height += DLG_HEIGHT_ADJ_LOCALE;
-    }
-    else if (lang == "de" && gOS == "mac") {
-      height += DLG_HEIGHT_ADJ_LOCALE_DE;
-    }
-    else if (lang.startsWith("zh") && gOS == "mac") {
-      height += DLG_HEIGHT_ADJ_LOCALE;
-    }
-    
-    await messenger.windows.update(messenger.windows.WINDOW_ID_CURRENT, { height });
-    $("#clipping-options").show();
-    $("#new-clipping-fldr-tree-popup").addClass("new-clipping-fldr-tree-popup-fixpos");
+  if (gPrefs.syncClippings) {
+    initSyncItemsIDLookupList();
+  }
+
+  if (gPrefs.showNewClippingOpts) {
+    expandOptions(true);
+  }
+
+  $("#btn-expand-options").data("isExpanded", gPrefs.showNewClippingOpts).click(aEvent => {
+    let isExpanded = $(aEvent.target).data("isExpanded");
+    expandOptions(! isExpanded);
   });
   
   $("#clipping-text").attr("placeholder", messenger.i18n.getMessage("clipMgrContentHint"));
@@ -130,23 +125,114 @@ $(async () => {
 });
 
 
+async function expandOptions(aIsOptionsExpanded)
+{
+  let lang = messenger.i18n.getUILanguage();
+
+  if (aIsOptionsExpanded) {
+    let height = WNDH_OPTIONS_EXPANDED;
+    if (document.body.dataset.os == "win") {
+      height += DLG_HEIGHT_ADJ_WINDOWS;
+    } 
+    if (lang == "uk" || lang.startsWith("pt") || lang.startsWith("es")) {
+      height += DLG_HEIGHT_ADJ_LOCALE;
+    }
+
+    await messenger.windows.update(messenger.windows.WINDOW_ID_CURRENT, {height});
+    $("#clipping-options").show();
+    $("#new-clipping-fldr-tree-popup").addClass("new-clipping-fldr-tree-popup-fixpos");
+    $("#btn-expand-options").addClass("expanded");
+  }
+  else {
+    let height = WNDH_NORMAL;
+    if (document.body.dataset.os == "win") {
+      height = WNDH_NORMAL_WINDOWS;
+    } 
+
+    $("#clipping-options").hide();
+    $("#new-clipping-fldr-tree-popup").removeClass("new-clipping-fldr-tree-popup-fixpos");
+    $("#btn-expand-options").removeClass("expanded");
+    await messenger.windows.update(messenger.windows.WINDOW_ID_CURRENT, {height});
+  }
+
+  $("#btn-expand-options").data("isExpanded", aIsOptionsExpanded);
+  await aePrefs.setPrefs({showNewClippingOpts: aIsOptionsExpanded});
+}
+
+
 $(window).keydown(aEvent => {
   if (aEvent.key == "Enter") {
     if (aEvent.target.tagName == "TEXTAREA") {
       return;
     }
-    if (aeDialog.isOpen()) {
-      aeDialog.acceptDlgs();
+
+    if (aEvent.target.tagName == "BUTTON" && aEvent.target.id != "btn-accept"
+        && !aEvent.target.classList.contains("dlg-accept")) {
+      aEvent.target.click();
       return;
     }
-    accept(aEvent);
+
+    if (aEvent.target.tagName == "UL" && aEvent.target.classList.contains("ui-fancytree")) {
+      let selectedFldrNodeKey;
+      let fldrData;
+
+      if (aeDialog.isOpen()) {
+        // New Folder modal lightbox.
+        gNewFolderDlg.selectAndCloseFolderPicker();
+        $("#new-folder-dlg-fldr-picker-mnubtn").focus();
+      }
+      else {
+        selectAndCloseFolderPicker();
+        $("#new-clipping-fldr-picker-menubtn").focus();
+      }
+
+      return;
+    }
+
+    if (aeDialog.isOpen()) {
+      // Avoid duplicate invocation due to pressing ENTER while OK button
+      // is focused in the New Clipping dialog.
+      if (! aEvent.target.classList.contains("dlg-accept")) {
+        aeDialog.acceptDlgs();
+      }
+      return;
+    }
+
+    if (aEvent.target.id != "btn-accept") {
+      accept(aEvent);
+    }
   }
   else if (aEvent.key == "Escape") {
+    if (aEvent.target.tagName == "UL" && aEvent.target.classList.contains("ui-fancytree")) {
+      if (aeDialog.isOpen()) {
+        // New Folder modal lightbox.
+        gNewFolderDlg.closeFolderPicker();
+        $("#new-folder-dlg-fldr-picker-mnubtn").focus();
+      }
+      else {
+        closeFolderPicker();
+        $("#new-clipping-fldr-picker-menubtn").focus();
+      }
+
+      return;
+    }
+    
     if (aeDialog.isOpen()) {
       aeDialog.cancelDlgs();
       return;
     }
     cancel(aEvent);
+  }
+  else if (aEvent.key == "ArrowDown") {
+    if (aEvent.target.classList.contains("folder-picker-menubtn")) {
+      if (aeDialog.isOpen()) {
+        // New Folder modal lightbox.
+        gNewFolderDlg.openFolderPicker();
+      }
+      else {
+        openFolderPicker();
+      }
+    }
   }
 });
 
@@ -186,6 +272,52 @@ function initDialogs()
     selectedFldrNode: null,
   });
 
+    gNewFolderDlg.openFolderPicker = function ()
+  {
+    $("#new-folder-dlg-fldr-tree-popup").css({visibility: "visible"});
+    $("#new-folder-dlg-fldr-tree-popup-bkgrd-ovl").show();
+    this.fldrTree.getContainer().focus();
+  };
+
+  gNewFolderDlg.selectFolder = function (aFolderData)
+  {
+    this.selectedFldrNode = aFolderData.node;
+
+    let fldrID = aFolderData.node.key;
+    let fldrPickerMnuBtn = $("#new-folder-dlg-fldr-picker-mnubtn");
+    fldrPickerMnuBtn.val(fldrID).text(aFolderData.node.title);
+
+    if (fldrID == gPrefs.syncFolderID) {
+      fldrPickerMnuBtn.attr("syncfldr", "true");
+    }
+    else {
+      fldrPickerMnuBtn.removeAttr("syncfldr");
+    }
+
+    $("#new-folder-dlg-fldr-tree-popup").css({visibility: "hidden"});
+    $("#new-folder-dlg-fldr-tree-popup-bkgrd-ovl").hide();
+
+  };
+
+  gNewFolderDlg.selectAndCloseFolderPicker = function ()
+  {
+    let fldrPickerTree = gNewFolderDlg.fldrTree.getTree();
+    selectedFldrNodeKey = fldrPickerTree.activeNode.key;
+    let fldrData = {
+      node: {
+        key: selectedFldrNodeKey,
+        title: fldrPickerTree.activeNode.title,
+      }
+    };
+    gNewFolderDlg.selectFolder(fldrData);
+  };
+
+  gNewFolderDlg.closeFolderPicker = function ()
+  {
+    $("#new-folder-dlg-fldr-tree-popup").css({visibility: "hidden"});
+    $("#new-folder-dlg-fldr-tree-popup-bkgrd-ovl").hide();
+  };
+
   gNewFolderDlg.resetTree = function ()
   {
     let fldrTree = this.fldrTree.getTree();
@@ -202,17 +334,14 @@ function initDialogs()
 
   gNewFolderDlg.onFirstInit = function ()
   {
-    let fldrPickerMnuBtn = $("#new-folder-dlg-fldr-picker-mnubtn");
     let fldrPickerPopup = $("#new-folder-dlg-fldr-tree-popup");
 
-    fldrPickerMnuBtn.click(aEvent => {
+    $("#new-folder-dlg-fldr-picker-mnubtn").click(aEvent => {
       if (fldrPickerPopup.css("visibility") == "visible") {
-        fldrPickerPopup.css({ visibility: "hidden" });
-        $("#new-folder-dlg-fldr-tree-popup-bkgrd-ovl").hide();
+        this.closeFolderPicker();
       }
       else {
-        fldrPickerPopup.css({ visibility: "visible" });
-        $("#new-folder-dlg-fldr-tree-popup-bkgrd-ovl").show();
+        this.openFolderPicker();
       }
     });
     
@@ -255,20 +384,7 @@ function initDialogs()
     );
 
     this.fldrTree.onSelectFolder = aFolderData => {
-      this.selectedFldrNode = aFolderData.node;
-
-      let fldrID = aFolderData.node.key;
-      fldrPickerMnuBtn.val(fldrID).text(aFolderData.node.title);
-
-      if (fldrID == gPrefs.syncFolderID) {
-        fldrPickerMnuBtn.attr("syncfldr", "true");
-      }
-      else {
-        fldrPickerMnuBtn.removeAttr("syncfldr");
-      }
-      
-      fldrPickerPopup.css({ visibility: "hidden" });
-      $("#new-folder-dlg-fldr-tree-popup-bkgrd-ovl").hide();
+      this.selectFolder(aFolderData);
     };
 
     fldrPickerMnuBtn.val(selectedFldrID).text(selectedFldrName);
@@ -309,6 +425,13 @@ function initDialogs()
       displayOrder: 0,
     };
 
+    if (gPrefs.syncClippings) {
+      // Set static ID on new folder if it is a synced folder.
+      if (gSyncedFldrIDs.has(parentFldrID)) {
+        newFolder.sid = aeUUID();
+      }
+    }
+
     gClippingsDB.transaction("rw", gClippingsDB.clippings, gClippingsDB.folders, () => {
       gClippingsDB.folders.where("parentFolderID").equals(parentFldrID).count().then(aNumFldrs => {
         numItemsInParent += aNumFldrs;
@@ -317,6 +440,13 @@ function initDialogs()
       }).then(aNumClippings => {
         numItemsInParent += aNumClippings;
         newFolder.displayOrder = numItemsInParent;
+        return gClippingsDB.folders.get(parentFldrID);
+
+      }).then(aFolder => {        
+        if (aFolder && aFolder.id != gPrefs.syncFolderID && "sid" in aFolder) {
+          newFolder.parentFldrSID = aFolder.sid;
+        }
+
         return gClippingsDB.folders.add(newFolder);
 
       }).then(aFldrID => {
@@ -350,8 +480,8 @@ function initDialogs()
         
         this.resetTree();
 
-        let clipgsLstrs = gClippings.getClippingsListeners();
-        clipgsLstrs.forEach(aListener => {
+        let clippingsLstrs = gClippings.getClippingsListeners();
+        clippingsLstrs.forEach(aListener => {
           aListener.newFolderCreated(aFldrID, newFolder, aeConst.ORIGIN_HOSTAPP);
         });
 
@@ -409,12 +539,11 @@ function initFolderPicker()
     let popup = $("#new-clipping-fldr-tree-popup");
 
     if (popup.css("visibility") == "hidden") {
-      popup.css({ visibility: "visible" });
-      $(".popup-bkgrd").show();
+      openFolderPicker();
     }
     else {
-      popup.css({ visibility: "hidden" });
-      $(".popup-bkgrd").hide();
+      closeFolderPicker();
+      aEvent.target.focus();
     }
   });
 
@@ -459,6 +588,14 @@ function initFolderPicker()
 }
 
 
+function openFolderPicker()
+{
+  $("#new-clipping-fldr-tree-popup").css({visibility: "visible"});
+  $(".popup-bkgrd").show();
+  gFolderPickerPopup.getContainer().focus();
+}
+
+
 function selectFolder(aFolderData)
 {
   gParentFolderID = Number(aFolderData.node.key);
@@ -473,7 +610,28 @@ function selectFolder(aFolderData)
     fldrPickerMenuBtn.removeAttr("syncfldr");
   }
   
-  $("#new-clipping-fldr-tree-popup").css({ visibility: "hidden" });
+  $("#new-clipping-fldr-tree-popup").css({visibility: "hidden"});
+  $(".popup-bkgrd").hide();
+}
+
+
+function selectAndCloseFolderPicker()
+{
+  let fldrPickerTree = gFolderPickerPopup.getTree();
+  selectedFldrNodeKey = fldrPickerTree.activeNode.key;
+  let fldrData = {
+    node: {
+      key: selectedFldrNodeKey,
+      title: fldrPickerTree.activeNode.title,
+    }
+  };
+  selectFolder(fldrData);
+}
+
+
+function closeFolderPicker()
+{
+  $("#new-clipping-fldr-tree-popup").css({visibility: "hidden"});
   $(".popup-bkgrd").hide();
 }
 
@@ -517,6 +675,37 @@ function initLabelPicker()
 }
 
 
+function initSyncItemsIDLookupList()
+{
+  function initSyncItemsIDLookupListHelper(aFolderID)
+  {
+    return new Promise((aFnResolve, aFnReject) => {
+      gClippingsDB.folders.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
+        gSyncedFldrIDs.add(aItem.id);
+        initSyncItemsIDLookupListHelper(aItem.id);
+
+      }).then(() => {
+        aFnResolve();
+      });
+    }).catch(aErr => { aFnReject(aErr) });
+  }
+  // END nested helper function
+
+  return new Promise((aFnResolve, aFnReject) => {
+    if (! gPrefs.syncClippings) {
+      aFnResolve();
+    }
+
+    // Include the ID of the root Synced Clippings folder.
+    gSyncedFldrIDs.add(gPrefs.syncFolderID);
+
+    initSyncItemsIDLookupListHelper(gPrefs.syncFolderID).then(() => {
+      aFnResolve();
+    }).catch(aErr => { aFnReject(aErr) });
+  });
+}
+
+
 function isClippingOptionsSet()
 {
   return ($("#clipping-key")[0].selectedIndex != 0
@@ -549,8 +738,6 @@ function unsetClippingsUnchangedFlag()
 
 function accept(aEvent)
 {
-  let prefs = gClippings.getPrefs();
-  
   let name = $("#clipping-name").val();
   let content = $("#clipping-text").val();
 
@@ -581,6 +768,12 @@ function accept(aEvent)
     sourceURL: "",
   };
 
+  if (gPrefs.syncClippings) {
+    if (gSyncedFldrIDs.has(newClipping.parentFolderID)) {
+      newClipping.sid = aeUUID();
+    }
+  }
+
   gClippingsDB.transaction("rw", gClippingsDB.clippings, gClippingsDB.folders, () => {
     gClippingsDB.folders.where("parentFolderID").equals(gParentFolderID).count().then(aNumFldrs => {
       numItemsInParent += aNumFldrs;
@@ -589,11 +782,17 @@ function accept(aEvent)
     }).then(aNumClippings => {
       numItemsInParent += aNumClippings;
       newClipping.displayOrder = numItemsInParent;
+      return gClippingsDB.folders.get(gParentFolderID);
+
+    }).then(aFolder => {
+      if (aFolder && aFolder.id != gPrefs.syncFolderID && "sid" in aFolder) {
+        newClipping.parentFldrSID = aFolder.sid;
+      }
       return gClippingsDB.clippings.add(newClipping);
 
     }).then(aNewClippingID => {
-      let clipgsLstrs = gClippings.getClippingsListeners();
-      clipgsLstrs.forEach(aListener => {
+      let clippingsLstrs = gClippings.getClippingsListeners();
+      clippingsLstrs.forEach(aListener => {
         aListener.newClippingCreated(aNewClippingID, newClipping, aeConst.ORIGIN_HOSTAPP);
       });
 
@@ -609,26 +808,26 @@ function accept(aEvent)
 
     }).then(aSyncData => {
       if (aSyncData) {
-        let msg = {
+        let natMsg = {
           msgID: "set-synced-clippings",
           syncData: aSyncData.userClippingsRoot,
         };
 
         log("Clippings/mx::new.js: accept(): Sending message 'set-synced-clippings' to the Sync Clippings helper app.  Message data:");
-        log(msg);
+        log(natMsg);
         
-        return messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, msg);
+        return messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg);
       }
       return null;
 
-    }).then(async (aMsgResult) => {
-      if (aMsgResult) {
+    }).then(async (aResp) => {
+      if (aResp) {
         log("Clippings/mx::new.js: accept(): Response from the Sync Clippings helper app:");
-        log(aMsgResult);
+        log(aResp);
       }
 
       if (gPrefs.clippingsMgrAutoShowDetailsPane && isClippingOptionsSet()) {
-        aePrefs.setPrefs({
+        await aePrefs.setPrefs({
           clippingsMgrAutoShowDetailsPane: false,
           clippingsMgrDetailsPane: true,
         });
@@ -680,6 +879,24 @@ async function closeDlg()
   messenger.windows.remove(messenger.windows.WINDOW_ID_CURRENT);
 }
 
+
+//
+// Event handlers
+//
+
+browser.runtime.onMessage.addListener(aRequest => {
+  log(`Clippings/mx::new.js: New Clipping dialog received MailExtension message "${aRequest.msgID}"`);
+
+  if (aRequest.msgID == "ping-new-clipping-dlg") {
+    let resp = {isOpen: true};
+    return Promise.resolve(resp);
+  }
+});
+
+
+//
+// Utilities
+//
 
 function log(aMessage)
 {

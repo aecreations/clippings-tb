@@ -2,14 +2,14 @@
   "manifest_version": 2,
   "name": "__MSG_extNameTB__",
   "description": "__MSG_extDesc__",
-  "version": "6.1.6",
+  "version": "6.2",
   "author": "AE Creations",
-  "homepage_url": "https://aecreations.sourceforge.io/clippings/index.php",
+  "homepage_url": "https://aecreations.io/clippings/index.php",
   "browser_specific_settings": {
     "gecko": {
       "id": "clippings-tb@aecreations.github.io",
-      "strict_min_version": "78.0",
-      "strict_max_version": "91.*"
+      "strict_min_version": "91.0",
+      "strict_max_version": "102.*"
     }
   },
   
@@ -38,6 +38,7 @@
       "scripts/aePrefs.js",
       "scripts/aeWndPos.js",
       "scripts/aeVersionCmp.js",
+      "scripts/aeUUID.js",
       "background.js"
     ]
   },
