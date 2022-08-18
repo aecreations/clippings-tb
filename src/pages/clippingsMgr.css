@@ -77,12 +77,6 @@
     --url-toolbar-btn-img-help: url("../img/help.svg");
     --url-toolbar-btn-img-help-hover: url("../img/help_hover.svg");
     --url-toolbar-btn-img-help-active: url("../img/help_hover.svg");
-    --url-toolbar-btn-img-ok: url("../img/ok.svg");
-    --url-toolbar-btn-img-ok-hover: url("../img/ok_hover.svg");
-    --url-toolbar-btn-img-ok-active: url("../img/ok_active.svg");
-    --url-toolbar-btn-img-cancel: url("../img/cancel.svg");
-    --url-toolbar-btn-img-cancel-hover: url("../img/cancel_hover.svg");
-    --url-toolbar-btn-img-cancel-active: url("../img/cancel_active.svg");
     --url-toolbar-btn-img-customPlchldr: url("../img/customPlchldr.svg");
     --url-toolbar-btn-img-customPlchldr-hover: url("../img/customPlchldr_hover.svg");
     --url-toolbar-btn-img-autoIncPlchldr: url("../img/numericPlchldr.svg");
@@ -153,12 +147,6 @@
 	--url-toolbar-btn-img-help: url("../img/help-dk.svg");
 	--url-toolbar-btn-img-help-hover: url("../img/help-dk.svg");
 	--url-toolbar-btn-img-help-active: url("../img/help.svg");
-	--url-toolbar-btn-img-ok: url("../img/ok_dk.svg");
-	--url-toolbar-btn-img-ok-hover: url("../img/ok_hover_dk.svg");
-	--url-toolbar-btn-img-ok-active: url("../img/ok_active_dk.svg");
-	--url-toolbar-btn-img-cancel: url("../img/cancel_dk.svg");
-	--url-toolbar-btn-img-cancel-hover: url("../img/cancel_hover_dk.svg");
-	--url-toolbar-btn-img-cancel-active: url("../img/cancel_active_dk.svg");
 	--url-toolbar-btn-img-customPlchldr: url("../img/customPlchldr_dk.svg");
 	--url-toolbar-btn-img-customPlchldr-hover: url("../img/customPlchldr_dk.svg");
 	--url-toolbar-btn-img-autoIncPlchldr: url("../img/numericPlchldr_dk.svg");
@@ -759,129 +747,8 @@ ul.fancytree-container {
     flex: 0 1 auto;
 }
 
-#item-properties > #source-url-bar {
-    order: 4;
-    flex: 0 1 auto;
-
-    padding: 4px 8px 8px 8px;
-    overflow: hidden;
-    white-space: nowrap;
-
-    line-height: 24px;
-    background-color: var(--color-details-pane-bkgd);
-}
-
 #placeholder-toolbar label {
     font-size: 11px;
-}
-
-#source-url-bar button {
-    margin-bottom: 0;
-}
-
-#source-url-bar > #src-url-label {
-    order: 1;
-    flex: 0 1 auto;
-}
-
-#source-url-bar > #source-url-deck {
-    order: 2;
-    flex: 1 1 auto;
-}
-
-#source-url-bar > #source-url-deck button {
-    border: var(--color-details-pane-btn-border);
-    background-color: var(--color-details-pane-btn-bkgd);
-    color: var(--color-details-pane-btn-text);
-}
-
-#source-url-bar > #source-url-deck button:hover {
-    background-color: var(--color-btn-hover-bkgd);
-}
-
-#source-url-bar > #source-url-deck button:active {
-    background-color: var(--color-btn-active-bkgd);
-}
-
-#source-url-bar > #source-url-deck > #src-url-normal-mode > #clipping-src-url {
-    order: 1;
-    flex: 1 1 auto;
-
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 24em;
-}
-
-#source-url-bar > #source-url-deck > #src-url-normal-mode > #edit-url-btn {
-    order: 2;
-    flex: 0 1 auto;
-
-    min-width: 24px;
-    border-radius: 3px;
-}
-
-#source-url-bar > #source-url-deck > #src-url-edit-mode {
-    margin-bottom: 0;
-}
-
-#source-url-bar > #source-url-deck > #src-url-edit-mode > #clipping-src-url-edit {
-    order: 1;
-    flex: 1 1 auto;
-
-    margin-right: 2px;
-}
-
-#source-url-bar > #source-url-deck > #src-url-edit-mode > #edit-src-url-ok {
-    order: 2;
-
-    min-width: 24px;
-    margin-left: 1px;
-    margin-right: 0;
-    border-right: none;
-    border-radius: 3px 0px 0px 3px;
-}
-
-#edit-src-url-ok {
-    background-image: var(--url-toolbar-btn-img-ok);
-    background-position: center;
-    background-repeat: no-repeat;
-}
-
-#edit-src-url-ok:hover {
-    background-image: var(--url-toolbar-btn-img-ok-hover);
-}
-
-#edit-src-url-ok:active {
-    background-image: var(--url-toolbar-btn-img-ok-active);
-}
-
-#source-url-bar > #source-url-deck > #src-url-edit-mode > #edit-src-url-cancel {
-    order: 3;
-
-    min-width: 26px;
-    margin-right: 0;
-    border-radius: 0px 3px 3px 0px;
-}
-
-#edit-src-url-cancel {
-    background-image: var(--url-toolbar-btn-img-cancel);
-    background-position: center;
-    background-repeat: no-repeat;
-}
-
-#edit-src-url-cancel:hover {
-    background-image: var(--url-toolbar-btn-img-cancel-hover);
-}
-
-#edit-src-url-cancel:active {
-    background-image: var(--url-toolbar-btn-img-cancel-active);
-}
-
-#edit-src-url-ok:focus,
-#edit-src-url-cancel:focus {
-    box-shadow: unset;
-    border-color: rgb(177, 177, 177) !important;
 }
 
 #item-properties > #options-bar {
@@ -1351,14 +1218,6 @@ body[data-locale="de"] #export-dlg #export-format-list-label {
 #export-dlg #format-description {
     margin-top: 2px;
     margin-bottom: 2px;
-}
-
-#export-dlg #include-src-urls {
-    margin-left: 2px;
-}
-
-#export-dlg #include-src-urls[disabled] + label {
-    color: var(--color-disabled-text);
 }
 
 #import-confirm-msgbox > .msgbox-icon,

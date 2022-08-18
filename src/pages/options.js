@@ -682,7 +682,7 @@ function initDialogs()
   gDialogs.syncClippingsHelp.onFirstInit = function ()
   {
     // Sync Clippings help dialog content.
-    $("#sync-clippings-help-dlg > .dlg-content").html(sanitizeHTML(messenger.i18n.getMessage("syncHelpTB")));
+    $("#sync-clippings-help-dlg > .dlg-content").html(sanitizeHTML(messenger.i18n.getMessage("syncHelpTB", aeConst.SYNC_CLIPPINGS_HELP_URL)));
   };
 }
 

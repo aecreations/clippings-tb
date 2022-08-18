@@ -2426,13 +2426,16 @@ let gCmd = {
   
   openExtensionPrefs: function ()
   {
-    if (aeVersionCmp(gEnvInfo.hostAppVer, "102.0") >= 0) {
-      // Temporary workaround to Thunderbird bug, see next comment.
+    if (aeVersionCmp(gEnvInfo.hostAppVer, "102.0") >= 0
+        && aeVersionCmp(gEnvInfo.hostAppVer, "102.1.0") < 0) {
+      // Workaround to Thunderbird bug, see next comment.
       messenger.runtime.sendMessage({msgID: "open-ext-prefs-pg"});
       return;
     }
 
-    messenger.runtime.openOptionsPage();  // BUG!!  Doesn't work on Thunderbird 102.0b5
+    // BUG!!  Doesn't work on Thunderbird 102.0.x
+    // - see https://bugzilla.mozilla.org/show_bug.cgi?id=1775223
+    messenger.runtime.openOptionsPage();
 
     // Workaround to extension preferences page not focused if already open.
     messenger.runtime.sendMessage({ msgID: "focus-extension-prefs-pg" });

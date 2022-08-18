@@ -69,10 +69,20 @@ body[data-locale|="pt"] #backup-hint {
     letter-spacing: -0.3px;
 }
 
+#backup-reminder ~ label {
+    vertical-align: 2px;
+}
+
 #backup-reminder-freq {
     margin-left: 4px;
     margin-right: 4px;
     font-size: 15px;
+    vertical-align: 2px;
+}
+
+body[data-os="mac"] #backup-reminder ~ label,
+body[data-os="mac"] #backup-reminder-freq {
+    vertical-align: 0;
 }
 
 #prefs-hint {
