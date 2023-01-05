@@ -366,6 +366,7 @@ body[data-locale="de"] #wnds-dlgs-opts-dlg {
     --width: 540px;
 }
 
+body[data-locale|="es"] #wnds-dlgs-opts-dlg,
 body[data-locale="uk"] #wnds-dlgs-opts-dlg {
     --width: 560px;
 }
@@ -404,6 +405,10 @@ body[data-locale="nl"] #wnds-dlgs-opts-dlg #clpmgr-save-wnd-pos-label {
     letter-spacing: -0.18px;
 }
 
+body[data-locale|="es"] #wnds-dlgs-opts-dlg #clpmgr-save-wnd-pos-label {
+    letter-spacing: -0.4px;
+}
+
 #wnds-dlgs-opts-dlg #reset-clpmgr-wnd-pos {
     min-width: 72px;
     margin-top: 4px;
@@ -424,16 +429,16 @@ body[data-locale="nl"] #wnds-dlgs-opts-dlg #clpmgr-save-wnd-pos-label {
 }
 
 body[data-locale="de"] #sync-clippings-dlg {
-    width: 570px;
+    --width: 570px;
 }
 
 body[data-locale|="es"] #sync-clippings-dlg {
-    width: 620px;
+    --width: 620px;
 }
 
 body[data-locale="nl"] #sync-clippings-dlg,
 body[data-locale="uk"] #sync-clippings-dlg {
-    width: 522px;
+    --width: 522px;
 }
 
 #sync-clippings-dlg fieldset {
@@ -684,6 +689,10 @@ body[data-locale|="pt"][data-os="mac"] #about-dlg #ext-desc {
     letter-spacing: -0.55px;
 }
 
+body[data-locale|="es"] #about-dlg #ext-desc {
+    letter-spacing: -0.38px;
+}
+
 #about-dlg #credits label {
     line-height: 18px;
 }
@@ -692,7 +701,8 @@ body[data-locale|="pt"][data-os="mac"] #about-dlg #ext-desc {
     margin-top: 8px;
 }
 
-body[data-locale="de"] #about-dlg #usr-contrib-cta {
+body[data-locale="de"] #about-dlg #usr-contrib-cta,
+body[data-locale|="es"]:not([data-os="win"]) #about-dlg #usr-contrib-cta {
     letter-spacing: -0.2px;
 }
 
