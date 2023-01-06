@@ -435,7 +435,8 @@ function initDialogs()
       
       $("#sync-clippings-dlg .dlg-cancel").text(messenger.i18n.getMessage("btnClose"));
 
-      if (aErr == aeConst.SYNC_ERROR_CONXN_FAILED) {
+      if (aErr == aeConst.SYNC_ERROR_CONXN_FAILED
+          || aErr == aeConst.SYNC_ERROR_NAT_APP_NOT_FOUND) {
         // This would occur if Sync Clippings helper app won't start.
         deckSyncChk.hide();
         deckSyncConxnError.show();
