@@ -399,7 +399,6 @@ function initDialogs()
     deckSyncError.hide();
     deckSyncSettings.hide();
 
-    let that = this;
     let isBrwsSyncFldrVisible = true;
     let lang = messenger.i18n.getUILanguage();
     let natMsg = {msgID: "get-app-version"};
@@ -417,18 +416,12 @@ function initDialogs()
       $("#sync-helper-app-update-check").prop("checked", aPrefs.syncHelperCheckUpdates);
       $("#show-only-sync-items").prop("checked", aPrefs.cxtMenuSyncItemsOnly);
 
-      that.oldShowSyncItemsOpt = $("#show-only-sync-items").prop("checked");
+      this.oldShowSyncItemsOpt = $("#show-only-sync-items").prop("checked");
 
       let natMsg = {msgID: "get-sync-dir"};
       return messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg);
       
     }).then(aResp => {
-      if (! that.isCanceled) {
-        if (lang == "es-ES") {
-          $("#sync-clippings-dlg").css({ width: "606px" });
-        }
-      }
-
       $("#sync-fldr-curr-location").val(aResp.syncFilePath);
       $("#sync-clippings-dlg .dlg-accept").show();
       $("#sync-clippings-dlg .dlg-cancel").text(messenger.i18n.getMessage("btnCancel"));
@@ -442,7 +435,8 @@ function initDialogs()
       
       $("#sync-clippings-dlg .dlg-cancel").text(messenger.i18n.getMessage("btnClose"));
 
-      if (aErr == aeConst.SYNC_ERROR_CONXN_FAILED) {
+      if (aErr == aeConst.SYNC_ERROR_CONXN_FAILED
+          || aErr == aeConst.SYNC_ERROR_NAT_APP_NOT_FOUND) {
         // This would occur if Sync Clippings helper app won't start.
         deckSyncChk.hide();
         deckSyncConxnError.show();
