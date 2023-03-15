@@ -121,12 +121,16 @@ async function init()
     gDialogs.about.showModal();
   });
 
+  // About dialog.
   let usrContribCTA = $("#usr-contrib-cta");
   usrContribCTA.append(sanitizeHTML(`<label id="usr-contrib-cta-hdg">${messenger.i18n.getMessage("aboutContribHdg")}</label>&nbsp;`));
   usrContribCTA.append(sanitizeHTML(`<a href="${aeConst.DONATE_URL}" class="hyperlink">${messenger.i18n.getMessage("aboutDonate")}</a>&nbsp;`));
   usrContribCTA.append(sanitizeHTML(`<label id="usr-contrib-cta-conj">${messenger.i18n.getMessage("aboutContribConj")}</label>`));
   usrContribCTA.append(sanitizeHTML(`<a href="${aeConst.L10N_URL}" class="hyperlink">${messenger.i18n.getMessage("aboutL10n")}</a>`));
   
+  // Sync Clippings help dialog content.
+  $("#sync-clippings-help-dlg > .dlg-content").html(sanitizeHTML(messenger.i18n.getMessage("syncHelpTB", aeConst.SYNC_CLIPPINGS_HELP_URL)));
+
   $("#html-paste-options").val(prefs.htmlPaste).change(aEvent => {
     aePrefs.setPrefs({ htmlPaste: aEvent.target.value });
   });
@@ -673,11 +677,6 @@ function initDialogs()
   };
   
   gDialogs.syncClippingsHelp = new aeDialog("#sync-clippings-help-dlg");
-  gDialogs.syncClippingsHelp.onFirstInit = function ()
-  {
-    // Sync Clippings help dialog content.
-    $("#sync-clippings-help-dlg > .dlg-content").html(sanitizeHTML(messenger.i18n.getMessage("syncHelpTB", aeConst.SYNC_CLIPPINGS_HELP_URL)));
-  };
 }
 
 
