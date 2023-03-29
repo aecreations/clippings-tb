@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const Services = globalThis.Services || ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 
 Services.scriptloader.loadSubScript("chrome://clippings/content/lib/i18n.js", this, "UTF-8");
 
