@@ -18,7 +18,7 @@ var { ExtensionCommon } = ChromeUtils.import(
 var { ExtensionSupport } = ChromeUtils.import(
   "resource:///modules/ExtensionSupport.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var Services = globalThis.Services || ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 
 var WindowListener = class extends ExtensionCommon.ExtensionAPI {
   log(msg) {
