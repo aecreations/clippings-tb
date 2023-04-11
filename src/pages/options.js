@@ -3,7 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let gClippings;
 let gOS;
 let gDialogs = {};
 let gIsActivatingSyncClippings = false;
@@ -38,18 +37,7 @@ function capitalize(aString)
 
 
 // Options page initialization
-$(async () => {
-  gClippings = await messenger.runtime.getBackgroundPage();
-
-  if (! gClippings) {
-    // Hide the broken "Turn Off Sync" button when Private Browsing turned on.
-    $("#toggle-sync").hide();
-    
-    window.alert(messenger.i18n.getMessage("errPrefPgFailed"));
-    await closePage();
-    return;
-  }
-
+$(() => {
   window.focus();
   init();
 });
@@ -509,7 +497,7 @@ function initDialogs()
       return;
     }
 
-    let syncFldrID = await browser.runtime.sendMessage({
+    let syncFolderID = await browser.runtime.sendMessage({
       msgID: "enable-sync-clippings",
       isEnabled: true,
     });
@@ -534,10 +522,10 @@ function initDialogs()
       rebuildClippingsMenu,
     });
     
-    let syncClippingsListeners = gClippings.getSyncClippingsListeners().getListeners();
-    for (let listener of syncClippingsListeners) {
-      listener.onActivate(syncFldrID);
-    }
+    browser.runtime.sendMessage({
+      msgID: "sync-activated",
+      syncFolderID,
+    });
     
     this.close();
   };
@@ -554,7 +542,7 @@ function initDialogs()
     $("#turn-off-sync-clippings-dlg > .dlg-btns > .dlg-btn-yes").click(async (aEvent) => {
       this.close();
 
-      let oldSyncFldrID = await browser.runtime.sendMessage({
+      let oldSyncFolderID = await browser.runtime.sendMessage({
         msgID: "enable-sync-clippings",
         isEnabled: false,
       });
@@ -564,12 +552,12 @@ function initDialogs()
       $("#toggle-sync").text(messenger.i18n.getMessage("syncTurnOn"));
       $("#sync-status").removeClass("sync-status-on").text(messenger.i18n.getMessage("syncStatusOff"));
 
-      let syncClippingsListeners = gClippings.getSyncClippingsListeners().getListeners();
-      for (let listener of syncClippingsListeners) {
-	listener.onDeactivate(oldSyncFldrID);
-      }
+      browser.runtime.sendMessage({
+        msgID: "sync-deactivated",
+        oldSyncFolderID,
+      });
 
-      gDialogs.turnOffSyncAck.oldSyncFldrID = oldSyncFldrID;
+      gDialogs.turnOffSyncAck.oldSyncFldrID = oldSyncFolderID;
       gDialogs.turnOffSyncAck.showModal();
     });
   };
@@ -591,12 +579,13 @@ function initDialogs()
   };
   gDialogs.turnOffSyncAck.onAfterAccept = function ()
   {
-    let removeSyncFldr = $("#delete-sync-fldr").prop("checked");
-    let syncClippingsListeners = gClippings.getSyncClippingsListeners().getListeners();
+    let removeSyncFolder = $("#delete-sync-fldr").prop("checked");
 
-    for (let listener of syncClippingsListeners) {
-      listener.onAfterDeactivate(removeSyncFldr, this.oldSyncFldrID);
-    }
+    browser.runtime.sendMessage({
+      msgID: "sync-deactivated-after",
+      removeSyncFolder,
+      oldSyncFolderID: this.oldSyncFldrID,
+    });
   };
 
   gDialogs.about = new aeDialog("#about-dlg");
