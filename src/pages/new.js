@@ -13,7 +13,6 @@ const DLG_HEIGHT_ADJ_LOCALE_DE = 10;
 
 let gOS;
 let gClippingsDB = null;
-let gClippings = null;
 let gParentFolderID = 0;
 let gSrcURL = "";
 let gCreateInFldrMenu;
@@ -25,20 +24,11 @@ let gSyncedFldrIDs = new Set();
 
 // Page initialization
 $(async () => {
-  gClippings = messenger.extension.getBackgroundPage();
+  aeClippings.init();
+  gClippingsDB = aeClippings.getDB();
   
-  if (gClippings) {
-    gClippingsDB = gClippings.getClippingsDB();
-  }
-  else {
-    // gClippingsDB is null if Private Browsing mode is turned on.
-    console.error("Clippings/mx::new.js: Error initializing New Clipping dialog - unable to locate parent browser window.");
-    showInitError();
-    return;
-  }
-
   try {
-    await messenger.runtime.sendMessage({msgID: "verify-db"});
+    await aeClippings.verifyDB();
   }
   catch (e) {
     showInitError();
@@ -480,11 +470,12 @@ function initDialogs()
         
         this.resetTree();
 
-        let clippingsLstrs = gClippings.getClippingsListeners();
-        clippingsLstrs.forEach(aListener => {
-          aListener.newFolderCreated(aFldrID, newFolder, aeConst.ORIGIN_HOSTAPP);
+        browser.runtime.sendMessage({
+          msgID: "new-folder-created",
+          newFolderID: aFldrID,
+          newFolder,
         });
-
+        
         return unsetClippingsUnchangedFlag();
 
       }).then(() => {
@@ -791,9 +782,10 @@ function accept(aEvent)
       return gClippingsDB.clippings.add(newClipping);
 
     }).then(aNewClippingID => {
-      let clippingsLstrs = gClippings.getClippingsListeners();
-      clippingsLstrs.forEach(aListener => {
-        aListener.newClippingCreated(aNewClippingID, newClipping, aeConst.ORIGIN_HOSTAPP);
+      browser.runtime.sendMessage({
+        msgID: "new-clipping-created",
+        newClippingID: aNewClippingID,
+        newClipping,
       });
 
       return unsetClippingsUnchangedFlag();
