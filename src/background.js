@@ -386,7 +386,8 @@ async function init()
 {
   info("Clippings/mx: Initializing integration of MailExtension with host app...");
 
-  initClippingsDB();
+  aeClippings.init();
+  gClippingsDB = aeClippings.getDB();
   aeImportExport.setDatabase(gClippingsDB);
 
   if (gMigrateLegacyData) {
@@ -1481,22 +1482,6 @@ function getClippingsDB()
 }
 
 
-function verifyDB()
-{
-  return new Promise((aFnResolve, aFnReject) => {
-    let numClippings;
-
-    gClippingsDB.clippings.count(aNumItems => {
-      numClippings = aNumItems;
-    }).then(() => {
-      aFnResolve(numClippings);
-    }).catch(aErr => {
-      aFnReject(aErr);
-    });
-  });
-}
-
-
 function getClippingsListeners()
 {
   return gClippingsListeners.getListeners();
@@ -1611,9 +1596,6 @@ messenger.runtime.onMessage.addListener(aRequest => {
     rebuildContextMenu();
     break;
 
-  case "verify-db":
-    return verifyDB();
-
   case "open-ext-prefs-pg":
     messenger.tabs.create({
       active: true,
@@ -1627,6 +1609,14 @@ messenger.runtime.onMessage.addListener(aRequest => {
 
   case "sync-deactivated-after":
     gSyncClippingsListener.onAfterDeactivate(aRequest.removeSyncFolder, aRequest.oldSyncFolderID);
+    break;
+
+  case "new-clipping-created":
+    gClippingsListener.newClippingCreated(aRequest.newClippingID, aRequest.newClipping);
+    break;
+
+  case "new-folder-created":
+    gClippingsListener.newFolderCreated(aRequest.newFolderID, aRequest.newFolder);
     break;
 
   default:
