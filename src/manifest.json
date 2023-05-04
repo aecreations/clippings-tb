@@ -39,6 +39,7 @@
       "scripts/aeWndPos.js",
       "scripts/aeVersionCmp.js",
       "scripts/aeUUID.js",
+      "scripts/aeClippings.js",
       "background.js"
     ]
   },
