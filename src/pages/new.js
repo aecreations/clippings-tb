@@ -470,10 +470,11 @@ function initDialogs()
         
         this.resetTree();
 
-        browser.runtime.sendMessage({
+        messenger.runtime.sendMessage({
           msgID: "new-folder-created",
           newFolderID: aFldrID,
           newFolder,
+          origin: aeConst.ORIGIN_HOSTAPP,
         });
         
         return unsetClippingsUnchangedFlag();
@@ -782,10 +783,11 @@ function accept(aEvent)
       return gClippingsDB.clippings.add(newClipping);
 
     }).then(aNewClippingID => {
-      browser.runtime.sendMessage({
+      messenger.runtime.sendMessage({
         msgID: "new-clipping-created",
         newClippingID: aNewClippingID,
         newClipping,
+        origin: aeConst.ORIGIN_HOSTAPP,
       });
 
       return unsetClippingsUnchangedFlag();
@@ -876,7 +878,7 @@ async function closeDlg()
 // Event handlers
 //
 
-browser.runtime.onMessage.addListener(aRequest => {
+messenger.runtime.onMessage.addListener(aRequest => {
   log(`Clippings/mx::new.js: New Clipping dialog received MailExtension message "${aRequest.msgID}"`);
 
   if (aRequest.msgID == "ping-new-clipping-dlg") {
