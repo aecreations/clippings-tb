@@ -20,8 +20,6 @@ let gForceShowFirstTimeBkupNotif = false;
 let gMigrateLegacyData = false;
 let gClippingsMgrCleanUpIntvID = null;
 
-let gClippingsListeners = new aeListeners();
-
 let gClippingsListener = {
   _isImporting: false,
   _isCopying: false,
@@ -93,9 +91,6 @@ let gClippingsListener = {
     }
   },
 
-  clippingDeleted: function (aID, aOldData) {},
-  folderDeleted: function (aID, aOldData) {},
-
   copyStarted: function ()
   {
     this._isCopying = true;
@@ -135,8 +130,6 @@ let gClippingsListener = {
   },
 };
 
-let gSyncClippingsListeners = new aeListeners();
-
 let gSyncClippingsListener = {
   onActivate(aSyncFolderID) {},
 
@@ -160,7 +153,7 @@ let gSyncClippingsListener = {
       }
     }
 
-    log("Clippings/mx: gSyncClippingsListeners.onAfterDeactivate(): Remove Synced Clippings folder: " + aRemoveSyncFolder);
+    log("Clippings/mx: gSyncClippingsListener.onAfterDeactivate(): Remove Synced Clippings folder: " + aRemoveSyncFolder);
 
     if (aRemoveSyncFolder) {
       log(`Removing old Synced Clippings folder (ID = ${aOldSyncFolderID})`);
@@ -175,13 +168,13 @@ let gSyncClippingsListener = {
 
   onReloadStart()
   {
-    log("Clippings/mx: gSyncClippingsListeners.onReloadStart()");
+    log("Clippings/mx: gSyncClippingsListener.onReloadStart()");
     gIsReloadingSyncFldr = true;
   },
   
   async onReloadFinish()
   {
-    log("Clippings/mx: gSyncClippingsListeners.onReloadFinish(): Rebuilding Clippings menu");
+    log("Clippings/mx: gSyncClippingsListener.onReloadFinish(): Rebuilding Clippings menu");
     gIsReloadingSyncFldr = false;
     rebuildContextMenu();
 
@@ -189,7 +182,7 @@ let gSyncClippingsListener = {
     let isStaticIDsAdded = await addStaticIDs(gSyncFldrID);
 
     if (isStaticIDsAdded) {
-      log("Clippings/mx: gSyncClippingsListeners.onReloadFinish(): Static IDs added to synced items.  Saving sync file.");
+      log("Clippings/mx: gSyncClippingsListener.onReloadFinish(): Static IDs added to synced items.  Saving sync file.");
       await pushSyncFolderUpdates();
     }
   },
@@ -434,14 +427,14 @@ async function init()
     if (gPrefs.autoAdjustWndPos === null) {
       let autoAdjustWndPos = gOS == "win";
       let clippingsMgrSaveWndGeom = autoAdjustWndPos;
-      await aePrefs.setPrefs({ autoAdjustWndPos, clippingsMgrSaveWndGeom });
+      await aePrefs.setPrefs({autoAdjustWndPos, clippingsMgrSaveWndGeom});
     }
 
     // Use enhanced look and feel UI on Thunderbird 89 and newer. Check for
     // Thunderbird version at every startup in case it was updated.
     let enhancedLaF = aeVersionCmp(gHostAppVer, "89.0") >= 0;
     if (gPrefs.enhancedLaF != enhancedLaF) {
-      await aePrefs.setPrefs({ enhancedLaF });
+      await aePrefs.setPrefs({enhancedLaF});
     }
 
     let extVer = messenger.runtime.getManifest().version;
@@ -455,10 +448,6 @@ async function init()
       clippingNameColHdr: messenger.i18n.getMessage("expHTMLClipNameCol"),
     });
     
-    gClippingsListener.origin = aeConst.ORIGIN_HOSTAPP;
-    gClippingsListeners.add(gClippingsListener);
-    gSyncClippingsListeners.add(gSyncClippingsListener);
-
     if (gPrefs.syncClippings) {
       gSyncFldrID = gPrefs.syncFolderID;
 
@@ -523,20 +512,6 @@ async function init()
 
     gIsInitialized = true;
     log("Clippings/mx: MailExtension initialization complete.");    
-  });
-}
-
-
-function initClippingsDB()
-{
-  gClippingsDB = new Dexie("aeClippings");
-  gClippingsDB.version(1).stores({
-    clippings: "++id, name, parentFolderID, shortcutKey",
-    folders: "++id, name, parentFolderID"
-  });
-
-  gClippingsDB.open().catch(aErr => {
-    console.error(aErr);
   });
 }
 
@@ -1476,32 +1451,6 @@ function getShortcutKeyMap()
 // Utility functions
 //
 
-function getClippingsDB()
-{
-  return gClippingsDB;
-}
-
-
-function getClippingsListeners()
-{
-  return gClippingsListeners.getListeners();
-}
-
-function addClippingsListener(aListener)
-{
-  gClippingsListeners.add(aListener);
-}
-
-function removeClippingsListener(aListener)
-{
-  gClippingsListeners.remove(aListener);
-}
-
-function getSyncClippingsListeners()
-{
-  return gSyncClippingsListeners;
-}
-
 // DEPRECATED
 // - These functions are currently called from WindowListener scripts.
 function getPrefs()
@@ -1612,13 +1561,45 @@ messenger.runtime.onMessage.addListener(aRequest => {
     break;
 
   case "new-clipping-created":
-    gClippingsListener.newClippingCreated(aRequest.newClippingID, aRequest.newClipping);
+    gClippingsListener.newClippingCreated(aRequest.newClippingID, aRequest.newClipping, aRequest.origin);
     break;
 
   case "new-folder-created":
-    gClippingsListener.newFolderCreated(aRequest.newFolderID, aRequest.newFolder);
+    gClippingsListener.newFolderCreated(aRequest.newFolderID, aRequest.newFolder, aRequest.origin);
     break;
 
+  case "clipping-changed":
+    gClippingsListener.clippingChanged(aRequest.clippingID, aRequest.clippingData, aRequest.oldClippingData);
+    break;
+
+  case "folder-changed":
+    gClippingsListener.folderChanged(aRequest.folderID, aRequest.folderData, aRequest.oldFolderData);
+    break;
+
+  case "copy-started":
+    gClippingsListener.copyStarted();
+    break;
+
+  case "copy-finished":
+    gClippingsListener.copyFinished(aRequest.itemCopyID);
+    break;
+
+  case "dnd-move-started":
+    gClippingsListener.dndMoveStarted();
+    break;
+
+  case "dnd-move-finished":
+    gClippingsListener.dndMoveFinished();
+    break;
+
+  case "import-started":
+    gClippingsListener.importStarted();
+    break;
+
+  case "import-finished":
+    gClippingsListener.importFinished(aRequest.isSuccess);
+    break;
+    
   default:
     break;
   }
