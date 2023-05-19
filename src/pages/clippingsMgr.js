@@ -2949,10 +2949,12 @@ $(async () => {
     $("#status-bar").css({backgroundImage: "none"});
   }
 
-  let lang = messenger.i18n.getUILanguage();
-  document.body.dataset.locale = lang;
   document.body.dataset.laf = gPrefs.enhancedLaF;
 
+  let lang = messenger.i18n.getUILanguage();
+  document.body.dataset.locale = lang;
+  moment.locale(lang);
+  
   let wndURL = new URL(window.location.href);
   gOpenerWndID = Number(wndURL.searchParams.get("openerWndID"));
   gIsBackupMode = wndURL.searchParams.get("backupMode") || false;

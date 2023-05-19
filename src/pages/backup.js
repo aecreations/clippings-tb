@@ -18,6 +18,7 @@ $(async () => {
   
   let lang = messenger.i18n.getUILanguage();
   document.body.dataset.locale = lang;
+  moment.locale(lang);
 
   let enhancedLaF = await aePrefs.getPref("enhancedLaF");
   document.body.dataset.laf = enhancedLaF;

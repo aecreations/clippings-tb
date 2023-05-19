@@ -13,6 +13,9 @@ function init()
   let localeData = window.arguments[1];
   i18n.updateDocument({ extension: localeData });
   
+  let lang = window.navigator.language;
+  moment.locale(lang);
+
   for (let fmt of dlgArgs.dtPlaceholders) {
     let dtValue = moment().format(fmt);
     dlgArgs.dtReplaced.push(dtValue);
