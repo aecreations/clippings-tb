@@ -11,7 +11,7 @@ const DLG_HEIGHT_ADJ_WINDOWS = 48;
 const DLG_HEIGHT_ADJ_LOCALE = 20;
 const DLG_HEIGHT_ADJ_LOCALE_DE = 10;
 
-let gOS;
+let gEnvInfo;
 let gClippingsDB = null;
 let gParentFolderID = 0;
 let gSrcURL = "";
@@ -35,14 +35,22 @@ $(async () => {
     return;
   };
 
-  let platform = await messenger.runtime.getPlatformInfo();
-  document.body.dataset.os = gOS = platform.os;
+  gEnvInfo = await messenger.runtime.sendMessage({msgID: "get-env-info"});
+
+  // Platform-specific initialization.
+  document.body.dataset.os = gEnvInfo.os;
 
   gPrefs = await aePrefs.getAllPrefs();
   document.body.dataset.laf = gPrefs.enhancedLaF;
 
   let lang = messenger.i18n.getUILanguage();
   document.body.dataset.locale = lang;
+
+  let tbMajorVer = Number(gEnvInfo.hostAppVer.split(".")[0]);
+  if (tbMajorVer < 114) {
+    // Workaround to tooltips not displaying in Thunderbird 102.
+    aeStylesheet.load("../style/tooltip.css");
+  }
 
   if (gPrefs.syncClippings) {
     initSyncItemsIDLookupList();
@@ -254,7 +262,7 @@ function showInitError()
 
 function initDialogs()
 {
-  $(".msgbox-error-icon").attr("os", gOS);
+  $(".msgbox-error-icon").attr("os", gEnvInfo.os);
   
   gNewFolderDlg = new aeDialog("#new-folder-dlg");
   gNewFolderDlg.setProps({
