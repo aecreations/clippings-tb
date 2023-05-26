@@ -115,6 +115,7 @@ aeClippingSubst.processClippingText = function (aClippingInfo, aWnd, aAutoIncrPl
 
     var rv = "";   
     var dlgArgs = {
+      hostAppVer:    aeUtils.getHostAppVersion(),
       varName:       varName,
       userInput:     "",
       defaultValue:  defaultVal,

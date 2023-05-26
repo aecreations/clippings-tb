@@ -25,11 +25,16 @@ function init()
 {
   gDlgArgs = window.arguments[0].wrappedJSObject;
 
-  i18n.updateDocument({ extension: gDlgArgs.localeData });
+  i18n.updateDocument({extension: gDlgArgs.localeData});
 
-  var promptText = $("prompt-text");
-  var promptDeck = $("prompt-deck");
-  var strKey;
+  let hostAppVer = Number(gDlgArgs.hostAppVer.split(".")[0]);
+  if (hostAppVer >= 114) {
+    $("ae-clippings-placeholder-prompt").dataset.dlgCutoff = true;
+  }
+
+  let promptText = $("prompt-text");
+  let promptDeck = $("prompt-deck");
+  let strKey;
 
   if (gDlgArgs.selectMode) {
     strKey = "plchldrPmtSelectDesc";
