@@ -82,7 +82,7 @@ var aeClippingsLegacy = class extends ExtensionCommon.ExtensionAPI {
           }
 
           try {
-	    rv = await IOUtils.read(filePath, {encoding: "utf-8"});
+	    rv = await IOUtils.readUTF8(filePath);
 	  }
 	  catch (e) {
             this._log("aeClippingsLegacy._getDataFromFile(): " + e);
