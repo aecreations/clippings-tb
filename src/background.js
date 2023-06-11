@@ -387,7 +387,7 @@ async function init()
     let keepDataSrcLocnPref = false;
     
     try {
-      await verifyDB();
+      await aeClippings.verifyDB();
 
       log("Clippings/mx: init(): Successfully verified Clippings DB.  Starting data migration...")
       await migrateClippingsData();
