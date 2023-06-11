@@ -3996,6 +3996,11 @@ function initDialogs()
 
   gDialogs.importFromFile.onFirstInit = function ()
   {
+    $("#import-clippings-browse").on("click", aEvent => {
+      let inputFile = $("#import-clippings-file-upload")[0];
+      inputFile.showPicker();
+    });
+
     $("#import-clippings-file-upload").on("change", aEvent => {
       $("#import-error").text("").hide();
 
@@ -4015,10 +4020,6 @@ function initDialogs()
       if (this.mode == this.IMP_REPLACE && !gIsClippingsTreeEmpty) {
         $("#restore-backup-warning").show();
       }
-    }).on("focus", aEvent => {
-      $("#import-clippings-file-upload-btn").addClass("focused");
-    }).on("blur", aEvent => {
-      $("#import-clippings-file-upload-btn").removeClass("focused");
     });
 
     $("#import-clippings-file-path").on("contextmenu", aEvent => {
