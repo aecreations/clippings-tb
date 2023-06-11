@@ -17,6 +17,10 @@ menulist {
     margin-right: 6px;
 }
 
+#dlg-title {
+    font-weight: bold;
+}
+
 /* UI hack for Thunderbird 114 and newer */
 dialog[data-dlg-cutoff="true"] #placeholder-value,
 dialog[data-dlg-cutoff="true"] #select-placeholder-value-menu {

@@ -115,6 +115,7 @@ aeClippingSubst.processClippingText = function (aClippingInfo, aWnd, aAutoIncrPl
 
     var rv = "";   
     var dlgArgs = {
+      clippingName: aClippingInfo.name,
       hostAppVer:    aeUtils.getHostAppVersion(),
       varName:       varName,
       userInput:     "",

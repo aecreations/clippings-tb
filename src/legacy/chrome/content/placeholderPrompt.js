@@ -32,6 +32,15 @@ function init()
     $("ae-clippings-placeholder-prompt").dataset.dlgCutoff = true;
   }
 
+  let dlgTitle = $("dlg-title");
+  let clippingName = gDlgArgs.clippingName;
+  if (clippingName.length > 64) {
+    clippingName = clippingName.substring(0, 63);
+    clippingName += "...";
+  }
+  let dlgTitleTxt = document.createTextNode(clippingName);
+  dlgTitle.appendChild(dlgTitleTxt);
+
   let promptText = $("prompt-text");
   let promptDeck = $("prompt-deck");
   let strKey;
