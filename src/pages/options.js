@@ -11,7 +11,7 @@ let gIsActivatingSyncClippings = false;
 // DOM utility
 function sanitizeHTML(aHTMLStr)
 {
-  return DOMPurify.sanitize(aHTMLStr, { SAFE_FOR_JQUERY: true });
+  return DOMPurify.sanitize(aHTMLStr, {SAFE_FOR_JQUERY: true});
 }
 
 
@@ -47,6 +47,12 @@ async function init()
 {
   let platform = await messenger.runtime.getPlatformInfo();
   document.body.dataset.os = gOS = platform.os;
+
+  if (gOS == "win") {
+    let prefPgTitleWin = browser.i18n.getMessage("prefsTitleWin");
+    document.title = prefPgTitleWin;
+    $("#pref-pg-hdr-text").text(prefPgTitleWin);
+  }
 
   let keyCtrl  = messenger.i18n.getMessage("keyCtrl");
   let keyAlt   = messenger.i18n.getMessage("keyAlt");
