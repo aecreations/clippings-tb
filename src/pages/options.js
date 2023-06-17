@@ -49,7 +49,7 @@ async function init()
   document.body.dataset.os = gOS = platform.os;
 
   if (gOS == "win") {
-    let prefPgTitleWin = browser.i18n.getMessage("prefsTitleWin");
+    let prefPgTitleWin = messenger.i18n.getMessage("prefsTitleWin");
     document.title = prefPgTitleWin;
     $("#pref-pg-hdr-text").text(prefPgTitleWin);
   }
@@ -234,7 +234,7 @@ async function init()
     let natMsg = {msgID:"sync-dir-folder-picker"};
     let resp;
     try {
-      resp = await browser.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg);
+      resp = await messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg);
     }
     catch (e) {
       window.alert("The Sync Clippings helper app responded with an error.\n\n" + e);
@@ -503,7 +503,7 @@ function initDialogs()
       return;
     }
 
-    let syncFolderID = await browser.runtime.sendMessage({
+    let syncFolderID = await messenger.runtime.sendMessage({
       msgID: "enable-sync-clippings",
       isEnabled: true,
     });
@@ -523,12 +523,12 @@ function initDialogs()
       gIsActivatingSyncClippings = false;
     }
 
-    browser.runtime.sendMessage({
+    messenger.runtime.sendMessage({
       msgID: "refresh-synced-clippings",
       rebuildClippingsMenu,
     });
     
-    browser.runtime.sendMessage({
+    messenger.runtime.sendMessage({
       msgID: "sync-activated",
       syncFolderID,
     });
@@ -548,7 +548,7 @@ function initDialogs()
     $("#turn-off-sync-clippings-dlg > .dlg-btns > .dlg-btn-yes").click(async (aEvent) => {
       this.close();
 
-      let oldSyncFolderID = await browser.runtime.sendMessage({
+      let oldSyncFolderID = await messenger.runtime.sendMessage({
         msgID: "enable-sync-clippings",
         isEnabled: false,
       });
@@ -558,7 +558,7 @@ function initDialogs()
       $("#toggle-sync").text(messenger.i18n.getMessage("syncTurnOn"));
       $("#sync-status").removeClass("sync-status-on").text(messenger.i18n.getMessage("syncStatusOff"));
 
-      browser.runtime.sendMessage({
+      messenger.runtime.sendMessage({
         msgID: "sync-deactivated",
         oldSyncFolderID,
       });
@@ -587,7 +587,7 @@ function initDialogs()
   {
     let removeSyncFolder = $("#delete-sync-fldr").prop("checked");
 
-    browser.runtime.sendMessage({
+    messenger.runtime.sendMessage({
       msgID: "sync-deactivated-after",
       removeSyncFolder,
       oldSyncFolderID: this.oldSyncFldrID,
