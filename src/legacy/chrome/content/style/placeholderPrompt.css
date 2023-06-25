@@ -13,8 +13,12 @@ menulist {
 }
 
 #prompt-icon {
+    width: 32px;
+    height: 32px;
     margin-left: 6px;
     margin-right: 6px;
+    background-image: url("../img/placehldr.svg");
+    background-size: contain;
 }
 
 #dlg-title {
