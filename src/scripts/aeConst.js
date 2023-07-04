@@ -5,7 +5,7 @@
 
 
 const aeConst = Object.freeze({
-  DEBUG: true,
+  DEBUG: false,
   
   // Extension GUID
   EXTENSION_ID: "clippings-tb@aecreations.github.io",
