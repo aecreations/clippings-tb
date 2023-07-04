@@ -4351,12 +4351,9 @@ function initDialogs()
   };
   
   gDialogs.reloadSyncFolder = new aeDialog("#reload-sync-fldr-msgbox");
-  gDialogs.reloadSyncFolder.onShow = function ()
+  gDialogs.reloadSyncFolder.onFirstInit = function ()
   {
-    setTimeout(() => {
-      let acceptBtn = $("#reload-sync-fldr-msgbox > .dlg-btns > .dlg-accept")[0];
-      acceptBtn.focus();
-    }, 100);
+    this.focusedSelector = ".dlg-btns > .dlg-accept";
   };
   gDialogs.reloadSyncFolder.onAfterAccept = function ()
   {
