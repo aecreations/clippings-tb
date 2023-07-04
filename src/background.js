@@ -741,7 +741,8 @@ function refreshSyncedClippings(aRebuildClippingsMenu)
     
   }).catch(aErr => {
     console.error("Clippings/mx: refreshSyncedClippings(): " + aErr);
-    if (aErr == aeConst.SYNC_ERROR_CONXN_FAILED) {
+    if (aErr == aeConst.SYNC_ERROR_CONXN_FAILED
+        || aErr == aeConst.SYNC_ERROR_NAT_APP_NOT_FOUND) {
       showSyncErrorNotification();
     }
   });
@@ -1467,6 +1468,17 @@ function getShortcutKeyMap()
     }).then(() => {
       aFnResolve(rv);
     });
+  });
+}
+
+
+function showSyncErrorNotification()
+{
+  messenger.notifications.create("sync-error", {
+    type: "basic",
+    title: messenger.i18n.getMessage("syncStartupFailedHdg"),
+    message: messenger.i18n.getMessage("syncStartupFailed"),
+    iconUrl: "img/error.svg",
   });
 }
 
