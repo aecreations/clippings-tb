@@ -853,7 +853,8 @@ function accept(aEvent)
         let errMsgElt = $("#create-clipping-error-msgbox > .dlg-content > .msgbox-error-msg");
         let errText = `Error creating clipping: ${aErr}`;
 
-        if (aErr == aeConst.SYNC_ERROR_CONXN_FAILED) {
+        if (aErr == aeConst.SYNC_ERROR_CONXN_FAILED
+            || aErr == aeConst.SYNC_ERROR_NAT_APP_NOT_FOUND) {
           errText = messenger.i18n.getMessage("syncPushFailed");
           errorMsgBox.onAfterAccept = () => {
             // Despite the native app connection error, the new clipping was
