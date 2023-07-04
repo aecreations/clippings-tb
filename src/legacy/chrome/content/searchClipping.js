@@ -50,7 +50,12 @@ function init()
   gDlgArgs = window.arguments[0];
   gLocaleData = window.arguments[1];
 
-  i18n.updateDocument({ extension: gLocaleData });
+  i18n.updateDocument({extension: gLocaleData});
+
+  let hostAppVer = Number(gDlgArgs.hostAppVer.split(".")[0]);
+  if (hostAppVer >= 114) {
+    $("ae-clippings-incremental-search").dataset.dlgCutoff = true;
+  }
 
   gClippingsSvc.initSearch(gDlgArgs.srchData);
 
