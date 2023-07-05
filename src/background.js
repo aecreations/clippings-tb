@@ -258,7 +258,10 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
     if (! aePrefs.hasCorralDeTierraPrefs(gPrefs)) {
       log("Initializing 6.2 user preferences.");
       await aePrefs.setCorralDeTierraPrefs(gPrefs);
+    }
 
+    // Detect upgrade to version 6.3, which doesn't have any new prefs.
+    if (aeVersionCmp(oldVer, "6.3") < 0) {
       // Enable post-update notifications which users can click on to open the
       // What's New page.
       await aePrefs.setPrefs({
