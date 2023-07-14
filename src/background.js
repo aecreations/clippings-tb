@@ -1466,21 +1466,6 @@ function showSyncErrorNotification()
 // Utility functions
 //
 
-function getClippingsDB()
-{
-  messenger.notifications.create("sync-error", {
-    type: "basic",
-    title: messenger.i18n.getMessage("syncStartupFailedHdg"),
-    message: messenger.i18n.getMessage("syncStartupFailed"),
-    iconUrl: "img/error.svg",
-  });
-}
-
-
-//
-// Utility functions
-//
-
 // DEPRECATED
 // - These functions are currently called from WindowListener scripts.
 function getPrefs()
