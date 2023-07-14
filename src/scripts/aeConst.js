@@ -4,15 +4,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-let aeConst = {
+const aeConst = Object.freeze({
   DEBUG: false,
   
   // Extension GUID
   EXTENSION_ID: "clippings-tb@aecreations.github.io",
-
-  // Host app GUIDs
-  HOSTAPP_FX_GUID: "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}",
-  HOSTAPP_TB_GUID: "{3550f703-e582-4d05-9a08-453d09bdfdc6}",
 
   // Maximum number of chars of clipping names.
   MAX_NAME_LENGTH: 64,
@@ -92,4 +88,4 @@ let aeConst = {
   CONTRIB_URL: "https://aecreations.io/clippings/contribute.php",
   HELP_URL: "https://aecreations.io/clippings/help.php",
   SYNC_CLIPPINGS_HELP_URL: "https://aecreations.io/clippings/sync.php",
-};
+});

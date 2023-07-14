@@ -20,16 +20,18 @@
   <hbox>
     <separator class="thin"/>
     <vbox>
-      <image id="prompt-icon" class="question-icon"/>
+      <image id="prompt-icon"/>
       <spacer flex="1"/>
     </vbox>
     <vbox flex="1">
+      <separator class="thin"/>
+      <label id="dlg-title"></label>
       <separator class="thin"/>
       <description id="prompt-text"></description>
       <separator />
       <deck id="prompt-deck">
         <vbox id="text-prompt">
-          <html:input type="text" id="placeholder-value" size="64"/>
+          <html:input type="text" id="placeholder-value"/>
 	</vbox>
 	<vbox id="select-prompt">
           <menulist id="select-placeholder-value-menu"></menulist>

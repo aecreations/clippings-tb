@@ -13,6 +13,28 @@ menulist {
 }
 
 #prompt-icon {
+    width: 32px;
+    height: 32px;
     margin-left: 6px;
     margin-right: 6px;
+    background-image: url("../img/placehldr.svg");
+    background-size: contain;
+}
+
+#dlg-title {
+    font-weight: bold;
+}
+
+/* UI hack for Thunderbird 114 and newer */
+dialog[data-dlg-cutoff="true"] #placeholder-value,
+dialog[data-dlg-cutoff="true"] #select-placeholder-value-menu {
+    margin-right: 24px;
+}
+
+#placeholder-value {
+    width: 380px;	
+}
+
+#select-placeholder-value-menu {
+    width: 390px;
 }

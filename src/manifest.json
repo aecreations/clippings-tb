@@ -2,14 +2,14 @@
   "manifest_version": 2,
   "name": "__MSG_extNameTB__",
   "description": "__MSG_extDesc__",
-  "version": "6.2.6",
+  "version": "6.3",
   "author": "AE Creations",
   "homepage_url": "https://aecreations.io/clippings/index.php",
   "browser_specific_settings": {
     "gecko": {
       "id": "clippings-tb@aecreations.github.io",
-      "strict_min_version": "91.0",
-      "strict_max_version": "102.*"
+      "strict_min_version": "115.0",
+      "strict_max_version": "115.*"
     }
   },
   
@@ -32,13 +32,13 @@
       "lib/dexie/dexie.min.js",
       "lib/jquery.js",
       "scripts/aeConst.js",
-      "scripts/aeListeners.js",
       "scripts/aeDateDiff.js",
       "scripts/aeImportExport.js",
       "scripts/aePrefs.js",
       "scripts/aeWndPos.js",
       "scripts/aeVersionCmp.js",
       "scripts/aeUUID.js",
+      "scripts/aeClippings.js",
       "background.js"
     ]
   },
@@ -69,7 +69,7 @@
     "aeClippingsLegacy": {
       "schema": "api/aeClippingsLegacy/schema.json",
       "parent": {
-	"scopes": ["addon_parent"],
+        "scopes": ["addon_parent"],
         "paths": [["aeClippingsLegacy"]],
         "script": "api/aeClippingsLegacy/implementation.js"
       }

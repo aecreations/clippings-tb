@@ -383,6 +383,7 @@ window.aecreations.clippings = function () {
 	SHORTCUT_KEY_HELP: 0,
 	ACTION_SHORTCUT_KEY: 1,
 	ACTION_SEARCH_CLIPPING: 2,
+	hostAppVer: aeUtils.getHostAppVersion(),
 	action: null,
 	switchModes: null,
 	lastMode: null,

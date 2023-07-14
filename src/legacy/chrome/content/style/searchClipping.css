@@ -3,14 +3,26 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url("chrome://global/skin/global.css");
+@import url("chrome://messenger/skin/input-fields.css");
 
+
+dialog {
+    min-width: 40em;
+}
+
+#dlg-ico {
+    width: 32px;
+    height: 32px;
+    margin-left: 6px;
+    margin-right: 6px
+}
 
 /* 
  * Set the same font on both the search textbox and the search results popup
  * so that the widths of both are the same.
  */
 #search-results-popup {
-  width: 36em;
+  width: 37em;
   max-height: 16em;
   font: message-box;
 }
@@ -30,4 +42,10 @@
 #clipping-search {
   width: 36em;
   font: message-box;
+}
+
+/* UI hack for Thunderbird 114 and newer */
+dialog[data-dlg-cutoff="true"] #search-results-popup,
+dialog[data-dlg-cutoff="true"] #clipping-search {
+    margin-right: 24px;
 }

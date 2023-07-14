@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://clippings/content/style/clippingKey.css" type="text/css"?>
 
 <!DOCTYPE window>
 
@@ -11,18 +11,16 @@
  id="ae-clippings-shortcut-key" 
  title="__MSG_pasteTitle__" 
  orient="vertical"
- style="min-width:30em;min-height:9em;padding:9px"
  onkeydown="processKeyPress(event)"
  onload="initWnd()">
 
   <script type="application/javascript" src="chrome://clippings/content/clippingKey.js"/>
 
-  <hbox>
-    <image src="chrome://clippings/content/img/keyboard-paste.png"/>
-    <description style="font-weight:normal;padding-top:8px;padding-left:4px">__MSG_shortcutKeyDesc__</description>
+  <hbox id="dlg-prompt">
+    <image id="dlg-ico" src="chrome://clippings/content/img/keyboard-paste.png"/>
+    <description id="shct-desc">__MSG_shortcutKeyDesc__</description>
   </hbox>
 
-  <separator flex="1"/>
   <vbox>
     <description>__MSG_keybPasteDlgF1__</description>
     <description>__MSG_keybPasteDlgTab__</description>

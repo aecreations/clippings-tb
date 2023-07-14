@@ -160,7 +160,6 @@ progress {
 
 .note, description {
     margin-top: 6px;
-    margin-bottom: 16px;
     margin-right: 18px;
 }
 
@@ -176,9 +175,22 @@ progress {
     font-size: 11.5px;
 }
 
+#html-paste-options-ctr {
+    margin-bottom: 8px;
+}
+
 #html-paste-options {
     width: 420px;
     margin-top: 4px;
+}
+
+#enable-shortcut-key-ctr {
+    margin-top: 12px;
+    margin-bottom: 0;
+}
+
+#auto-inc-plchldr-opts {
+    margin-top: 8px;
 }
 
 #auto-inc-plchldrs-start-val {
@@ -217,6 +229,10 @@ body[data-locale="de"] #skip-backup-label {
     letter-spacing: 0px;
 }
 
+#backup-filename-opt {
+    margin-top:0;
+}
+
 #wnds-dlgs-settings {
     margin-top: 8px;
 }
@@ -224,6 +240,14 @@ body[data-locale="de"] #skip-backup-label {
 #sync-options .description {
     margin-top: 0;
     margin-bottom: 6px;
+}
+
+#sync-intro {
+    margin-bottom: 0;
+}
+
+#sync-hlp-cta {
+    margin-top: 6px;
 }
 
 #sync-status {

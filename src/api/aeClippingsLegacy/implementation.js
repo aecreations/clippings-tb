@@ -4,8 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { ExtensionCommon } = ChromeUtils.import("resource://gre/modules/ExtensionCommon.jsm");
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
+var Services = globalThis.Services || ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 
 
 var aeClippingsLegacy = class extends ExtensionCommon.ExtensionAPI {
@@ -73,29 +72,21 @@ var aeClippingsLegacy = class extends ExtensionCommon.ExtensionAPI {
           this._log("aeClippingsLegacy._getDataFromFile(): Data source location: " + filePath);
 
           if (filePath) {
-            filePath = OS.Path.join(filePath, aFileName);
+            filePath = PathUtils.join(filePath, aFileName);
           }
           else {
             let dirProp = Services.dirsvc;
 	    let profileDir = dirProp.get("ProfD", Components.interfaces.nsIFile);
 	    let path = profileDir.path;
-            filePath = OS.Path.join(path, aFileName);
+            filePath = PathUtils.join(path, aFileName);
           }
 
           try {
-	    rv = await OS.File.read(filePath, { encoding: "utf-8" });
+	    rv = await IOUtils.readUTF8(filePath);
 	  }
 	  catch (e) {
-            if (e instanceof OS.File.Error && e.becauseNoSuchFile) {
-              // BUG!!
-              // This never seems to be executed even if the file wasn't found.
-              this._log("aeClippingsLegacy._getDataFromFile(): " + e.operation);
-              throw "File not found";
-            }
-            else {
-              this._log("aeClippingsLegacy._getDataFromFile(): " + e);
-              throw e;
-            }
+            this._log("aeClippingsLegacy._getDataFromFile(): " + e);
+            throw e;
           }
 
           return rv;

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const Services = globalThis.Services || ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 
 Services.scriptloader.loadSubScript("chrome://clippings/content/lib/i18n.js", this, "UTF-8");
 
@@ -25,11 +25,25 @@ function init()
 {
   gDlgArgs = window.arguments[0].wrappedJSObject;
 
-  i18n.updateDocument({ extension: gDlgArgs.localeData });
+  i18n.updateDocument({extension: gDlgArgs.localeData});
 
-  var promptText = $("prompt-text");
-  var promptDeck = $("prompt-deck");
-  var strKey;
+  let hostAppVer = Number(gDlgArgs.hostAppVer.split(".")[0]);
+  if (hostAppVer >= 114) {
+    $("ae-clippings-placeholder-prompt").dataset.dlgCutoff = true;
+  }
+
+  let dlgTitle = $("dlg-title");
+  let clippingName = gDlgArgs.clippingName;
+  if (clippingName.length > 64) {
+    clippingName = clippingName.substring(0, 63);
+    clippingName += "...";
+  }
+  let dlgTitleTxt = document.createTextNode(clippingName);
+  dlgTitle.appendChild(dlgTitleTxt);
+
+  let promptText = $("prompt-text");
+  let promptDeck = $("prompt-deck");
+  let strKey;
 
   if (gDlgArgs.selectMode) {
     strKey = "plchldrPmtSelectDesc";

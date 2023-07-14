@@ -11,7 +11,6 @@ const NEW_CLIPPING_FROM_CLIPBOARD = "New Clipping From Clipboard";
 
 let gEnvInfo;
 let gClippingsDB;
-let gClippings;
 let gPrefs;
 let gIsClippingsTreeEmpty;
 let gDialogs = {};
@@ -38,9 +37,12 @@ let gClippingsSvc = {
   async createClipping(aClippingData)
   {
     let newClippingID = await gClippingsDB.clippings.add(aClippingData);
-    let clippingsLstrs = gClippings.getClippingsListeners();
-    clippingsLstrs.forEach(aListener => {
-      aListener.newClippingCreated(newClippingID, aClippingData, aeConst.ORIGIN_CLIPPINGS_MGR);
+    gClippingsListener.newClippingCreated(newClippingID, aClippingData, aeConst.ORIGIN_CLIPPINGS_MGR);
+    messenger.runtime.sendMessage({
+      msgID: "new-clipping-created",
+      newClippingID,
+      newClipping: aClippingData,
+      origin: aeConst.ORIGIN_CLIPPINGS_MGR,
     });
 
     return newClippingID;
@@ -49,9 +51,12 @@ let gClippingsSvc = {
   async createFolder(aFolderData)
   {
     let newFolderID = await gClippingsDB.folders.add(aFolderData);
-    let clippingsLstrs = gClippings.getClippingsListeners();
-    clippingsLstrs.forEach(aListener => {
-      aListener.newFolderCreated(newFolderID, aFolderData, aeConst.ORIGIN_CLIPPINGS_MGR);
+    gClippingsListener.newFolderCreated(newFolderID, aFolderData, aeConst.ORIGIN_CLIPPINGS_MGR);
+    messenger.runtime.sendMessage({
+      msgID: "new-folder-created",
+      newFolderID,
+      newFolder: aFolderData,
+      origin: aeConst.ORIGIN_CLIPPINGS_MGR,
     });
 
     return newFolderID;
@@ -75,9 +80,12 @@ let gClippingsSvc = {
       }
     }        
 
-    let clippingsLstrs = gClippings.getClippingsListeners();
-    clippingsLstrs.forEach(aListener => {
-      aListener.clippingChanged(aClippingID, newClipping, aOldClipping);
+    gClippingsListener.clippingChanged(aClippingID, newClipping, aOldClipping);
+    messenger.runtime.sendMessage({
+      msgID: "clipping-changed",
+      clippingID: aClippingID,
+      clippingData: newClipping,
+      oldClippingData: aOldClipping,
     });
 
     return numUpd;
@@ -101,9 +109,12 @@ let gClippingsSvc = {
       }
     }        
 
-    let clippingsLstrs = gClippings.getClippingsListeners();
-    clippingsLstrs.forEach(aListener => {
-      aListener.folderChanged(aFolderID, newFolder, aOldFolder);
+    gClippingsListener.folderChanged(aFolderID, newFolder, aOldFolder);
+    messenger.runtime.sendMessage({
+      msgID: "folder-changed",
+      folderID: aFolderID,
+      folderData: newFolder,
+      oldFolderData: aOldFolder,
     });
 
     return numUpd;
@@ -112,21 +123,11 @@ let gClippingsSvc = {
   async deleteClipping(aClippingID)
   {
     await gClippingsDB.clippings.delete(aClippingID);
-
-    let clippingsLstrs = gClippings.getClippingsListeners();
-    clippingsLstrs.forEach(aListener => {
-      aListener.clippingDeleted(aClippingID);    
-    });
   },
 
   async deleteFolder(aFolderID)
   {
     await gClippingsDB.folders.delete(aFolderID);
-
-    let clippingsLstrs = gClippings.getClippingsListeners();
-    clippingsLstrs.forEach(aListener => {
-      aListener.folderDeleted(aFolderID);
-    });
   }
 };
 
@@ -135,7 +136,7 @@ let gClippingsSvc = {
 let gClippingsListener = {
   _isCopying:   false,
 
-  origin: null,
+  origin: aeConst.ORIGIN_CLIPPINGS_MGR,
   copiedItems: [],
   
   newClippingCreated: function (aID, aData, aOrigin, aDontSelect)
@@ -456,9 +457,6 @@ let gClippingsListener = {
     this.copiedItems = [];
   },
 
-  importStarted: function () {},
-  importFinished: function (aIsSuccess) {},
-
   // Helper methods
   _buildChildNodes: function (aFolderNode)
   {
@@ -582,9 +580,6 @@ let gSyncClippingsListener = {
       // empty clippings UI.
     }
   },
-
-  onReloadStart() {},
-  onReloadFinish() {},
 };
 
 
@@ -1410,7 +1405,7 @@ let gCmd = {
       // a new clipping into a non-existent folder.
       let pingResp;
       try {
-        pingResp = await browser.runtime.sendMessage({msgID: "ping-new-clipping-dlg"});
+        pingResp = await messenger.runtime.sendMessage({msgID: "ping-new-clipping-dlg"});
       }
       catch {}
       if (pingResp) {
@@ -1447,7 +1442,7 @@ let gCmd = {
     if (selectedNode.isFolder()) {
       let pingResp;
       try {
-        pingResp = await browser.runtime.sendMessage({msgID: "ping-new-clipping-dlg"});
+        pingResp = await messenger.runtime.sendMessage({msgID: "ping-new-clipping-dlg"});
       }
       catch {}
       if (pingResp) {
@@ -1888,10 +1883,8 @@ let gCmd = {
     
     this.recentAction = this.ACTION_COPYTOFOLDER;
 
-    let clippingsLstrs = gClippings.getClippingsListeners();
-    clippingsLstrs.forEach(aListener => {
-      aListener.copyStarted();
-    });
+    gClippingsListener.copyStarted();
+    messenger.runtime.sendMessage({msgID: "copy-started"});
 
     let folderCpy = {};
     let folder, sid, destFldrSID;
@@ -1979,9 +1972,12 @@ let gCmd = {
         }).catch(handlePushSyncItemsError);
       }
 
-      clippingsLstrs.forEach(aListener => {
-        aListener.copyFinished(newFldrID);
+      gClippingsListener.copyFinished(newFldrID);
+      messenger.runtime.sendMessage({
+        msgID: "copy-finished",
+        itemCopyID: newFldrID,
       });
+
     }).catch(aErr => {
       console.error("Clippings/mx::clippingsMgr.js: gCmd.copyFolderIntrl(): " + aErr);
     });
@@ -2508,7 +2504,7 @@ let gCmd = {
     // a new clipping into a non-existent folder.
     let pingResp;
     try {
-      pingResp = await browser.runtime.sendMessage({msgID: "ping-new-clipping-dlg"});
+      pingResp = await messenger.runtime.sendMessage({msgID: "ping-new-clipping-dlg"});
     }
     catch {}
     if (pingResp) {
@@ -2535,7 +2531,7 @@ let gCmd = {
   {
     let pingResp;
     try {
-      pingResp = await browser.runtime.sendMessage({msgID: "ping-new-clipping-dlg"});
+      pingResp = await messenger.runtime.sendMessage({msgID: "ping-new-clipping-dlg"});
     }
     catch {}
 
@@ -2568,7 +2564,7 @@ let gCmd = {
   {
     let pingResp;
     try {
-      pingResp = await browser.runtime.sendMessage({msgID: "ping-new-clipping-dlg"});
+      pingResp = await messenger.runtime.sendMessage({msgID: "ping-new-clipping-dlg"});
     }
     catch {}
 
@@ -2715,7 +2711,7 @@ let gCmd = {
   {
     let pingResp;
     try {
-      pingResp = await browser.runtime.sendMessage({msgID: "ping-new-clipping-dlg"});
+      pingResp = await messenger.runtime.sendMessage({msgID: "ping-new-clipping-dlg"});
     }
     catch {}
 
@@ -2939,19 +2935,8 @@ let gCmd = {
 
 // Initializing Clippings Manager window
 $(async () => {
-  gClippings = messenger.extension.getBackgroundPage();
-
-  if (gClippings) {
-    gClippingsDB = gClippings.getClippingsDB();
-    log("Clippings/mx::clippingsMgr: Successfully opened Clippings DB");
-  }
-  else {
-    console.error("Error initializing Clippings Manager: Failed to retrieve background page!");
-    $("#clipping-name, #clipping-text, #options-bar").hide();
-    showInitError();
-    return;
-  }
-
+  aeClippings.init();
+  gClippingsDB = aeClippings.getDB();
   aeImportExport.setDatabase(gClippingsDB);
 
   gPrefs = await aePrefs.getAllPrefs();
@@ -2961,12 +2946,20 @@ $(async () => {
   // Platform-specific initialization.
   document.body.dataset.os = gEnvInfo.os;
   if (gEnvInfo.os == "mac") {
-    $("#status-bar").css({ backgroundImage: "none" });
+    $("#status-bar").css({backgroundImage: "none"});
   }
+
+  document.body.dataset.laf = gPrefs.enhancedLaF;
 
   let lang = messenger.i18n.getUILanguage();
   document.body.dataset.locale = lang;
-  document.body.dataset.laf = gPrefs.enhancedLaF;
+  moment.locale(lang);
+  
+  let tbMajorVer = Number(gEnvInfo.hostAppVer.split(".")[0]);
+  if (tbMajorVer < 114) {
+    // Workaround to tooltips not displaying in Thunderbird 102.
+    aeStylesheet.load("../style/tooltip.css");
+  }
 
   let wndURL = new URL(window.location.href);
   gOpenerWndID = Number(wndURL.searchParams.get("openerWndID"));
@@ -2976,15 +2969,9 @@ $(async () => {
 
   if (DEBUG_WND_ACTIONS) {
     if (gPrefs.clippingsMgrMinzWhenInactv === null) {
-      aePrefs.setPrefs({ clippingsMgrMinzWhenInactv: true });
+      aePrefs.setPrefs({clippingsMgrMinzWhenInactv: true});
     }
   }
-
-  gClippingsListener.origin = aeConst.ORIGIN_CLIPPINGS_MGR;
-  gClippings.addClippingsListener(gClippingsListener);
-
-  let syncClippingsListeners = gClippings.getSyncClippingsListeners();
-  syncClippingsListeners.add(gSyncClippingsListener);
 
   initToolbar();
   initInstantEditing();
@@ -3001,7 +2988,7 @@ $(async () => {
 
   if (gPrefs.clippingsMgrTreeWidth) {
     let width = `${parseInt(gPrefs.clippingsMgrTreeWidth)}px`;
-    $("#clippings-tree").css({ width });
+    $("#clippings-tree").css({width});
   }
   
   if (gIsBackupMode) {
@@ -3046,22 +3033,12 @@ $(window).on("unload", aEvent => {
         gCmd.editClippingContentIntrl(id, content);
       }
     }
-  }
-  
-  gClippings.removeClippingsListener(gClippingsListener);
-  
-  let syncClippingsListeners = gClippings.getSyncClippingsListeners();
-  syncClippingsListeners.remove(gSyncClippingsListener);
+  }  
 });
 
 
 // Keyboard event handler
 $(document).keydown(async (aEvent) => {
-  if (! gClippings) {
-    // Clippings Manager initialization failed.
-    return;
-  }
-  
   const isMacOS = gEnvInfo.os == "mac";
 
   function isAccelKeyPressed()
@@ -3215,13 +3192,6 @@ $(window).on("blur", aEvent => {
 });
 
 
-messenger.runtime.onMessage.addListener(aRequest => {
-  if (aRequest.msgID == "focus-clippings-mgr-wnd") {
-    window.focus();
-  }
-});
-
-
 messenger.storage.onChanged.addListener((aChanges, aAreaName) => {
   let changedPrefs = Object.keys(aChanges);
 
@@ -3232,12 +3202,47 @@ messenger.storage.onChanged.addListener((aChanges, aAreaName) => {
 
 
 messenger.runtime.onMessage.addListener(aRequest => {
-  if (aRequest.msgID == "ping-clippings-mgr") {
-    let resp = { isOpen: true };
-    return Promise.resolve(resp);
-  }
-  else if (aRequest.msgID == "toggle-save-clipman-wnd-geom") {
+  let resp = null;
+  
+  switch (aRequest.msgID) {
+  case "ping-clippings-mgr":
+    resp = {isOpen: true};
+    break;
+
+  case "toggle-save-clipman-wnd-geom":
     setSaveWndGeometryInterval(aRequest.saveWndGeom);
+    break;
+
+  case "focus-clippings-mgr-wnd":
+    window.focus();
+    break;
+
+  case "sync-activated":
+    gSyncClippingsListener.onActivate(aRequest.syncFolderID);
+    break;
+
+  case "sync-deactivated":
+    gSyncClippingsListener.onDeactivate(aRequest.oldSyncFolderID);
+    break;
+
+  case "sync-deactivated-after":
+    gSyncClippingsListener.onAfterDeactivate(aRequest.removeSyncFolder, aRequest.oldSyncFolderID);
+    break;
+
+  case "new-clipping-created":
+    gClippingsListener.newClippingCreated(aRequest.newClippingID, aRequest.newClipping, aRequest.origin);
+    break;
+
+  case "new-folder-created":
+    gClippingsListener.newFolderCreated(aRequest.newFolderID, aRequest.newFolder, aRequest.origin);
+    break;
+
+  default:
+    break;
+  }
+
+  if (resp) {
+    return Promise.resolve(resp);
   }
 });
 
@@ -3567,8 +3572,6 @@ function initToolbar()
 
 function initInstantEditing()
 {
-  let prefs = gClippings.getPrefs();
-  
   $("#clipping-name").attr("placeholder", messenger.i18n.getMessage("clipMgrNameHint"))
     .blur(aEvent => {
       let tree = getClippingsTree();
@@ -3993,6 +3996,11 @@ function initDialogs()
 
   gDialogs.importFromFile.onFirstInit = function ()
   {
+    $("#import-clippings-browse").on("click", aEvent => {
+      let inputFile = $("#import-clippings-file-upload")[0];
+      inputFile.showPicker();
+    });
+
     $("#import-clippings-file-upload").on("change", aEvent => {
       $("#import-error").text("").hide();
 
@@ -4012,10 +4020,6 @@ function initDialogs()
       if (this.mode == this.IMP_REPLACE && !gIsClippingsTreeEmpty) {
         $("#restore-backup-warning").show();
       }
-    }).on("focus", aEvent => {
-      $("#import-clippings-file-upload-btn").addClass("focused");
-    }).on("blur", aEvent => {
-      $("#import-clippings-file-upload-btn").removeClass("focused");
     });
 
     $("#import-clippings-file-path").on("contextmenu", aEvent => {
@@ -4055,7 +4059,6 @@ function initDialogs()
   };
   gDialogs.importFromFile.onAccept = function (aEvent)
   {
-    let clippingsLstrs = gClippings.getClippingsListeners();
     let currClippingsData;
     
     function importFile(aAppendItems)
@@ -4094,7 +4097,10 @@ function initDialogs()
           $("#import-error").text(messenger.i18n.getMessage("importError")).show();
 
           if (aAppendItems) {
-            clippingsLstrs.forEach(aListener => { aListener.importFinished(false) });
+            messenger.runtime.sendMessage({
+              msgID: "import-finished",
+              isSuccess: false,
+            });
           }
           else {
             log("Clippings/mx::clippingsMgr.js: Restore from backup file has failed.  Rolling back.");
@@ -4103,7 +4109,10 @@ function initDialogs()
               // Restoring the current clippings data will change the IDs of
               // clippings and folders, so force a rebuild of the Clippings
               // context menu.
-              clippingsLstrs.forEach(aListener => { aListener.importFinished(true) });
+              messenger.runtime.sendMessage({
+                msgID: "import-finished",
+                isSuccess: true,
+              });
             }, REBUILD_BRWS_CXT_MENU_DELAY);
           }
 
@@ -4137,11 +4146,12 @@ function initDialogs()
       }
       aeImportExport.exportToJSON(true, false, aeConst.ROOT_FOLDER_ID, excludeSyncFldrID, true).then(aJSONData => {
         currClippingsData = aJSONData;
+        return messenger.runtime.sendMessage({msgID: "import-started"});
 
+      }).then(() => {
         gClippingsDB.transaction("rw", gClippingsDB.clippings, gClippingsDB.folders, () => {
           log("Clippings/mx::clippingsMgr.js: gDialogs.importFromFile.onAccept(): Starting restore from backup file.\nDeleting all clippings and folders (except the 'Synced Clippings' folder, if Sync Clippings turned on).");
 
-          clippingsLstrs.forEach(aListener => { aListener.importStarted() });       
 	  gCmd.recentAction = gCmd.ACTION_RESTORE_BACKUP;
 
           gClippingsDB.folders.each((aItem, aCursor) => {
@@ -4176,9 +4186,10 @@ function initDialogs()
     else {
       info("Clippings/mx::clippingsMgr.js: Import dialog mode: Import File");
       gCmd.recentAction = gCmd.ACTION_IMPORT;
-      clippingsLstrs.forEach(aListener => { aListener.importStarted() });
-      
-      importFile(true);
+
+      messenger.runtime.sendMessage({msgID: "import-started"}).then(() => {
+        importFile(true);
+      });
     }
   };
   
@@ -4250,7 +4261,6 @@ function initDialogs()
       });
     }
 
-    let prefs = gClippings.getPrefs();
     let excludeSyncFldrID = null;
     if (gPrefs.syncClippings) {
       excludeSyncFldrID = gPrefs.syncFolderID;
@@ -4311,9 +4321,10 @@ function initDialogs()
   };
   gDialogs.importConfirmMsgBox.onAfterAccept = async function ()
   {
-    let clippingsLstrs = gClippings.getClippingsListeners();
-    clippingsLstrs.forEach(aListener => { aListener.importFinished(true) });
-
+    await messenger.runtime.sendMessage({
+      msgID: "import-finished",
+      isSuccess: true,
+    });
     await rebuildClippingsTree();
   };
 
@@ -4340,12 +4351,9 @@ function initDialogs()
   };
   
   gDialogs.reloadSyncFolder = new aeDialog("#reload-sync-fldr-msgbox");
-  gDialogs.reloadSyncFolder.onShow = function ()
+  gDialogs.reloadSyncFolder.onFirstInit = function ()
   {
-    setTimeout(() => {
-      let acceptBtn = $("#reload-sync-fldr-msgbox > .dlg-btns > .dlg-accept")[0];
-      acceptBtn.focus();
-    }, 100);
+    this.focusedSelector = ".dlg-btns > .dlg-accept";
   };
   gDialogs.reloadSyncFolder.onAfterAccept = function ()
   {
@@ -4653,7 +4661,6 @@ async function buildClippingsTree()
         // END nested function
         
         let parentNode = aNode.getParent();
-        let clippingsLstrs = gClippings.getClippingsListeners();
         
         if (aData.otherNode) {           
           let newParentID = aeConst.ROOT_FOLDER_ID;
@@ -4674,16 +4681,13 @@ async function buildClippingsTree()
           }
 
           let id = parseInt(aData.otherNode.key);
-          let prefs = gClippings.getPrefs();
           if (gPrefs.syncClippings && aData.otherNode.isFolder() && id == gPrefs.syncFolderID
               && newParentID != aeConst.ROOT_FOLDER_ID) {
             warn("The Synced Clippings folder cannot be moved.");
             return;
           }
 
-          clippingsLstrs.forEach(aListener => {
-            aListener.dndMoveStarted();
-          });
+          messenger.runtime.sendMessage({msgID: "dnd-move-started"});
 
           aData.otherNode.moveTo(aNode, aData.hitMode);
           
@@ -4742,9 +4746,7 @@ async function buildClippingsTree()
           
           gCmd.updateDisplayOrder(oldParentID, destUndoStack, undoInfo, !isReordering).then(() => {
             if (isReordering) {
-              clippingsLstrs.forEach(aListener => {
-                aListener.dndMoveFinished();
-              });
+              messenger.runtime.sendMessage({msgID: "dnd-move-finished"});
               return;
             }
             return gCmd.updateDisplayOrder(newParentID, null, null, false);
@@ -4753,9 +4755,7 @@ async function buildClippingsTree()
               aNode.setExpanded();
             }
 
-            clippingsLstrs.forEach(aListener => {
-              aListener.dndMoveFinished();
-            });
+            messenger.runtime.sendMessage({msgID: "dnd-move-finished"});
 	  });
         }
         else {
@@ -4779,7 +4779,7 @@ async function buildClippingsTree()
             parentID = parentNode.isRootNode() ? aeConst.ROOT_FOLDER_ID : parseInt(parentNode.key);
           }
 
-          let clipName = gClippings.createClippingNameFromText(dndData);
+          let clipName = aeClippings.createClippingNameFromText(dndData);
           let clipContent = dndData;
 
           gCmd.newClippingWithContent(parentID, clipName, clipContent, gCmd.UNDO_STACK);
@@ -4987,7 +4987,6 @@ async function buildClippingsTree()
     }
   });
 
-  let prefs = gClippings.getPrefs();
   if (gPrefs.syncClippings) {
     initSyncedClippingsTree();
   }
@@ -5249,8 +5248,6 @@ function unsetEmptyClippingsState()
   $("#intro-content").hide();
   $("#clipping-name, #clipping-text").show();
 
-  let prefs = gClippings.getPrefs();
-
   if (gPrefs.clippingsMgrDetailsPane) {
     $("#options-bar").show();
   }
@@ -5336,7 +5333,6 @@ function updateDisplay(aEvent, aData)
     setStatusBarMsg();
   }
 
-  let prefs = gClippings.getPrefs();
   let selectedItemID = parseInt(aData.node.key);
 
   if (aData.node.isFolder()) {
@@ -5551,10 +5547,10 @@ function getErrStr(aErr)
 
 function handlePushSyncItemsError(aError)
 {
-  if (aError == aeConst.SYNC_ERROR_CONXN_FAILED && !gErrorPushSyncItems) {
+  if (! gErrorPushSyncItems) {
     let errorMsgBox = new aeDialog("#sync-error-msgbox");
-    errorMsgBox.onInit = () => {
-      $("#sync-error-msgbox > .dlg-content > .msgbox-error-msg").text(messenger.i18n.getMessage("syncPushFailed"));
+    errorMsgBox.onInit = function () {
+      this.find(".dlg-content > .msgbox-error-msg").text(messenger.i18n.getMessage("syncPushFailed"));
     };
     errorMsgBox.showModal();
     gErrorPushSyncItems = true;

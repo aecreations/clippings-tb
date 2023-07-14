@@ -3,7 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let gClippings;
 let gOS;
 let gDialogs = {};
 let gIsActivatingSyncClippings = false;
@@ -12,7 +11,7 @@ let gIsActivatingSyncClippings = false;
 // DOM utility
 function sanitizeHTML(aHTMLStr)
 {
-  return DOMPurify.sanitize(aHTMLStr, { SAFE_FOR_JQUERY: true });
+  return DOMPurify.sanitize(aHTMLStr, {SAFE_FOR_JQUERY: true});
 }
 
 
@@ -38,18 +37,7 @@ function capitalize(aString)
 
 
 // Options page initialization
-$(async () => {
-  gClippings = await messenger.runtime.getBackgroundPage();
-
-  if (! gClippings) {
-    // Hide the broken "Turn Off Sync" button when Private Browsing turned on.
-    $("#toggle-sync").hide();
-    
-    window.alert(messenger.i18n.getMessage("errPrefPgFailed"));
-    await closePage();
-    return;
-  }
-
+$(() => {
   window.focus();
   init();
 });
@@ -59,6 +47,12 @@ async function init()
 {
   let platform = await messenger.runtime.getPlatformInfo();
   document.body.dataset.os = gOS = platform.os;
+
+  if (gOS == "win") {
+    let prefPgTitleWin = messenger.i18n.getMessage("prefsTitleWin");
+    document.title = prefPgTitleWin;
+    $("#pref-pg-hdr-text").text(prefPgTitleWin);
+  }
 
   let keyCtrl  = messenger.i18n.getMessage("keyCtrl");
   let keyAlt   = messenger.i18n.getMessage("keyAlt");
@@ -105,6 +99,16 @@ async function init()
   $("#sync-intro").html(sanitizeHTML(messenger.i18n.getMessage("syncIntroTB")));
 
   initDialogs();
+
+   $("#html-paste-options").on("change", aEvent => {
+    let pasteOpt = aEvent.target.value;
+    if (pasteOpt == aeConst.HTMLPASTE_AS_FORMATTED) {
+      $("#paste-formatted-opts").fadeIn();
+    }
+    else {
+      $("#paste-formatted-opts").fadeOut();
+    }
+  });
 
   $("#toggle-sync").click(async (aEvent) => {
     let syncClippings = await aePrefs.getPref("syncClippings");
@@ -240,7 +244,7 @@ async function init()
     let natMsg = {msgID:"sync-dir-folder-picker"};
     let resp;
     try {
-      resp = await browser.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg);
+      resp = await messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg);
     }
     catch (e) {
       window.alert("The Sync Clippings helper app responded with an error.\n\n" + e);
@@ -509,7 +513,7 @@ function initDialogs()
       return;
     }
 
-    let syncFldrID = await browser.runtime.sendMessage({
+    let syncFolderID = await messenger.runtime.sendMessage({
       msgID: "enable-sync-clippings",
       isEnabled: true,
     });
@@ -529,15 +533,15 @@ function initDialogs()
       gIsActivatingSyncClippings = false;
     }
 
-    browser.runtime.sendMessage({
+    messenger.runtime.sendMessage({
       msgID: "refresh-synced-clippings",
       rebuildClippingsMenu,
     });
     
-    let syncClippingsListeners = gClippings.getSyncClippingsListeners().getListeners();
-    for (let listener of syncClippingsListeners) {
-      listener.onActivate(syncFldrID);
-    }
+    messenger.runtime.sendMessage({
+      msgID: "sync-activated",
+      syncFolderID,
+    });
     
     this.close();
   };
@@ -554,7 +558,7 @@ function initDialogs()
     $("#turn-off-sync-clippings-dlg > .dlg-btns > .dlg-btn-yes").click(async (aEvent) => {
       this.close();
 
-      let oldSyncFldrID = await browser.runtime.sendMessage({
+      let oldSyncFolderID = await messenger.runtime.sendMessage({
         msgID: "enable-sync-clippings",
         isEnabled: false,
       });
@@ -564,12 +568,12 @@ function initDialogs()
       $("#toggle-sync").text(messenger.i18n.getMessage("syncTurnOn"));
       $("#sync-status").removeClass("sync-status-on").text(messenger.i18n.getMessage("syncStatusOff"));
 
-      let syncClippingsListeners = gClippings.getSyncClippingsListeners().getListeners();
-      for (let listener of syncClippingsListeners) {
-	listener.onDeactivate(oldSyncFldrID);
-      }
+      messenger.runtime.sendMessage({
+        msgID: "sync-deactivated",
+        oldSyncFolderID,
+      });
 
-      gDialogs.turnOffSyncAck.oldSyncFldrID = oldSyncFldrID;
+      gDialogs.turnOffSyncAck.oldSyncFldrID = oldSyncFolderID;
       gDialogs.turnOffSyncAck.showModal();
     });
   };
@@ -591,12 +595,13 @@ function initDialogs()
   };
   gDialogs.turnOffSyncAck.onAfterAccept = function ()
   {
-    let removeSyncFldr = $("#delete-sync-fldr").prop("checked");
-    let syncClippingsListeners = gClippings.getSyncClippingsListeners().getListeners();
+    let removeSyncFolder = $("#delete-sync-fldr").prop("checked");
 
-    for (let listener of syncClippingsListeners) {
-      listener.onAfterDeactivate(removeSyncFldr, this.oldSyncFldrID);
-    }
+    messenger.runtime.sendMessage({
+      msgID: "sync-deactivated-after",
+      removeSyncFolder,
+      oldSyncFolderID: this.oldSyncFldrID,
+    });
   };
 
   gDialogs.about = new aeDialog("#about-dlg");

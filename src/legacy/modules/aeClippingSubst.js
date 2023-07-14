@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const Services = globalThis.Services || ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 const {aeUtils} = ChromeUtils.import("resource://clippings/modules/aeUtils.js");
 
 const EXPORTED_SYMBOLS = ["aeClippingSubst"];
@@ -115,6 +115,8 @@ aeClippingSubst.processClippingText = function (aClippingInfo, aWnd, aAutoIncrPl
 
     var rv = "";   
     var dlgArgs = {
+      clippingName: aClippingInfo.name,
+      hostAppVer:    aeUtils.getHostAppVersion(),
       varName:       varName,
       userInput:     "",
       defaultValue:  defaultVal,
@@ -168,7 +170,8 @@ aeClippingSubst.processClippingText = function (aClippingInfo, aWnd, aAutoIncrPl
   // within the { and }, allow the same characters as placeholder names, but
   // including the space, hyphen, period, parentheses, common currency symbols,
   // and the following special characters: ?_/!@#%&;,:'"
-  rv = rv.replace(/\$\[([\w\u0080-\u00FF\u0100-\u017F\u0180-\u024F\u0400-\u04FF\u0590-\u05FF]+)(\{([\w \-\.\?_\/\(\)!@#%&;:,'"$£¥€*¡¢\u0080-\u00FF\u0100-\u017F\u0180-\u024F\u0400-\u04FF\u0590-\u05FF\|])+\})?\]/gm, fnReplace);
+  // Optional default values also supports all Unicode characters.
+  rv = rv.replace(/\$\[([\w\u0080-\u00FF\u0100-\u017F\u0180-\u024F\u0400-\u04FF\u0590-\u05FF]+)(\{([\w \-\.\?_\/\(\)!@#%&;:,'"$£¥€*¡¢\u{0080}-\u{10FFFF}\|])+\})?\]/gmu, fnReplace);
   rv = rv.replace(/\#\[([a-zA-Z0-9_\u0080-\u00FF\u0100-\u017F\u0180-\u024F\u0400-\u04FF\u0590-\u05FF]+)\]/gm, fnAutoIncrement);
 
   if (hasFmtDateTime) {

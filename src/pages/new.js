@@ -6,14 +6,13 @@
 
 const WNDH_NORMAL = 412;
 const WNDH_NORMAL_WINDOWS = 448;
-const WNDH_OPTIONS_EXPANDED = 486;
+const WNDH_OPTIONS_EXPANDED = 490;
 const DLG_HEIGHT_ADJ_WINDOWS = 48;
 const DLG_HEIGHT_ADJ_LOCALE = 20;
 const DLG_HEIGHT_ADJ_LOCALE_DE = 10;
 
-let gOS;
+let gEnvInfo;
 let gClippingsDB = null;
-let gClippings = null;
 let gParentFolderID = 0;
 let gSrcURL = "";
 let gCreateInFldrMenu;
@@ -25,34 +24,33 @@ let gSyncedFldrIDs = new Set();
 
 // Page initialization
 $(async () => {
-  gClippings = messenger.extension.getBackgroundPage();
+  aeClippings.init();
+  gClippingsDB = aeClippings.getDB();
   
-  if (gClippings) {
-    gClippingsDB = gClippings.getClippingsDB();
-  }
-  else {
-    // gClippingsDB is null if Private Browsing mode is turned on.
-    console.error("Clippings/mx::new.js: Error initializing New Clipping dialog - unable to locate parent browser window.");
-    showInitError();
-    return;
-  }
-
   try {
-    await messenger.runtime.sendMessage({msgID: "verify-db"});
+    await aeClippings.verifyDB();
   }
   catch (e) {
     showInitError();
     return;
   };
 
-  let platform = await messenger.runtime.getPlatformInfo();
-  document.body.dataset.os = gOS = platform.os;
+  gEnvInfo = await messenger.runtime.sendMessage({msgID: "get-env-info"});
+
+  // Platform-specific initialization.
+  document.body.dataset.os = gEnvInfo.os;
 
   gPrefs = await aePrefs.getAllPrefs();
   document.body.dataset.laf = gPrefs.enhancedLaF;
 
   let lang = messenger.i18n.getUILanguage();
   document.body.dataset.locale = lang;
+
+  let tbMajorVer = Number(gEnvInfo.hostAppVer.split(".")[0]);
+  if (tbMajorVer < 114) {
+    // Workaround to tooltips not displaying in Thunderbird 102.
+    aeStylesheet.load("../style/tooltip.css");
+  }
 
   if (gPrefs.syncClippings) {
     initSyncItemsIDLookupList();
@@ -264,7 +262,7 @@ function showInitError()
 
 function initDialogs()
 {
-  $(".msgbox-error-icon").attr("os", gOS);
+  $(".msgbox-error-icon").attr("os", gEnvInfo.os);
   
   gNewFolderDlg = new aeDialog("#new-folder-dlg");
   gNewFolderDlg.setProps({
@@ -480,11 +478,13 @@ function initDialogs()
         
         this.resetTree();
 
-        let clippingsLstrs = gClippings.getClippingsListeners();
-        clippingsLstrs.forEach(aListener => {
-          aListener.newFolderCreated(aFldrID, newFolder, aeConst.ORIGIN_HOSTAPP);
+        messenger.runtime.sendMessage({
+          msgID: "new-folder-created",
+          newFolderID: aFldrID,
+          newFolder,
+          origin: aeConst.ORIGIN_HOSTAPP,
         });
-
+        
         return unsetClippingsUnchangedFlag();
 
       }).then(() => {
@@ -791,9 +791,11 @@ function accept(aEvent)
       return gClippingsDB.clippings.add(newClipping);
 
     }).then(aNewClippingID => {
-      let clippingsLstrs = gClippings.getClippingsListeners();
-      clippingsLstrs.forEach(aListener => {
-        aListener.newClippingCreated(aNewClippingID, newClipping, aeConst.ORIGIN_HOSTAPP);
+      messenger.runtime.sendMessage({
+        msgID: "new-clipping-created",
+        newClippingID: aNewClippingID,
+        newClipping,
+        origin: aeConst.ORIGIN_HOSTAPP,
       });
 
       return unsetClippingsUnchangedFlag();
@@ -885,7 +887,7 @@ async function closeDlg()
 // Event handlers
 //
 
-browser.runtime.onMessage.addListener(aRequest => {
+messenger.runtime.onMessage.addListener(aRequest => {
   log(`Clippings/mx::new.js: New Clipping dialog received MailExtension message "${aRequest.msgID}"`);
 
   if (aRequest.msgID == "ping-new-clipping-dlg") {
