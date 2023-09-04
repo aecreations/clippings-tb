@@ -46,12 +46,6 @@ $(async () => {
   let lang = messenger.i18n.getUILanguage();
   document.body.dataset.locale = lang;
 
-  let tbMajorVer = Number(gEnvInfo.hostAppVer.split(".")[0]);
-  if (tbMajorVer < 114) {
-    // Workaround to tooltips not displaying in Thunderbird 102.
-    aeStylesheet.load("../style/tooltip.css");
-  }
-
   if (gPrefs.syncClippings) {
     initSyncItemsIDLookupList();
   }

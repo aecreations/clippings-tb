@@ -2955,12 +2955,6 @@ $(async () => {
   document.body.dataset.locale = lang;
   moment.locale(lang);
   
-  let tbMajorVer = Number(gEnvInfo.hostAppVer.split(".")[0]);
-  if (tbMajorVer < 114) {
-    // Workaround to tooltips not displaying in Thunderbird 102.
-    aeStylesheet.load("../style/tooltip.css");
-  }
-
   let wndURL = new URL(window.location.href);
   gOpenerWndID = Number(wndURL.searchParams.get("openerWndID"));
   gIsBackupMode = wndURL.searchParams.get("backupMode") || false;
