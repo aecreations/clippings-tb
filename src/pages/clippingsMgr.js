@@ -814,11 +814,6 @@ let gReloadSyncFldrBtn = {
     let syncFldrSpanElt = this._getSyncFldrSpan()[0];
     let reloadBtn = document.createElement("span");
     reloadBtn.id = "reload-sync-fldr-btn";
-    reloadBtn.classList.add("tooltip");
-    if (["nl", "fr", "de", "pt-BR"].includes(messenger.i18n.getUILanguage())) {
-      reloadBtn.classList.add("tooltip-right");
-    }
-
     reloadBtn.title = messenger.i18n.getMessage("btnReload");
     reloadBtn.setAttribute("tabindex", "0");
     reloadBtn.setAttribute("role", "button");
