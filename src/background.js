@@ -1553,13 +1553,6 @@ messenger.runtime.onMessage.addListener(aRequest => {
     rebuildContextMenu();
     break;
 
-  case "open-ext-prefs-pg":
-    messenger.tabs.create({
-      active: true,
-      url: "/pages/options.html",
-    });
-    break;
-
   case "sync-deactivated":
     gSyncClippingsListener.onDeactivate(aRequest.oldSyncFolderID);
     break;
