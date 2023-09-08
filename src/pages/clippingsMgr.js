@@ -814,11 +814,6 @@ let gReloadSyncFldrBtn = {
     let syncFldrSpanElt = this._getSyncFldrSpan()[0];
     let reloadBtn = document.createElement("span");
     reloadBtn.id = "reload-sync-fldr-btn";
-    reloadBtn.classList.add("tooltip");
-    if (["nl", "fr", "de", "pt-BR"].includes(messenger.i18n.getUILanguage())) {
-      reloadBtn.classList.add("tooltip-right");
-    }
-
     reloadBtn.title = messenger.i18n.getMessage("btnReload");
     reloadBtn.setAttribute("tabindex", "0");
     reloadBtn.setAttribute("role", "button");
@@ -2423,19 +2418,10 @@ let gCmd = {
   
   openExtensionPrefs: function ()
   {
-    if (aeVersionCmp(gEnvInfo.hostAppVer, "102.0") >= 0
-        && aeVersionCmp(gEnvInfo.hostAppVer, "102.1.0") < 0) {
-      // Workaround to Thunderbird bug, see next comment.
-      messenger.runtime.sendMessage({msgID: "open-ext-prefs-pg"});
-      return;
-    }
-
-    // BUG!!  Doesn't work on Thunderbird 102.0.x
-    // - see https://bugzilla.mozilla.org/show_bug.cgi?id=1775223
     messenger.runtime.openOptionsPage();
 
     // Workaround to extension preferences page not focused if already open.
-    messenger.runtime.sendMessage({ msgID: "focus-extension-prefs-pg" });
+    messenger.runtime.sendMessage({msgID: "focus-extension-prefs-pg"});
   },
   
   backup: function ()
@@ -2955,12 +2941,6 @@ $(async () => {
   document.body.dataset.locale = lang;
   moment.locale(lang);
   
-  let tbMajorVer = Number(gEnvInfo.hostAppVer.split(".")[0]);
-  if (tbMajorVer < 114) {
-    // Workaround to tooltips not displaying in Thunderbird 102.
-    aeStylesheet.load("../style/tooltip.css");
-  }
-
   let wndURL = new URL(window.location.href);
   gOpenerWndID = Number(wndURL.searchParams.get("openerWndID"));
   gIsBackupMode = wndURL.searchParams.get("backupMode") || false;
