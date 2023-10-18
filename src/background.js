@@ -998,19 +998,24 @@ async function showBackupNotification()
       info("Clippings/mx: showBackupNotification(): Last backup reminder: "
            + gPrefs.lastBackupRemDate);
 
-      await messenger.notifications.create("backup-reminder", {
-        type: "basic",
-        title: messenger.i18n.getMessage("backupNotifyTitle"),
-        message: messenger.i18n.getMessage("backupNotifyMsg"),
-        iconUrl: "img/icon.svg",
-      });
+      if (gPrefs.skipBackupRemIfUnchg && gPrefs.clippingsUnchanged) {
+        log("Clippings/mx: No changes to clippings since last backup; skipping backup notification.");
+      }
+      else {
+        await messenger.notifications.create("backup-reminder", {
+          type: "basic",
+          title: messenger.i18n.getMessage("backupNotifyTitle"),
+          message: messenger.i18n.getMessage("backupNotifyMsg"),
+          iconUrl: "img/icon.svg",
+        });
 
-      clearBackupNotificationInterval();
-      setBackupNotificationInterval();
+        clearBackupNotificationInterval();
+        setBackupNotificationInterval();
 
-      await aePrefs.setPrefs({
-        lastBackupRemDate: new Date().toString(),
-      });
+        await aePrefs.setPrefs({
+          lastBackupRemDate: new Date().toString(),
+        });
+      }
     }
   }
   else {
