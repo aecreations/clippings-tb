@@ -17,7 +17,6 @@ let gBackupRemIntervalID = null;
 let gIsReloadingSyncFldr = false;
 let gSyncClippingsHelperDwnldPgURL;
 let gForceShowFirstTimeBkupNotif = false;
-let gMigrateLegacyData = false;
 let gClippingsMgrCleanUpIntvID = null;
 
 let gClippingsListener = {
@@ -241,8 +240,6 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
 
     if (! aePrefs.hasSantaBarbaraPrefs(gPrefs)) {
       await setDefaultPrefs();
-      await migrateLegacyPrefs();
-      gMigrateLegacyData = true;
     }
 
     if (! aePrefs.hasCarpinteriaPrefs(gPrefs)) {
@@ -294,90 +291,6 @@ async function setDefaultPrefs()
 }
 
 
-async function migrateLegacyPrefs()
-{
-  log("Clippings/mx: migrateLegacyPrefs()");
-
-  let htmlPaste = await messenger.aeClippingsLegacy.getPref(
-    "extensions.aecreations.clippings.html_paste", 0
-  );
-  let autoLineBreak = await messenger.aeClippingsLegacy.getPref(
-    "extensions.aecreations.clippings.html_auto_line_break", true
-  );
-  let keyboardPaste = await messenger.aeClippingsLegacy.getPref(
-    "extensions.aecreations.clippings.enable_keyboard_paste", true
-  );
-  let wxPastePrefixKey = await messenger.aeClippingsLegacy.getPref(
-    "extensions.aecreations.clippings.enable_wx_paste_prefix_key", true
-  );
-  let pastePromptAction = await messenger.aeClippingsLegacy.getPref(
-    "extensions.aecreations.clippings.paste_shortcut_mode", 1
-  );
-  let checkSpelling = await messenger.aeClippingsLegacy.getPref(
-    "extensions.aecreations.clippings.check_spelling", true
-  );
-  let clippingsMgrDetailsPane = await messenger.aeClippingsLegacy.getPref(
-    "extensions.aecreations.clippings.clipmgr.details_pane", false
-  );
-  let clippingsMgrPlchldrToolbar = await messenger.aeClippingsLegacy.getPref(
-    "extensions.aecreations.clippings.clipmgr.placeholder_toolbar", false
-  );
-  let clippingsMgrStatusBar = await messenger.aeClippingsLegacy.getPref(
-    "extensions.aecreations.clippings.clipmgr.status_bar", true
-  );
-
-  log(`Pref values:\nhtmlPaste = ${htmlPaste}\nautoLineBreak = ${autoLineBreak}\nkeyboardPaste = ${keyboardPaste}\nwxPastePrefixKey = ${wxPastePrefixKey}\npastePromptAction = ${pastePromptAction}\ncheckSpelling = ${checkSpelling}\nclippingsMgrDetailsPane = ${clippingsMgrDetailsPane}\nclippingsMgrPlchldrToolbar = ${clippingsMgrPlchldrToolbar}\nclippingsMgrStatusBar = ${clippingsMgrStatusBar}`);
-
-  // The option to ask the user when pasting a formatted clipping is no longer
-  // available - change default to always paste as rich text.
-  if (htmlPaste == aeConst.HTMLPASTE_ASK_THE_USER) {
-    htmlPaste = aeConst.HTMLPASTE_AS_FORMATTED;
-  }
-  
-  aePrefs.setPrefs({
-    htmlPaste, autoLineBreak, keyboardPaste, wxPastePrefixKey, pastePromptAction,
-    checkSpelling, clippingsMgrDetailsPane, clippingsMgrPlchldrToolbar,
-    clippingsMgrStatusBar
-  });
-}
-
-
-function removeLegacyPrefs(aKeepDataSrcLocationPref)
-{
-  // Don't reset the data source location pref if legacy data migration failed;
-  // keep the old pref for troubleshooting.
-  if (! aKeepDataSrcLocationPref) {
-    messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.datasource.location");
-  }
-
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.html_paste");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.html_auto_line_break");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.enable_keyboard_paste");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.enable_wx_paste_prefix_key");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.paste_shortcut_mode");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.tb78.show_warning");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.tb78.show_notice");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.tb78.show_anncmt");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.beep_on_error");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.first_run");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.v3.first_run");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.datasource.process_root");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.datasource.wx_sync.enabled");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.datasource.wx_sync.location");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.clipmgr.first_run");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.clipmgr.wnd_position");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.clipmgr.wnd_size");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.clipmgr.is_maximized");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.clipmgr.status_bar");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.clipmgr.placeholder_toolbar");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.clipmgr.details_pane");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.use_clipboard");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.migrate_common_ds_pref");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.migrated_prefs");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.check_spelling");
-}
-
-
 async function init()
 {
   info("Clippings/mx: Initializing integration of MailExtension with host app...");
@@ -386,27 +299,6 @@ async function init()
   gClippingsDB = aeClippings.getDB();
   aeImportExport.setDatabase(gClippingsDB);
 
-  if (gMigrateLegacyData) {
-    let keepDataSrcLocnPref = false;
-    
-    try {
-      await aeClippings.verifyDB();
-
-      log("Clippings/mx: init(): Successfully verified Clippings DB.  Starting data migration...")
-      await migrateClippingsData();
-    }
-    catch (e) {
-      console.error("Clippings/mx: migrateClippingsData(): Failed to verify IndexedDB database - cannot migrate legacy Clippings data.\n" + e);
-      await aePrefs.setPrefs({
-        legacyDataMigrnSuccess: false,
-        showLegacyDataMigrnStatus: true,
-      });
-      keepDataSrcLocnPref = true;
-    }
-
-    removeLegacyPrefs(keepDataSrcLocnPref);
-  }
-  
   let getMsgrInfo = messenger.runtime.getBrowserInfo();
   let getPlatInfo = messenger.runtime.getPlatformInfo();
 
@@ -477,16 +369,8 @@ async function init()
     }
 
     if (gSetDisplayOrderOnRootItems) {
-      if (gMigrateLegacyData) {
-        window.setTimeout(async () => {
-          await setDisplayOrderOnRootItems();
-          log("Clippings/mx: Display order on root folder items have been set (after data source migration).");
-        }, 3000);
-      }
-      else {
-        await setDisplayOrderOnRootItems();
-        log("Clippings/mx: Display order on root folder items have been set.");
-      }
+      await setDisplayOrderOnRootItems();
+      log("Clippings/mx: Display order on root folder items have been set.");
     }
 
     messenger.WindowListener.registerChromeUrl([
@@ -496,10 +380,6 @@ async function init()
     ]);
 
     messenger.WindowListener.registerWindow(
-      "chrome://messenger/content/messenger.xhtml",
-      "chrome://clippings/content/messenger.js"
-    );
-    messenger.WindowListener.registerWindow(
       "chrome://messenger/content/messengercompose/messengercompose.xhtml",
       "chrome://clippings/content/messengercompose.js"
     );
@@ -508,34 +388,6 @@ async function init()
 
     gIsInitialized = true;
     log("Clippings/mx: MailExtension initialization complete.");    
-  });
-}
-
-
-async function migrateClippingsData()
-{
-  let clippingsJSONData;
-
-  try {
-    clippingsJSONData = await messenger.aeClippingsLegacy.getClippingsFromJSONFile();
-  }
-  catch (e) {
-    console.error("Clippings/mx: migrateClippingsData(): " + e);
-    await aePrefs.setPrefs({
-      legacyDataMigrnSuccess: false,
-      showLegacyDataMigrnStatus: true,
-      legacyDataMigrnErrorMsg: e.message,
-    });
-
-    return;
-  }
-
-  log("Clippings/mx: migrateClippingsData(): Migrating clippings from legacy data source");    
-  aeImportExport.importFromJSON(clippingsJSONData, true, false);
-
-  await aePrefs.setPrefs({
-    legacyDataMigrnSuccess: true,
-    showLegacyDataMigrnStatus: true,
   });
 }
 
