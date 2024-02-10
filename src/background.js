@@ -145,7 +145,7 @@ let gSyncClippingsListener = {
   {
     function resetCxtMenuSyncItemsOnlyOpt(aRebuildCxtMenu) {
       if (gPrefs.cxtMenuSyncItemsOnly) {
-        aePrefs.setPrefs({ cxtMenuSyncItemsOnly: false });
+        aePrefs.setPrefs({cxtMenuSyncItemsOnly: false});
       }
       if (aRebuildCxtMenu) {
         rebuildContextMenu();
@@ -204,7 +204,7 @@ let gNewClipping = {
   },
 
   copy: function () {
-    let rv = { name: this._name, content: this._content };
+    let rv = {name: this._name, content: this._content};
     return rv;
   },
   
@@ -295,100 +295,97 @@ async function init()
 {
   info("Clippings/mx: Initializing integration of MailExtension with host app...");
 
+  let [msgr, platform] = await Promise.all([
+    messenger.runtime.getBrowserInfo(),
+    messenger.runtime.getPlatformInfo(),
+  ]);
+    
+  gHostAppName = msgr.name;
+  gHostAppVer = msgr.version;
+  log(`Clippings/mx: Host app: ${gHostAppName} (version ${gHostAppVer})`);
+
+  await checkHostAppVer();
+
+  gOS = platform.os;
+  log("Clippings/mx: OS: " + gOS);
+
+  if (gOS == "linux" && gPrefs.clippingsMgrMinzWhenInactv === null) {
+    await aePrefs.setPrefs({clippingsMgrMinzWhenInactv: true});
+  }
+
+  if (gPrefs.autoAdjustWndPos === null) {
+    let autoAdjustWndPos = gOS == "win";
+    let clippingsMgrSaveWndGeom = autoAdjustWndPos;
+    await aePrefs.setPrefs({autoAdjustWndPos, clippingsMgrSaveWndGeom});
+  }
+
+  let extVer = messenger.runtime.getManifest().version;
+  
   aeClippings.init();
   gClippingsDB = aeClippings.getDB();
   aeImportExport.setDatabase(gClippingsDB);
 
-  let getMsgrInfo = messenger.runtime.getBrowserInfo();
-  let getPlatInfo = messenger.runtime.getPlatformInfo();
-
-  Promise.all([getMsgrInfo, getPlatInfo]).then(async (aResults) => {
-    let msgr = aResults[0];
-    let platform = aResults[1];
-    
-    gHostAppName = msgr.name;
-    gHostAppVer = msgr.version;
-    log(`Clippings/mx: Host app: ${gHostAppName} (version ${gHostAppVer})`);
-
-    await checkHostAppVer();
-
-    gOS = platform.os;
-    log("Clippings/mx: OS: " + gOS);
-
-    if (gOS == "linux" && gPrefs.clippingsMgrMinzWhenInactv === null) {
-      await aePrefs.setPrefs({ clippingsMgrMinzWhenInactv: true });
-    }
-
-    if (gPrefs.autoAdjustWndPos === null) {
-      let autoAdjustWndPos = gOS == "win";
-      let clippingsMgrSaveWndGeom = autoAdjustWndPos;
-      await aePrefs.setPrefs({autoAdjustWndPos, clippingsMgrSaveWndGeom});
-    }
-
-    let extVer = messenger.runtime.getManifest().version;
-    
-    aeImportExport.setL10nStrings({
-      shctTitle: messenger.i18n.getMessage("expHTMLTitle"),
-      hostAppInfo: messenger.i18n.getMessage("expHTMLHostAppInfo", [extVer, gHostAppName]),
-      shctKeyInstrxns: messenger.i18n.getMessage("expHTMLShctKeyInstrxnTB"),
-      shctKeyCustNote: "",
-      shctKeyColHdr: messenger.i18n.getMessage("expHTMLShctKeyCol"),
-      clippingNameColHdr: messenger.i18n.getMessage("expHTMLClipNameCol"),
-    });
-    
-    if (gPrefs.syncClippings) {
-      gSyncFldrID = gPrefs.syncFolderID;
-
-      // The context menu will be built when refreshing the sync data, via the
-      // onReloadFinish event handler of the Sync Clippings listener.
-      refreshSyncedClippings(true);
-    }
-    
-    if (gPrefs.backupRemFirstRun && !gPrefs.lastBackupRemDate) {
-      aePrefs.setPrefs({
-        lastBackupRemDate: new Date().toString(),
-      });
-    }
-
-    if (gPrefs.upgradeNotifCount > 0) {
-      // Show post-upgrade notification in 1 minute.
-      messenger.alarms.create("show-upgrade-notifcn", {
-        delayInMinutes: aeConst.POST_UPGRADE_NOTIFCN_DELAY_MS / 60000
-      });
-    }
-
-    // Check in 5 minutes whether to show backup reminder notification.
-    window.setTimeout(
-      async (aEvent) => { showBackupNotification() },
-      aeConst.BACKUP_REMINDER_DELAY_MS
-    );
-
-    if (gPrefs.syncClippings && gPrefs.syncHelperCheckUpdates) {
-      // Check for updates to Sync Clippings Helper native app in 10 minutes.
-      window.setTimeout(showSyncHelperUpdateNotification, aeConst.SYNC_HELPER_CHECK_UPDATE_DELAY_MS);
-    }
-
-    if (gSetDisplayOrderOnRootItems) {
-      await setDisplayOrderOnRootItems();
-      log("Clippings/mx: Display order on root folder items have been set.");
-    }
-
-    messenger.WindowListener.registerChromeUrl([
-      ["content",  "clippings", "legacy/chrome/content/"],
-      ["locale",   "clippings", "en-US", "legacy/chrome/locale/en-US/"],
-      ["resource", "clippings", "legacy/"]
-    ]);
-
-    messenger.WindowListener.registerWindow(
-      "chrome://messenger/content/messengercompose/messengercompose.xhtml",
-      "chrome://clippings/content/messengercompose.js"
-    );
-    
-    messenger.WindowListener.startListening();
-
-    gIsInitialized = true;
-    log("Clippings/mx: MailExtension initialization complete.");    
+  aeImportExport.setL10nStrings({
+    shctTitle: messenger.i18n.getMessage("expHTMLTitle"),
+    hostAppInfo: messenger.i18n.getMessage("expHTMLHostAppInfo", [extVer, gHostAppName]),
+    shctKeyInstrxns: messenger.i18n.getMessage("expHTMLShctKeyInstrxnTB"),
+    shctKeyCustNote: "",
+    shctKeyColHdr: messenger.i18n.getMessage("expHTMLShctKeyCol"),
+    clippingNameColHdr: messenger.i18n.getMessage("expHTMLClipNameCol"),
   });
+  
+  if (gPrefs.syncClippings) {
+    gSyncFldrID = gPrefs.syncFolderID;
+
+    // The context menu will be built when refreshing the sync data, via the
+    // onReloadFinish event handler of the Sync Clippings listener.
+    refreshSyncedClippings(true);
+  }
+  
+  if (gPrefs.backupRemFirstRun && !gPrefs.lastBackupRemDate) {
+    aePrefs.setPrefs({
+      lastBackupRemDate: new Date().toString(),
+    });
+  }
+
+  if (gPrefs.upgradeNotifCount > 0) {
+    // Show post-upgrade notification in 1 minute.
+    messenger.alarms.create("show-upgrade-notifcn", {
+      delayInMinutes: aeConst.POST_UPGRADE_NOTIFCN_DELAY_MS / 60000
+    });
+  }
+
+  // Check in 5 minutes whether to show backup reminder notification.
+  window.setTimeout(
+    async (aEvent) => { showBackupNotification() },
+    aeConst.BACKUP_REMINDER_DELAY_MS
+  );
+
+  if (gPrefs.syncClippings && gPrefs.syncHelperCheckUpdates) {
+    // Check for updates to Sync Clippings Helper native app in 10 minutes.
+    window.setTimeout(showSyncHelperUpdateNotification, aeConst.SYNC_HELPER_CHECK_UPDATE_DELAY_MS);
+  }
+
+  if (gSetDisplayOrderOnRootItems) {
+    await setDisplayOrderOnRootItems();
+    log("Clippings/mx: Display order on root folder items have been set.");
+  }
+
+  messenger.WindowListener.registerChromeUrl([
+    ["content",  "clippings", "legacy/chrome/content/"],
+    ["locale",   "clippings", "en-US", "legacy/chrome/locale/en-US/"],
+    ["resource", "clippings", "legacy/"]
+  ]);
+
+  messenger.WindowListener.registerWindow(
+    "chrome://messenger/content/messengercompose/messengercompose.xhtml",
+    "chrome://clippings/content/messengercompose.js"
+  );
+  
+  messenger.WindowListener.startListening();
+
+  gIsInitialized = true;
+  log("Clippings/mx: MailExtension initialization complete.");    
 }
 
 
@@ -422,12 +419,12 @@ async function setDisplayOrderOnRootItems()
   gClippingsDB.transaction("rw", gClippingsDB.clippings, gClippingsDB.folders, () => {
     gClippingsDB.folders.where("parentFolderID").equals(aeConst.ROOT_FOLDER_ID).each((aItem, aCursor) => {
       log(`Clippings/mx: setDisplayOrderOnRootItems(): Folder "${aItem.name}" (id=${aItem.id}): display order = ${seq}`);
-      let numUpd = gClippingsDB.folders.update(aItem.id, { displayOrder: seq++ });
+      let numUpd = gClippingsDB.folders.update(aItem.id, {displayOrder: seq++});
 
     }).then(() => {
       return gClippingsDB.clippings.where("parentFolderID").equals(aeConst.ROOT_FOLDER_ID).each((aItem, aCursor) => {
         log(`Clippings/mx: setDisplayOrderOnRootItems(): Clipping "${aItem.name}" (id=${aItem.id}): display order = ${seq}`);
-        let numUpd = gClippingsDB.clippings.update(aItem.id, { displayOrder: seq++ });
+        let numUpd = gClippingsDB.clippings.update(aItem.id, {displayOrder: seq++});
       });
 
     }).then(() => {
@@ -492,7 +489,7 @@ async function enableSyncClippings(aIsEnabled)
         console.error("Clippings/mx: enableSyncClippings(): Failed to create the Synced Clipping folder: " + e);
       }
 
-      await aePrefs.setPrefs({ syncFolderID: gSyncFldrID });
+      await aePrefs.setPrefs({syncFolderID: gSyncFldrID});
       log("Clippings/mx: enableSyncClippings(): Synced Clippings folder ID: " + gSyncFldrID);
       return gSyncFldrID;
     }
@@ -501,8 +498,8 @@ async function enableSyncClippings(aIsEnabled)
     log("Clippings/mx: enableSyncClippings(): Turning OFF");
     let oldSyncFldrID = gSyncFldrID;
 
-    let numUpd = await gClippingsDB.folders.update(gSyncFldrID, { isSync: undefined });
-    await aePrefs.setPrefs({ syncFolderID: null });
+    let numUpd = await gClippingsDB.folders.update(gSyncFldrID, {isSync: undefined});
+    await aePrefs.setPrefs({syncFolderID: null});
     gSyncFldrID = null;
     return oldSyncFldrID;
   }
@@ -543,7 +540,7 @@ function refreshSyncedClippings(aRebuildClippingsMenu)
     if (gSyncFldrID === null) {
       gSyncFldrID = aSyncFldrID;
       log("Clippings/mx: Synced Clippings folder ID: " + gSyncFldrID);
-      return aePrefs.setPrefs({ syncFolderID: gSyncFldrID });
+      return aePrefs.setPrefs({syncFolderID: gSyncFldrID});
     }
       
     gSyncClippingsListener.onReloadStart();
@@ -1055,7 +1052,7 @@ async function openClippingsManager(aBackupMode)
     // `browser.windows.create()`. If unable to get window geometry, then
     // default to centering on screen.
     if (wndGeom) {
-      messenger.windows.update(wnd.id, { left, top });
+      messenger.windows.update(wnd.id, {left, top});
     }
 
     gClippingsMgrCleanUpIntvID = window.setInterval(async () => {
@@ -1114,7 +1111,7 @@ function openNewClippingDlg(aNewClippingContent)
   if (gOS == "win") {
     height = 444;
   }
-  openDlgWnd(url, "newClipping", { type: "detached_panel", width: 432, height });
+  openDlgWnd(url, "newClipping", {type: "detached_panel", width: 432, height});
 }
 
 
@@ -1167,7 +1164,7 @@ function openShortcutListWnd()
     height = 286;
   }
   
-  openDlgWnd(url, "shctList", { type: "popup", width, height, topOffset: 256 });
+  openDlgWnd(url, "shctList", {type: "popup", width, height, topOffset: 256});
 }
 
 
@@ -1214,7 +1211,7 @@ async function openDlgWnd(aURL, aWndKey, aWndPpty, aWndType)
   if (gWndIDs[aWndKey]) {
     try {
       await messenger.windows.get(gWndIDs[aWndKey]);
-      messenger.windows.update(gWndIDs[aWndKey], { focused: true });
+      messenger.windows.update(gWndIDs[aWndKey], {focused: true});
     }
     catch (e) {
       gWndIDs[aWndKey] = null;
@@ -1557,11 +1554,11 @@ messenger.notifications.onClicked.addListener(aNotifID => {
     openBackupDlg();
   }
   else if (aNotifID == "sync-helper-update") {
-    messenger.tabs.create({ url: gSyncClippingsHelperDwnldPgURL });
+    messenger.tabs.create({url: gSyncClippingsHelperDwnldPgURL});
   }
   else if (aNotifID == "whats-new") {
-    messenger.tabs.create({ url: messenger.runtime.getURL("pages/whatsnew.html") });
-    aePrefs.setPrefs({ upgradeNotifCount: 0 });
+    messenger.tabs.create({url: messenger.runtime.getURL("pages/whatsnew.html")});
+    aePrefs.setPrefs({upgradeNotifCount: 0});
   }
 });
 
