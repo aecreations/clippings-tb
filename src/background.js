@@ -341,6 +341,9 @@ async function init()
     // onReloadFinish event handler of the Sync Clippings listener.
     refreshSyncedClippings(true);
   }
+  else {
+    buildContextMenu();
+  }
   
   if (gPrefs.backupRemFirstRun && !gPrefs.lastBackupRemDate) {
     aePrefs.setPrefs({
@@ -769,6 +772,23 @@ function updateContextMenuForFolder(aUpdatedFolderID)
     if (menuItemID) {
       gIsDirty = true;
     }
+  });
+}
+
+
+function buildContextMenu()
+{
+  log("Clippings/mx: buildContextMenu()");
+
+  // Context menu for compose action button.
+  let prefsMnuStrKey = "mnuPrefs";
+  if (gOS == "win") {
+    prefsMnuStrKey = "mnuPrefsWin";
+  }
+  messenger.menus.create({
+    id: "ae-clippings-prefs",
+    title: messenger.i18n.getMessage(prefsMnuStrKey),
+    contexts: ["compose_action"],
   });
 }
 
@@ -1345,6 +1365,23 @@ function setDirtyFlag(aFlag)
 //
 // Event handlers
 //
+
+messenger.composeAction.onClicked.addListener(aTab => {
+  openClippingsManager(false);
+});
+
+
+messenger.menus.onClicked.addListener(async (aInfo, aTab) => {
+  switch (aInfo.menuItemId) {
+    case "ae-clippings-prefs":
+    messenger.runtime.openOptionsPage();
+    break;
+
+  default:
+    break;
+  }
+});
+
 
 messenger.runtime.onMessage.addListener(aRequest => {
   log(`Clippings/mx: Background script received MailExtension message "${aRequest.msgID}"`);

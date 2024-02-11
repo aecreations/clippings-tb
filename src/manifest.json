@@ -21,6 +21,7 @@
     "alarms",
     "downloads",
     "management",
+    "menus",
     "nativeMessaging",
     "notifications",
     "storage",
@@ -41,6 +42,16 @@
       "scripts/aeClippings.js",
       "background.js"
     ]
+  },
+
+  "compose_action": {
+    "type": "button",
+    "default_label": "",
+    "default_title": "__MSG_browserActionTitle__",
+    "default_icon": {
+      "32": "icon.svg"
+    },
+    "default_area": "maintoolbar"
   },
 
   "options_ui": {
