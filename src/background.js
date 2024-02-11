@@ -1383,6 +1383,42 @@ messenger.menus.onClicked.addListener(async (aInfo, aTab) => {
 });
 
 
+messenger.alarms.onAlarm.addListener(async (aAlarm) => {
+  info(`Clippings/mx: Alarm "${aAlarm.name}" was triggered.`);
+
+  if (aAlarm.name == "show-upgrade-notifcn") {
+    showWhatsNewNotification();
+  }
+});
+
+
+messenger.notifications.onClicked.addListener(aNotifID => {
+  if (aNotifID == "backup-reminder") {
+    // Open Clippings Manager in backup mode.
+    openClippingsManager(true);
+  }
+  else if (aNotifID == "backup-reminder-firstrun") {
+    openBackupDlg();
+  }
+  else if (aNotifID == "sync-helper-update") {
+    messenger.tabs.create({url: gSyncClippingsHelperDwnldPgURL});
+  }
+  else if (aNotifID == "whats-new") {
+    messenger.tabs.create({url: messenger.runtime.getURL("pages/whatsnew.html")});
+    aePrefs.setPrefs({upgradeNotifCount: 0});
+  }
+});
+
+
+messenger.storage.onChanged.addListener((aChanges, aAreaName) => {
+  let changedPrefs = Object.keys(aChanges);
+
+  for (let pref of changedPrefs) {
+    gPrefs[pref] = aChanges[pref].newValue;
+  }
+});
+
+
 messenger.runtime.onMessage.addListener(aRequest => {
   log(`Clippings/mx: Background script received MailExtension message "${aRequest.msgID}"`);
 
@@ -1563,42 +1599,6 @@ messenger.NotifyTools.onNotifyBackground.addListener(async (aMessage) => {
   return rv;
 });
   
-
-messenger.storage.onChanged.addListener((aChanges, aAreaName) => {
-  let changedPrefs = Object.keys(aChanges);
-
-  for (let pref of changedPrefs) {
-    gPrefs[pref] = aChanges[pref].newValue;
-  }
-});
-
-
-messenger.alarms.onAlarm.addListener(async (aAlarm) => {
-  info(`Clippings/mx: Alarm "${aAlarm.name}" was triggered.`);
-
-  if (aAlarm.name == "show-upgrade-notifcn") {
-    showWhatsNewNotification();
-  }
-});
-
-
-messenger.notifications.onClicked.addListener(aNotifID => {
-  if (aNotifID == "backup-reminder") {
-    // Open Clippings Manager in backup mode.
-    openClippingsManager(true);
-  }
-  else if (aNotifID == "backup-reminder-firstrun") {
-    openBackupDlg();
-  }
-  else if (aNotifID == "sync-helper-update") {
-    messenger.tabs.create({url: gSyncClippingsHelperDwnldPgURL});
-  }
-  else if (aNotifID == "whats-new") {
-    messenger.tabs.create({url: messenger.runtime.getURL("pages/whatsnew.html")});
-    aePrefs.setPrefs({upgradeNotifCount: 0});
-  }
-});
-
 
 window.addEventListener("unhandledrejection", aEvent => {
   aEvent.preventDefault();
