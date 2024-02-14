@@ -680,6 +680,16 @@ function getContextMenuData(aFolderID = aeConst.ROOT_FOLDER_ID)
     return rv;    
   }
 
+  function sanitizeMenuTitle(aTitle)
+  {
+    // Escape the ampersand character, which would normally be used to denote
+    // the access key for the menu item.
+    let rv = aTitle.replace(/&/g, "&&");
+
+    return rv;
+  }
+  // END nested functions
+
   let rv = [];
 
   return new Promise((aFnResolve, aFnReject) => {
@@ -690,17 +700,27 @@ function getContextMenuData(aFolderID = aeConst.ROOT_FOLDER_ID)
 
         let submenuItemData = {
           id: fldrMenuItemID,
-          title: aItem.name,
+          title: sanitizeMenuTitle(aItem.name),
         };
 
         // Submenu icon
         let iconPath = "img/folder.svg";
         if (aItem.id == gSyncFldrID) {
+          // Firefox bug on macOS:
+          // Dark Mode setting isn't applied to the browser context menu when
+          // a Firefox dark color theme is used.
+          if (getContextMenuData.isDarkMode) {
+            iconPath = "img/synced-clippings-dk.svg";
+          }
+          else {
+            iconPath = "img/synced-clippings.svg";
+          }
+
           submenuItemData.isSync = true;
           iconPath = "img/synced-clippings.svg";
         }
 
-        submenuItemData.icons = { 16: iconPath };
+        submenuItemData.icons = {16: iconPath};
 
         if (! ("displayOrder" in aItem)) {
           submenuItemData.displayOrder = 0;
@@ -727,7 +747,10 @@ function getContextMenuData(aFolderID = aeConst.ROOT_FOLDER_ID)
 
           let menuItemData = {
             id: menuItemID,
-            title: aItem.name,
+            title: sanitizeMenuTitle(aItem.name),
+            icons: {
+              16: "img/" + (aItem.label ? `clipping-${aItem.label}.svg` : "clipping.svg")
+            },
           };
 
           if (aItem.label) {
@@ -762,6 +785,7 @@ function getContextMenuData(aFolderID = aeConst.ROOT_FOLDER_ID)
     });
   });
 }
+getContextMenuData.isDarkMode = null;
 
 
 function updateContextMenuForFolder(aUpdatedFolderID)
@@ -790,11 +814,76 @@ function buildContextMenu()
     title: messenger.i18n.getMessage(prefsMnuStrKey),
     contexts: ["compose_action"],
   });
+
+  // Context menu for composer.
+  messenger.menus.create({
+    id: "ae-clippings-new",
+    title: messenger.i18n.getMessage("cxtMenuNew"),
+    contexts: ["compose_body"],
+  });
+  messenger.menus.create({
+    id: "ae-clippings-manager",
+    title: messenger.i18n.getMessage("cxtMenuOpenClippingsMgr"),
+    contexts: ["compose_body"],
+  });
+
+  let rootFldrID = aeConst.ROOT_FOLDER_ID;
+  if (gPrefs.syncClippings && gPrefs.cxtMenuSyncItemsOnly) {
+    rootFldrID = gSyncFldrID;
+  }
+
+  getContextMenuData(rootFldrID).then(aMenuData => {
+    if (aeConst.DEBUG) {
+      console.log("buildContextMenu(): Menu data: ");
+      console.log(aMenuData);
+    }
+    
+    if (aMenuData.length > 0) {
+      messenger.menus.create({
+        type: "separator",
+        contexts: ["compose_body"],
+      });
+
+      buildContextMenuHelper(aMenuData);
+    }
+  }).catch(aErr => { onError(aErr) });
 }
 
 
-function rebuildContextMenu()
+function buildContextMenuHelper(aMenuData)
 {
+  for (let i = 0; i < aMenuData.length; i++) {
+    let menuData = aMenuData[i];
+    let menuItem = {
+      id: menuData.id,
+      title: menuData.title,
+      icons: menuData.icons,
+      contexts: ["compose_body"],
+    };
+
+    if ("parentId" in menuData && menuData.parentId != aeConst.ROOT_FOLDER_ID) {
+      menuItem.parentId = menuData.parentId;
+    }
+
+    messenger.menus.create(menuItem);
+    
+    if (menuData.submenuItems) {
+      buildContextMenuHelper(menuData.submenuItems);
+    }
+  }
+}
+
+
+async function rebuildContextMenu()
+{
+  log("Clippings/mx: rebuildContextMenu(): Removing all Clippings context menu items and rebuilding the menu...");
+  await messenger.menus.removeAll();
+
+  gClippingMenuItemIDMap = {};
+  gFolderMenuItemIDMap = {};
+  buildContextMenu();
+
+  // TO DO: Is this still needed?? 
   gIsDirty = true;
 }
 
@@ -1244,6 +1333,61 @@ async function openDlgWnd(aURL, aWndKey, aWndPpty, aWndType)
 }
 
 
+function pasteClippingByID(aClippingID, aExternalRequest)
+{
+  let clippingsDB = aeClippings.getDB();
+  
+  clippingsDB.transaction("r", clippingsDB.clippings, clippingsDB.folders, () => {
+    let clipping = null;
+    
+    clippingsDB.clippings.get(aClippingID).then(aClipping => {
+      if (! aClipping) {
+        throw new Error("Cannot find clipping with ID = " + aClippingID);
+      }
+
+      if (aClipping.parentFolderID == -1) {
+        throw new Error("Attempting to paste a deleted clipping!");
+      }
+
+      clipping = aClipping;
+      log(`Pasting clipping named "${clipping.name}"\nid = ${clipping.id}`);
+        
+      return clippingsDB.folders.get(aClipping.parentFolderID);
+    }).then(aFolder => {
+      let parentFldrName = "";
+      if (aFolder) {
+        parentFldrName = aFolder.name;
+      }
+      else {
+        parentFldrName = ROOT_FOLDER_NAME;
+      }
+      let clippingInfo = {
+        id: clipping.id,
+        name: clipping.name,
+        text: clipping.content,
+        parentFolderName: parentFldrName
+      };
+
+      pasteClipping(clippingInfo, aExternalRequest);
+    });
+  }).catch(aErr => {
+    console.error("Clippings/wx: pasteClippingByID(): " + aErr);
+  });
+}
+
+
+async function pasteClipping(aClippingInfo, aExternalRequest)
+{
+  // TEMPORARY
+  log("Clippings/mx: pasteClipping(): Clipping to paste into composer:");
+  log(aClippingInfo);
+  // END TEMPORARY
+
+  // TO DO: Finish implementation
+}
+
+
+
 function getClipping(aClippingID)
 {
   return new Promise((aFnResolve, aFnReject) => {
@@ -1373,11 +1517,26 @@ messenger.composeAction.onClicked.addListener(aTab => {
 
 messenger.menus.onClicked.addListener(async (aInfo, aTab) => {
   switch (aInfo.menuItemId) {
-    case "ae-clippings-prefs":
+  case "ae-clippings-new":
+    // TO DO: Finish implementation
+    break;
+
+  case "ae-clippings-manager":
+    openClippingsManager();
+    break;
+    
+  case "ae-clippings-prefs":
     messenger.runtime.openOptionsPage();
     break;
 
   default:
+    if (aInfo.menuItemId.startsWith("ae-clippings-clipping-")) {
+      let id = Number(aInfo.menuItemId.substring(aInfo.menuItemId.lastIndexOf("-") + 1, aInfo.menuItemId.indexOf("_")));
+      pasteClippingByID(id);
+    }
+    else if (aInfo.menuItemId.startsWith("ae-clippings-reset-autoincr-")) {
+      // TO DO: Finish implementation
+    }
     break;
   }
 });
