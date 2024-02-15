@@ -374,6 +374,15 @@ async function init()
     log("Clippings/mx: Display order on root folder items have been set.");
   }
 
+  let compScriptOpts = {
+    js: [
+      {file: "lib/purify.min.js"},
+      {file: "compose.js"}
+    ],
+  };  
+  messenger.composeScripts.register(compScriptOpts);
+
+  // DEPRECATED
   messenger.WindowListener.registerChromeUrl([
     ["content",  "clippings", "legacy/chrome/content/"],
     ["locale",   "clippings", "en-US", "legacy/chrome/locale/en-US/"],
@@ -384,8 +393,8 @@ async function init()
     "chrome://messenger/content/messengercompose/messengercompose.xhtml",
     "chrome://clippings/content/messengercompose.js"
   );
-  
   messenger.WindowListener.startListening();
+  // END DEPRECATED
 
   gIsInitialized = true;
   log("Clippings/mx: MailExtension initialization complete.");    
@@ -1333,7 +1342,7 @@ async function openDlgWnd(aURL, aWndKey, aWndPpty, aWndType)
 }
 
 
-function pasteClippingByID(aClippingID, aExternalRequest)
+function pasteClippingByID(aClippingID, aComposeTabID)
 {
   let clippingsDB = aeClippings.getDB();
   
@@ -1368,7 +1377,7 @@ function pasteClippingByID(aClippingID, aExternalRequest)
         parentFolderName: parentFldrName
       };
 
-      pasteClipping(clippingInfo, aExternalRequest);
+      pasteClipping(clippingInfo, aComposeTabID);
     });
   }).catch(aErr => {
     console.error("Clippings/wx: pasteClippingByID(): " + aErr);
@@ -1376,16 +1385,37 @@ function pasteClippingByID(aClippingID, aExternalRequest)
 }
 
 
-async function pasteClipping(aClippingInfo, aExternalRequest)
+async function pasteClipping(aClippingInfo, aComposeTabID)
 {
-  // TEMPORARY
-  log("Clippings/mx: pasteClipping(): Clipping to paste into composer:");
-  log(aClippingInfo);
-  // END TEMPORARY
+  let processedCtnt = "";
+  let pasteAsQuoted = false;
 
-  // TO DO: Finish implementation
+  // TEMPORARY
+  processedCtnt = aClippingInfo.text;
+  // END TEMPORARY
+  
+  // TO DO: Process placeholders.
+  // TO DO: Prompt user if they want to format the clipping as normal
+  // or quoted text.
+
+  let comp = await messenger.compose.getComposeDetails(aComposeTabID);
+
+  pasteProcessedClipping(processedCtnt, aComposeTabID, comp.isPlainText, pasteAsQuoted);
 }
 
+
+function pasteProcessedClipping(aClippingContent, aComposeTabID, aIsPlainText, aIsQuoted)
+{
+  let content = aClippingContent.replace(/\\/g, "\\\\");
+  content = content.replace(/\"/g, "\\\"");
+  content = content.replace(/\n/g, "\\n");
+
+  let injectOpts = {
+    code: `insertClipping("${content}", ${aIsPlainText}, ${gPrefs.htmlPaste}, ${gPrefs.autoLineBreak}, ${aIsQuoted});`
+  };
+
+  messenger.tabs.executeScript(aComposeTabID, injectOpts);
+}
 
 
 function getClipping(aClippingID)
@@ -1532,7 +1562,7 @@ messenger.menus.onClicked.addListener(async (aInfo, aTab) => {
   default:
     if (aInfo.menuItemId.startsWith("ae-clippings-clipping-")) {
       let id = Number(aInfo.menuItemId.substring(aInfo.menuItemId.lastIndexOf("-") + 1, aInfo.menuItemId.indexOf("_")));
-      pasteClippingByID(id);
+      pasteClippingByID(id, aTab.id);
     }
     else if (aInfo.menuItemId.startsWith("ae-clippings-reset-autoincr-")) {
       // TO DO: Finish implementation

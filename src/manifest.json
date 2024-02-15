@@ -19,6 +19,7 @@
 
   "permissions": [
     "alarms",
+    "compose",
     "downloads",
     "management",
     "menus",
