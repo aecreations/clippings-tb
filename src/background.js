@@ -1396,6 +1396,30 @@ async function openDlgWnd(aURL, aWndKey, aWndPpty, aWndType)
 }
 
 
+async function getWndGeometryFromComposeTab()
+{
+  let rv = null;
+
+  let [tab] = await messenger.tabs.query({active: true, currentWindow: true});
+  if (!tab || tab.type != "messageCompose") {
+    // This could happen if the compose window was closed while the
+    // placeholder prompt dialog was open.
+    return rv;
+  }
+
+  let wnd = await messenger.windows.get(tab.windowId);
+  let wndGeom = {
+    w: tab.width,
+    h: tab.height,
+    x: wnd.left,
+    y: wnd.top,
+  };
+  rv = wndGeom;
+
+  return rv;
+}
+
+
 function pasteClippingByID(aClippingID, aComposeTabID)
 {
   let clippingsDB = aeClippings.getDB();
@@ -1613,6 +1637,64 @@ function setDirtyFlag(aFlag)
   }
   else {
     gIsDirty = aFlag;
+  }
+}
+
+
+async function alertEx(aMessageID, aUsePopupWnd=false)
+{
+  let message = messenger.i18n.getMessage(aMessageID);
+  info("Clippings/mx: " + message);
+
+  let url = "pages/msgbox.html?msgid=" + aMessageID;
+
+  // Center the common message box popup within originating composer window,
+  // both horizontally and vertically.
+  let wndGeom = null;
+  let width = 520;
+  let height = 170;
+
+  // Default popup window coords.  Unless replaced by window geometry calcs,
+  // these coords will be ignored - popup window will always be centered
+  // on screen due to a WebExtension API bug; see next comment.
+  let left = 256;
+  let top = 64;
+
+  if (gPrefs && gPrefs.autoAdjustWndPos) {
+    wndGeom = await getWndGeometryFromComposeTab();
+
+    if (wndGeom) {
+      if (wndGeom.w < width) {
+        left = null;
+      }
+      else {
+        left = Math.ceil((wndGeom.w - width) / 2) + wndGeom.x;
+      }
+
+      if ((wndGeom.h) < height) {
+        top = null;
+      }
+      else {
+        top = Math.ceil((wndGeom.h - height) / 2) + wndGeom.y;
+      }
+    }
+  }
+
+  let wndKey = "ae_clippings_msgbox";
+  let wnd = await messenger.windows.create({
+    url,
+    type: "popup",
+    width, height,
+    left, top,
+  });
+
+  gWndIDs[wndKey] = wnd.id;
+
+  // Workaround to bug where window position isn't correctly set when calling
+  // `browser.windows.create()`. If unable to get window geometry, then default
+  // to centering on screen.
+  if (wndGeom) {
+    messenger.windows.update(wnd.id, {left, top});
   }
 }
 
