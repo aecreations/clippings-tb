@@ -32,7 +32,8 @@
   "background": {
     "scripts": [
       "lib/dexie/dexie.min.js",
-      "lib/jquery.js",
+      "lib/moment/moment.min.js",
+      "lib/moment/locales.min.js",
       "scripts/aeConst.js",
       "scripts/aeDateDiff.js",
       "scripts/aeImportExport.js",
@@ -41,6 +42,7 @@
       "scripts/aeVersionCmp.js",
       "scripts/aeUUID.js",
       "scripts/aeClippings.js",
+      "scripts/aeClippingSubst.js",
       "background.js"
     ]
   },

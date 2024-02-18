@@ -5,11 +5,12 @@
 
 const ROOT_FOLDER_NAME = "clippings-root";
 
-let gClippingsDB;
+let gOS;
 let gHostAppName;
 let gHostAppVer;
-let gOS;
+let gClippingsDB;
 let gIsDirty = false;
+let gAutoIncrPlchldrs = null;
 let gClippingMenuItemIDMap = {};
 let gFolderMenuItemIDMap = {};
 let gSyncFldrID = null;
@@ -214,6 +215,44 @@ let gNewClipping = {
   }
 };
 
+let gPlaceholders = {
+  _clippingName: null,
+  _plchldrs: null,
+  _clpCtnt: null,
+  _plchldrsWithDefVals: null,
+
+  set: function (aClippingName, aPlaceholders, aPlaceholdersWithDefaultVals, aClippingText) {
+    this._clippingName = aClippingName;
+    this._plchldrs = aPlaceholders;
+    this._plchldrsWithDefVals = aPlaceholdersWithDefaultVals;
+    this._clpCtnt = aClippingText;
+  },
+
+  get: function () {
+    let rv = this.copy();
+    this.reset();
+
+    return rv;
+  },
+
+  copy: function () {
+    let rv = {
+      clippingName: this._clippingName,
+      placeholders: this._plchldrs.slice(),
+      placeholdersWithDefaultVals: Object.assign({}, this._plchldrsWithDefVals),
+      content: this._clpCtnt
+    };
+    return rv;
+  },
+
+  reset: function () {
+    this._clippingName = null;
+    this._plchldrs = null;
+    this._plchldrsWithDefVals = null;
+    this._clpCtnt = null;
+  }
+};
+
 let gWndIDs = {
   newClipping: null,
   clippingsMgr: null,
@@ -345,6 +384,9 @@ async function init()
     buildContextMenu();
   }
   
+  aeClippingSubst.init(navigator.userAgent, gPrefs.autoIncrPlcHldrStartVal);
+  gAutoIncrPlchldrs = new Set();
+
   if (gPrefs.backupRemFirstRun && !gPrefs.lastBackupRemDate) {
     aePrefs.setPrefs({
       lastBackupRemDate: new Date().toString(),
@@ -1233,6 +1275,18 @@ function openNewClippingDlg(aNewClippingContent)
 }
 
 
+function openPlaceholderPromptDlg()
+{
+  let url = messenger.runtime.getURL("pages/placeholderPrompt.html");
+  openDlgWnd(url, "placeholderPrmt", {
+    type: "popup",
+    width: 536,
+    height: 228,
+    topOffset: 256,
+  });
+}
+
+
 async function openBackupDlg()
 {
   let url = messenger.runtime.getURL("pages/backup.html");
@@ -1394,7 +1448,28 @@ async function pasteClipping(aClippingInfo, aComposeTabID)
   processedCtnt = aClippingInfo.text;
   // END TEMPORARY
   
-  // TO DO: Process placeholders.
+  if (aeClippingSubst.hasNoSubstFlag(aClippingInfo.name)) {
+    processedCtnt = aClippingInfo.text;
+  }
+  else {
+    processedCtnt = aeClippingSubst.processStdPlaceholders(aClippingInfo);
+    /***
+    let autoIncrPlchldrs = aeClippingSubst.getAutoIncrPlaceholders(processedCtnt);
+    if (autoIncrPlchldrs.length > 0) {
+      buildAutoIncrementPlchldrResetMenu(autoIncrPlchldrs);
+      processedCtnt = aeClippingSubst.processAutoIncrPlaceholders(processedCtnt);
+    }
+    ***/
+    let plchldrs = aeClippingSubst.getCustomPlaceholders(processedCtnt);
+    if (plchldrs.length > 0) {
+      let plchldrsWithDefaultVals = aeClippingSubst.getCustomPlaceholderDefaultVals(processedCtnt, aClippingInfo);
+      gPlaceholders.set(aClippingInfo.name, plchldrs, plchldrsWithDefaultVals, processedCtnt);
+
+      openPlaceholderPromptDlg();
+      return;
+    }
+  }
+
   // TO DO: Prompt user if they want to format the clipping as normal
   // or quoted text.
 
@@ -1409,6 +1484,12 @@ function pasteProcessedClipping(aClippingContent, aComposeTabID, aIsPlainText, a
   let content = aClippingContent.replace(/\\/g, "\\\\");
   content = content.replace(/\"/g, "\\\"");
   content = content.replace(/\n/g, "\\n");
+
+  // TO DO: These two optional parameters should be removed from this function.
+  // Their values should be calculated at the time the compose script is called below.
+  aIsPlainText = !!aIsPlainText;
+  aIsQuoted = !!aIsQuoted;
+  // END TO DO
 
   let injectOpts = {
     code: `insertClipping("${content}", ${aIsPlainText}, ${gPrefs.htmlPaste}, ${gPrefs.autoLineBreak}, ${aIsQuoted});`
@@ -1627,9 +1708,30 @@ messenger.runtime.onMessage.addListener(aRequest => {
     }
     return Promise.resolve(newClipping);
 
+  case "init-placeholder-prmt-dlg":
+    return Promise.resolve(gPlaceholders.get());
+
   case "close-new-clipping-dlg":
     gWndIDs.newClipping = null;
     gIsDirty = true;
+    break;
+
+  case "paste-clipping-with-plchldrs":
+    let content = aRequest.processedContent;
+    setTimeout(async () => {
+      let [tabs] = await messenger.tabs.query({active: true, currentWindow: true});
+      if (!tabs || tabs.type != "messageCompose") {
+        // This could happen if the compose window was closed while the
+        // placeholder prompt dialog was open.
+        return;
+      }
+      let activeTabID = tabs.id;
+      pasteProcessedClipping(content, activeTabID);
+    }, 60);
+    break;
+
+  case "close-placeholder-prmt-dlg":
+    gWndIDs.placeholderPrmt = null;
     break;
 
   case "get-shct-key-prefix-ui-str":

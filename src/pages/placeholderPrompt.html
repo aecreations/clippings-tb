@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title data-i18n="pasteTitle"></title>
+
+    <link rel="stylesheet" href="placeholderPrompt.css"/>
+  </head>
+
+  <body>
+    <div class="deck">
+      <div id="plchldr-single" class="deck-content">
+	<div class="icon">
+	  <div class="prompt-icon"></div>
+	</div>
+	<div id="plchldr-single-content" class="prompt-content">
+	  <p class="clipping-name"></p>
+	  <p id="single-prmt-label"></p>
+	  <input type="text" id="single-prmt-input"/>
+	</div>
+      </div>
+      
+      <div id="plchldr-multi" class="deck-content">
+	<div class="icon">
+	  <div class="prompt-icon"></div>
+	</div>
+	<div id="plchldr-multi-content" class="prompt-content">
+	  <p class="clipping-name"></p>
+	  <p id="multi-prmt-label" data-i18n="plchldrPromptMultiDesc"></p>
+	  <div id="plchldr-table"></div>
+	</div>
+      </div>
+    </div>  <!-- .deck -->
+    
+    <div id="dlg-buttons">
+      <button id="btn-accept" class="default" data-i18n="btnOK"></button>
+      <button id="btn-cancel" data-i18n="btnCancel"></button>
+    </div>
+
+    <script src="../lib/jquery.js"></script>
+    <script src="../lib/purify.min.js"></script>
+    <script src="../scripts/aeConst.js"></script>
+    <script src="../scripts/aeI18n.js"></script>
+    <script src="../scripts/aeInterxn.js"></script>
+    <script src="placeholderPrompt.js"></script>
+  </body>
+</html>
