@@ -1466,12 +1466,7 @@ function pasteClippingByID(aClippingID, aComposeTabID)
 async function pasteClipping(aClippingInfo, aComposeTabID)
 {
   let processedCtnt = "";
-  let pasteAsQuoted = false;
 
-  // TEMPORARY
-  processedCtnt = aClippingInfo.text;
-  // END TEMPORARY
-  
   if (aeClippingSubst.hasNoSubstFlag(aClippingInfo.name)) {
     processedCtnt = aClippingInfo.text;
   }
@@ -1497,26 +1492,23 @@ async function pasteClipping(aClippingInfo, aComposeTabID)
   // TO DO: Prompt user if they want to format the clipping as normal
   // or quoted text.
 
-  let comp = await messenger.compose.getComposeDetails(aComposeTabID);
-
-  pasteProcessedClipping(processedCtnt, aComposeTabID, comp.isPlainText, pasteAsQuoted);
+  pasteProcessedClipping(processedCtnt, aComposeTabID);
 }
 
 
-function pasteProcessedClipping(aClippingContent, aComposeTabID, aIsPlainText, aIsQuoted)
+async function pasteProcessedClipping(aClippingContent, aComposeTabID)
 {
   let content = aClippingContent.replace(/\\/g, "\\\\");
   content = content.replace(/\"/g, "\\\"");
   content = content.replace(/\n/g, "\\n");
 
-  // TO DO: These two optional parameters should be removed from this function.
-  // Their values should be calculated at the time the compose script is called below.
-  aIsPlainText = !!aIsPlainText;
-  aIsQuoted = !!aIsQuoted;
-  // END TO DO
+  // TEMPORARY - until Paste Options dialog is implemented.
+  let isQuoted = false;
+  // END TEMPORARY
 
+  let comp = await messenger.compose.getComposeDetails(aComposeTabID);
   let injectOpts = {
-    code: `insertClipping("${content}", ${aIsPlainText}, ${gPrefs.htmlPaste}, ${gPrefs.autoLineBreak}, ${aIsQuoted});`
+    code: `insertClipping("${content}", ${comp.isPlainText}, ${gPrefs.htmlPaste}, ${gPrefs.autoLineBreak}, ${isQuoted});`
   };
 
   messenger.tabs.executeScript(aComposeTabID, injectOpts);
@@ -1711,7 +1703,7 @@ messenger.composeAction.onClicked.addListener(aTab => {
 messenger.menus.onClicked.addListener(async (aInfo, aTab) => {
   switch (aInfo.menuItemId) {
   case "ae-clippings-new":
-    // TO DO: Finish implementation
+    newClipping(aTab);
     break;
 
   case "ae-clippings-manager":
@@ -1801,14 +1793,14 @@ messenger.runtime.onMessage.addListener(aRequest => {
   case "paste-clipping-with-plchldrs":
     let content = aRequest.processedContent;
     setTimeout(async () => {
-      let [tabs] = await messenger.tabs.query({active: true, currentWindow: true});
-      if (!tabs || tabs.type != "messageCompose") {
+      let [tab] = await messenger.tabs.query({active: true, currentWindow: true});
+      if (!tab || tab.type != "messageCompose") {
         // This could happen if the compose window was closed while the
         // placeholder prompt dialog was open.
         return;
       }
-      let activeTabID = tabs.id;
-      pasteProcessedClipping(content, activeTabID);
+      let activeTabID = tab.id;
+      await pasteProcessedClipping(content, activeTabID);
     }, 60);
     break;
 
