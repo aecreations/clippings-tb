@@ -16,7 +16,7 @@ function getSelectedText()
   let selection = document.defaultView.getSelection();
   let content = selection.toString() || "";
   let msg = {
-    id: "new-from-selection",
+    msgID: "new-from-selection",
     content,
   };
 

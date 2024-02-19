@@ -1259,11 +1259,18 @@ function cleanUpClippingsMgr()
 }
 
 
+function newClipping(aComposeTab)
+{
+  let injectOpts = {code: `getSelectedText()`};
+  messenger.tabs.executeScript(aComposeTab.id, injectOpts);
+}
+
+
 function openNewClippingDlg(aNewClippingContent)
 {
   if (aNewClippingContent) {
     let name = createClippingNameFromText(aNewClippingContent);
-    gNewClipping.set({ name, content: aNewClippingContent });
+    gNewClipping.set({name, content: aNewClippingContent});
   }
   
   let url = messenger.runtime.getURL("pages/new.html");
@@ -1271,7 +1278,7 @@ function openNewClippingDlg(aNewClippingContent)
   if (gOS == "win") {
     height = 444;
   }
-  openDlgWnd(url, "newClipping", {type: "detached_panel", width: 432, height});
+  openDlgWnd(url, "newClipping", {type: "popup", width: 432, height});
 }
 
 
@@ -1774,6 +1781,16 @@ messenger.runtime.onMessage.addListener(aRequest => {
       hostAppVer:  gHostAppVer,
     };
     return Promise.resolve(envInfo);
+
+  case "new-from-selection":
+    if (aRequest.content) {
+      openNewClippingDlg(aRequest.content);
+    }
+    else {
+      alertEx("msgNoTextSel");
+      return;
+    }
+    break;
 
   case "init-new-clipping-dlg":
     let newClipping = gNewClipping.get();
