@@ -384,7 +384,7 @@ async function init()
     buildContextMenu();
   }
   
-  aeClippingSubst.init(navigator.userAgent, gPrefs.autoIncrPlcHldrStartVal);
+  aeClippingSubst.init(navigator.userAgent, gPrefs.autoIncrPlchldrStartVal);
   gAutoIncrPlchldrs = new Set();
 
   if (gPrefs.backupRemFirstRun && !gPrefs.lastBackupRemDate) {
@@ -856,6 +856,13 @@ function buildContextMenu()
   log("Clippings/mx: buildContextMenu()");
 
   // Context menu for compose action button.
+  browser.menus.create({
+    id: "ae-clippings-reset-autoincr-plchldrs",
+    title: messenger.i18n.getMessage("baMenuResetAutoIncrPlaceholders"),
+    enabled: false,
+    contexts: ["compose_action"],
+  });
+
   let prefsMnuStrKey = "mnuPrefs";
   if (gOS == "win") {
     prefsMnuStrKey = "mnuPrefsWin";
@@ -936,6 +943,47 @@ async function rebuildContextMenu()
 
   // TO DO: Is this still needed?? 
   gIsDirty = true;
+}
+
+
+function buildAutoIncrementPlchldrResetMenu(aAutoIncrPlchldrs)
+{
+  let enabledResetMenu = false;
+  
+  aAutoIncrPlchldrs.forEach(async (aItem, aIndex, aArray) => {
+    if (! gAutoIncrPlchldrs.has(aItem)) {
+      gAutoIncrPlchldrs.add(aItem);
+
+      let menuItem = {
+        id: `ae-clippings-reset-autoincr-${aItem}`,
+        title: `#[${aItem}]`,
+        parentId: "ae-clippings-reset-autoincr-plchldrs",
+        contexts: ["compose_action"],
+      };
+      
+      await messenger.menus.create(menuItem);
+      if (! enabledResetMenu) {
+        await messenger.menus.update("ae-clippings-reset-autoincr-plchldrs", {
+          enabled: true
+        });
+        enabledResetMenu = true;
+      }
+    }
+  });
+}
+
+
+async function resetAutoIncrPlaceholder(aPlaceholder)
+{
+  log(`Clippings/mx: resetAutoIncrPlaceholder(): Resetting placeholder: #[${aPlaceholder}]`);
+
+  aeClippingSubst.resetAutoIncrementVar(aPlaceholder);
+  gAutoIncrPlchldrs.delete(aPlaceholder);
+  await messenger.menus.remove(`ae-clippings-reset-autoincr-${aPlaceholder}`);
+  
+  if (gAutoIncrPlchldrs.size == 0) {
+    messenger.menus.update("ae-clippings-reset-autoincr-plchldrs", {enabled: false});
+  }
 }
 
 
@@ -1479,13 +1527,12 @@ async function pasteClipping(aClippingInfo, aComposeTabID)
   }
   else {
     processedCtnt = aeClippingSubst.processStdPlaceholders(aClippingInfo);
-    /***
     let autoIncrPlchldrs = aeClippingSubst.getAutoIncrPlaceholders(processedCtnt);
     if (autoIncrPlchldrs.length > 0) {
       buildAutoIncrementPlchldrResetMenu(autoIncrPlchldrs);
       processedCtnt = aeClippingSubst.processAutoIncrPlaceholders(processedCtnt);
     }
-    ***/
+
     let plchldrs = aeClippingSubst.getCustomPlaceholders(processedCtnt);
     if (plchldrs.length > 0) {
       let plchldrsWithDefaultVals = aeClippingSubst.getCustomPlaceholderDefaultVals(processedCtnt, aClippingInfo);
@@ -1727,7 +1774,8 @@ messenger.menus.onClicked.addListener(async (aInfo, aTab) => {
       pasteClippingByID(id, aTab.id);
     }
     else if (aInfo.menuItemId.startsWith("ae-clippings-reset-autoincr-")) {
-      // TO DO: Finish implementation
+      let plchldr = aInfo.menuItemId.substr(28);
+      resetAutoIncrPlaceholder(plchldr);
     }
     break;
   }
@@ -1766,6 +1814,10 @@ messenger.storage.onChanged.addListener((aChanges, aAreaName) => {
 
   for (let pref of changedPrefs) {
     gPrefs[pref] = aChanges[pref].newValue;
+
+    if (pref == "autoIncrPlchldrStartVal") {
+      aeClippingSubst.setAutoIncrementStartValue(aChanges[pref].newValue);
+    }
   }
 });
 
@@ -1917,7 +1969,7 @@ messenger.runtime.onMessage.addListener(aRequest => {
 
 
 messenger.NotifyTools.onNotifyBackground.addListener(async (aMessage) => {
-  log(`Clipping/mx: Received NotifyTools message "${aMessage.command}" from legacy overlay script`);
+  log(`Clippings/mx: Received NotifyTools message "${aMessage.command}" from legacy overlay script`);
 
   let rv = null;
   let isAsync = false;
