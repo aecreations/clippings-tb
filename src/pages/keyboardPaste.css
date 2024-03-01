@@ -1,0 +1,375 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("../style/dialog.css");
+@import url("../style/searchbox.css");
+
+
+:root {
+    --toolbar-height: 30px;
+    --col-hdr-height: 20px;
+
+    --color-main-toolbar-bkgd: linear-gradient(to bottom, #fcfcfc 0%, #dedede 100%);
+    --color-main-toolbar-bkgd-btn: transparent;
+    --color-main-toolbar-text: #0c0c0d;
+    --color-toolbarbtn-hover-bkgd: rgba(12, 12, 13, 0.2);
+    --color-toolbarbtn-active-bkgd: rgba(12, 12, 13, 0.3);
+    --color-toolbarbtn-close-bkgd: transparent;
+    --color-toolbarbtn-close-border: #b1b1b1;
+    --color-toolbarbtn-close-hover-bkgd: rgba(12, 12, 13, 0.1);
+    --color-toolbarbtn-close-active-bkgd: rgba(12, 12, 13, 0.2);
+    --color-th-bkgd: #eee;
+    --color-th-border: #d4d4d4;
+    --color-selected-row: #cbe8f6;
+    --color-active-row: #eff9fe;
+    --color-autocomplete-popup-bkgd: white;
+    --color-autocomplete-popup-shadow: #8f8f8f;
+    --color-autocomplete-listbox-border: white;
+    --color-autocomplete-normal-border: white;
+    --color-autocomplete-normal-bkgd: white;
+    --color-autocomplete-selected-bkgd: #eff9fe;
+    --color-autocomplete-selected-border: #70c0e7;
+    --color-autocomplete-clipping-name: #0c0c0d;
+    --color-autocomplete-clipping-preview: #737373;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+	--color-main-toolbar-bkgd: #38383d;
+	--color-main-toolbar-bkgd-btn: #38383d;
+	--color-main-toolbar-text: #f9f9fa;
+	--color-toolbarbtn-hover-bkgd: #737373;
+	--color-toolbarbtn-active-bkgd: #b1b1b3;
+	--color-toolbarbtn-close-bkgd: transparent;
+	--color-toolbarbtn-close-border: #737373;
+	--color-toolbarbtn-close-hover-bkgd: #737373;
+	--color-toolbarbtn-close-active-bkgd: #b1b1b3;
+	--color-th-bkgd: #4a4a4f;
+	--color-th-border: #737373;
+	--color-selected-row: #0a84ff;
+	--color-active-row: #003eaa;
+	--color-autocomplete-popup-bkgd: #202023;
+	--color-autocomplete-popup-shadow: #4a4a4f;
+	--color-autocomplete-listbox-border: black;
+	--color-autocomplete-normal-border: black;
+	--color-autocomplete-normal-bkgd: #202023;
+	--color-autocomplete-selected-bkgd: #0a84ff;
+	--color-autocomplete-selected-border: #0060df;
+	--color-autocomplete-clipping-name: #f9f9fa;
+	--color-autocomplete-clipping-preview: #b1b1b3;
+    }
+}
+
+
+body {
+    overflow: hidden;
+}
+
+.icon {
+    float: left;
+}
+
+.deck-content {
+    font-size: 13px;
+}
+
+.toolbar-button {
+    flex: 0 1 auto;
+    align-self: stretch;
+    min-width: 30px;
+    min-height: 24px;
+    margin-left: 0px;
+    margin-right: 0px;
+    border: 1px solid transparent;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: transparent;
+    color: var(--color-default-text);
+    font: caption;
+    font-size: 11px !important;
+}
+
+.toolbar-button:hover {
+    border: 1px solid transparent;
+    border-radius: 3px;
+    background-color: var(--color-toolbarbtn-hover-bkgd);
+}
+
+.toolbar-button:active {
+    border: 1px solid transparent !important;
+    border-radius: 3px;
+    background-color: var(--color-toolbarbtn-active-bkgd);
+}
+
+.toolbar-button-labelled {
+    background-position: 4px;
+    padding-left: 24px;
+    padding-right: 6px;
+}
+
+.toolbar-button-labelled:active {
+    background-position: 4px;
+    padding-left: 24px;
+    padding-right: 6px;
+}
+
+.key-legend {
+    position: absolute;
+    left: 16px;
+    bottom: 24px;
+    font-size: 11px;
+    z-index: 1;
+}
+
+#paste-by-shortcut-key, #search-by-name, #shortcut-list {
+    display: none;
+}
+
+#shortcut-list #shortcut-list-toolbar {
+    margin: -16px -16px 0 -16px;
+    height: var(--toolbar-height);
+    padding-left: 2px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    background: var(--color-main-toolbar-bkgd);
+    color: var(--color-main-toolbar-text);
+    border-bottom: 1px solid silver;
+}
+
+#shortcut-list #shortcut-list-toolbar button {
+    color: var(--color-main-toolbar-text);
+}
+
+#shortcut-list-toolbar > .toolbar-button:-moz-focusring {
+    border-color: var(--color-main-toolbar-bkgd-btn) !important;
+}
+
+#shortcut-list-toolbar #paste-clipping {
+    order: 1;
+    background-image: url("../img/insClipping.svg");
+}
+
+#shortcut-list-toolbar #paste-clipping:hover {
+    background-image: url("../img/insClipping-hover.svg");
+}
+
+#shortcut-list-toolbar #export-shct-list {
+    order: 2;
+    background-image: url("../img/export.svg");
+}
+
+#shortcut-list-toolbar #export-shct-list:hover {
+    background-image: url("../img/export_hover.svg");
+}
+
+#shortcut-list-toolbar #close {
+    order: 3;
+
+    margin-left: 8px;
+    min-width: 30px;
+    min-height: 24px;
+    border: 1px solid var(--color-toolbarbtn-close-border);
+    border-radius: 3px;
+    background-color: var(--color-toolbarbtn-close-bkgd);
+    font-size: 11px !important;
+}
+
+#shortcut-list-toolbar #close:hover {
+    background-color: var(--color-toolbarbtn-close-hover-bkgd);
+}
+
+#shortcut-list-toolbar #close:active {
+    background-color: var(--color-toolbarbtn-close-active-bkgd);
+}
+
+/* Used for the Close button on the shortcut key help toolbar. */
+button.browser-style:focus:not(:disabled) {
+    border-color: var(--color-bkgd) !important;
+}
+
+#shortcut-list-content {
+    margin-left: -16px;
+    margin-right: -16px;
+    height: calc(100% - var(--toolbar-height));
+}
+
+#shortcut-list-content table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    font-size: 12px;
+}
+
+#shortcut-list-content table > thead {
+    display: block;
+    height: var(--col-hdr-height);
+    color: var(--color-default-text);
+}
+
+#shortcut-list-content table > thead > tr {
+    background-color: var(--color-th-bkgd);
+}
+
+#shortcut-list-content table > thead > tr > th {
+    padding: 2px 4px 2px 4px;
+    border-bottom: 1px solid var(--color-th-border);
+    font-weight: normal;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 90px;
+}
+
+#shortcut-list-content table > thead > tr > th:nth-child(1) {
+    border-right: 1px solid var(--color-th-border);
+}
+
+#shortcut-list-content table > tbody {
+    display: block;
+    height: 200px;
+    min-height: 200px;
+    margin-top: 1px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+#shortcut-list-content table > tbody > tr {
+    height: 22px;
+}
+
+#shortcut-list-content table > tbody > tr > td {
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+#shortcut-list-content table > tbody > tr:active {
+    background-color: var(--color-active-row);
+}
+
+#shortcut-list-content table > tbody > tr.selected-row {
+    background-color: var(--color-selected-row);
+}
+
+#shortcut-list-content table th:nth-child(1),
+#shortcut-list-content table td:nth-child(1) {
+    min-width: 92px;
+}
+
+#shortcut-list-content table th:nth-child(2),
+#shortcut-list-content table td:nth-child(2) {
+    width: 100%;
+    max-width: 100px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#paste-by-shct-key-content, #search-by-name-content {
+    margin-left: 44px;
+}
+
+#search-by-name-ico {
+    width: 36px;
+    height: 36px;
+    background-image: url("../img/question-64.png");
+    background-size: contain;
+}
+
+body[data-os="mac"] #search-by-name-ico {
+    background-image: url("../img/question-64-mac.png");
+}
+
+#clipping-search-label {
+    height: 20px;
+}
+
+#search-label-text, #num-matches {
+    flex: 0 1 auto;
+    width: 100%;
+}
+
+#search-label-spacer {
+    flex: 1 1 auto;
+}
+
+#clipping-search {
+    width: 100%;
+    height: 24px;
+    margin-top: 4px;
+    padding: 0 20px 0;
+    background-image: var(--url-icon-search-textbox);
+    background-position: 4px;
+    background-repeat: no-repeat;
+    font-size: 13px;
+
+    font: caption;
+    font-size: 13px;
+}
+
+#clear-search {
+    display: inline-block;
+    position: absolute;
+    top: 46px;
+    right: 20px;
+    width: 12px;
+    height: 12px;
+    background-color: transparent;
+    background-image: var(--url-icon-search-reset);
+    background-position-x: center;
+    background-position-y: center;
+    background-repeat: no-repeat;
+    z-index: 100;
+}
+
+#num-matches {
+    width: 100%;
+    text-align: right;
+    font-size: 11px;   
+}
+
+/* Autocomplete menu */
+#search-results-popup {
+    display: none;
+    height: 112px;
+    margin-top: 1px;
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    background-color: var(--color-autocomplete-popup-bkgd);
+    border: 1px solid #b1b1b1;
+    box-shadow: 4px 4px 2px -2px var(--color-autocomplete-popup-shadow);
+}
+
+#search-results-listbox {
+    border: 1px solid var(--color-autocomplete-listbox-border);
+    z-index: 100;
+}
+
+.clipping {
+    width: 100%;
+    height: 36px;    
+    border: none;
+    background-color: var(--color-autocomplete-normal-bkgd);
+    padding: 1px;
+}
+
+.clipping[selected="true"] {
+    background-color: var(--color-autocomplete-selected-bkgd);
+    border: 1px solid var(--color-autocomplete-selected-border);
+    padding: 0px;
+}
+
+.clipping > .name {
+    height: 18px;
+    padding: 0px 4px 0px 4px;
+    font-size: 13px;
+    color: var(--color-autocomplete-clipping-name);
+}
+
+.clipping > .preview {
+    height: 18px;
+    padding: 0px 4px 0px 4px;
+    font-size: 11px;
+    color: var(--color-autocomplete-clipping-preview);
+}

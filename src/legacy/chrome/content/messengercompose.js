@@ -114,17 +114,6 @@ async function onLoad(aActivatedWhileWindowOpen)
      oncommand="window.aecreations.clippings.keyboardInsertClipping()"/>
   </commandset>
 
-  <keyset id="tasksKeys">
-    <key id="key_ae_clippings" key="v"
-     modifiers="alt control" command="ae_clippings_keyboard_insert"/>
-    <key id="key_ae_clippings_new" key="y"
-     modifiers="alt shift" command="ae_clippings_keyboard_insert"/>
-    
-    <!-- For macOS -->
-    <key id="key_ae_clippings_mac" key="v"
-     modifiers="alt meta" command="ae_clippings_keyboard_insert"/>
-  </keyset>
-
   <menupopup id="msgComposeContext">
     <menu id="ae-clippings-menu-1" label="__MSG_browserActionTitle__">
       <menupopup id="ae-clippings-popup-1">

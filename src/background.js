@@ -1330,6 +1330,18 @@ function openNewClippingDlg(aNewClippingContent)
 }
 
 
+function openKeyboardPasteDlg()
+{
+  let url = messenger.runtime.getURL("pages/keyboardPaste.html");
+  openDlgWnd(url, "keyboardPaste", {
+    type: "popup",
+    width: 500,
+    height: 164,
+    topOffset: 256,
+  });
+}
+
+
 function openPlaceholderPromptDlg()
 {
   let url = messenger.runtime.getURL("pages/placeholderPrompt.html");
@@ -1514,6 +1526,56 @@ function pasteClippingByID(aClippingID, aComposeTabID)
     });
   }).catch(aErr => {
     console.error("Clippings/wx: pasteClippingByID(): " + aErr);
+  });
+}
+
+
+function pasteClippingByShortcutKey(aShortcutKey, aComposeTabID)
+{
+  let clippingsDB = aeClippings.getDB();
+
+  clippingsDB.transaction("r", clippingsDB.clippings, clippingsDB.folders, () => {
+    let results = clippingsDB.clippings.where("shortcutKey").equals(aShortcutKey.toUpperCase());
+    let clipping = {};
+    
+    results.first().then(aClipping => {
+      if (! aClipping) {
+        log(`Cannot find clipping with shortcut key '${aShortcutKey}'`);
+        return null;
+      }
+
+      if (aClipping.parentFolderID == -1) {
+        throw new Error(`Shortcut key '${aShortcutKey}' is assigned to a deleted clipping!`);
+      }
+
+      clipping = aClipping;
+      log(`Pasting clipping named "${clipping.name}"\nid = ${clipping.id}`);
+
+      return clippingsDB.folders.get(aClipping.parentFolderID);
+    }).then(aFolder => {
+      if (aFolder === null) {
+        return;
+      }
+
+      let parentFldrName = "";
+
+      if (aFolder) {
+        parentFldrName = aFolder.name;
+      }
+      else {
+        parentFldrName = ROOT_FOLDER_NAME;
+      }
+      let clippingInfo = {
+        id: clipping.id,
+        name: clipping.name,
+        text: clipping.content,
+        parentFolderName: parentFldrName
+      };
+
+      pasteClipping(clippingInfo, aComposeTabID);
+    });
+  }).catch(aErr => {
+    console.error("Clippings/mx: pasteClippingByShortcutKey(): " + aErr);
   });
 }
 
@@ -1754,6 +1816,22 @@ messenger.composeAction.onClicked.addListener(aTab => {
 });
 
 
+messenger.commands.onCommand.addListener(async (aCmdName) => {
+  info(`Clippings/mx: Command "${aCmdName}" invoked!`);
+
+  // Ignore command if not invoked from the message composer.
+  let [tab] = await messenger.tabs.query({active: true, currentWindow: true});
+  if (!tab || tab.type != "messageCompose") {
+    log(`Clippings/mx: Command invoked from tab ${tab.id}, which isn't a messageCompose tab.`);
+    return;
+  }
+
+  if (aCmdName == "ae-clippings-paste-clipping" && gPrefs.keyboardPaste) {
+    openKeyboardPasteDlg();
+  }
+});
+
+
 messenger.menus.onClicked.addListener(async (aInfo, aTab) => {
   switch (aInfo.menuItemId) {
   case "ae-clippings-new":
@@ -1859,18 +1937,47 @@ messenger.runtime.onMessage.addListener(aRequest => {
     gIsDirty = true;
     break;
 
-  case "paste-clipping-with-plchldrs":
-    let content = aRequest.processedContent;
+
+  case "close-keybd-paste-dlg":
+    gWndIDs.keyboardPaste = null;
+    break;
+
+  case "paste-shortcut-key":
+    if (! aRequest.shortcutKey) {
+      return;
+    }
+    log(`Clippings/mx: Key '${aRequest.shortcutKey}' was pressed.`);
+    // Delay paste to allow time for keyboard paste dialog to close.
     setTimeout(async () => {
       let [tab] = await messenger.tabs.query({active: true, currentWindow: true});
       if (!tab || tab.type != "messageCompose") {
         // This could happen if the compose window was closed while the
-        // placeholder prompt dialog was open.
+        // keyboard paste dialog was open.
         return;
       }
-      let activeTabID = tab.id;
-      await pasteProcessedClipping(content, activeTabID);
-    }, 60);
+      pasteClippingByShortcutKey(aRequest.shortcutKey, tab.id);
+    }, 80);
+    break;
+
+  case "paste-clipping-by-name":
+    setTimeout(async () => {
+      let [tab] = await messenger.tabs.query({active: true, currentWindow: true});
+      if (!tab || tab.type != "messageCompose") {
+        return;
+      }
+      pasteClippingByID(aRequest.clippingID, tab.id);
+    }, 80);
+    break;
+
+  case "paste-clipping-with-plchldrs":
+    // Delay paste to allow time for placeholder dialog to close.
+    setTimeout(async () => {
+      let [tab] = await messenger.tabs.query({active: true, currentWindow: true});
+      if (!tab || tab.type != "messageCompose") {
+        return;
+      }
+      await pasteProcessedClipping(aRequest.processedContent, tab.id);
+    }, 80);
     break;
 
   case "close-placeholder-prmt-dlg":

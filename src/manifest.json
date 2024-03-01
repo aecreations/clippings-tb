@@ -57,6 +57,16 @@
     "default_area": "maintoolbar"
   },
 
+  "commands" : {
+    "ae-clippings-paste-clipping": {
+      "suggested_key": {
+        "default": "Alt+Shift+Y",
+        "mac": "Alt+Command+V"
+      },
+      "description": "__MSG_cmdDesc__"
+    }
+  },
+
   "options_ui": {
     "page": "pages/options.html",
     "open_in_tab": true,

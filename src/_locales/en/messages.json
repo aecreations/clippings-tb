@@ -445,6 +445,10 @@
     "message": "NOTE: The shortcut key prefix (default keys ALT+SHIFT+Y or Command+Shift+Y) may be different depending on your Clippings settings."
   },
 
+  "expHTMLShctKeyCustNoteTB": {
+    "message": "NOTE: The shortcut key prefix (default keys ALT+SHIFT+Y or Command+Option+V) may be different depending on your Clippings settings."
+  },
+
   "expHTMLShctKeyCol": {
     "message": "Shortcut Key"
   },
