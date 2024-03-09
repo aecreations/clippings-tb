@@ -215,6 +215,25 @@ let gNewClipping = {
   }
 };
 
+let gPastePrompt = {
+  _composeTabs: [],
+
+  add(aComposeTabID, aClippingContent)
+  {
+    this._composeTabs[aComposeTabID] = aClippingContent;
+  },
+
+  delete(aComposeTabID)
+  {
+    delete this._composeTabs[aComposeTabID];
+  },
+
+  get(aComposeTabID)
+  {
+    return this._composeTabs[aComposeTabID];
+  }
+};
+
 let gPlaceholders = {
   _clippingName: null,
   _plchldrs: null,
@@ -256,11 +275,16 @@ let gPlaceholders = {
 let gWndIDs = {
   newClipping: null,
   clippingsMgr: null,
+  pasteClippingOpts: null,
 };
 
 let gPrefs = null;
 let gIsInitialized = false;
 let gSetDisplayOrderOnRootItems = false;
+
+// For the Clippings toolbar button context menu.
+let gLastMenuInstID = 0;
+let gNextMenuInstID = 1;
 
 
 messenger.runtime.onInstalled.addListener(async (aInstall) => {
@@ -870,6 +894,13 @@ function buildContextMenu()
   messenger.menus.create({
     id: "ae-clippings-prefs",
     title: messenger.i18n.getMessage(prefsMnuStrKey),
+    contexts: ["compose_action"],
+  });
+  messenger.menus.create({
+    id: "ae-clippings-show-paste-opts",
+    title: messenger.i18n.getMessage("cxtMenuShowPasteOpts"),
+    type: "checkbox",
+    checked: false,
     contexts: ["compose_action"],
   });
 
@@ -1487,6 +1518,19 @@ async function getWndGeometryFromComposeTab()
 }
 
 
+async function toggleShowPastePrompt(aComposeTabID)
+{
+  let showPastePrompt = await messenger.tabs.sendMessage(aComposeTabID, {
+    id: "get-paste-prompt-pref",
+  });
+
+  messenger.tabs.sendMessage(aComposeTabID, {
+    id: "set-paste-prompt-pref",
+    showPastePrompt: !showPastePrompt,
+  });
+}
+
+
 function pasteClippingByID(aClippingID, aComposeTabID)
 {
   let clippingsDB = aeClippings.getDB();
@@ -1605,26 +1649,59 @@ async function pasteClipping(aClippingInfo, aComposeTabID)
     }
   }
 
-  // TO DO: Prompt user if they want to format the clipping as normal
-  // or quoted text.
-
+  // Check if user wants to be prompted to format the clipping as normal or
+  // quoted text.
+  let isPasteOptsDlgShown = await showPasteOptionsDlg(aComposeTabID, processedCtnt);
+  if (isPasteOptsDlgShown) {
+    // Control returns to function pasteProcessedClipping() when user clicks OK
+    // in the paste options dialog.
+    return;
+  }
+  
   pasteProcessedClipping(processedCtnt, aComposeTabID);
 }
 
 
-async function pasteProcessedClipping(aClippingContent, aComposeTabID)
+async function showPasteOptionsDlg(aComposeTabID, aClippingContent)
 {
+  let rv = false;
+
+  let showPastePrompt = await messenger.tabs.sendMessage(aComposeTabID, {
+    id: "get-paste-prompt-pref",
+  });
+
+  if (showPastePrompt) {
+    if (gWndIDs.pasteClippingOpts) {
+      // TO DO: If the paste clipping options dialog is open, it's likely that
+      // the user has forgotten or abandoned their previous clipping,
+      // so close it.
+      // Note that the window ID may be invalid because the user closed the
+      // dialog by clicking the 'X' button on the title bar instead of
+      // clicking Cancel.
+    }
+
+    gPastePrompt.add(aComposeTabID, aClippingContent);
+    let url = messenger.runtime.getURL("pages/pasteOptions.html?compTabID=" + aComposeTabID);
+    openDlgWnd(url, "pasteClippingOpts", {type: "popup", width: 256, height: 204});  
+    rv = true;
+  }
+
+  return rv;
+}
+
+
+async function pasteProcessedClipping(aClippingContent, aComposeTabID, aPasteAsQuoted=false)
+{
+  // TO DO: Perform a final check to confirm that the composer represented by
+  // aComposeTabID is still open. If not, then abort.
+
   let content = aClippingContent.replace(/\\/g, "\\\\");
   content = content.replace(/\"/g, "\\\"");
   content = content.replace(/\n/g, "\\n");
 
-  // TEMPORARY - until Paste Options dialog is implemented.
-  let isQuoted = false;
-  // END TEMPORARY
-
   let comp = await messenger.compose.getComposeDetails(aComposeTabID);
   let injectOpts = {
-    code: `insertClipping("${content}", ${comp.isPlainText}, ${gPrefs.htmlPaste}, ${gPrefs.autoLineBreak}, ${isQuoted});`
+    code: `insertClipping("${content}", ${comp.isPlainText}, ${gPrefs.htmlPaste}, ${gPrefs.autoLineBreak}, ${aPasteAsQuoted});`
   };
 
   messenger.tabs.executeScript(aComposeTabID, injectOpts);
@@ -1832,6 +1909,33 @@ messenger.commands.onCommand.addListener(async (aCmdName) => {
 });
 
 
+messenger.menus.onShown.addListener(async (aInfo, aTab) => {
+  if (aTab.type != "messageCompose" || !aInfo.contexts.includes("compose_action")) {
+    return;
+  }
+
+  let menuInstID = gNextMenuInstID++;
+  gLastMenuInstID = menuInstID;
+
+  let showPastePrmpt = await messenger.tabs.sendMessage(aTab.id, {id: "get-paste-prompt-pref"});
+
+  // Check if the menu is still shown when the above async call finished.
+  if (menuInstID != gLastMenuInstID) {
+    return;
+  }
+
+  messenger.menus.update("ae-clippings-show-paste-opts", {
+    checked: showPastePrmpt,
+  });
+  messenger.menus.refresh();
+});
+
+
+messenger.menus.onHidden.addListener(() => {
+  gLastMenuInstID = 0;
+});
+
+
 messenger.menus.onClicked.addListener(async (aInfo, aTab) => {
   switch (aInfo.menuItemId) {
   case "ae-clippings-new":
@@ -1842,6 +1946,10 @@ messenger.menus.onClicked.addListener(async (aInfo, aTab) => {
     openClippingsManager();
     break;
     
+  case "ae-clippings-show-paste-opts":
+    toggleShowPastePrompt(aTab.id);
+    break;
+
   case "ae-clippings-prefs":
     messenger.runtime.openOptionsPage();
     break;
@@ -1942,6 +2050,18 @@ messenger.runtime.onMessage.addListener(aRequest => {
     gWndIDs.keyboardPaste = null;
     break;
 
+  case "close-paste-options-dlg":
+    if (! aRequest.userCancel) {
+      pasteProcessedClipping(
+        gPastePrompt.get(aRequest.composeTabID),
+        aRequest.composeTabID,
+        aRequest.pasteAsQuoted
+      );
+    }
+    gPastePrompt.delete(aRequest.composeTabID);
+    gWndIDs.pasteClippingOpts = null;
+    break;
+
   case "paste-shortcut-key":
     if (! aRequest.shortcutKey) {
       return;
@@ -1976,6 +2096,13 @@ messenger.runtime.onMessage.addListener(aRequest => {
       if (!tab || tab.type != "messageCompose") {
         return;
       }
+
+      if (await showPasteOptionsDlg(tab.id, aRequest.processedContent)) {
+        // Control returns to function pasteProcessedClipping() when user
+        // clicks OK in the paste options dialog.
+        return;
+      }
+
       await pasteProcessedClipping(aRequest.processedContent, tab.id);
     }, 80);
     break;

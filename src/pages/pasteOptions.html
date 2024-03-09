@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title data-i18n="pasteTitle"></title>
+
+    <link rel="stylesheet" href="pasteOptions.css"/>
+
+  </head>
+
+  <body>
+    <fieldset class="browser-style">
+      <legend data-i18n="pasteAsHdg"></legend>
+
+      <div class="row">
+	<input type="radio" id="paste-as-normal" name="paste-as" checked />
+	<label for="paste-as-normal" data-i18n="pasteAsNormal"></label>
+      </div>
+      <div class="row">
+	<input type="radio" id="paste-as-quoted" name="paste-as" />
+	<label for="paste-as-quoted" data-i18n="pasteAsQuoted"></label>
+      </div>
+    </fieldset>
+
+    <div id="dlg-buttons" class="browser-style">
+      <button id="btn-accept" class="default" data-i18n="btnOK"></button>
+      <button id="btn-cancel" data-i18n="btnCancel"></button>
+    </div>
+
+    <script src="../scripts/aeConst.js"></script>
+    <script src="../scripts/aeI18n.js"></script>
+    <script src="../scripts/aeInterxn.js"></script>
+    <script src="pasteOptions.js"></script>
+  </body>
+</html>

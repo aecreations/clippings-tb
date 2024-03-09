@@ -1,0 +1,26 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("../style/dialog.css");
+
+
+body {
+    overflow: hidden;
+    font-size: 15px;
+}
+
+fieldset {
+    border-bottom: revert;
+}
+
+fieldset > legend {
+    margin-left: -12px;
+    font-size: 15px;
+}
+
+#dlg-buttons > button {
+    min-width: 96px;
+    height: 32px;
+    font-size: 15px !important;
+}

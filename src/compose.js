@@ -8,6 +8,12 @@ const DEBUG = true;
 const HTMLPASTE_AS_FORMATTED = 1;
 const HTMLPASTE_AS_IS = 2;
 
+let gShowPastePrompt = false;
+
+
+//
+// Compose script functions that can be called from background script
+//
 
 function getSelectedText()
 {
@@ -38,6 +44,34 @@ function insertClipping(aContent, aIsPlainText, aHTMLPasteMode, aAutoLineBreak, 
     insertTextIntoRichTextEditor(aContent, aAutoLineBreak, aHTMLPasteMode, aIsQuoted);
   }
 }
+
+
+//
+// Message handlers
+//
+
+browser.runtime.onMessage.addListener(aMessage => {
+  log(`Clippings/mx: Compose script received message "${aMessage.id}" from MailExtension.`);
+
+  let resp = null;
+  
+  switch (aMessage.id) {
+  case "set-paste-prompt-pref":
+    gShowPastePrompt = aMessage.showPastePrompt;
+    break;
+
+  case "get-paste-prompt-pref":
+    resp = gShowPastePrompt;
+    break;
+    
+  default:
+    break;
+  }
+
+  if (resp !== null) {
+    return Promise.resolve(resp);
+  }
+});
 
 
 //
