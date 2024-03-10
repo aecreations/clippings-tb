@@ -7,18 +7,12 @@
 const aeConst = Object.freeze({
   DEBUG: true,
   
-  // Extension GUID
-  EXTENSION_ID: "clippings-tb@aecreations.github.io",
-
   // Maximum number of chars of clipping names.
   MAX_NAME_LENGTH: 64,
 
   // Native messaging helper app
   SYNC_CLIPPINGS_APP_NAME: "syncClippings",
 
-  // Keyboard shortcut
-  CMD_CLIPPINGS_KEYBOARD_PASTE: "ae-clippings-paste-clipping",
-  
   // Constants for HTML paste options
   HTMLPASTE_ASK_THE_USER: 0,
   HTMLPASTE_AS_FORMATTED: 1,

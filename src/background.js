@@ -367,8 +367,6 @@ async function init()
   gHostAppVer = msgr.version;
   log(`Clippings/mx: Host app: ${gHostAppName} (version ${gHostAppVer})`);
 
-  await checkHostAppVer();
-
   gOS = platform.os;
   log("Clippings/mx: OS: " + gOS);
 
@@ -450,29 +448,6 @@ async function init()
 
   gIsInitialized = true;
   log("Clippings/mx: MailExtension initialization complete.");    
-}
-
-
-async function checkHostAppVer()
-{
-  let extInfo = messenger.runtime.getManifest();
-  let maxHostAppVer = extInfo.browser_specific_settings.gecko.strict_max_version;
-
-  if (! maxHostAppVer) {
-    return;
-  }
-
-  log(`Clippings/mx: checkHostAppVer(): Checking compatibility with Thunderbird. Maximum compatible version: ${maxHostAppVer}`);
-
-  if (maxHostAppVer[maxHostAppVer.length - 1] == "*") {
-    maxHostAppVer = maxHostAppVer.substring(0, maxHostAppVer.lastIndexOf(".")) + ".999";
-  }
-
-  if (aeVersionCmp(gHostAppVer, maxHostAppVer) > 0) {
-    // Thunderbird version exceeds strict max supported version
-    // - disable Clippings.
-    await messenger.management.setEnabled(aeConst.EXTENSION_ID, false);
-  }
 }
 
 
