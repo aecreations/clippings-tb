@@ -448,20 +448,6 @@ async function init()
   };  
   messenger.composeScripts.register(compScriptOpts);
 
-  // DEPRECATED
-  messenger.WindowListener.registerChromeUrl([
-    ["content",  "clippings", "legacy/chrome/content/"],
-    ["locale",   "clippings", "en-US", "legacy/chrome/locale/en-US/"],
-    ["resource", "clippings", "legacy/"]
-  ]);
-
-  messenger.WindowListener.registerWindow(
-    "chrome://messenger/content/messengercompose/messengercompose.xhtml",
-    "chrome://clippings/content/messengercompose.js"
-  );
-  messenger.WindowListener.startListening();
-  // END DEPRECATED
-
   gIsInitialized = true;
   log("Clippings/mx: MailExtension initialization complete.");    
 }
@@ -1797,35 +1783,6 @@ function showSyncErrorNotification()
 // Utility functions
 //
 
-// DEPRECATED
-// - These functions are currently called from WindowListener scripts.
-function getPrefs()
-{
-  return gPrefs;
-}
-
-async function setPrefs(aPrefs)
-{
-  await aePrefs.setPrefs(aPrefs);
-}
-// END DEPRECATED
-
-function isDirty()
-{
-  return gIsDirty;
-}
-
-function setDirtyFlag(aFlag)
-{
-  if (aFlag === undefined) {
-    gIsDirty = true
-  }
-  else {
-    gIsDirty = aFlag;
-  }
-}
-
-
 async function alertEx(aMessageID, aUsePopupWnd=false)
 {
   let message = messenger.i18n.getMessage(aMessageID);
@@ -2201,72 +2158,6 @@ messenger.runtime.onMessage.addListener(aRequest => {
   }
 });
 
-
-messenger.NotifyTools.onNotifyBackground.addListener(async (aMessage) => {
-  log(`Clippings/mx: Received NotifyTools message "${aMessage.command}" from legacy overlay script`);
-
-  let rv = null;
-  let isAsync = false;
-  
-  switch (aMessage.command) {
-  case "get-prefs":
-    rv = gPrefs;
-    isAsync = true;
-    break;
-
-  case "set-prefs":
-    rv = await aePrefs.setPrefs(aMessage.prefs);
-    break;
-
-  case "open-clippings-mgr":
-    openClippingsManager(false);
-    break;
-
-  case "open-new-clipping-dlg":
-    openNewClippingDlg(aMessage.clippingContent);
-    break;
-
-  case "get-clipping":
-    rv = await getClipping(aMessage.clippingID);
-    break;
-
-  case "get-shct-key-map":
-    rv = await getShortcutKeyMap();
-    break;
-
-  case "get-clipping-srch-data":
-    rv = await getClippingSearchData();
-    break;
-
-  case "get-clippings-dirty-flag":
-    rv = isDirty();
-    isAsync = true;
-    break;
-
-  case "get-clippings-cxt-menu-data":
-    rv = await getContextMenuData(aMessage.rootFldrID);
-    isAsync = true;
-    break;
-
-  case "open-migrn-status-dlg":
-    openMigrationStatusDlg();
-    break;
-
-  case "open-shct-list-wnd":
-    openShortcutListWnd();
-    break;
-
-  default:
-    break;
-  }
-
-  if (isAsync) {
-    return Promise.resolve(rv);
-  }
-
-  return rv;
-});
-  
 
 window.addEventListener("unhandledrejection", aEvent => {
   aEvent.preventDefault();
