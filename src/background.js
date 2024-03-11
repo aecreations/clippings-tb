@@ -292,7 +292,19 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
     info("Clippings/mx: MailExtension installed.");
 
     await setDefaultPrefs();
-    init();
+    await init();
+
+    // Load the compose script and its dependencies into all message compose
+    // windows that may be open at the time the extension is installed.
+    let compTabs = await messenger.tabs.query({type: "messageCompose"});
+    for (let tab of compTabs) {
+      messenger.tabs.executeScript(tab.id, {
+        file: messenger.runtime.getURL("lib/purify.min.js"),
+      });
+      messenger.tabs.executeScript(tab.id, {
+        file: messenger.runtime.getURL("compose.js"),
+      });
+    }
   }
   else if (aInstall.reason == "update") {
     let oldVer = aInstall.previousVersion;
