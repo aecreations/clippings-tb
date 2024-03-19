@@ -7,7 +7,6 @@ const DEBUG_TREE = false;
 const DEBUG_WND_ACTIONS = false;
 const REBUILD_BRWS_CXT_MENU_DELAY = 3000;
 const ENABLE_PASTE_CLIPPING = false;
-const NEW_CLIPPING_FROM_CLIPBOARD = "New Clipping From Clipboard";
 
 let gEnvInfo;
 let gClippingsDB;
@@ -1170,7 +1169,7 @@ let gCmd = {
     return rv;
   },
   
-  newClipping: function (aDestUndoStack, aIsFromClipboard)
+  newClipping(aDestUndoStack)
   {
     if (gIsClippingsTreeEmpty) {
       unsetEmptyClippingsState();
@@ -1192,13 +1191,9 @@ let gCmd = {
       }
     }
 
-    let name = messenger.i18n.getMessage("newClipping");
-    if (aIsFromClipboard) {
-      name = NEW_CLIPPING_FROM_CLIPBOARD;
-    }
-
     this.recentAction = this.ACTION_CREATENEW;
 
+    let name = messenger.i18n.getMessage("newClipping");
     let newClipping = {
       name,
       content: "",
@@ -1293,7 +1288,8 @@ let gCmd = {
         let state = {
           action: this.ACTION_CREATENEW,
           id: aNewClippingID,
-          itemType: this.ITEMTYPE_CLIPPING
+          itemType: this.ITEMTYPE_CLIPPING,
+          parentFldrID: parentFolderID,
         };
 
         if (gSyncedItemsIDs.has(parentFolderID + "F")) {
@@ -1313,6 +1309,60 @@ let gCmd = {
           .catch(handlePushSyncItemsError);
       }
     });
+  },
+
+  async newClippingFromClipboard()
+  {
+    let content = "";
+    try {
+      content = await navigator.clipboard.readText();
+    }
+    catch (e) {
+      // TO DO: Show modal dialog instructing user to accept permission request
+      // to access the clipboard.
+      // Once the dialog is displayed, exit this function.
+      alert("To continue, please grant Clippings permission to get data from the clipboard.");
+      
+      // When the following MailExtension API is called, a puzzle piece icon
+      // will appear next to the Thunderbird menu button.
+      // User needs to click on it to grant Clippings the "clipboardRead"
+      // permission.
+      let permGranted = await messenger.permissions.request({
+        permissions: ["clipboardRead"],
+      });
+
+      if (permGranted) {
+        this.newClippingFromClipboard();
+      }
+      else {
+        alert(messenger.i18n.getMessage("msgNoClipbdPerm"));
+      }
+      // END TO DO
+
+      return;
+    }
+
+    if (content == "") {
+      window.setTimeout(() => {gDialogs.clipboardEmpty.openPopup()}, 100);
+      return;
+    }
+
+    content = DOMPurify.sanitize(content);
+    let name = aeClippings.createClippingNameFromText(content);
+    
+    let tree = getClippingsTree();
+    let selectedNode = tree.activeNode;
+    let parentFolderID = aeConst.ROOT_FOLDER_ID;
+    
+    if (selectedNode) {
+      parentFolderID = this._getParentFldrIDOfTreeNode(selectedNode);
+      let parentFldrChildNodes = selectedNode.getParent().getChildren();
+      if (parentFldrChildNodes === undefined) {
+        warn("Clippings/mx::clippingsMgr.js: gCmd.newClippingFromClipboard(): Can't get child nodes of the parent node, because Fancytree lazy loading is in effect!");
+      }
+    }
+
+    this.newClippingWithContent(parentFolderID, name, content, gCmd.UNDO_STACK);
   },
 
   newFolder: function (aDestUndoStack)
@@ -3397,6 +3447,10 @@ function initToolbar()
     
     callback: function (aItemKey, aOpt, aRootMenu, aOriginalEvent) {
       switch (aItemKey) {
+      case "newFromClipboard":
+        gCmd.newClippingFromClipboard();
+        break;
+
       case "backup":
         gCmd.backup();
         break;
@@ -3443,6 +3497,11 @@ function initToolbar()
       }
     },
     items: {
+      newFromClipboard: {
+        name: messenger.i18n.getMessage("mnuNewFromClipbd"),
+        className: "ae-menuitem",
+      },
+      separator0: "--------",
       backup: {
         name: messenger.i18n.getMessage("mnuBackup"),
         className: "ae-menuitem",
@@ -3692,6 +3751,7 @@ function initDialogs()
 
   gDialogs.noUndoNotify = new aeDialog("#no-undo-msgbar");
   gDialogs.noRedoNotify = new aeDialog("#no-redo-msgbar");
+  gDialogs.clipboardEmpty = new aeDialog("#clipboard-empty-msgbar");
   gDialogs.actionUnavailable = new aeDialog("#action-not-available");
 
   gDialogs.shortcutList = new aeDialog("#shortcut-list-dlg");

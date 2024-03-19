@@ -28,6 +28,10 @@
     "unlimitedStorage"
   ],
 
+  "optional_permissions": [
+    "clipboardRead"
+  ],
+
   "background": {
     "scripts": [
       "lib/dexie/dexie.min.js",
