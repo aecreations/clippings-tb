@@ -9,7 +9,6 @@ let gOS;
 let gHostAppName;
 let gHostAppVer;
 let gClippingsDB;
-let gIsDirty = false;
 let gAutoIncrPlchldrs = null;
 let gClippingMenuItemIDMap = {};
 let gFolderMenuItemIDMap = {};
@@ -838,11 +837,14 @@ getContextMenuData.isDarkMode = null;
 
 function updateContextMenuForFolder(aUpdatedFolderID)
 {
+  log("Clippings/mx: updateContextMenuForFolder(): Updating folder " + aUpdatedFolderID);
   let id = Number(aUpdatedFolderID);
-  gClippingsDB.folders.get(id).then(aResult => {
+  let clippingsDB = aeClippings.getDB();
+
+  clippingsDB.folders.get(id).then(aResult => {
     let menuItemID = gFolderMenuItemIDMap[id];
     if (menuItemID) {
-      gIsDirty = true;
+      messenger.menus.update(menuItemID, {title: aResult.name});
     }
   });
 }
@@ -944,9 +946,6 @@ async function rebuildContextMenu()
   gClippingMenuItemIDMap = {};
   gFolderMenuItemIDMap = {};
   buildContextMenu();
-
-  // TO DO: Is this still needed?? 
-  gIsDirty = true;
 }
 
 
@@ -1986,7 +1985,6 @@ messenger.runtime.onMessage.addListener(aRequest => {
 
   case "close-new-clipping-dlg":
     gWndIDs.newClipping = null;
-    gIsDirty = true;
     break;
 
 
