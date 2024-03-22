@@ -16,6 +16,7 @@ let gPlaceholders = null;
 let gPlaceholdersWithDefaultVals = null;
 let gSamePlchldrs = {};
 let gClippingContent = null;
+let gComposeTabID = null;
 
 
 // DOM utility
@@ -27,6 +28,9 @@ function sanitizeHTML(aHTMLStr)
 
 // Page initialization
 $(async () => {
+  let params = new URLSearchParams(window.location.search);
+  gComposeTabID = Number(params.get("compTabID"));
+
   let platform = await messenger.runtime.getPlatformInfo();
   document.body.dataset.os = gOS = platform.os;
 
@@ -259,7 +263,8 @@ function accept(aEvent)
 
   messenger.runtime.sendMessage({
     msgID: "paste-clipping-with-plchldrs",
-    processedContent: content
+    processedContent: content,
+    composeTabID: gComposeTabID,
   });
   
   closeDlg();

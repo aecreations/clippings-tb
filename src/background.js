@@ -1333,9 +1333,9 @@ function openNewClippingDlg(aNewClippingContent)
 }
 
 
-function openKeyboardPasteDlg()
+function openKeyboardPasteDlg(aComposeTabID)
 {
-  let url = messenger.runtime.getURL("pages/keyboardPaste.html");
+  let url = messenger.runtime.getURL("pages/keyboardPaste.html?compTabID=" + aComposeTabID);
   openDlgWnd(url, "keyboardPaste", {
     type: "popup",
     width: 500,
@@ -1345,9 +1345,9 @@ function openKeyboardPasteDlg()
 }
 
 
-function openPlaceholderPromptDlg()
+function openPlaceholderPromptDlg(aComposeTabID)
 {
-  let url = messenger.runtime.getURL("pages/placeholderPrompt.html");
+  let url = messenger.runtime.getURL("pages/placeholderPrompt.html?compTabID=" + aComposeTabID);
   openDlgWnd(url, "placeholderPrmt", {
     type: "popup",
     width: 536,
@@ -1616,7 +1616,7 @@ async function pasteClipping(aClippingInfo, aComposeTabID)
       let plchldrsWithDefaultVals = aeClippingSubst.getCustomPlaceholderDefaultVals(processedCtnt, aClippingInfo);
       gPlaceholders.set(aClippingInfo.name, plchldrs, plchldrsWithDefaultVals, processedCtnt);
 
-      openPlaceholderPromptDlg();
+      openPlaceholderPromptDlg(aComposeTabID);
       return;
     }
   }
@@ -1847,7 +1847,7 @@ messenger.commands.onCommand.addListener(async (aCmdName) => {
   }
 
   if (aCmdName == "ae-clippings-paste-clipping" && gPrefs.keyboardPaste) {
-    openKeyboardPasteDlg();
+    openKeyboardPasteDlg(tab.id);
   }
 });
 
@@ -2008,45 +2008,40 @@ messenger.runtime.onMessage.addListener(aRequest => {
     if (! aRequest.shortcutKey) {
       return;
     }
-    log(`Clippings/mx: Key '${aRequest.shortcutKey}' was pressed.`);
-    // Delay paste to allow time for keyboard paste dialog to close.
-    setTimeout(async () => {
-      let [tab] = await messenger.tabs.query({active: true, currentWindow: true});
-      if (!tab || tab.type != "messageCompose") {
-        // This could happen if the compose window was closed while the
-        // keyboard paste dialog was open.
-        return;
+    messenger.tabs.get(aRequest.composeTabID).then(aTab => {
+      if (aTab.type == "messageCompose") {
+        pasteClippingByShortcutKey(aRequest.shortcutKey, aTab.id);
       }
-      pasteClippingByShortcutKey(aRequest.shortcutKey, tab.id);
-    }, 80);
+    }).catch(aErr => {
+      warn("Clippings/mx: Can't find compose tab " + aRequest.composeTabID);
+    });
     break;
 
   case "paste-clipping-by-name":
-    setTimeout(async () => {
-      let [tab] = await messenger.tabs.query({active: true, currentWindow: true});
-      if (!tab || tab.type != "messageCompose") {
-        return;
+    messenger.tabs.get(aRequest.composeTabID).then(aTab => {
+      if (aTab.type == "messageCompose") {
+        pasteClippingByID(aRequest.clippingID, aRequest.composeTabID);
       }
-      pasteClippingByID(aRequest.clippingID, tab.id);
-    }, 80);
+    }).catch(aErr => {
+      warn("Clippings/mx: Can't find compose tab " + aRequest.composeTabID);
+    });
     break;
 
   case "paste-clipping-with-plchldrs":
-    // Delay paste to allow time for placeholder dialog to close.
-    setTimeout(async () => {
-      let [tab] = await messenger.tabs.query({active: true, currentWindow: true});
-      if (!tab || tab.type != "messageCompose") {
-        return;
+    messenger.tabs.get(aRequest.composeTabID).then(aTab => {
+      if (aTab.type != "messageCompose") {
+        return null;
       }
-
-      if (await showPasteOptionsDlg(tab.id, aRequest.processedContent)) {
-        // Control returns to function pasteProcessedClipping() when user
-        // clicks OK in the paste options dialog.
-        return;
+      return showPasteOptionsDlg(aTab.id, aRequest.processedContent);
+    }).then(aIsDlgShown => {
+      // If the Paste Options dialog was shown, control returns to function
+      // pasteProcessedClipping() after user clicks OK in the dialog.
+      if (aIsDlgShown === false) {
+        pasteProcessedClipping(aRequest.processedContent, aRequest.composeTabID);
       }
-
-      await pasteProcessedClipping(aRequest.processedContent, tab.id);
-    }, 80);
+    }).catch(aErr => {
+      warn("Clippings/mx: Can't find compose tab " + aRequest.composeTabID);
+    });
     break;
 
   case "close-placeholder-prmt-dlg":

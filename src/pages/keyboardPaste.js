@@ -12,6 +12,8 @@ const TOOLBAR_HEIGHT = 52;
 const SHORTCUT_LIST_HEIGHT_ADJ_MAC = 2;
 
 let gClippingsDB, gPasteMode, gOS;
+let gComposeTabID = null;
+
 
 let gAutocompleteMenu = {
   _SCRL_LENGTH: 36,
@@ -253,7 +255,8 @@ let gAutocompleteMenu = {
 
     messenger.runtime.sendMessage({
       msgID: "paste-clipping-by-name",
-      clippingID: aClippingID
+      clippingID: aClippingID,
+      composeTabID: gComposeTabID,
     });
 
     closeDlg();
@@ -290,6 +293,9 @@ function sanitizeHTML(aHTMLStr)
 
 // Initialize dialog
 $(async () => {
+  let params = new URLSearchParams(window.location.search);
+  gComposeTabID = Number(params.get("compTabID"));
+
   let envInfo = await messenger.runtime.sendMessage({msgID: "get-env-info"});
   document.body.dataset.os = gOS = envInfo.os;
 
@@ -575,7 +581,8 @@ function execShortcut(aShortcutKey)
 {
   messenger.runtime.sendMessage({
     msgID: "paste-shortcut-key",
-    shortcutKey: aShortcutKey
+    shortcutKey: aShortcutKey,
+    composeTabID: gComposeTabID,
   });
 
   closeDlg();
