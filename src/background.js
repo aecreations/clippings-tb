@@ -8,7 +8,6 @@ const ROOT_FOLDER_NAME = "clippings-root";
 let gOS;
 let gHostAppName;
 let gHostAppVer;
-let gClippingsDB;
 let gAutoIncrPlchldrs = null;
 let gClippingMenuItemIDMap = {};
 let gFolderMenuItemIDMap = {};
@@ -394,8 +393,7 @@ async function init()
   let extVer = messenger.runtime.getManifest().version;
   
   aeClippings.init();
-  gClippingsDB = aeClippings.getDB();
-  aeImportExport.setDatabase(gClippingsDB);
+  aeImportExport.setDatabase(aeClippings.getDB());
 
   aeImportExport.setL10nStrings({
     shctTitle: messenger.i18n.getMessage("expHTMLTitle"),
@@ -464,17 +462,18 @@ async function init()
 
 async function setDisplayOrderOnRootItems()
 {
+  let clippingsDB = aeClippings.getDB();
   let seq = 1;
 
-  gClippingsDB.transaction("rw", gClippingsDB.clippings, gClippingsDB.folders, () => {
-    gClippingsDB.folders.where("parentFolderID").equals(aeConst.ROOT_FOLDER_ID).each((aItem, aCursor) => {
+  clippingsDB.transaction("rw", clippingsDB.clippings, clippingsDB.folders, () => {
+    clippingsDB.folders.where("parentFolderID").equals(aeConst.ROOT_FOLDER_ID).each((aItem, aCursor) => {
       log(`Clippings/mx: setDisplayOrderOnRootItems(): Folder "${aItem.name}" (id=${aItem.id}): display order = ${seq}`);
-      let numUpd = gClippingsDB.folders.update(aItem.id, {displayOrder: seq++});
+      let numUpd = clippingsDB.folders.update(aItem.id, {displayOrder: seq++});
 
     }).then(() => {
-      return gClippingsDB.clippings.where("parentFolderID").equals(aeConst.ROOT_FOLDER_ID).each((aItem, aCursor) => {
+      return clippingsDB.clippings.where("parentFolderID").equals(aeConst.ROOT_FOLDER_ID).each((aItem, aCursor) => {
         log(`Clippings/mx: setDisplayOrderOnRootItems(): Clipping "${aItem.name}" (id=${aItem.id}): display order = ${seq}`);
-        let numUpd = gClippingsDB.clippings.update(aItem.id, {displayOrder: seq++});
+        let numUpd = clippingsDB.clippings.update(aItem.id, {displayOrder: seq++});
       });
 
     }).then(() => {
@@ -491,22 +490,23 @@ async function setDisplayOrderOnRootItems()
 function addStaticIDs(aFolderID)
 {
   let rv = false;
+  let clippingsDB = aeClippings.getDB();
   
   return new Promise((aFnResolve, aFnReject) => {
-    gClippingsDB.transaction("rw", gClippingsDB.clippings, gClippingsDB.folders, () => {
-      gClippingsDB.folders.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
+    clippingsDB.transaction("rw", clippingsDB.clippings, clippingsDB.folders, () => {
+      clippingsDB.folders.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
         if (! ("sid" in aItem)) {
           let sid = aeUUID();
-          gClippingsDB.folders.update(aItem.id, {sid});
+          clippingsDB.folders.update(aItem.id, {sid});
           log(`Clippings/mx: addStaticIDs(): Static ID added to folder ${aItem.id} - "${aItem.name}"`);
           rv = true;
         }
         addStaticIDs(aItem.id);
       }).then(() => {
-        return gClippingsDB.clippings.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
+        return clippingsDB.clippings.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
           if (! ("sid" in aItem)) {
             let sid = aeUUID();
-            gClippingsDB.clippings.update(aItem.id, {sid});
+            clippingsDB.clippings.update(aItem.id, {sid});
             log(`Clippings/mx: addStaticIDs(): Static ID added to clipping ${aItem.id} - "${aItem.name}"`);
             rv = true;
           }
@@ -521,6 +521,8 @@ function addStaticIDs(aFolderID)
 
 async function enableSyncClippings(aIsEnabled)
 {
+  let clippingsDB = aeClippings.getDB();
+
   if (aIsEnabled) {
     log("Clippings/mx: enableSyncClippings(): Turning ON");
 
@@ -533,7 +535,7 @@ async function enableSyncClippings(aIsEnabled)
         isSync: true,
       };
       try {
-        gSyncFldrID = await gClippingsDB.folders.add(syncFldr);
+        gSyncFldrID = await clippingsDB.folders.add(syncFldr);
       }
       catch (e) {
         console.error("Clippings/mx: enableSyncClippings(): Failed to create the Synced Clipping folder: " + e);
@@ -548,7 +550,7 @@ async function enableSyncClippings(aIsEnabled)
     log("Clippings/mx: enableSyncClippings(): Turning OFF");
     let oldSyncFldrID = gSyncFldrID;
 
-    let numUpd = await gClippingsDB.folders.update(gSyncFldrID, {isSync: undefined});
+    let numUpd = await clippingsDB.folders.update(gSyncFldrID, {isSync: undefined});
     await aePrefs.setPrefs({syncFolderID: null});
     gSyncFldrID = null;
     return oldSyncFldrID;
@@ -560,6 +562,7 @@ function refreshSyncedClippings(aRebuildClippingsMenu)
 {
   log("Clippings/mx: refreshSyncedClippings(): Retrieving synced clippings from the Sync Clippings helper app...");
 
+  let clippingsDB = aeClippings.getDB();
   let natMsg = {msgID: "get-synced-clippings"};
   let getSyncedClippings = messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg);
   let syncJSONData = "";
@@ -580,7 +583,7 @@ function refreshSyncedClippings(aRebuildClippingsMenu)
         displayOrder: 0,
       };
       
-      return gClippingsDB.folders.add(syncFldr);
+      return clippingsDB.folders.add(syncFldr);
     }
 
     log("Clippings/mx: refreshSyncedClippings(): Synced Clippings folder ID: " + gSyncFldrID);
@@ -603,7 +606,7 @@ function refreshSyncedClippings(aRebuildClippingsMenu)
 
     // Method aeImportExport.importFromJSON() is asynchronous, so the import
     // may not yet be finished when this function has finished executing!
-    aeImportExport.setDatabase(gClippingsDB);
+    aeImportExport.setDatabase(clippingsDB);
     aeImportExport.importFromJSON(syncJSONData, false, false, gSyncFldrID);
 
     window.setTimeout(function () {
@@ -651,21 +654,23 @@ async function pushSyncFolderUpdates()
 
 async function purgeFolderItems(aFolderID, aKeepFolder)
 {
-  gClippingsDB.transaction("rw", gClippingsDB.clippings, gClippingsDB.folders, () => {
-    gClippingsDB.folders.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
+  let clippingsDB = aeClippings.getDB();
+
+  clippingsDB.transaction("rw", clippingsDB.clippings, clippingsDB.folders, () => {
+    clippingsDB.folders.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
       purgeFolderItems(aItem.id, false).then(() => {});
 
     }).then(() => {
       if (!aKeepFolder && aFolderID != aeConst.DELETED_ITEMS_FLDR_ID) {
         log("Clippings/mx: purgeFolderItems(): Deleting folder: " + aFolderID);
-        return gClippingsDB.folders.delete(aFolderID);
+        return clippingsDB.folders.delete(aFolderID);
       }
       return null;
       
     }).then(() => {
-      return gClippingsDB.clippings.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
+      return clippingsDB.clippings.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
         log("Clippings/mx: purgeFolderItems(): Deleting clipping: " + aItem.id);
-        gClippingsDB.clippings.delete(aItem.id);
+        clippingsDB.clippings.delete(aItem.id);
       });
     }).then(() => {
       Promise.resolve();
@@ -694,28 +699,6 @@ async function getShortcutKeyPrefixStr()
 }
 
 
-function getClippingSearchData()
-{
-  let rv = [];
-  
-  return new Promise((aFnResolve, aFnReject) => {
-    gClippingsDB.clippings.where("parentFolderID").notEqual(aeConst.DELETED_ITEMS_FLDR_ID)
-      .each((aItem, aCursor) => {
-        rv.push({
-          clippingID: aItem.id,
-          name: aItem.name,
-          text: aItem.content,
-        });
-      }).then(() => {
-        log("Clippings/mx: getClippingSearchData()");
-        log(rv);
-        
-        aFnResolve(rv);
-      });
-  });
-}
-
-
 function getContextMenuData(aFolderID = aeConst.ROOT_FOLDER_ID)
 {
   function fnSortMenuItems(aItem1, aItem2)
@@ -738,10 +721,11 @@ function getContextMenuData(aFolderID = aeConst.ROOT_FOLDER_ID)
   // END nested functions
 
   let rv = [];
+  let clippingsDB = aeClippings.getDB();
 
   return new Promise((aFnResolve, aFnReject) => {
-    gClippingsDB.transaction("r", gClippingsDB.folders, gClippingsDB.clippings, () => {
-      gClippingsDB.folders.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
+    clippingsDB.transaction("r", clippingsDB.folders, clippingsDB.clippings, () => {
+      clippingsDB.folders.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
         let fldrMenuItemID = "ae-clippings-folder-" + aItem.id + "_" + Date.now();
         gFolderMenuItemIDMap[aItem.id] = fldrMenuItemID;
 
@@ -788,7 +772,7 @@ function getContextMenuData(aFolderID = aeConst.ROOT_FOLDER_ID)
         });
 
       }).then(() => {
-        return gClippingsDB.clippings.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
+        return clippingsDB.clippings.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
           let menuItemID = "ae-clippings-clipping-" + aItem.id + "_" + Date.now();
           gClippingMenuItemIDMap[aItem.id] = menuItemID;
 
@@ -1680,80 +1664,6 @@ async function pasteProcessedClipping(aClippingContent, aComposeTabID, aPasteAsQ
 }
 
 
-function getClipping(aClippingID)
-{
-  return new Promise((aFnResolve, aFnReject) => {
-    gClippingsDB.transaction("r", gClippingsDB.clippings, gClippingsDB.folders, () => {
-      let clipping = null;
-      
-      gClippingsDB.clippings.get(aClippingID).then(aClipping => {
-        if (! aClipping) {
-          throw new Error("Cannot find clipping with ID = " + aClippingID);
-        }
-
-        if (aClipping.parentFolderID == -1) {
-          throw new Error("Attempting to paste a deleted clipping!");
-        }
-
-        clipping = aClipping;
-        log(`Pasting clipping named "${clipping.name}"\nid = ${clipping.id}`);
-        
-        return gClippingsDB.folders.get(aClipping.parentFolderID);
-      }).then(aFolder => {
-        let parentFldrName = "";
-        if (aFolder) {
-          parentFldrName = aFolder.name;
-        }
-        else {
-          parentFldrName = ROOT_FOLDER_NAME;
-        }
-        let clippingInfo = {
-          id: clipping.id,
-          name: clipping.name,
-          text: clipping.content,
-          parentFolderName: parentFldrName
-        };
-
-        log(`Clippings/mx::getClipping(): Retrieved clipping (ID = ${aClippingID}):`);
-        log(clippingInfo);
-        
-        aFnResolve(clippingInfo);
-      });
-    }).catch(aErr => {
-      console.error("Clippings/mx: getClipping(): " + aErr);
-      aFnReject(aErr);
-    });
-  });
-}
-
-
-function getShortcutKeyListHTML(aIsFullHTMLDoc)
-{
-  return aeImportExport.getShortcutKeyListHTML(aIsFullHTMLDoc);
-}
-
-
-function getShortcutKeyMap()
-{
-  let rv = new Map();
-  
-  return new Promise((aFnResolve, aFnReject) => {
-    gClippingsDB.clippings.where("shortcutKey").notEqual("").each((aItem, aCursor) => {
-      let key = aItem.shortcutKey;
-      let value = {
-        id: aItem.id,
-        name: aItem.name,
-        text: aItem.content,
-      };
-      rv.set(key, value);
-
-    }).then(() => {
-      aFnResolve(rv);
-    });
-  });
-}
-
-
 function showSyncErrorNotification()
 {
   messenger.notifications.create("sync-error", {
@@ -2061,9 +1971,6 @@ messenger.runtime.onMessage.addListener(aRequest => {
   case "backup-clippings":
     openClippingsManager(true);
     break;
-
-  case "get-shct-key-list-html":
-    return getShortcutKeyListHTML(aRequest.isFullHTMLDoc);
 
   case "get-clippings-backup-data":
     return getClippingsBackupData();
