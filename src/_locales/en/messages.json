@@ -1251,6 +1251,11 @@
     "description": "Example folder path on Linux."
   },
 
+  "errNoNatMsgPerm": {
+    "message": "Clippings doesn't have permission to connect to the Sync Clippings Helper app.",
+    "description": "Extension preferences message box that appears when user denies permission to exchange messages with programs other than Firefox or Thunderbird"
+  },
+
   "errSyncConxn": {
     "message": "Unable to connect to the Sync Clippings helper app. Make sure that the app is installed."
   },

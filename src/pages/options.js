@@ -116,8 +116,16 @@ async function init()
       gDialogs.turnOffSync.showModal();
     }
     else {
-      gIsActivatingSyncClippings = true;
-      gDialogs.syncClippings.showModal();
+      // Check if the optional extension permission "nativeMessaging"
+      // was granted.
+      let perms = await messenger.permissions.getAll();
+      if (perms.permissions.includes("nativeMessaging")) {
+        gIsActivatingSyncClippings = true;
+        gDialogs.syncClippings.showModal();
+      }
+      else {
+        gDialogs.reqNativeAppConxnPerm.showModal();
+      }
     }
   });
 
@@ -236,7 +244,16 @@ async function init()
     $("#toggle-sync").text(messenger.i18n.getMessage("syncTurnOn"));
   }
 
-  $("#sync-settings").click(aEvent => {
+  $("#sync-settings").click(async (aEvent) => {
+    let perms = await messenger.permissions.getAll();
+    if (! perms.permissions.includes("nativeMessaging")) {
+      // TO DO: The permission may not have been granted by the user who has
+      // upgraded from a previous version of Clippings!
+      // Add a pref that is set to `true` only if user has upgraded; if this is
+      // the case, open the dialog requesting additional permission.
+      gDialogs.lostNativeAppConxnPerm.showModal();
+      return;
+    }
     gDialogs.syncClippings.showModal();
   });
 
@@ -344,6 +361,26 @@ function initDialogs()
     $("#reset-clpmgr-wnd-pos").prop("disabled", false);
     $("#reset-clpmgr-wnd-pos-ack").css({visibility: "hidden"});
   };
+
+  gDialogs.reqNativeAppConxnPerm = new aeDialog("#request-native-app-conxn-perm-dlg");
+  gDialogs.reqNativeAppConxnPerm.onAccept = async function ()
+  {
+    this.close();
+    
+    let permGranted = await messenger.permissions.request({
+      permissions: ["nativeMessaging"],
+    });
+
+    if (permGranted) {
+      gIsActivatingSyncClippings = true;
+      gDialogs.syncClippings.showModal();
+    }
+    else {
+      alert(messenger.i18n.getMessage("errNoNatMsgPerm"));
+    }
+  };
+
+  gDialogs.lostNativeAppConxnPerm = new aeDialog("#lost-native-app-conxn-perm-dlg");
 
   gDialogs.syncClippings = new aeDialog("#sync-clippings-dlg");
   gDialogs.syncClippings.setProps({
@@ -634,6 +671,18 @@ function initDialogs()
 
   gDialogs.about.onShow = async function ()
   {
+    let perms = await messenger.permissions.getAll();
+    if (perms.permissions.includes("nativeMessaging")) {
+      $("#about-dlg > .dlg-content #diag-info").show();
+      // TO DO: Resize dialog to show the Sync Clippings status.
+    }
+    else {
+      $("#about-dlg > .dlg-content #diag-info").hide();
+      // TO DO: Reduce dialog height.
+      return;
+    }
+
+    // TO DO: Refactor below calls to sendNativeMessage() to use await.
     let natMsg = {msgID: "get-app-version"};
     messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg).then(aResp => {
       $("#about-dlg > .dlg-content #diag-info #sync-ver").text(aResp.appVersion);

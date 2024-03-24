@@ -22,14 +22,14 @@
     "compose",
     "downloads",
     "menus",
-    "nativeMessaging",
     "notifications",
     "storage",
     "unlimitedStorage"
   ],
 
   "optional_permissions": [
-    "clipboardRead"
+    "clipboardRead",
+    "nativeMessaging"
   ],
 
   "background": {

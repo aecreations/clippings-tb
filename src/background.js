@@ -560,6 +560,16 @@ async function enableSyncClippings(aIsEnabled)
 
 async function refreshSyncedClippings(aRebuildClippingsMenu)
 {
+  let perms = await messenger.permissions.getAll();
+  if (! perms.permissions.includes("nativeMessaging")) {
+    // TO DO: The permission may not have been granted by the user who has
+    // upgraded from a previous version of Clippings!
+    // Add a pref that is set to `true` only if user has upgraded; if this is
+    // the case, open the dialog requesting additional permission.
+    showNoNativeMsgPermNotification();
+    return;
+  }
+
   log("Clippings/mx: refreshSyncedClippings(): Retrieving synced clippings from the Sync Clippings helper app...");
   
   let clippingsDB = aeClippings.getDB();
@@ -624,6 +634,11 @@ async function pushSyncFolderUpdates()
     throw new Error("Sync Clippings is not turned on!");
   }
   
+  let perms = await messenger.permissions.getAll();
+  if (! perms.permissions.includes("nativeMessaging")) {
+    return;
+  }
+
   let syncData = await aeImportExport.exportToJSON(true, true, gSyncFldrID, false, true);
   let natMsg = {
     msgID: "set-synced-clippings",
@@ -1098,6 +1113,13 @@ async function showWhatsNewNotification()
 async function showSyncHelperUpdateNotification()
 {
   if (!gPrefs.syncClippings || !gPrefs.syncHelperCheckUpdates) {
+    return;
+  }
+
+  // Don't bother proceeding if the native messaging optional permission
+  // wasn't granted.
+  let perms = await messenger.permissions.getAll();
+  if (! perms.permissions.includes("nativeMessaging")) {
     return;
   }
 
@@ -1665,6 +1687,17 @@ function showSyncErrorNotification()
     type: "basic",
     title: messenger.i18n.getMessage("syncStartupFailedHdg"),
     message: messenger.i18n.getMessage("syncStartupFailed"),
+    iconUrl: "img/error.svg",
+  });
+}
+
+
+function showNoNativeMsgPermNotification()
+{
+  messenger.notifications.create("native-msg-perm-error", {
+    type: "basic",
+    title: messenger.i18n.getMessage("syncStartupFailedHdg"),
+    message: "Unable to connect to the Sync Clippings helper app. To fix this, go to Add-ons Manager and turn on the permission to allow Clippings to exchange messages with other programs.",
     iconUrl: "img/error.svg",
   });
 }

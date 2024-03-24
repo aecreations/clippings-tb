@@ -446,6 +446,18 @@ body[data-locale|="es"] #wnds-dlgs-opts-dlg #clpmgr-save-wnd-pos-label {
     vertical-align: text-bottom;
 }
 
+#request-native-app-conxn-perm-dlg {
+    top: 128px;
+    --width: 510px;
+    --height: 310px;
+}
+
+#lost-native-app-conxn-perm-dlg {
+    top: 160px;
+    --width: 550px;
+    --height: 210px;
+}
+
 #sync-clippings-dlg {
     top: 128px;
     --width: 500px;
@@ -474,6 +486,8 @@ body[data-locale="uk"] #sync-clippings-dlg {
     padding-left: 0;
 }
 
+#request-native-app-conxn-perm-dlg .msgbox-icon,
+#lost-native-app-conxn-perm-dlg .msgbox-icon,
 #sync-clippings-dlg #sync-cxn-error .msgbox-icon,
 #sync-clippings-dlg #generic-error .msgbox-icon {
     float: left;
@@ -484,10 +498,23 @@ body[data-locale="uk"] #sync-clippings-dlg {
     background-size: contain;
 }
 
+#request-native-app-conxn-perm-dlg .msgbox-icon,
+#lost-native-app-conxn-perm-dlg .msgbox-icon {
+    margin-top: 16px;
+}
+
+#lost-native-app-conxn-perm-dlg .dlg-content {
+    margin-left: 64px;
+}
+
+#request-native-app-conxn-perm-dlg .msgbox-icon,
+#lost-native-app-conxn-perm-dlg .msgbox-icon,
 #sync-clippings-dlg #sync-cxn-error .msgbox-icon {
     background-image: url("../img/warning-64.png");
 }
 
+#request-native-app-conxn-perm-dlg .msgbox-icon[os="mac"],
+#lost-native-app-conxn-perm-dlg .msgbox-icon[os="mac"],
 #sync-clippings-dlg #sync-cxn-error .msgbox-icon[os="mac"] {
     background-image: url("../img/warning-64-mac.png");
 }
@@ -496,6 +523,7 @@ body[data-locale="uk"] #sync-clippings-dlg {
     background-image: url("../img/error.svg");
 }
 
+#request-native-app-conxn-perm-dlg .error-msg,
 #sync-clippings-dlg #sync-cxn-error .error-msg,
 #sync-clippings-dlg #generic-error .error-msg {
     margin-top: 12px;
@@ -506,6 +534,7 @@ body[data-locale="uk"] #sync-clippings-dlg {
 }
 
 #wnds-dlgs-opts-dlg #wnds-dlgs-opts-exp-warn-msg,
+#request-native-app-conxn-perm-dlg .error-msg,
 #sync-clippings-dlg #sync-cxn-error .error-msg {
     background-color: #fbfb77;
     color: black;
