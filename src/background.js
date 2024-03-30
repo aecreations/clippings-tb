@@ -330,8 +330,10 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
       await aePrefs.setCorralDeTierraPrefs(gPrefs);
     }
 
-    // Detect upgrade to version 6.3, which doesn't have any new prefs.
-    if (aeVersionCmp(oldVer, "6.3") < 0) {
+    if (! aePrefs.hasSanFranciscoPrefs(gPrefs)) {
+      log("Initializing 7.0 user preferences.");
+      await aePrefs.setSanFranciscoPrefs(gPrefs);
+
       // Enable post-update notifications which users can click on to open the
       // What's New page.
       await aePrefs.setPrefs({
@@ -570,13 +572,23 @@ async function refreshSyncedClippings(aRebuildClippingsMenu)
     return;
   }
 
-  log("Clippings/mx: refreshSyncedClippings(): Retrieving synced clippings from the Sync Clippings helper app...");
-  
-  let clippingsDB = aeClippings.getDB();
-  let natMsg = {msgID: "get-synced-clippings"};
-  let syncJSONData = "";
+  let resp;
+  resp = await messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, {
+    msgID: "get-app-version",
+  });
+  log(`Clippings/mx: refreshSyncedClippings(): Sync Clippings Helper version: ${resp.appVersion}`);
 
-  let resp = null;
+  let clippingsDB = aeClippings.getDB();
+  let isCompressedSyncData = false;
+  let natMsg = {msgID: "get-synced-clippings"};
+  if (aeVersionCmp(resp.appVersion, "2.0") >= 0 && gPrefs.compressSyncData) {
+    isCompressedSyncData = true;
+    natMsg.msgID = "get-compressed-synced-clippings";
+  }
+  
+  log(`Clippings/mx: refreshSyncedClippings(): Retrieving synced clippings from Sync Clippings Helper by sending native message "${natMsg.msgID}"`);
+  let syncJSONData = "";
+  resp = null;
   try {
     resp = await messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg); 
   }
@@ -590,7 +602,15 @@ async function refreshSyncedClippings(aRebuildClippingsMenu)
   }
 
   if (resp) {
-    syncJSONData = resp;
+    if (isCompressedSyncData) {
+      log("Clippings/mx: refreshSyncedClippings(): Received Sync Clippings Helper 2.0 response (base64-encoded gzip format)");
+      let zipData = aeCompress.base64ToBytes(resp.data);
+      syncJSONData = await aeCompress.decompress(zipData);
+    }
+    else {
+      log("Clippings/mx: refreshSyncedClippings(): Received Sync Clippings Helper 1.x response");
+      syncJSONData = resp;
+    }
   }
   else {
     throw new Error("Clippings/mx: refreshSyncedClippings(): Response data from native app is invalid");

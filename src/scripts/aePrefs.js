@@ -44,6 +44,7 @@ let aePrefs = function () {
     enhancedLaF: true,
     upgradeNotifCount: 0,
     showNewClippingOpts: false,
+    compressSyncData: true,
   };
 
   return {
@@ -140,6 +141,20 @@ let aePrefs = function () {
     async setCorralDeTierraPrefs(aPrefs)
     {
       let newPrefs = {showNewClippingOpts: false};
+      await this._addPrefs(aPrefs, newPrefs);
+    },
+
+    hasSanFranciscoPrefs(aPrefs)
+    {
+      // Version 7.0
+      return ("compressSyncData" in aPrefs);
+    },
+
+    async setSanFranciscoPrefs(aPrefs)
+    {
+      let newPrefs = {
+        compressSyncData: true,
+      };
       await this._addPrefs(aPrefs, newPrefs);
     },
 

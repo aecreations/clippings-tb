@@ -46,6 +46,7 @@
       "scripts/aeUUID.js",
       "scripts/aeClippings.js",
       "scripts/aeClippingSubst.js",
+      "scripts/aeCompress.js",
       "background.js"
     ]
   },
