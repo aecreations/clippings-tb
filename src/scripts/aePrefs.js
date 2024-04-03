@@ -85,13 +85,13 @@ let aePrefs = function () {
     hasSantaBarbaraPrefs(aPrefs)
     {
       // Version 6.0
-      return aPrefs.hasOwnProperty("htmlPaste");
+      return ("htmlPaste" in aPrefs);
     },
     
     hasCarpinteriaPrefs(aPrefs)
     {
       // Version 6.1
-      return aPrefs.hasOwnProperty("skipBackupRemIfUnchg");
+      return ("skipBackupRemIfUnchg" in aPrefs);
     },
 
     async setCarpinteriaPrefs(aPrefs)
@@ -120,7 +120,7 @@ let aePrefs = function () {
     hasVenturaPrefs(aPrefs)
     {
       // Version 6.1.1
-      return aPrefs.hasOwnProperty("legacyDataMigrnErrorMsg");
+      return ("legacyDataMigrnErrorMsg" in aPrefs);
     },
 
     async setVenturaPrefs(aPrefs)
@@ -135,7 +135,7 @@ let aePrefs = function () {
     hasCorralDeTierraPrefs(aPrefs)
     {
       // Version 6.2
-      return aPrefs.hasOwnProperty("showNewClippingOpts");
+      return ("showNewClippingOpts" in aPrefs);
     },
 
     async setCorralDeTierraPrefs(aPrefs)
