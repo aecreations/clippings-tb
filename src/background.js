@@ -409,9 +409,13 @@ async function init()
   if (gPrefs.syncClippings) {
     gSyncFldrID = gPrefs.syncFolderID;
 
+    let isSyncReadOnly = await isSyncedClippingsReadOnly();
+    log(`Clippings/mx: It is ${isSyncReadOnly} that the sync data is read only.`);
+
     // The context menu will be built when refreshing the sync data, via the
     // onReloadFinish event handler of the Sync Clippings listener.
     refreshSyncedClippings(true);
+    aePrefs.setPrefs({isSyncReadOnly});
   }
   else {
     buildContextMenu();
@@ -560,6 +564,31 @@ async function enableSyncClippings(aIsEnabled)
 }
 
 
+async function isSyncedClippingsReadOnly()
+{
+  let rv = null;
+  let perms = await messenger.permissions.getAll();
+  if (! perms.permissions.includes("nativeMessaging")) {
+    return rv;
+  }
+  
+  let resp;
+  try {
+    resp = await messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, {
+      msgID: "get-sync-file-info",
+    });
+  }
+  catch (e) {
+    console.error("Clippings/mx: isSyncedClippingsReadOnly(): Error sending native message to Sync Clippings Helper: " + e);
+    return rv;
+  }
+
+  rv = !!resp.readOnly;
+
+  return rv;
+}
+
+
 async function refreshSyncedClippings(aRebuildClippingsMenu)
 {
   let perms = await messenger.permissions.getAll();
@@ -573,24 +602,10 @@ async function refreshSyncedClippings(aRebuildClippingsMenu)
   }
 
   let resp;
-  resp = await messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, {
-    msgID: "get-app-version",
-  });
-  log(`Clippings/mx: refreshSyncedClippings(): Sync Clippings Helper version: ${resp.appVersion}`);
-
-  let clippingsDB = aeClippings.getDB();
-  let isCompressedSyncData = false;
-  let natMsg = {msgID: "get-synced-clippings"};
-  if (aeVersionCmp(resp.appVersion, "2.0") >= 0 && gPrefs.compressSyncData) {
-    isCompressedSyncData = true;
-    natMsg.msgID = "get-compressed-synced-clippings";
-  }
-  
-  log(`Clippings/mx: refreshSyncedClippings(): Retrieving synced clippings from Sync Clippings Helper by sending native message "${natMsg.msgID}"`);
-  let syncJSONData = "";
-  resp = null;
   try {
-    resp = await messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg); 
+    resp = await messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, {
+      msgID: "get-app-version",
+    });
   }
   catch (e) {
     console.error("Clippings/mx: refreshSyncedClippings(): Error sending native message to Sync Clippings Helper: " + e);
@@ -600,6 +615,18 @@ async function refreshSyncedClippings(aRebuildClippingsMenu)
       return;
     }
   }
+  log(`Clippings/mx: refreshSyncedClippings(): Sync Clippings Helper version: ${resp.appVersion}`);
+
+  let isCompressedSyncData = false;
+  let natMsg = {msgID: "get-synced-clippings"};
+  if (aeVersionCmp(resp.appVersion, "2.0") >= 0 && gPrefs.compressSyncData) {
+    isCompressedSyncData = true;
+    natMsg.msgID = "get-compressed-synced-clippings";
+  }
+  
+  log(`Clippings/mx: refreshSyncedClippings(): Retrieving synced clippings from Sync Clippings Helper by sending native message "${natMsg.msgID}"`);
+  let syncJSONData = "";
+  resp = await messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg); 
 
   if (resp) {
     if (isCompressedSyncData) {
@@ -615,6 +642,8 @@ async function refreshSyncedClippings(aRebuildClippingsMenu)
   else {
     throw new Error("Clippings/mx: refreshSyncedClippings(): Response data from native app is invalid");
   }
+
+  let clippingsDB = aeClippings.getDB();
 
   if (gSyncFldrID === null) {
     log("Clippings/mx: The Synced Clippings folder is missing. Creating it...");
@@ -674,6 +703,9 @@ async function pushSyncFolderUpdates()
   }
   catch (e) {
     console.error("Clippings/mx: pushSyncFolderUpdates(): " + e);
+    // TO DO: An error may occur if the push failed because the sync file is
+    // read only. If that is the case, show a notification, and then
+    // remember this in a pref.
     throw e;
   }
 

@@ -550,6 +550,14 @@ function initDialogs()
       return;
     }
 
+    // Check if the sync file is read only.
+    resp = null;
+    resp = await messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, {
+      msgID: "get-sync-file-info",
+    });
+    let isSyncReadOnly = !!resp.readOnly;
+    aePrefs.setPrefs({isSyncReadOnly});
+
     let syncFolderID = await messenger.runtime.sendMessage({
       msgID: "enable-sync-clippings",
       isEnabled: true,

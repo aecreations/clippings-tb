@@ -273,6 +273,15 @@ function initDialogs()
 
   gNewFolderDlg.selectFolder = function (aFolderData)
   {
+    if (gPrefs.syncClippings && gPrefs.isSyncReadOnly) {
+      let folderID = Number(aFolderData.node.key);
+      if (folderID == gPrefs.syncFolderID || gSyncedFldrIDs.has(folderID)) {
+        // TO DO: Show this message in a modal lightbox.
+        alert(messenger.i18n.getMessage("syncFldrRdOnly"));
+        return;
+      }
+    }
+
     this.selectedFldrNode = aFolderData.node;
 
     let fldrID = aFolderData.node.key;
@@ -566,6 +575,15 @@ function initFolderPicker()
       selectSyncedClippingsFldr();
       $("#new-clipping-fldr-tree").addClass("show-sync-items-only");
       selectedFldrID = gPrefs.syncFolderID;
+
+      // Handle read-only sync folder.
+      if (gPrefs.isSyncReadOnly) {
+        $("#new-clipping-fldr-picker-menubtn").prop("disabled", true);
+        $("#new-folder-btn").prop("disabled", true);
+        $("#btn-accept").prop("disabled", true).removeClass("default");
+        $("#btn-cancel").addClass("default");
+        return;
+      }
     }
   }
   
@@ -592,6 +610,15 @@ function openFolderPicker()
 
 function selectFolder(aFolderData)
 {
+  if (gPrefs.syncClippings && gPrefs.isSyncReadOnly) {
+    let folderID = Number(aFolderData.node.key);
+    if (folderID == gPrefs.syncFolderID || gSyncedFldrIDs.has(folderID)) {
+      // TO DO: Show this message in a modal lightbox.
+      alert(messenger.i18n.getMessage("syncFldrRdOnly"));
+      return;
+    }
+  }
+
   gParentFolderID = Number(aFolderData.node.key);
   
   let fldrPickerMenuBtn = $("#new-clipping-fldr-picker-menubtn");

@@ -45,6 +45,7 @@ let aePrefs = function () {
     upgradeNotifCount: 0,
     showNewClippingOpts: false,
     compressSyncData: true,
+    isSyncReadOnly: false,
   };
 
   return {
@@ -154,6 +155,7 @@ let aePrefs = function () {
     {
       let newPrefs = {
         compressSyncData: true,
+        isSyncReadOnly: false,
       };
       await this._addPrefs(aPrefs, newPrefs);
     },
