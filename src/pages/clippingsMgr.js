@@ -1293,7 +1293,8 @@ let gCmd = {
         let state = {
           action: this.ACTION_CREATENEW,
           id: aNewClippingID,
-          itemType: this.ITEMTYPE_CLIPPING
+          itemType: this.ITEMTYPE_CLIPPING,
+          parentFldrID: parentFolderID,
         };
 
         if (gSyncedItemsIDs.has(parentFolderID + "F")) {
