@@ -1289,7 +1289,7 @@
   },
 
   "syncFldrRdOnly": {
-    "message": "The Synced Clippings folder is read only. Choose a different folder.",
+    "message": "The Synced Clippings folder is read-only.",
     "description": "Error message that appears in the New Clipping dialog and Clippings Manager when user tries to add, remove or change a clipping or folder under the Synced Clippings folder when the sync file is read only"
   },
 
