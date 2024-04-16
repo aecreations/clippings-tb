@@ -1179,7 +1179,7 @@ let gCmd = {
     let selectedNode = tree.activeNode;
     let parentFolderID = aeConst.ROOT_FOLDER_ID;
     let displayOrder = 0;
-    
+   
     if (selectedNode) {
       parentFolderID = this._getParentFldrIDOfTreeNode(selectedNode);
       let parentFldrChildNodes = selectedNode.getParent().getChildren();
@@ -1189,6 +1189,11 @@ let gCmd = {
       else {
         displayOrder = parentFldrChildNodes.length;
       }
+    }
+
+    if (gSyncedItemsIDs.has(parentFolderID + "F") && gPrefs.isSyncReadOnly) {
+      setTimeout(() => { gDialogs.syncFldrReadOnly.openPopup() }, 100);
+      return;
     }
 
     this.recentAction = this.ACTION_CREATENEW;
@@ -1362,6 +1367,13 @@ let gCmd = {
       }
     }
 
+    // If attempting to create new clipping in the Synced Clippings folder
+    // when sync file is read-only, create in the root folder instead.
+    if (gPrefs.syncClippings && gPrefs.isSyncReadOnly
+        && gSyncedItemsIDs.has(parentFolderID + "F")) {
+      parentFolderID = aeConst.ROOT_FOLDER_ID;
+    }
+
     this.newClippingWithContent(parentFolderID, name, content, gCmd.UNDO_STACK);
   },
 
@@ -1385,6 +1397,11 @@ let gCmd = {
       else {
         displayOrder = parentFldrChildNodes.length;
       }
+    }
+
+    if (gSyncedItemsIDs.has(parentFolderID + "F") && gPrefs.isSyncReadOnly) {
+      setTimeout(() => { gDialogs.syncFldrReadOnly.openPopup() }, 100);
+      return;
     }
 
     this.recentAction = this.ACTION_CREATENEWFOLDER;
@@ -1482,6 +1499,12 @@ let gCmd = {
 
     let id = parseInt(selectedNode.key);
     let parentFolderID = this._getParentFldrIDOfTreeNode(selectedNode);
+
+    if (gSyncedItemsIDs.has(parentFolderID + "F") && gPrefs.isSyncReadOnly) {
+      setTimeout(() => { gDialogs.syncFldrReadOnly.openPopup() }, 100);
+      return;
+    }
+
     let sid, parentFldrSID;  // Permanent IDs for synced items.
     
     if (selectedNode.isFolder()) {
@@ -4504,6 +4527,13 @@ function initDialogs()
 
     log(`clippingsMgr.js: Move To dialog: ID of selected item: ${id}; it is ${selectedNode.isFolder()} that the selected item in the clippings tree is a folder; current parent of selected item: ${parentFolderID}; move or copy to folder ID: ${destFolderID}`);
     
+    // Don't allow moving/copying to Synced Clippings folder if the sync file
+    // is read-only.
+    if (gSyncedItemsIDs.has(destFolderID + "F") && gPrefs.isSyncReadOnly) {
+      $("#move-error").text(messenger.i18n.getMessage("syncFldrRdOnly"));
+      return;
+    }
+
     let makeCopy = $("#copy-instead-of-move").prop("checked");
 
     if (parentFolderID == destFolderID && !makeCopy) {
@@ -4567,6 +4597,7 @@ function initDialogs()
 
   gDialogs.moveSyncFldr = new aeDialog("#move-sync-fldr-msgbox");
   gDialogs.deleteSyncFldr = new aeDialog("#delete-sync-fldr-msgbox");
+  gDialogs.syncFldrReadOnly = new aeDialog("#sync-file-readonly-msgbar");
 
   gDialogs.miniHelp = new aeDialog("#mini-help-dlg");
   gDialogs.miniHelp.onFirstInit = function ()
@@ -4724,6 +4755,14 @@ async function buildClippingsTree()
           if (gPrefs.syncClippings && aData.otherNode.isFolder() && id == gPrefs.syncFolderID
               && newParentID != aeConst.ROOT_FOLDER_ID) {
             warn("The Synced Clippings folder cannot be moved.");
+            return;
+          }
+
+          // Prevent drag 'n drop into Synced Clippings folder if sync file
+          // is read-only.
+          if (gPrefs.syncClippings && gPrefs.isSyncReadOnly
+              && gSyncedItemsIDs.has(newParentID + "F")) {
+            setTimeout(() => { gDialogs.syncFldrReadOnly.openPopup() }, 100);
             return;
           }
 
@@ -5376,6 +5415,8 @@ function updateDisplay(aEvent, aData)
   let selectedItemID = parseInt(aData.node.key);
 
   if (aData.node.isFolder()) {
+    $("#clipping-name").prop("disabled", false)
+
     gClippingsDB.folders.get(selectedItemID).then(aResult => {
       $("#clipping-name").val(aResult.name);
       $("#clipping-text").val("").hide();
@@ -5387,18 +5428,25 @@ function updateDisplay(aEvent, aData)
 
       $("#item-properties").addClass("folder-only");
 
-      if (gPrefs.syncClippings && selectedItemID == gPrefs.syncFolderID) {
+      if (gPrefs.syncClippings) {
         // Prevent renaming of the Synced Clippings folder.
-        $("#clipping-name").attr("disabled", "true");
+        if (selectedItemID == gPrefs.syncFolderID
+            // Disable editing if this is a synced item and the sync data
+            // is read-only.
+            || (gSyncedItemsIDs.has(selectedItemID + "F") && gPrefs.isSyncReadOnly)) {
+          $("#clipping-name").prop("disabled", true);
+        }
       }
       else {
-        $("#clipping-name").removeAttr("disabled");
+        $("#clipping-name").prop("disabled", false);
       }
     });
   }
   else {
     $("#item-properties").removeClass("folder-only");
-    $("#clipping-name").removeAttr("disabled");
+    $(`#clipping-name, #clipping-text, #clipping-key, #clipping-label-picker,
+       #placeholder-toolbar > button`).prop("disabled", false);
+    $("#options-bar label, #placeholder-toolbar label").removeAttr("disabled");
     
     gClippingsDB.clippings.get(selectedItemID).then(aResult => {
       $("#clipping-name").val(aResult.name);
@@ -5423,6 +5471,14 @@ function updateDisplay(aEvent, aData)
       }
 
       gClippingLabelPicker.selectedLabel = aResult.label;
+
+      // Disable editing if this is a synced item and the sync data
+      // is read-only.
+      if (gSyncedItemsIDs.has(selectedItemID + "C") && gPrefs.isSyncReadOnly) {
+        $(`#clipping-name, #clipping-text, #clipping-key, #clipping-label-picker,
+           #placeholder-toolbar > button`).prop("disabled", true);
+        $("#options-bar label, #placeholder-toolbar label").attr("disabled", "");
+      }
     });
   }
 }
