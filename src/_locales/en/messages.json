@@ -1294,15 +1294,23 @@
   },
 
   "syncPushFailed": {
-    "message": "Unable to push changes to the Synced Clippings folder, because the connection to the Sync Clippings helper app has failed. To fix this, reinstall the Sync Clippings helper app."
+    "message": "Unable to push changes to the Synced Clippings folder, because the connection to the Sync Clippings helper app has failed. To fix this, reinstall the Sync Clippings helper app.",
+    "description": "Error message that appears as a notification when an application error occurs with Sync Clippings Helper"
+  },
+
+  "syncGetFailed": {
+    "message": "Sync Clippings Helper is unable to read the sync file.",
+    "description": "Error message that appears as a notification when Sync Clippings Helper cannot read the sync file"
   },
 
   "syncStartupFailedHdg": {
-    "message": "Sync Clippings Error"
+    "message": "Sync Clippings Error",
+    "description": "Title for Sync Clippings error notification"
   },
   
   "syncStartupFailed": {
-    "message": "Unable to connect to the Sync Clippings helper app. To fix this, reinstall the Sync Clippings helper app."
+    "message": "Unable to connect to the Sync Clippings helper app. To fix this, reinstall the Sync Clippings helper app.",
+    "description": "Error message that appears as a notification when the Sync Clippings Helper app was uninstalled without turning off Sync Clippings first"
   },
 
   "syncUpdateTitle": {

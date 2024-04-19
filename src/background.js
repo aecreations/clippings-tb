@@ -611,7 +611,7 @@ async function refreshSyncedClippings(aRebuildClippingsMenu)
     console.error("Clippings/mx: refreshSyncedClippings(): Error sending native message to Sync Clippings Helper: " + e);
     if (e == aeConst.SYNC_ERROR_CONXN_FAILED
         || e == aeConst.SYNC_ERROR_NAT_APP_NOT_FOUND) {
-      showSyncErrorNotification();
+      showSyncAppErrorNotification();
       return;
     }
   }
@@ -631,8 +631,15 @@ async function refreshSyncedClippings(aRebuildClippingsMenu)
   if (resp) {
     if (isCompressedSyncData) {
       log("Clippings/mx: refreshSyncedClippings(): Received Sync Clippings Helper 2.0 response (base64-encoded gzip format)");
-      let zipData = aeCompress.base64ToBytes(resp.data);
-      syncJSONData = await aeCompress.decompress(zipData);
+      if (resp.status == "ok") {
+        let zipData = aeCompress.base64ToBytes(resp.data);
+        syncJSONData = await aeCompress.decompress(zipData);
+      }
+      else {
+        console.error("Sync Clippings Helper is unable to read the sync file.  Error details:\n" + resp.details);
+        showSyncReadErrorNotification();
+        return;
+      }
     }
     else {
       log("Clippings/mx: refreshSyncedClippings(): Received Sync Clippings Helper 1.x response");
@@ -1733,12 +1740,23 @@ async function pasteProcessedClipping(aClippingContent, aComposeTabID, aPasteAsQ
 }
 
 
-function showSyncErrorNotification()
+function showSyncAppErrorNotification()
 {
-  messenger.notifications.create("sync-error", {
+  messenger.notifications.create("sync-app-error", {
     type: "basic",
     title: messenger.i18n.getMessage("syncStartupFailedHdg"),
     message: messenger.i18n.getMessage("syncStartupFailed"),
+    iconUrl: "img/error.svg",
+  });
+}
+
+
+function showSyncReadErrorNotification()
+{
+  messenger.notifications.create("sync-read-error", {
+    type: "basic",
+    title: messenger.i18n.getMessage("syncStartupFailedHdg"),
+    message: messenger.i18n.getMessage("syncGetFailed"),
     iconUrl: "img/error.svg",
   });
 }
