@@ -1326,7 +1326,11 @@ let gCmd = {
       // TO DO: Show modal dialog instructing user to accept permission request
       // to access the clipboard.
       // Once the dialog is displayed, exit this function.
-      alert("To continue, please grant Clippings permission to get data from the clipboard.");
+      let askPerm = window.confirm("Clippings needs additional permission to access the clipboard.\n\n  • Get data from the clipboard");
+
+      if (! askPerm) {
+        return;
+      }
       
       // When the following MailExtension API is called, a puzzle piece icon
       // will appear next to the Thunderbird menu button.
@@ -1340,7 +1344,7 @@ let gCmd = {
         this.newClippingFromClipboard();
       }
       else {
-        alert(messenger.i18n.getMessage("msgNoClipbdPerm"));
+        window.alert(messenger.i18n.getMessage("msgNoClipbdPerm"));
       }
       // END TO DO
 
