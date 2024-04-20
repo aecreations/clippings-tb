@@ -129,22 +129,23 @@
     <div id="request-native-app-conxn-perm-dlg" class="lightbox">
       <div class="msgbox-icon"></div>
       <div class="dlg-content">
-	<div class="error-msg">An extension permission needs to be given to use Sync Clippings.</div>
+	<div class="dlg-title">Clippings needs additional permission to connect to Sync Clippings Helper.</div>
 	<div id="native-app-conxn-perm-detail">
 	<!-- TO DO: Show the following for new Clippings users. -->
-	<p class="label">Clippings will connect to <a href="https://aecreations.io/clippings/sync-clippings-helper.php">Sync Clippings Helper</a>, an application that works quietly in the background to keep your synced clippings updated.</p>
-	<p class="label">Please give Clippings permission to exchange messages with programs other than Thunderbird. Click OK to continue, then in the Thunderbird permissions popup, click Allow.</p>
+	<ul>
+          <li>Exchange messages with programs other than Thunderbird</li>
+        </ul>
+	<p class="label"><a href="https://aecreations.io/clippings/sync-clippings-helper.php">Sync Clippings Helper</a> is an application that works quietly in the background to keep your synced clippings updated.</p>
         <!-- TO DO: Show the following if upgrading from a previous version of Clippings,
 	  -- and Sync Clippings was turned on. -->
 <!--
-        <p class="label">Please give Clippings permission to exchange messages with programs other than Thunderbird, so that it can sync your clippings by connecting to Sync Clippings Helper.</p>
-        <p class="label">This permission is requested again because it's optional as of Clippings 7.0 and newer. Click OK to continue, then in the Thunderbird permissions popup, click Allow.</p>
+        <p class="label">This permission is requested again because it's optional as of Clippings 7.0 and newer.</p>
 -->
         <!-- END TO DO -->
         </div>
       </div>
       <div class="dlg-btns">
-	<button class="dlg-accept default" data-i18n="btnOK"></button>
+	<button class="dlg-accept default">Request Permission</button>
 	<button class="dlg-cancel" data-i18n="btnCancel"></button>
       </div>
     </div>

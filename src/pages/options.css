@@ -449,7 +449,7 @@ body[data-locale|="es"] #wnds-dlgs-opts-dlg #clpmgr-save-wnd-pos-label {
 #request-native-app-conxn-perm-dlg {
     top: 128px;
     --width: 510px;
-    --height: 310px;
+    --height: 260px;
 }
 
 #lost-native-app-conxn-perm-dlg {
@@ -498,12 +498,8 @@ body[data-locale="uk"] #sync-clippings-dlg {
     background-size: contain;
 }
 
-#request-native-app-conxn-perm-dlg .msgbox-icon,
-#lost-native-app-conxn-perm-dlg .msgbox-icon {
-    margin-top: 16px;
-}
-
 #lost-native-app-conxn-perm-dlg .dlg-content {
+    margin-top: 0;
     margin-left: 64px;
 }
 
@@ -523,7 +519,6 @@ body[data-locale="uk"] #sync-clippings-dlg {
     background-image: url("../img/error.svg");
 }
 
-#request-native-app-conxn-perm-dlg .error-msg,
 #sync-clippings-dlg #sync-cxn-error .error-msg,
 #sync-clippings-dlg #generic-error .error-msg {
     margin-top: 12px;
@@ -531,6 +526,19 @@ body[data-locale="uk"] #sync-clippings-dlg {
     padding: 12px;
     border-radius: 4px;
     font-weight: bold;
+}
+
+#request-native-app-conxn-perm-dlg .dlg-title {
+    margin-top: 8px;
+    font-weight: bold;
+}
+
+#request-native-app-conxn-perm-dlg ul {
+    padding-left: 24px;
+}
+
+#request-native-app-conxn-perm-dlg .dlg-content {
+    margin-left: 64px;
 }
 
 #wnds-dlgs-opts-dlg #wnds-dlgs-opts-exp-warn-msg,
