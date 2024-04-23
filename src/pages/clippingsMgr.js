@@ -1351,6 +1351,9 @@ let gCmd = {
       // TO DO: Show modal dialog instructing user to accept permission request
       // to access the clipboard.
       // Once the dialog is displayed, exit this function.
+      // !! BUG !!
+      // The following will NOT work on latest Thunderbird beta.
+      // It is confirmed to be functional in Thunderbird 115.
       let askPerm = window.confirm("Clippings needs additional permission to access the clipboard.\n\n  • Get data from the clipboard");
 
       if (! askPerm) {
