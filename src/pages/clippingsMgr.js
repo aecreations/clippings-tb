@@ -26,7 +26,7 @@ let gReorderedTreeNodeNextSibling = null;
 // DOM utility
 function sanitizeHTML(aHTMLStr)
 {
-  return DOMPurify.sanitize(aHTMLStr, { SAFE_FOR_JQUERY: true });
+  return DOMPurify.sanitize(aHTMLStr, {SAFE_FOR_JQUERY: true});
 }
 
 
@@ -159,11 +159,32 @@ let gClippingsListener = {
 
     if (selectedNode) {
       if (aData.parentFolderID == aeConst.ROOT_FOLDER_ID) {
-        newNode = tree.rootNode.addNode(newNodeData);
+        if (aData.separator) {
+          let childNodes = tree.rootNode.getChildren();
+          // For separators only:
+          // Need to subtract 1 from display order due to starting index of 1
+          // for the root folder to accommodate the Synced Clippings folder.
+          let idx = aData.displayOrder - 1;
+          idx < 0 && (idx = 0);
+          let siblingNode = childNodes[idx];
+          newNode = siblingNode.appendSibling(newNodeData);
+        }
+        else {
+          newNode = tree.rootNode.addNode(newNodeData);
+        }
       }
       else {
         let parentNode = tree.getNodeByKey(aData.parentFolderID + "F");
-        newNode = parentNode.addNode(newNodeData);
+        if (aData.separator) {
+          let childNodes = parentNode.getChildren();
+          let idx = aData.displayOrder;
+          idx < 0 && (idx = 0);
+          let siblingNode = childNodes[idx];
+          newNode = siblingNode.appendSibling(newNodeData)
+        }
+        else {
+          newNode = parentNode.addNode(newNodeData);
+        }
       }
     }
     else {
@@ -173,6 +194,10 @@ let gClippingsListener = {
 
     if (aData.label) {
       newNode.addClass(`ae-clipping-label-${aData.label}`);
+    }
+
+    if (aData.separator) {
+      newNode.addClass("ae-separator");
     }
 
     if (aDontSelect) {
@@ -1466,23 +1491,31 @@ let gCmd = {
 
     let tree = getClippingsTree();
     let selectedNode = tree.activeNode;
-    if (selectedNode && selectedNode.isFolder()) {
-      // Disallow if New Clipping dialog is open to prevent errors due to saving
-      // a new clipping into a non-existent folder.
-      let pingResp;
-      try {
-        pingResp = await messenger.runtime.sendMessage({msgID: "ping-new-clipping-dlg"});
-      }
-      catch {}
-      if (pingResp) {
-        gDialogs.actionUnavailable.openPopup();
-        return;
-      }
+    if (selectedNode) {
+      if (selectedNode.isFolder()) {
+        // Disallow if New Clipping dialog is open to prevent errors due to saving
+        // a new clipping into a non-existent folder.
+        let pingResp;
+        try {
+          pingResp = await messenger.runtime.sendMessage({msgID: "ping-new-clipping-dlg"});
+        }
+        catch {}
+        if (pingResp) {
+          gDialogs.actionUnavailable.openPopup();
+          return;
+        }
 
-      let folderID = parseInt(selectedNode.key);
-      if (folderID == gPrefs.syncFolderID) {
-        window.setTimeout(() => {gDialogs.moveSyncFldr.showModal()});
-        return;
+        let folderID = parseInt(selectedNode.key);
+        if (folderID == gPrefs.syncFolderID) {
+          window.setTimeout(() => {gDialogs.moveSyncFldr.showModal()});
+          return;
+        }
+      }
+      else {
+        if (selectedNode.extraClasses == "ae-separator") {
+          // Don't allow moving/copying a separator.
+          return;
+        }
       }
     }
 
@@ -1636,6 +1669,107 @@ let gCmd = {
       });
     }
   },
+
+
+  async insertSeparator(aDestUndoStack)
+  {
+    if (gIsClippingsTreeEmpty) {
+      unsetEmptyClippingsState();
+    }
+    
+    let tree = getClippingsTree();
+    let selectedNode = tree.activeNode;
+    let parentFolderID = aeConst.ROOT_FOLDER_ID;
+    let displayOrder = 0;
+
+    if (selectedNode) {
+      parentFolderID = this._getParentFldrIDOfTreeNode(selectedNode);
+      let parentFldrChildNodes = selectedNode.getParent().getChildren();
+      if (parentFldrChildNodes === undefined) {
+        warn("Clippings/mx::clippingsMgr.js: gCmd.insertSeparator(): Can't get child nodes of the parent node, because Fancytree lazy loading is in effect!");
+      }
+    }
+
+    if (gSyncedItemsIDs.has(parentFolderID + "F") && gPrefs.isSyncReadOnly) {
+      setTimeout(() => { gDialogs.syncFldrReadOnly.openPopup() }, 100);
+      return;
+    }
+
+    // Force displayOrder to be updated on all folder menu items so that the
+    // separator is inserted in the correct position.
+    await this.updateDisplayOrder(parentFolderID, null, null, true);
+
+    let id = parseInt(selectedNode.key);
+
+    // Calculate display order.
+    if (selectedNode.isFolder()) {
+      // Insert separator before the selected item. But insert after if the
+      // selected node is the first item, since the menus API won't render a
+      // separator if it's the first item on the menu.
+      let fldr = await gClippingsDB.folders.get(id);
+      if (fldr.displayOrder == 0) {
+        displayOrder = 0;
+      }
+      else if (fldr.displayOrder == 1 && parentFolderID == aeConst.ROOT_FOLDER_ID) {
+        // Root folder displayOrder numbering starts at 1 to accommodate the
+        // Synced Clippings folder.
+        displayOrder = 1;
+      }
+      else {
+        displayOrder = fldr.displayOrder - 1;
+      }
+    }
+    else {
+      let clipping = await gClippingsDB.clippings.get(id);
+      if (clipping.displayOrder == 0) {
+        displayOrder = 0;
+      }
+      else if (clipping.displayOrder == 1 && parentFolderID == aeConst.ROOT_FOLDER_ID) {
+        displayOrder = 1;
+      }
+      else {
+        displayOrder = clipping.displayOrder - 1;
+      }
+    }
+    log("Clippings/mx::clippingsMgr.js: gCmd.insertSeparator(): At position: " + displayOrder);
+
+    let newSeparator = {
+      name: messenger.i18n.getMessage("sepName"),
+      content: "",
+      shortcutKey: "",
+      parentFolderID,
+      label: "",
+      sourceURL: "",
+      displayOrder,      
+      separator: true,
+    };
+
+    if (gSyncedItemsIDs.has(parentFolderID + "F")) {
+      newSeparator.sid = aeUUID();
+    }
+
+    let parentFldrSID;
+    
+    gClippingsDB.folders.get(parentFolderID).then(aFolder => {
+      if (aFolder && aFolder.id != gPrefs.syncFolderID && "sid" in aFolder) {
+        parentFldrSID = aFolder.sid;
+      }
+      return gClippingsSvc.createClipping(newSeparator);
+
+    }).then(aNewSeparatorID => {
+      this._unsetClippingsUnchangedFlag();
+
+      // TO DO: Add separator to undo stack.
+
+      if (gSyncedItemsIDs.has(parentFolderID + "F")) {
+        gSyncedItemsIDs.add(aNewSeparatorID + "C");
+        gSyncedItemsIDMap.set(newSeparator.sid, aNewSeparatorID + "C");
+        messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"})
+          .catch(handlePushSyncItemsError);
+      }
+    });
+  },
+
 
   // Internal commands are NOT meant to be invoked directly from the UI.
   moveClippingIntrl(aClippingID, aNewParentFldrID, aDestUndoStack)
@@ -1794,6 +1928,7 @@ let gCmd = {
       if (aDestFldrID == aeConst.DELETED_ITEMS_FLDR_ID) {
         return null;
       }
+
       return gClippingsDB.folders.get(aDestFldrID);
 
     }).then(aFolder => {
@@ -2514,7 +2649,7 @@ let gCmd = {
     }
 
     let blobData;
-    aeImportExport.exportToJSON(INCLUDE_SRC_URLS, false, aeConst.ROOT_FOLDER_ID, excludeSyncFldrID, true).then(aJSONData => {
+    aeImportExport.exportToJSON(INCLUDE_SRC_URLS, false, aeConst.ROOT_FOLDER_ID, excludeSyncFldrID, true, true).then(aJSONData => {
       blobData = new Blob([aJSONData], { type: "application/json;charset=utf-8"});
 
       gSuppressAutoMinzWnd = true;
@@ -4211,7 +4346,8 @@ function initDialogs()
       if (gPrefs.syncClippings) {
         excludeSyncFldrID = gPrefs.syncFolderID;
       }
-      aeImportExport.exportToJSON(true, false, aeConst.ROOT_FOLDER_ID, excludeSyncFldrID, true).then(aJSONData => {
+
+      aeImportExport.exportToJSON(true, false, aeConst.ROOT_FOLDER_ID, excludeSyncFldrID, true, true).then(aJSONData => {
         currClippingsData = aJSONData;
         return messenger.runtime.sendMessage({msgID: "import-started"});
 
@@ -4337,7 +4473,10 @@ function initDialogs()
     setStatusBarMsg(messenger.i18n.getMessage("statusExportStart"));
 
     if (selectedFmtIdx == gDialogs.exportToFile.FMT_CLIPPINGS_WX) {
-      aeImportExport.exportToJSON(false, false, aeConst.ROOT_FOLDER_ID, excludeSyncFldrID, true).then(aJSONData => {
+      // TO DO: Add checkbox for including separators with export data.
+      let includeSeparators = true;
+
+      aeImportExport.exportToJSON(false, false, aeConst.ROOT_FOLDER_ID, excludeSyncFldrID, true, includeSeparators).then(aJSONData => {
         let blobData = new Blob([aJSONData], { type: "application/json;charset=utf-8"});
 
         saveToFile(blobData, aeConst.CLIPPINGS_EXPORT_FILENAME);
@@ -4933,6 +5072,10 @@ async function buildClippingsTree()
         setLabel(aItemKey.substr(5).toLowerCase());
         break;
 
+      case "insertSeparator":
+        gCmd.insertSeparator(gCmd.UNDO_STACK);
+        break;
+
       default:
         window.alert("The selected action is not available right now.");
         break;
@@ -4965,6 +5108,10 @@ async function buildClippingsTree()
 
           if (! selectedNode) {
             return false;
+          }
+
+          if (selectedNode.extraClasses == "ae-separator") {
+            return true;
           }
 
           let folderID = parseInt(selectedNode.key);
@@ -5051,6 +5198,18 @@ async function buildClippingsTree()
           },
         }
       },
+      insertSeparator: {
+        name: messenger.i18n.getMessage("mnuInsSeparator"),
+        className: "ae-menuitem",
+        disabled(aKey, aOpt) {
+          let tree = getClippingsTree();
+          let selectedNode = tree.activeNode;
+
+          if (! selectedNode) {
+            return false;
+          }
+        }
+      },
       separator0: "--------",
       deleteItem: {
         name: messenger.i18n.getMessage("tbDelete"),
@@ -5093,11 +5252,11 @@ function buildClippingsTreeHelper(aFolderID)
           folderNode.extraClasses = "ae-synced-clippings-fldr";
         }
 
-        if (! ("displayOrder" in aItem)) {
-          folderNode.displayOrder = 0;
+        if ("displayOrder" in aItem) {
+          folderNode.displayOrder = aItem.displayOrder;
         }
         else {
-          folderNode.displayOrder = aItem.displayOrder;
+          folderNode.displayOrder = 0;
         }
 
         if ("sid" in aItem) {
@@ -5117,11 +5276,15 @@ function buildClippingsTreeHelper(aFolderID)
             clippingNode.extraClasses = `ae-clipping-label-${aItem.label}`;
           }
 
-          if (! ("displayOrder" in aItem)) {
-            clippingNode.displayOrder = 0;
+          if ("displayOrder" in aItem) {
+            clippingNode.displayOrder = aItem.displayOrder;
           }
           else {
-            clippingNode.displayOrder = aItem.displayOrder;
+            clippingNode.displayOrder = 0;
+          }
+
+          if (aItem.separator) {
+            clippingNode.extraClasses = "ae-separator";
           }
 
           rv.push(clippingNode);
@@ -5454,27 +5617,36 @@ function updateDisplay(aEvent, aData)
     
     gClippingsDB.clippings.get(selectedItemID).then(aResult => {
       $("#clipping-name").val(aResult.name);
-      $("#clipping-text").val(aResult.content).show();
 
-      if (gPrefs.clippingsMgrDetailsPane) {
-        $("#options-bar").show();
+      if (aResult.separator) {
+        $("#item-properties").addClass("folder-only");
+        $("#clipping-name").prop("disabled", true);
+        $("#clipping-text").val("").hide();
+        $("#options-bar, #placeholder-toolbar").hide();
       }
+      else {
+        $("#clipping-text").val(aResult.content).show();
 
-      if (gPrefs.clippingsMgrPlchldrToolbar) {
-        $("#placeholder-toolbar").show();
-      }
-      
-      let shortcutKeyMenu = $("#clipping-key")[0];
-      shortcutKeyMenu.selectedIndex = 0;
-      
-      for (let i = 0; i < shortcutKeyMenu.options.length; i++) {
-        if (shortcutKeyMenu[i].text == aResult.shortcutKey) {
-          shortcutKeyMenu.selectedIndex = i;
-          break;
+        if (gPrefs.clippingsMgrDetailsPane) {
+          $("#options-bar").show();
         }
+
+        if (gPrefs.clippingsMgrPlchldrToolbar) {
+          $("#placeholder-toolbar").show();
+        }
+        
+        let shortcutKeyMenu = $("#clipping-key")[0];
+        shortcutKeyMenu.selectedIndex = 0;
+        
+        for (let i = 0; i < shortcutKeyMenu.options.length; i++) {
+          if (shortcutKeyMenu[i].text == aResult.shortcutKey) {
+            shortcutKeyMenu.selectedIndex = i;
+            break;
+          }
       }
 
-      gClippingLabelPicker.selectedLabel = aResult.label;
+        gClippingLabelPicker.selectedLabel = aResult.label;
+      }
 
       // Disable editing if this is a synced item and the sync data
       // is read-only.

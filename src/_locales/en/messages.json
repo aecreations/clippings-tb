@@ -185,6 +185,11 @@
     "description": "Name of root folder"
   },
 
+  "sepName": {
+    "message": "--- Separator ---",
+    "description": "Hidden name of separator - appears in exported JSON data"
+  },
+
   "labelRed": {
     "message": "Red"
   },
@@ -570,6 +575,11 @@
 
   "btnEditSrcURL": {
     "message": "Edit"
+  },
+
+  "mnuInsSeparator": {
+    "message": "Insert Separator",
+    "description": "Clippings Manager tree list context menu"
   },
 
   "mnuNewFromClipbd": {

@@ -138,6 +138,15 @@ span.fancytree-title {
     background-image: url("../img/clipping-grey.svg");
 }
 
+/* Separators */
+.ui-fancytree .ae-separator .fancytree-icon {
+    background-image: url("../img/separator.svg");
+}
+
+.ui-fancytree .ae-separator .fancytree-title {
+    font-style: italic;
+}
+
 /* Suppress Fancytree node icon hover styling */
 .fancytree-ico-ef span.fancytree-icon:hover {
     background-position: unset;

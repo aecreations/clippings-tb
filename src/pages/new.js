@@ -825,7 +825,7 @@ function accept(aEvent)
       if (gPrefs.syncClippings) {
         aeImportExport.setDatabase(gClippingsDB);
         
-        return aeImportExport.exportToJSON(true, true, gPrefs.syncFolderID, false, true);
+        return aeImportExport.exportToJSON(true, true, gPrefs.syncFolderID, false, true, true);
       }
       return null;
 
