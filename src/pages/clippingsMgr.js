@@ -1404,9 +1404,6 @@ let gCmd = {
       if (permGranted) {
         this.newClippingFromClipboard();
       }
-      else {
-        window.alert(messenger.i18n.getMessage("msgNoClipbdPerm"));
-      }
       // END TO DO
 
       return;

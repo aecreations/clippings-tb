@@ -145,11 +145,6 @@
     "message": "Clipboard is empty or does not contain textual data."
   },
 
-  "msgNoClipbdPerm": {
-    "message": "Clippings doesn't have permission to get data from the clipboard.",
-    "description": "Clippings Manager message box when user denies permission to access the clipboard"
-  },
-
   "msgRunInPrivateChg": {
     "message": "The \u201cRun in Private Windows\u201d setting for Clippings was recently turned on or off. You\u2019ll need to restart Firefox to apply this change.",
     "description": "Message box that appears when attempting to open Clippings Manager immediately after toggling the Run in Private Windows setting"
@@ -1259,11 +1254,6 @@
   "syncFileDirExLinux": {
     "message": "/home/YourName/synced-clippings",
     "description": "Example folder path on Linux."
-  },
-
-  "errNoNatMsgPerm": {
-    "message": "Clippings doesn't have permission to connect to the Sync Clippings Helper app.",
-    "description": "Extension preferences message box that appears when user denies permission to exchange messages with programs other than Firefox or Thunderbird"
   },
 
   "errSyncConxn": {

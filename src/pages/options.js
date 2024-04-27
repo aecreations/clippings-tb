@@ -375,9 +375,6 @@ function initDialogs()
       gIsActivatingSyncClippings = true;
       gDialogs.syncClippings.showModal();
     }
-    else {
-      alert(messenger.i18n.getMessage("errNoNatMsgPerm"));
-    }
   };
 
   gDialogs.lostNativeAppConxnPerm = new aeDialog("#lost-native-app-conxn-perm-dlg");
