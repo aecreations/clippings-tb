@@ -3759,7 +3759,7 @@ function initToolbar()
             name: messenger.i18n.getMessage("mnuShowHideDetails"),
             className: "ae-menuitem",
             disabled: function (aKey, aOpt) {
-              return (gIsClippingsTreeEmpty || isFolderSelected());
+              return (gIsClippingsTreeEmpty || isFolderSelected() || isSeparatorSelected());
             },
             icon: function (aOpt, $itemElement, aItemKey, aItem) {
               if ($("#options-bar").css("display") != "none") {
@@ -3771,7 +3771,7 @@ function initToolbar()
             name: messenger.i18n.getMessage("mnuShowHidePlchldrBar"),
             className: "ae-menuitem",
             disabled: function (aKey, aOpt) {
-              return (gIsClippingsTreeEmpty || isFolderSelected());
+              return (gIsClippingsTreeEmpty || isFolderSelected() || isSeparatorSelected());
             },
             icon: function (aOpt, $itemElement, aItemKey, aItem) {
               if ($("#placeholder-toolbar").css("display") != "none") {
@@ -5174,7 +5174,7 @@ async function buildClippingsTree()
             return false;
           }
 
-          if (selectedNode.extraClasses == "ae-separator") {
+          if (isSeparatorSelected()) {
             return true;
           }
 
@@ -5185,7 +5185,7 @@ async function buildClippingsTree()
       labelSubmenu: {
         name: messenger.i18n.getMessage("mnuEditLabel"),
         visible: function (aItemKey, aOpt) {
-          return (! isFolderSelected());
+          return (!isFolderSelected() && !isSeparatorSelected());
         },
         items: {
           labelNone: {
@@ -5619,6 +5619,17 @@ function isFolderSelected()
     return undefined;
   }
   return selectedNode.isFolder();
+}
+
+
+function isSeparatorSelected()
+{
+  let selectedNode = getClippingsTree().activeNode;
+
+  if (! selectedNode) {
+    return undefined;
+  }
+  return selectedNode.extraClasses == "ae-separator";
 }
 
 
