@@ -97,6 +97,10 @@ async function init()
   document.body.dataset.laf = prefs.enhancedLaF;
 
   $("#sync-intro").html(sanitizeHTML(messenger.i18n.getMessage("syncIntroTB")));
+  
+  let hostApp = messenger.i18n.getMessage("hostAppTb");
+  $("#ext-perm-native-msg").text(messenger.i18n.getMessage("extPrmNativeMessaging", hostApp));
+  $("#ext-perm-native-msg-detail").html(sanitizeHTML(messenger.i18n.getMessage("syncPermReqDetail")));
 
   initDialogs();
 

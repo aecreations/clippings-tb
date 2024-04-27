@@ -69,6 +69,11 @@
     "message": "Reset"
   },
 
+  "btnReqPerm": {
+    "message": "Request Permission",
+    "description": "Default button in the extension permission request dialog, which appears when requesting an optional extension permission such as 'nativeMessaging'"
+  },
+
   "migrnStatusTitle": {
     "message": "Clippings Migration Status",
     "description": "Clippings for Thunderbird"
@@ -1254,6 +1259,31 @@
   "syncFileDirExLinux": {
     "message": "/home/YourName/synced-clippings",
     "description": "Example folder path on Linux."
+  },
+
+  "extPrmNativeMessaging": {
+    "message": "Exchange messages with programs other than $1",
+    "description": "Exchange messages with programs other than <Firefox or Thunderbird> - User-facing description of the 'nativeMessaging' extension permission"
+  },
+  
+  "syncPermReqTitle": {
+    "message": "Clippings needs additional permission to connect to Sync Clippings Helper.",
+    "description": "Header for modal dialog in extension preferences page that appears when trying to turn on Sync Clippings without the optional 'nativeMessaging' permission turned on first"
+  },
+
+  "syncPermReqDetail": {
+    "message": "<a href=\"https://aecreations.io/clippings/sync-clippings-helper.php\" class=\"hyperlink\">Sync Clippings Helper</a> is an application that works quietly in the background to keep your synced clippings updated.",
+    "description": "Message in modal dialog in extension preferences page that appears when trying to turn on Sync Clippings without the optional 'nativeMessaging' permission turned on first"
+  },
+
+  "syncPermLost": {
+    "message": "Clippings doesn't have permission to exchange messages with other programs. This permission is needed to sync your clippings by connecting to the Sync Clippings Helper app.",
+    "description": "Message that appears when trying to open Sync Clippings settings in extension preferences page when the 'nativeMessaging' permssion was turned off from Add-ons Manager"
+  },
+
+  "syncPermLostDetail": {
+    "message": "To fix this, go to Add-ons Manager and turn on the above permission for Clippings.",
+    "description": "Message that appears when trying to open Sync Clippings settings in extension preferences page when the 'nativeMessaging' permssion was turned off from Add-ons Manager"
   },
 
   "errSyncConxn": {

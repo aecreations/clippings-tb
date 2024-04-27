@@ -129,23 +129,16 @@
     <div id="request-native-app-conxn-perm-dlg" class="lightbox">
       <div class="msgbox-icon"></div>
       <div class="dlg-content">
-	<div class="dlg-title">Clippings needs additional permission to connect to Sync Clippings Helper.</div>
+	<div class="dlg-title" data-i18n="syncPermReqTitle"></div>
 	<div id="native-app-conxn-perm-detail">
-	<!-- TO DO: Show the following for new Clippings users. -->
 	<ul>
-          <li>Exchange messages with programs other than Thunderbird</li>
+          <li id="ext-perm-native-msg"></li>
         </ul>
-	<p class="label"><a href="https://aecreations.io/clippings/sync-clippings-helper.php">Sync Clippings Helper</a> is an application that works quietly in the background to keep your synced clippings updated.</p>
-        <!-- TO DO: Show the following if upgrading from a previous version of Clippings,
-	  -- and Sync Clippings was turned on. -->
-<!--
-        <p class="label">This permission is requested again because it's optional as of Clippings 7.0 and newer.</p>
--->
-        <!-- END TO DO -->
+	<p id="ext-perm-native-msg-detail" class="label"></p>
         </div>
       </div>
       <div class="dlg-btns">
-	<button class="dlg-accept default">Request Permission</button>
+	<button class="dlg-accept default" data-i18n="btnReqPerm"></button>
 	<button class="dlg-cancel" data-i18n="btnCancel"></button>
       </div>
     </div>
@@ -153,8 +146,8 @@
     <div id="lost-native-app-conxn-perm-dlg" class="lightbox">
       <div class="msgbox-icon"></div>
       <div class="dlg-content">
-        <p class="label">Clippings doesn't have permission to exchange messages with other programs. This permission is needed to sync your clippings by connecting to the Sync Clippings Helper app.</p>
-        <p class="label">To fix this, go to Add-ons Manager and turn on the above permission for Clippings.</p>
+        <p class="label" data-i18n="syncPermLost"></p>
+        <p class="label" data-i18n="syncPermLostDetail"></p>
       </div>
       <div class="dlg-btns">
 	<button class="dlg-accept default" data-i18n="btnOK"></button>
