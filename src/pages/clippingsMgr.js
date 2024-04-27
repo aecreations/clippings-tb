@@ -94,7 +94,7 @@ let gClippingsSvc = {
   {
     if (! aOldFolder) {
       aOldFolder = await gClippingsDB.folders.get(aFolderID);
-    } 
+    }
     let numUpd = await gClippingsDB.folders.update(aFolderID, aChanges);
 
     let newFolder = {};
@@ -356,20 +356,52 @@ let gClippingsListener = {
             title: sanitizeTreeNodeTitle(DEBUG_TREE ? `${aData.name} [key=${aID}C]` : aData.name)
           };
 
-          if (aData.parentFolderID == aeConst.ROOT_FOLDER_ID) {
-            changedNode = tree.rootNode.addNode(newNodeData);
+          if (aData.separator) {
+            newNodeData.extraClasses = "ae-separator";
+            if (aData.parentFolderID == aeConst.ROOT_FOLDER_ID) {
+              // Position the separator node in the tree list.
+              // For the root folder, displayOrder starts at 1 to accommodate
+              // the Synced Clippings folder.
+              let rootNodes = tree.rootNode.getChildren();
+              let sibling = rootNodes[aData.displayOrder];
+              if (sibling) {
+                changedNode = sibling.addNode(newNodeData, "before");
+              }
+              else {
+                // The given displayOrder is invalid.
+                sibling = tree.rootNode.getLastChild();
+                changedNode = sibling.appendSibling(newNodeData);
+              }
+            }
+            else {
+              let parentNode = tree.getNodeByKey(aData.parentFolderID + "F");
+              let fldrNodes = parentNode.getChildren();
+              let sibling = fldrNodes[aData.displayOrder + 1];
+              if (sibling) {
+                changedNode = sibling.addNode(newNodeData, "before");
+              }
+              else {
+                sibling = parentNode.getLastChild();
+                changedNode = sibling.appendSibling(newNodeData);
+              }
+            }
           }
           else {
-            let parentNode = tree.getNodeByKey(aData.parentFolderID + "F");
-            changedNode = parentNode.addNode(newNodeData);
-          }
+            if (aData.parentFolderID == aeConst.ROOT_FOLDER_ID) {
+              changedNode = tree.rootNode.addNode(newNodeData);
+            }
+            else {
+              let parentNode = tree.getNodeByKey(aData.parentFolderID + "F");
+              changedNode = parentNode.addNode(newNodeData);
+            }
 
-          if (aData.label) {
-            changedNode.addClass(`ae-clipping-label-${aData.label}`);
-          }
+            if (aData.label) {
+              changedNode.addClass(`ae-clipping-label-${aData.label}`);
+            }
 
-          log(`Clippings/mx::clippingsMgr.js: gCmd.clippingChanged(): Updating display order of items under folder (ID = ${newParentFldrID}) after undoing clipping deletion`);
-          gCmd.updateDisplayOrder(newParentFldrID, null, null, true);
+            log(`Clippings/mx::clippingsMgr.js: gCmd.clippingChanged(): Updating display order of items under folder (ID = ${newParentFldrID}) after undoing clipping deletion`);
+            gCmd.updateDisplayOrder(newParentFldrID, null, null, true);
+          }
         }
 
         changedNode.makeVisible().then(() => { changedNode.setActive() });
@@ -892,6 +924,7 @@ let gCmd = {
   ACTION_IMPORT: 17,
   ACTION_EXPORT: 18,
   ACTION_RELOAD_SYNC_FLDR: 19,
+  ACTION_INSERT_SEPARATOR: 20,
 
   // flags for aDestUndoStack parameter of functions for reversible actions
   UNDO_STACK: 1,
@@ -1351,9 +1384,6 @@ let gCmd = {
       // TO DO: Show modal dialog instructing user to accept permission request
       // to access the clipboard.
       // Once the dialog is displayed, exit this function.
-      // !! BUG !!
-      // The following will NOT work on latest Thunderbird beta.
-      // It is confirmed to be functional in Thunderbird 115.
       let askPerm = window.confirm("Clippings needs additional permission to access the clipboard.\n\n  • Get data from the clipboard");
 
       if (! askPerm) {
@@ -1364,6 +1394,9 @@ let gCmd = {
       // will appear next to the Thunderbird menu button.
       // User needs to click on it to grant Clippings the "clipboardRead"
       // permission.
+      // !! BUG !!
+      // The following will NOT work on latest Thunderbird beta.
+      // It is confirmed to be functional in Thunderbird 115.
       let permGranted = await messenger.permissions.request({
         permissions: ["clipboardRead"],
       });
@@ -1546,6 +1579,8 @@ let gCmd = {
     }
 
     let sid, parentFldrSID;  // Permanent IDs for synced items.
+    let isSeparator = false;
+    let displayOrder = null;  // For separators.
     
     if (selectedNode.isFolder()) {
       let pingResp;
@@ -1625,6 +1660,12 @@ let gCmd = {
         if ("sid" in aClipping) {
           sid = aClipping.sid;
         }
+
+        if (aClipping.separator) {
+          isSeparator = true;
+          displayOrder = aClipping.displayOrder;
+        }
+
         return gClippingsDB.folders.get(parentFolderID);
 
       }).then(aFolder => {
@@ -1649,7 +1690,7 @@ let gCmd = {
             action: this.ACTION_DELETECLIPPING,
             itemType: this.ITEMTYPE_CLIPPING,
             id,
-            parentFolderID
+            parentFolderID,
           };
           if (gSyncedItemsIDs.has(parentFolderID + "F")) {
             state.sid = sid;
@@ -1658,6 +1699,11 @@ let gCmd = {
             }
           }
           
+          if (isSeparator) {
+            state.isSeparator = true;
+            state.displayOrder = displayOrder;
+          }
+
           this.undoStack.push(state);
         }
 
@@ -1736,6 +1782,8 @@ let gCmd = {
     }
     log("Clippings/mx::clippingsMgr.js: gCmd.insertSeparator(): At position: " + displayOrder);
 
+    this.recentAction = this.ACTION_INSERT_SEPARATOR;
+
     let newSeparator = {
       name: messenger.i18n.getMessage("sepName"),
       content: "",
@@ -1762,7 +1810,14 @@ let gCmd = {
     }).then(aNewSeparatorID => {
       this._unsetClippingsUnchangedFlag();
 
-      // TO DO: Add separator to undo stack.
+      let state = {
+        action: this.ACTION_INSERT_SEPARATOR,
+        id: aNewSeparatorID,
+        parentFldrID: parentFolderID,
+        displayOrder,
+        separator: true,
+      };
+      this._pushToUndoStack(aDestUndoStack, state);
 
       if (gSyncedItemsIDs.has(parentFolderID + "F")) {
         gSyncedItemsIDs.add(aNewSeparatorID + "C");
@@ -2809,7 +2864,8 @@ let gCmd = {
         this.redoStack.push(undo);
       }
     }
-    else if (undo.action == this.ACTION_CREATENEW) {
+    else if (undo.action == this.ACTION_CREATENEW
+             || undo.action == this.ACTION_INSERT_SEPARATOR) {
       await this.moveClippingIntrl(undo.id, aeConst.DELETED_ITEMS_FLDR_ID);
       this.redoStack.push(undo);
     }
@@ -2956,8 +3012,13 @@ let gCmd = {
         this.undoStack.push(redo);
       }
     }
-    else if (redo.action == this.ACTION_CREATENEW) {
+    else if (redo.action == this.ACTION_CREATENEW
+             || redo.action == this.ACTION_INSERT_SEPARATOR) {
       await this.moveClippingIntrl(redo.id, redo.parentFldrID);
+      this.undoStack.push(redo);
+    }
+    else if (redo.action == this.ACTION_INSERT_SEPARATOR) {
+await this.moveClippingIntrl(redo.id, redo.parentFldrID);
       this.undoStack.push(redo);
     }
     else if (redo.action == this.ACTION_CREATENEWFOLDER) {
