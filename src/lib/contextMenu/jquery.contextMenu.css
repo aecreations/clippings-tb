@@ -2,17 +2,17 @@
 /*!
  * jQuery contextMenu - Plugin for simple contextMenu handling
  *
- * Version: v2.9.2
+ * Version: v2.6.4
  *
  * Authors: Björn Brala (SWIS.nl), Rodney Rehm, Addy Osmani (patches for FF)
  * Web: http://swisnl.github.io/jQuery-contextMenu/
  *
- * Copyright (c) 2011-2020 SWIS BV and contributors
+ * Copyright (c) 2011-2018 SWIS BV and contributors
  *
  * Licensed under
  *   MIT License http://www.opensource.org/licenses/mit-license
  *
- * Date: 2020-05-13T13:55:37.023Z
+ * Date: 2018-03-16T11:13:46.072Z
  */
 @-webkit-keyframes cm-spin {
   0% {
@@ -54,8 +54,8 @@
   font-style: normal; 
   font-weight: normal;
 
-  src: url("font/context-menu-icons.eot?33lxn");
-  src: url("font/context-menu-icons.eot?33lxn#iefix") format("embedded-opentype"), url("font/context-menu-icons.woff2?33lxn") format("woff2"), url("font/context-menu-icons.woff?33lxn") format("woff"), url("font/context-menu-icons.ttf?33lxn") format("truetype");
+  src: url("font/context-menu-icons.eot?1s39y");
+  src: url("font/context-menu-icons.eot?1s39y#iefix") format("embedded-opentype"), url("font/context-menu-icons.woff2?1s39y") format("woff2"), url("font/context-menu-icons.woff?1s39y") format("woff"), url("font/context-menu-icons.ttf?1s39y") format("truetype");
 }
 
 .context-menu-icon-add:before {
@@ -154,24 +154,6 @@
   color: #fff;
 }
 .context-menu-icon.context-menu-icon--fa.context-menu-disabled::before {
-  color: #bbb;
-}
-
-.context-menu-icon.context-menu-icon--fa5 {
-  display: list-item;
-  font-family: inherit;
-  line-height: inherit;
-}
-.context-menu-icon.context-menu-icon--fa5 i, .context-menu-icon.context-menu-icon--fa5 svg {
-  position: absolute;
-  top: .3em; 
-  left: .5em;
-  color: #2980b9;
-}
-.context-menu-icon.context-menu-icon--fa5.context-menu-hover > i, .context-menu-icon.context-menu-icon--fa5.context-menu-hover > svg {
-  color: #fff;
-}
-.context-menu-icon.context-menu-icon--fa5.context-menu-disabled i, .context-menu-icon.context-menu-icon--fa5.context-menu-disabled svg {
   color: #bbb;
 }
 
