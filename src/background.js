@@ -17,6 +17,7 @@ let gIsReloadingSyncFldr = false;
 let gSyncClippingsHelperDwnldPgURL;
 let gForceShowFirstTimeBkupNotif = false;
 let gClippingsMgrCleanUpIntvID = null;
+let gIsSyncPushFailed = false;
 
 let gClippingsListener = {
   _isImporting: false,
@@ -710,14 +711,21 @@ async function pushSyncFolderUpdates()
   }
   catch (e) {
     console.error("Clippings/mx: pushSyncFolderUpdates(): " + e);
-    // TO DO: An error may occur if the push failed because the sync file is
-    // read only. If that is the case, show a notification, and then
-    // remember this in a pref.
     throw e;
   }
 
   log("Clippings/mx: pushSyncFolderUpdates(): Response from native app:");
   log(resp);
+
+  if (resp.status == "error") {
+    // An error may occur if the push failed because the sync file is
+    // read only.
+    if (resp.details.search(/TypeError/) != -1 && !gIsSyncPushFailed) {
+      showSyncPushReadOnlyNotification();
+      gIsSyncPushFailed = true;
+    }
+
+  }
 }
 
 
@@ -1780,6 +1788,17 @@ function showSyncReadErrorNotification()
     type: "basic",
     title: messenger.i18n.getMessage("syncStartupFailedHdg"),
     message: messenger.i18n.getMessage("syncGetFailed"),
+    iconUrl: "img/error.svg",
+  });
+}
+
+
+function showSyncPushReadOnlyNotification()
+{
+  messenger.notifications.create("sync-push-read-only-error", {
+    type: "basic",
+    title: messenger.i18n.getMessage("syncStartupFailedHdg"),
+    message: messenger.i18n.getMessage("syncFldrRdOnly"),
     iconUrl: "img/error.svg",
   });
 }
