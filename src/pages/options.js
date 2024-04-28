@@ -285,6 +285,8 @@ async function init()
     aEvent.preventDefault();
     gotoURL(aEvent.target.href, ("openInTbWnd" in aEvent.target.dataset));
   });
+
+  aeInterxn.initDialogButtonFocusHandlers();
 }
 
 

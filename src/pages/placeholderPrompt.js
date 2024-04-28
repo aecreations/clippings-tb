@@ -159,6 +159,8 @@ $(async () => {
   $("#btn-accept").click(aEvent => { accept(aEvent) });
   $("#btn-cancel").click(aEvent => { cancel(aEvent) });
 
+  aeInterxn.initDialogButtonFocusHandlers();
+
   // Fix for Fx57 bug where bundled page loaded using
   // browser.windows.create won't show contents unless resized.
   // See <https://bugzilla.mozilla.org/show_bug.cgi?id=1402110>

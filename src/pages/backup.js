@@ -23,7 +23,7 @@ $(async () => {
   let enhancedLaF = await aePrefs.getPref("enhancedLaF");
   document.body.dataset.laf = enhancedLaF;
 
-  $("#backup-now").click(aEvent => { backup() });
+  $("#btn-accept").click(aEvent => { backup() });
   $("#btn-close").click(aEvent => { closeDlg() });
 
   let backupRemFrequency = await aePrefs.getPref("backupRemFrequency");
@@ -73,6 +73,7 @@ $(async () => {
   });
 
   initDialogs();
+  aeInterxn.initDialogButtonFocusHandlers();
   window.focus();
 
   // Fix for Fx57 bug where bundled page loaded using
