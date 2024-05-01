@@ -1798,31 +1798,35 @@ let gCmd = {
 
     let parentFldrSID;
     
-    gClippingsDB.folders.get(parentFolderID).then(aFolder => {
-      if (aFolder && aFolder.id != gPrefs.syncFolderID && "sid" in aFolder) {
-        parentFldrSID = aFolder.sid;
+    let folder = await gClippingsDB.folders.get(parentFolderID);
+    if (folder && folder.id != gPrefs.syncFolderID && "sid" in folder) {
+      parentFldrSID = folder.sid;
+    }
+
+    let newSeparatorID = await gClippingsSvc.createClipping(newSeparator);
+    this._unsetClippingsUnchangedFlag();
+
+    await this.updateDisplayOrder(parentFolderID, null, null, true);
+
+    let state = {
+      action: this.ACTION_INSERT_SEPARATOR,
+      id: newSeparatorID,
+      parentFldrID: parentFolderID,
+      displayOrder,
+      separator: true,
+    };
+    this._pushToUndoStack(aDestUndoStack, state);
+
+    if (gSyncedItemsIDs.has(parentFolderID + "F")) {
+      gSyncedItemsIDs.add(newSeparatorID + "C");
+      gSyncedItemsIDMap.set(newSeparator.sid, newSeparatorID + "C");
+      try {
+        await messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"});
       }
-      return gClippingsSvc.createClipping(newSeparator);
-
-    }).then(aNewSeparatorID => {
-      this._unsetClippingsUnchangedFlag();
-
-      let state = {
-        action: this.ACTION_INSERT_SEPARATOR,
-        id: aNewSeparatorID,
-        parentFldrID: parentFolderID,
-        displayOrder,
-        separator: true,
-      };
-      this._pushToUndoStack(aDestUndoStack, state);
-
-      if (gSyncedItemsIDs.has(parentFolderID + "F")) {
-        gSyncedItemsIDs.add(aNewSeparatorID + "C");
-        gSyncedItemsIDMap.set(newSeparator.sid, aNewSeparatorID + "C");
-        messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"})
-          .catch(handlePushSyncItemsError);
+      catch (e) {
+        handlePushSyncItemsError(e);
       }
-    });
+    }
   },
 
 
@@ -1863,6 +1867,12 @@ let gCmd = {
           clippingChg.sid = undefined;
         }
 
+        if (aClipping.separator && aClipping.displayOrder > 0
+            && aNewParentFldrID != aeConst.DELETED_ITEMS_FLDR_ID) {
+          // Position the separator in the correct sequence.
+          clippingChg.displayOrder = aClipping.displayOrder - 1;
+        }
+
         if (oldParentFldrID == aeConst.DELETED_ITEMS_FLDR_ID) {
           return null;
         }
@@ -1886,7 +1896,12 @@ let gCmd = {
 
       }).then(aNumUpd => {
         this._unsetClippingsUnchangedFlag();
+        if (aNewParentFldrID == aeConst.DELETED_ITEMS_FLDR_ID) {
+          return null;
+        }
+        return this.updateDisplayOrder(aNewParentFldrID, null, null, true);
 
+      }).then(() => {
         let state = {
           action: this.ACTION_MOVETOFOLDER,
           itemType: this.ITEMTYPE_CLIPPING,
