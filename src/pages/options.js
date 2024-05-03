@@ -54,6 +54,10 @@ async function init()
     $("#pref-pg-hdr-text").text(prefPgTitleWin);
   }
 
+  $("#preftab-general-btn").on("click", switchPrefsPanel);
+  $("#preftab-paste-btn").on("click", switchPrefsPanel);
+  $("#preftab-sync-clippings-btn").on("click", switchPrefsPanel);
+
   let keyCtrl  = messenger.i18n.getMessage("keyCtrl");
   let keyAlt   = messenger.i18n.getMessage("keyAlt");
   let keyShift = messenger.i18n.getMessage("keyShift");
@@ -287,6 +291,29 @@ async function init()
   });
 
   aeInterxn.initDialogButtonFocusHandlers();
+}
+
+
+function switchPrefsPanel(aEvent)
+{
+  let id = aEvent.target.id;
+
+  if (id == "preftab-general-btn") {
+    $("#preftab-paste-btn, #preftab-sync-clippings-btn").removeClass("active-tab");
+    $("#prefpane-paste, #prefpane-sync-clippings").removeClass("active-tab-panel");
+    $("#prefpane-general").addClass("active-tab-panel");
+  }
+  else if (id == "preftab-paste-btn") {
+    $("#preftab-general-btn, #preftab-sync-clippings-btn").removeClass("active-tab");
+    $("#prefpane-general, #prefpane-sync-clippings").removeClass("active-tab-panel");
+    $("#prefpane-paste").addClass("active-tab-panel");
+  }
+  else if (id == "preftab-sync-clippings-btn") {   
+    $("#preftab-general-btn, #preftab-paste-btn").removeClass("active-tab");
+    $("#prefpane-general, #prefpane-paste").removeClass("active-tab-panel");
+    $("#prefpane-sync-clippings").addClass("active-tab-panel");
+  }
+  aEvent.target.classList.add("active-tab");
 }
 
 

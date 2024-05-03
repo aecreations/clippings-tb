@@ -11,6 +11,11 @@
     --color-main-border: #d9d9d9;
     --color-main-border-shadow: #d7d7db;
     --color-main-bkgd: #f9f9fa;
+    --color-tab-cntr-border: #cfcfd8;
+    --color-tab-bkgd-hover: #e0e0e6;
+    --color-tab-bkgd-active: #cfcfd8;
+    --color-tab-bkgd-selected: #f0f0f4;
+    --color-tab-text-active: #0a84ff;
     --color-fieldset-border: #d7d7db;
     --color-dlg-fieldset-border: #d7d7db;
     --color-text-sync-status-on: #003706;
@@ -28,6 +33,11 @@
 	--color-main-border: #2a2a2e;
 	--color-main-border-shadow: #0c0c0d;
 	--color-main-bkgd: #2a2a2e;
+	--color-tab-cntr-border: #5b5b66;
+	--color-tab-bkgd-hover: #52525e;
+	--color-tab-bkgd-active: #5b5b66;
+	--color-tab-bkgd-selected: #4a4a55;
+	--color-tab-text-active: #45a1ff;
 	--color-fieldset-border: #4a4a4f;
 	--color-dlg-fieldset-border: #585858;
 	--color-text-sync-status-on: #30e60b;
@@ -173,6 +183,116 @@ progress {
 
 .example {
     font-size: 11.5px;
+}
+
+.tab-container {
+    margin-top: 4px;
+    margin-bottom: 16px;
+    margin-left: -16px;
+    margin-right: -16px;
+    border-top: 1px solid var(--color-tab-cntr-border);
+    border-bottom: 1px solid var(--color-tab-cntr-border);
+    text-align: center;
+}
+
+.tab-container > .tab {
+    display: inline-block;
+}
+
+.tab > button {
+    margin: 0;
+    padding-top: 40px;
+    padding-bottom: 22px;
+    padding-left: 16px;
+    padding-right: 16px;
+
+    border: unset;
+    border-radius: 0;
+
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-position: center 8px;
+
+    font-size: 13px;
+}
+
+.tab > button:-moz-focusring {
+    margin-top: -2px;
+    margin-bottom: -2px;
+    padding-left: 14px;
+    padding-right: 14px;
+
+    outline: none;
+    border: 2px solid #45a1ff !important;
+    box-shadow: none;
+}
+
+.tab > button:-moz-focusring:active {
+    margin-top: -2px;
+    margin-bottom: -2px;
+    padding-left: 14px;
+    padding-right: 14px;
+
+    outline: none;
+    border: 2px solid #45a1ff !important;
+    box-shadow: none;
+
+    background-color: var(--color-tab-bkgd-active);
+}
+
+.tab > button.active-tab {
+    color: var(--color-tab-text-active);
+    background-color: var(--color-tab-bkgd-selected);
+}
+
+.tab > button:hover {
+    background-color: var(--color-tab-bkgd-hover);
+}
+
+.tab > button.active-tab:hover {
+    background-color: var(--color-tab-bkgd-hover);
+}
+
+.tab > button:active {
+    padding-top: 40px;
+    border: none !important;
+    background-color: var(--color-tab-bkgd-active);
+    background-position: center 8px;
+}
+
+.tab > button.active-tab:active {
+    background-color: var(--color-tab-bkgd-active);
+}
+
+.tab-panel {
+    display: none;
+}
+
+.active-tab-panel {
+    display: block;
+}
+
+#preftab-general-btn {
+    background-image: url("../img/pref-general.svg");
+}
+
+#preftab-general-btn.active-tab {
+    background-image: url("../img/pref-general-checked.svg");
+}
+#preftab-paste-btn {
+    background-image: url("../img/pref-paste.svg");
+}
+
+#preftab-paste-btn.active-tab {
+    background-image: url("../img/pref-paste-checked.svg");
+}
+
+#preftab-sync-clippings-btn {
+    background-image: url("../img/pref-sync-clippings.svg");
+}
+
+#preftab-sync-clippings-btn.active-tab {
+    background-image: url("../img/pref-sync-clippings-checked.svg");
 }
 
 #html-paste-options-ctr {
