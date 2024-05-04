@@ -1020,6 +1020,16 @@
     "description": "Extension preferences page title on Windows"
   },
 
+  "prefTabGen": {
+    "message": "General",
+    "description": "Tab label for extension preferences page"
+  },
+
+  "prefTabPaste": {
+    "message": "Paste",
+    "description": "Tab label for extension preferences page"
+  },
+
   "prefsHdgPasteOptions": {
     "message": "Paste Options"
   },

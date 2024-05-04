@@ -66,22 +66,22 @@
       </div> <!-- /prefpane-general -->
 
       <div id="prefpane-paste" class="tab-panel">
+	<p id="html-paste-options" data-i18n="labelPasteOptions"></p>
+        <div id="html-paste-options-ctr">
+	  <div class="row browser-style">
+	    <input type="radio" id="paste-opt-formatted" name="html-paste-opt" value="1"/><label for="paste-opt-formatted" data-i18n="pasteOptFormatted"></label>
+	  </div>
+	  <div id="paste-formatted-opts" class="row indent browser-style">
+	    <input type="checkbox" id="html-auto-line-break" class="checkbox-s"/><label id="html-auto-line-break-label" for="html-auto-line-break" data-i18n="cbAutoLineBreak"></label>
+	    <p id="html-paste-note" data-i18n="htmlPasteDesc"></p>
+	  </div>
+	  <div class="row browser-style">
+	    <input type="radio" id="paste-opt-raw-html" name="html-paste-opt" value="2"/><label for="paste-opt-raw-html" data-i18n="pasteOptRawHTML"></label>
+	  </div>
+        </div>
+
 	<fieldset id="paste-options">
 	  <legend data-i18n="prefsHdgPasteOptions"></legend>
-
-	  <div id="html-paste-options-ctr" class="row">
-	    <label for="html-paste-options"data-i18n="labelPasteOptions"></label>
-	    <br/>
-	    <select id="html-paste-options" class="browser-style">
-	      <option value="1" data-i18n="pasteOptFormatted"></option>
-	      <option value="2" data-i18n="pasteOptRawHTML"></option>
-	    </select>
-	  </div>
-
-	  <div id="paste-formatted-opts" class="indent browser-style">
-	    <input type="checkbox" id="html-auto-line-break" class="checkbox-s"/><label id="html-auto-line-break-label" for="html-auto-line-break" data-i18n="cbAutoLineBreak"></label>
-	    <p class="note" data-i18n="htmlPasteDesc"></p>
-	  </div>
 	  <div class="row browser-style">
 	    <input type="checkbox" id="shortcut-key" class="checkbox-s"/><label id="shct-label" for="shortcut-key"></label>
 	  </div>

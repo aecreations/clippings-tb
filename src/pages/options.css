@@ -160,21 +160,17 @@ progress {
 
 .row {
     margin-top: 4px;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
     margin-left: 4px;
 }
 
 .indent {
-    margin-left: 2em;
+    margin-left: 2.2em;
 }
 
-.note, description {
+description {
     margin-top: 6px;
     margin-right: 18px;
-}
-
-.note {
-    font-size: 11.5px;
 }
 
 .description {
@@ -295,13 +291,32 @@ progress {
     background-image: url("../img/pref-sync-clippings-checked.svg");
 }
 
-#html-paste-options-ctr {
+#html-paste-options {
+    font-size: 15px;
     margin-bottom: 8px;
 }
 
-#html-paste-options {
-    width: 420px;
+#html-paste-options-ctr {
+    margin-left: 10px;
+}
+
+#paste-opt-formatted ~ label, #paste-opt-raw-html ~ label {
+    font-size: 15px;
+}
+
+#html-paste-note {
+    margin-left: 28px;
     margin-top: 4px;
+    font-size: 13px;
+}
+
+#html-paste-note.disabled {
+    color: #999;
+    opacity: .5;
+}
+
+#paste-options {
+    margin-top: 20px;
 }
 
 #enable-shortcut-key-ctr {

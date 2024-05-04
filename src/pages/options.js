@@ -108,16 +108,18 @@ async function init()
 
   initDialogs();
 
-   $("#html-paste-options").on("change", aEvent => {
-    let pasteOpt = aEvent.target.value;
-    if (pasteOpt == aeConst.HTMLPASTE_AS_FORMATTED) {
-      $("#paste-formatted-opts").fadeIn();
-    }
-    else {
-      $("#paste-formatted-opts").fadeOut();
-    }
+  $("#paste-opt-formatted").click(aEvent => {
+    $("#html-auto-line-break").prop("disabled", false);
+    $("#html-paste-note").removeClass("disabled");
+    aePrefs.setPrefs({htmlPaste: aEvent.target.value});
   });
 
+  $("#paste-opt-raw-html").click(aEvent => {
+    $("#html-auto-line-break").prop("disabled", true);
+    $("#html-paste-note").addClass("disabled");
+    aePrefs.setPrefs({htmlPaste: aEvent.target.value});
+  });
+  
   $("#toggle-sync").click(async (aEvent) => {
     let syncClippings = await aePrefs.getPref("syncClippings");
     if (syncClippings) {
@@ -151,10 +153,19 @@ async function init()
   // Sync Clippings help dialog content.
   $("#sync-clippings-help-dlg > .dlg-content").html(sanitizeHTML(messenger.i18n.getMessage("syncHelpTB", aeConst.SYNC_CLIPPINGS_HELP_URL)));
 
-  $("#html-paste-options").val(prefs.htmlPaste).change(aEvent => {
-    aePrefs.setPrefs({ htmlPaste: aEvent.target.value });
-  });
-
+  if (prefs.htmlPaste == aeConst.HTMLPASTE_AS_FORMATTED) {
+    $("#paste-opt-formatted").prop("checked", true);
+    $("#paste-opt-raw-html").prop("checked", false);
+    $("#html-auto-line-break").prop("disabled", false);
+    $("#html-paste-note").removeClass("disabled");
+  }
+  else if (prefs.htmlPaste == aeConst.HTMLPASTE_AS_IS) {
+    $("#paste-opt-formatted").prop("checked", false);
+    $("#paste-opt-raw-html").prop("checked", true);
+    $("#html-auto-line-break").prop("disabled", true);
+    $("#html-paste-note").addClass("disabled");
+  }
+  
   $("#html-auto-line-break").attr("checked", prefs.autoLineBreak).click(aEvent => {
     aePrefs.setPrefs({ autoLineBreak: aEvent.target.checked });
   });
