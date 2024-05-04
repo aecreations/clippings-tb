@@ -1373,15 +1373,28 @@
   },
 
   "syncOptsHdg": {
-    "message": "Options"
+    "message": "Options",
+    "description": "Heading for Sync Clippings settings dialog in the extension preferences page"
   },
 
   "syncUpdateChkOpt": {
-    "message": "Automatically check for updates to Sync Clippings Helper"
+    "message": "Automatically check for updates to Sync Clippings Helper",
+    "description": "Sync Clippings settings dialog in the extension preferences page"
   },
 
   "cxtMnuSyncItemsOnly": {
-    "message": "Show only synced items in the Clippings menu"
+    "message": "Show only synced items in the Clippings menu",
+    "description": "Sync Clippings settings dialog in the extension preferences page"
+  },
+
+  "cmprsSyncData": {
+    "message": "Compress sync data (recommended)",
+    "description": "Sync Clippings settings dialog in the extension preferences page"
+  },
+
+  "cmprsSyncReqmt": {
+    "message": "Requires Sync Clippings Helper 2.0 or newer. <a href=\"$1\" class=\"hyperlink\">Download now</a>",
+    "description": "Sync Clippings settings dialog in the extension preferences page"
   },
 
   "wndsAndDlgsOpts": {

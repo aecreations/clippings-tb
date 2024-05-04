@@ -306,7 +306,8 @@ description {
 }
 
 #html-paste-note {
-    margin-left: 28px;
+    margin-left: 4px;
+    margin-right: 18px;
     margin-top: 4px;
     font-size: 13px;
 }
@@ -618,6 +619,10 @@ body[data-locale="uk"] #sync-clippings-dlg {
     --width: 522px;
 }
 
+#sync-clippings-dlg.expanded {
+    height: 270px;
+}
+
 #sync-clippings-dlg fieldset {
     margin-top: 14px;
     margin-left: 0;
@@ -625,6 +630,13 @@ body[data-locale="uk"] #sync-clippings-dlg {
 
 #sync-clippings-dlg fieldset legend {
     padding-left: 0;
+}
+
+#sync-clippings-dlg #cmprs-sync-data-reqmt {
+    display: none;
+    font-size: 11.5px;
+    margin-top: 2px;
+    margin-left: 25px;
 }
 
 #request-native-app-conxn-perm-dlg .msgbox-icon,
