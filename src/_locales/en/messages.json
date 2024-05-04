@@ -1034,8 +1034,14 @@
     "message": "Paste Options"
   },
 
-  "labelPasteOptions": {
-    "message": "When pasting an HTML-formatted clipping into a rich text edit box:"
+  "labelPasteOpts": {
+    "message": "When pasting a clipping containing HTML tags into an HTML editor:",
+    "description": "Extension preferences page"
+  },
+
+  "labelPasteOptsTB": {
+    "message": "When pasting a clipping containing HTML tags into an HTML-formatted message:",
+    "description": "Extension preferences page"
   },
 
   "pasteOptFormatted": {
@@ -1053,6 +1059,11 @@
   "htmlPasteDesc": {
     "message": "An HTML-formatted clipping will always be pasted as plain text if pasting into a plain textbox, or if the clipping contains restricted tags such as <script>, <applet>, <object>, <iframe>, etc."
   },
+
+  "htmlPasteDescTB": {
+    "message": "An HTML-formatted clipping will always be pasted as plain text if pasting into a plain-text message, or if the clipping contains restricted tags such as <script>, <applet>, <object>, <iframe>, etc."
+  },
+
 
   "prefsShortcutMode": {
     "message": "Activate shortcut key mode by pressing these keys:"
