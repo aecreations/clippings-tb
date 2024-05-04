@@ -142,6 +142,11 @@ label {
     margin-right: 4px;
 }
 
+input[type="checkbox"] ~ label,
+input[type="radio"] ~ label {
+    font-size: 15px;
+}
+
 button {
     min-width: 88px;
     height: 32px;
@@ -300,10 +305,6 @@ description {
     margin-left: 10px;
 }
 
-#paste-opt-formatted ~ label, #paste-opt-raw-html ~ label {
-    font-size: 15px;
-}
-
 #html-paste-note {
     margin-left: 28px;
     margin-top: 4px;
@@ -328,8 +329,13 @@ description {
     margin-top: 8px;
 }
 
+#auto-inc-plchldr-opts label {
+    font-size: 15px;
+}
+
 #auto-inc-plchldrs-start-val {
     width: 64px;
+    font-size: 15px;
 }
 
 #backup-reminder-freq {
