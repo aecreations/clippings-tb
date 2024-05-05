@@ -1164,7 +1164,7 @@ body[data-locale="de"] #import-dlg #restore-backup-warning > p {
 
 #export-dlg {
     --width: 360px;
-    --height: 276px;
+    --height: 296px;
     top: 22px;
 }
 
@@ -1186,7 +1186,7 @@ body[data-locale="de"] #export-dlg #export-format-list-label {
 
 #export-dlg fieldset {
     margin-top: 6px;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     height: 106px;
 }
 

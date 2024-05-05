@@ -939,11 +939,18 @@
   },
 
   "cbExpInclSrcURLs": {
-    "message": "Include source web page addresses of clippings"
+    "message": "Include source web page addresses of clippings",
+    "description": "Export dialog box in Clippings Manager"
+  },
+
+  "cbExpInclSeps": {
+    "message": "Include separators",
+    "description": "Export dialog box in Clippings Manager"
   },
 
   "btnExport": {
-    "message": "Export"
+    "message": "Export",
+    "description": "Export dialog box in Clippings Manager"
   },
 
   "statusExportStart": {

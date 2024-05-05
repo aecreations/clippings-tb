@@ -4481,24 +4481,40 @@ function initDialogs()
     FMT_CLIPPINGS_WX: 0,
     FMT_HTML: 1,
     FMT_CSV: 2,
-  });
-  gDialogs.exportToFile.onInit = function ()
-  {
-    let fmtDesc = [
+    inclSeparators: true,
+    fmtDesc: [
       messenger.i18n.getMessage("expFmtClippings6Desc"), // Clippings 6
       messenger.i18n.getMessage("expFmtHTMLDocDesc"),    // HTML Document
       messenger.i18n.getMessage("expFmtCSVDesc"),        // CSV File
-    ];
-
-    gSuppressAutoMinzWnd = true;
-
+    ],
+  });
+  gDialogs.exportToFile.onFirstInit = function ()
+  {
     $("#export-format-list").change(aEvent => {
       let selectedFmtIdx = aEvent.target.selectedIndex;
-      $("#format-description").text(fmtDesc[selectedFmtIdx]);
+      $("#format-description").text(this.fmtDesc[selectedFmtIdx]);
+
+      if (selectedFmtIdx == this.FMT_CLIPPINGS_WX) {
+        $("#export-incl-separators").prop("disabled", false).prop("checked", this.inclSeparators);
+      }
+      else if (selectedFmtIdx == this.FMT_HTML || selectedFmtIdx == this.FMT_CSV) {
+        $("#export-incl-separators").prop("disabled", true).prop("checked", false);
+      }
     });
 
-    $("#export-format-list")[0].selectedIndex = gDialogs.exportToFile.FMT_CLIPPINGS_WX;
-    $("#format-description").text(fmtDesc[gDialogs.exportToFile.FMT_CLIPPINGS_WX]);
+    $("#export-incl-separators").click(aEvent => {
+      this.inclSeparators = aEvent.target.checked;
+    });
+  };
+
+  gDialogs.exportToFile.onInit = function ()
+  {
+    this.inclSeparators = true;
+    gSuppressAutoMinzWnd = true;
+
+    $("#export-format-list")[0].selectedIndex = this.FMT_CLIPPINGS_WX;
+    $("#format-description").text(this.fmtDesc[this.FMT_CLIPPINGS_WX]);
+    $("#export-incl-separators").prop("disabled", false).prop("checked", this.inclSeparators);
   };
 
   gDialogs.exportToFile.onShow = function ()
@@ -4519,7 +4535,7 @@ function initDialogs()
         gSuppressAutoMinzWnd = false;
         setStatusBarMsg(messenger.i18n.getMessage("statusExportDone"));
 
-        return messenger.downloads.search({ id: aDownldItemID });
+        return messenger.downloads.search({id: aDownldItemID});
 
       }).then(aDownldItems => {
         if (aDownldItems && aDownldItems.length > 0) {
@@ -4553,11 +4569,10 @@ function initDialogs()
     setStatusBarMsg(messenger.i18n.getMessage("statusExportStart"));
 
     if (selectedFmtIdx == gDialogs.exportToFile.FMT_CLIPPINGS_WX) {
-      // TO DO: Add checkbox for including separators with export data.
-      let includeSeparators = true;
+      let inclSeparators = $("#export-incl-separators").prop("checked");
 
-      aeImportExport.exportToJSON(false, false, aeConst.ROOT_FOLDER_ID, excludeSyncFldrID, true, includeSeparators).then(aJSONData => {
-        let blobData = new Blob([aJSONData], { type: "application/json;charset=utf-8"});
+      aeImportExport.exportToJSON(false, false, aeConst.ROOT_FOLDER_ID, excludeSyncFldrID, true, inclSeparators).then(aJSONData => {
+        let blobData = new Blob([aJSONData], {type: "application/json;charset=utf-8"});
 
         saveToFile(blobData, aeConst.CLIPPINGS_EXPORT_FILENAME);
 	gCmd.recentAction = gCmd.ACTION_EXPORT;
@@ -4570,7 +4585,7 @@ function initDialogs()
     }
     else if (selectedFmtIdx == gDialogs.exportToFile.FMT_HTML) {
       aeImportExport.exportToHTML().then(aHTMLData => {
-        let blobData = new Blob([aHTMLData], { type: "text/html;charset=utf-8"});
+        let blobData = new Blob([aHTMLData], {type: "text/html;charset=utf-8"});
         saveToFile(blobData, aeConst.HTML_EXPORT_FILENAME);
 	gCmd.recentAction = gCmd.ACTION_EXPORT;
 	
@@ -4582,7 +4597,7 @@ function initDialogs()
     }
     else if (selectedFmtIdx == gDialogs.exportToFile.FMT_CSV) {
       aeImportExport.exportToCSV(excludeSyncFldrID).then(aCSVData => {
-        let blobData = new Blob([aCSVData], { type: "text/csv;charset=utf-8" });
+        let blobData = new Blob([aCSVData], {type: "text/csv;charset=utf-8"});
         saveToFile(blobData, aeConst.CSV_EXPORT_FILENAME);
 	gCmd.recentAction = gCmd.ACTION_EXPORT;
 
