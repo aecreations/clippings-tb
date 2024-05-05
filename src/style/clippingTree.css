@@ -140,11 +140,13 @@ span.fancytree-title {
 
 /* Separators */
 .ui-fancytree .ae-separator .fancytree-icon {
-    background-image: url("../img/separator.svg");
+    width: 0;
+    margin-left: 0;
+    background-image: unset;
 }
 
 .ui-fancytree .ae-separator .fancytree-title {
-    font-style: italic;
+    width: 200px;
 }
 
 /* Suppress Fancytree node icon hover styling */

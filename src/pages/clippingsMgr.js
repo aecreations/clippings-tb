@@ -166,6 +166,7 @@ let gClippingsListener = {
           // for the root folder to accommodate the Synced Clippings folder.
           let idx = aData.displayOrder - 1;
           idx < 0 && (idx = 0);
+          newNodeData.title = "<hr>";
           let siblingNode = childNodes[idx];
           newNode = siblingNode.appendSibling(newNodeData);
         }
@@ -179,6 +180,7 @@ let gClippingsListener = {
           let childNodes = parentNode.getChildren();
           let idx = aData.displayOrder;
           idx < 0 && (idx = 0);
+          newNodeData.title = "<hr>";
           let siblingNode = childNodes[idx];
           newNode = siblingNode.appendSibling(newNodeData)
         }
@@ -358,6 +360,7 @@ let gClippingsListener = {
 
           if (aData.separator) {
             newNodeData.extraClasses = "ae-separator";
+            newNodeData.title = "<hr>";
             if (aData.parentFolderID == aeConst.ROOT_FOLDER_ID) {
               // Position the separator node in the tree list.
               // For the root folder, displayOrder starts at 1 to accommodate
@@ -3030,7 +3033,7 @@ let gCmd = {
       this.undoStack.push(redo);
     }
     else if (redo.action == this.ACTION_INSERT_SEPARATOR) {
-await this.moveClippingIntrl(redo.id, redo.parentFldrID);
+      await this.moveClippingIntrl(redo.id, redo.parentFldrID);
       this.undoStack.push(redo);
     }
     else if (redo.action == this.ACTION_CREATENEWFOLDER) {
@@ -5285,6 +5288,10 @@ async function buildClippingsTree()
           if (! selectedNode) {
             return false;
           }
+
+          if (isSeparatorSelected()) {
+            return true;
+          }
         }
       },
       separator0: "--------",
@@ -5361,6 +5368,7 @@ function buildClippingsTreeHelper(aFolderID)
           }
 
           if (aItem.separator) {
+            clippingNode.title = "<hr>";
             clippingNode.extraClasses = "ae-separator";
           }
 
