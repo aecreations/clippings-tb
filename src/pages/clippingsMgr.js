@@ -5691,6 +5691,7 @@ function updateDisplay(aEvent, aData)
   let selectedItemID = parseInt(aData.node.key);
 
   if (aData.node.isFolder()) {
+    $("#move").prop("disabled", false);
     $("#clipping-name").prop("disabled", false)
 
     gClippingsDB.folders.get(selectedItemID).then(aResult => {
@@ -5728,12 +5729,14 @@ function updateDisplay(aEvent, aData)
       $("#clipping-name").val(aResult.name);
 
       if (aResult.separator) {
+        $("#move").prop("disabled", true);
         $("#item-properties").addClass("folder-only");
         $("#clipping-name").prop("disabled", true);
         $("#clipping-text").val("").hide();
         $("#options-bar, #placeholder-toolbar").hide();
       }
       else {
+        $("#move").prop("disabled", false);
         $("#clipping-text").val(aResult.content).show();
 
         if (gPrefs.clippingsMgrDetailsPane) {
