@@ -3226,8 +3226,6 @@ $(async () => {
     $("#status-bar").css({backgroundImage: "none"});
   }
 
-  document.body.dataset.laf = gPrefs.enhancedLaF;
-
   let lang = messenger.i18n.getUILanguage();
   document.body.dataset.locale = lang;
   moment.locale(lang);

@@ -41,7 +41,6 @@ let aePrefs = function () {
     clippingsMgrWndGeom: null,
     clippingsMgrTreeWidth: null,
     autoAdjustWndPos: null,
-    enhancedLaF: true,
     upgradeNotifCount: 0,
     showNewClippingOpts: false,
     compressSyncData: true,
@@ -105,7 +104,6 @@ let aePrefs = function () {
         clippingsMgrWndGeom: null,
         clippingsMgrTreeWidth: null,
         autoAdjustWndPos: null,
-        enhancedLaF: true,
         upgradeNotifCount: 0,
       };
 
@@ -157,6 +155,10 @@ let aePrefs = function () {
         compressSyncData: true,
         isSyncReadOnly: false,
       };
+
+      // Removed deprecated prefs.
+      delete aPrefs.enhancedLaF;
+      
       await this._addPrefs(aPrefs, newPrefs);
     },
 

@@ -4,10 +4,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-const WNDH_NORMAL = 412;
+const WNDH_NORMAL = 416;
 const WNDH_NORMAL_WINDOWS = 448;
-const WNDH_OPTIONS_EXPANDED = 490;
-const DLG_HEIGHT_ADJ_WINDOWS = 48;
+const WNDH_OPTIONS_EXPANDED = 508;
+const DLG_HEIGHT_ADJ_WINDOWS = 30;
 const DLG_HEIGHT_ADJ_LOCALE = 20;
 const DLG_HEIGHT_ADJ_LOCALE_DE = 10;
 
@@ -41,7 +41,6 @@ $(async () => {
   document.body.dataset.os = gEnvInfo.os;
 
   gPrefs = await aePrefs.getAllPrefs();
-  document.body.dataset.laf = gPrefs.enhancedLaF;
 
   let lang = messenger.i18n.getUILanguage();
   document.body.dataset.locale = lang;

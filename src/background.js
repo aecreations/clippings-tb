@@ -1416,9 +1416,9 @@ function openNewClippingDlg(aNewClippingContent)
   }
   
   let url = messenger.runtime.getURL("pages/new.html");
-  let height = 412;
+  let height = 416;
   if (gOS == "win") {
-    height = 444;
+    height = 448;
   }
   openDlgWnd(url, "newClipping", {type: "popup", width: 432, height});
 }

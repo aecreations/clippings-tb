@@ -27,9 +27,6 @@ $(async () => {
     aEvent.preventDefault();
     gotoURL(aEvent.target.href);
   });
-
-  let enhancedLaF = await aePrefs.getPref("enhancedLaF");
-  document.body.dataset.laf = enhancedLaF;
 });
 
 
