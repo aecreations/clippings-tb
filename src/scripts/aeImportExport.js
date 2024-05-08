@@ -259,8 +259,13 @@ let aeImportExport = function () {
         userClippingsRoot: []
       };
 
-      if (aIncludeSeparators || aIncludeDisplayOrder) {
-        expData.version = this.CLIPPINGS_JSON_VER_WITH_SEP;
+      if (aIncludeDisplayOrder) {
+        if (aIncludeSeparators) {
+          expData.version = this.CLIPPINGS_JSON_VER_WITH_SEP;
+        }
+        else {
+          expData.version = this.CLIPPINGS_JSON_VER_WITH_SEQ;
+        }
       }
 
       if (! aFolderID) {
