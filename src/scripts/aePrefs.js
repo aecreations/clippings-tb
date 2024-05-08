@@ -45,6 +45,8 @@ let aePrefs = function () {
     showNewClippingOpts: false,
     compressSyncData: true,
     isSyncReadOnly: false,
+    showShctKey: true,
+    showShctKeyDispStyle: aeConst.SHCTKEY_DISPLAY_PARENS,
   };
 
   return {
@@ -154,6 +156,8 @@ let aePrefs = function () {
       let newPrefs = {
         compressSyncData: true,
         isSyncReadOnly: false,
+        showShctKey: true,
+        showShctKeyDispStyle: aeConst.SHCTKEY_DISPLAY_PARENS,
       };
 
       // Removed deprecated prefs.
