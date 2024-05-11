@@ -10,7 +10,7 @@
     --toolbar-height: 30px;
     --col-hdr-height: 20px;
 
-    --color-main-toolbar-bkgd: linear-gradient(to bottom, #fcfcfc 0%, #dedede 100%);
+    --color-main-toolbar-bkgd: linear-gradient(to bottom, #d7d7db 0%, #fcfcfc 100%);
     --color-main-toolbar-bkgd-btn: transparent;
     --color-main-toolbar-text: #0c0c0d;
     --color-toolbarbtn-hover-bkgd: rgba(12, 12, 13, 0.2);
