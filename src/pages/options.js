@@ -265,11 +265,9 @@ async function init()
   $("#sync-settings").click(async (aEvent) => {
     let perms = await messenger.permissions.getAll();
     if (! perms.permissions.includes("nativeMessaging")) {
-      // TO DO: The permission may not have been granted by the user who has
-      // upgraded from a previous version of Clippings!
-      // Add a pref that is set to `true` only if user has upgraded; if this is
-      // the case, open the dialog requesting additional permission.
-      gDialogs.lostNativeAppConxnPerm.showModal();
+      // The "nativeMessaging" extension permission was revoked while
+      // Sync Clippings was turned on.
+      gDialogs.reqNativeAppConxnPerm.showModal();
       return;
     }
     gDialogs.syncClippings.showModal();
@@ -421,8 +419,6 @@ function initDialogs()
       gDialogs.syncClippings.showModal();
     }
   };
-
-  gDialogs.lostNativeAppConxnPerm = new aeDialog("#lost-native-app-conxn-perm-dlg");
 
   gDialogs.syncClippings = new aeDialog("#sync-clippings-dlg");
   gDialogs.syncClippings.setProps({
