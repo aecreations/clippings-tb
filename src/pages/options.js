@@ -873,16 +873,10 @@ messenger.runtime.onMessage.addListener(aRequest => {
 function gotoURL(aURL, aOpenInTbWnd)
 {
   if (aOpenInTbWnd) {
-    messenger.tabs.create({ url: aURL });
+    messenger.tabs.create({url: aURL});
   }
   else {
-    try {
-      // Requires Thunderbird 78.6.0 or newer
-      messenger.windows.openDefaultBrowser(aURL);
-    }
-    catch (e) {
-      messenger.tabs.create({ url: aURL });
-    }
+    messenger.windows.openDefaultBrowser(aURL);
   }
 }
 
