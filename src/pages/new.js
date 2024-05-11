@@ -103,7 +103,9 @@ $(async () => {
   $("#btn-accept").click(aEvent => { accept(aEvent) });
   $("#btn-cancel").click(aEvent => { cancel(aEvent) });
 
-  aeInterxn.initDialogButtonFocusHandlers();
+  if (gPrefs.defDlgBtnFollowsFocus) {
+    aeInterxn.initDialogButtonFocusHandlers();
+  }
 
   window.focus();
 

@@ -300,7 +300,9 @@ async function init()
     gotoURL(aEvent.target.href, ("openInTbWnd" in aEvent.target.dataset));
   });
 
-  aeInterxn.initDialogButtonFocusHandlers();
+  if (prefs.defDlgBtnFollowsFocus) {
+    aeInterxn.initDialogButtonFocusHandlers();
+  }
 }
 
 

@@ -11,7 +11,6 @@ async function init()
   let params = new URLSearchParams(window.location.search);
   gComposeTabID = Number(params.get("compTabID"));
 
-  aeInterxn.initDialogButtonFocusHandlers();
   window.focus();
 
   // Fix for Fx57 bug where bundled page loaded using

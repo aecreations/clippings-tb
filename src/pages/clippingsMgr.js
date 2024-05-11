@@ -3270,7 +3270,9 @@ $(async () => {
     }
   }
 
-  aeInterxn.initDialogButtonFocusHandlers();
+  if (gPrefs.defDlgBtnFollowsFocus) {
+    aeInterxn.initDialogButtonFocusHandlers();
+  }
   window.focus();
   
   // Fix for Fx57 bug where bundled page loaded using
@@ -4481,7 +4483,7 @@ function initDialogs()
     FMT_CSV: 2,
     inclSeparators: true,
     fmtDesc: [
-      messenger.i18n.getMessage("expFmtClippings6Desc"), // Clippings 6
+      messenger.i18n.getMessage("expFmtClippings6Desc"), // Clippings
       messenger.i18n.getMessage("expFmtHTMLDocDesc"),    // HTML Document
       messenger.i18n.getMessage("expFmtCSVDesc"),        // CSV File
     ],

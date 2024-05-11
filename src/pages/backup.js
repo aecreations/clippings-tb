@@ -70,7 +70,6 @@ $(async () => {
   });
 
   initDialogs();
-  aeInterxn.initDialogButtonFocusHandlers();
   window.focus();
 
   // Fix for Fx57 bug where bundled page loaded using

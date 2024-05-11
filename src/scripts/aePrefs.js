@@ -47,6 +47,7 @@ let aePrefs = function () {
     isSyncReadOnly: false,
     showShctKey: true,
     showShctKeyDispStyle: aeConst.SHCTKEY_DISPLAY_PARENS,
+    defDlgBtnFollowsFocus: false,
   };
 
   return {
@@ -158,6 +159,7 @@ let aePrefs = function () {
         isSyncReadOnly: false,
         showShctKey: true,
         showShctKeyDispStyle: aeConst.SHCTKEY_DISPLAY_PARENS,
+        defDlgBtnFollowsFocus: false,
       };
 
       // Removed deprecated prefs.
