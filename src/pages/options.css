@@ -298,15 +298,17 @@ description {
 }
 
 #html-paste-note {
-    margin-left: 4px;
-    margin-right: 18px;
-    margin-top: 4px;
+    margin: 0 18px 4px 4px;
     font-size: 13px;
 }
 
 #html-paste-note.disabled {
     color: #999;
     opacity: .5;
+}
+
+#paste-opt-raw-html-row {
+    margin-top: 8px;
 }
 
 #paste-options {
