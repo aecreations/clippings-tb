@@ -1772,16 +1772,16 @@ async function pasteProcessedClipping(aClippingContent, aComposeTabID, aPasteAsQ
     return;
   }
 
-  let content = aClippingContent.replace(/\\/g, "\\\\");
-  content = content.replace(/\"/g, "\\\"");
-  content = content.replace(/\n/g, "\\n");
-
   let comp = await messenger.compose.getComposeDetails(aComposeTabID);
-  let injectOpts = {
-    code: `insertClipping("${content}", ${comp.isPlainText}, ${gPrefs.htmlPaste}, ${gPrefs.autoLineBreak}, ${aPasteAsQuoted});`
-  };
 
-  messenger.tabs.executeScript(aComposeTabID, injectOpts);
+  await messenger.tabs.sendMessage(aComposeTabID, {
+    id: "paste-clipping",
+    content: aClippingContent,
+    isPlainText: comp.isPlainText,
+    htmlPaste: gPrefs.htmlPaste,
+    autoLineBreak: gPrefs.autoLineBreak,
+    pasteAsQuoted: aPasteAsQuoted,
+  });
 }
 
 

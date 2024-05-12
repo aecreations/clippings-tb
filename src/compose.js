@@ -56,6 +56,10 @@ browser.runtime.onMessage.addListener(aMessage => {
   let resp = null;
   
   switch (aMessage.id) {
+  case "paste-clipping":
+    insertClipping(aMessage.content, aMessage.isPlainText, aMessage.htmlPaste, aMessage.autoLineBreak, aMessage.pasteAsQuoted);
+    break;
+
   case "set-paste-prompt-pref":
     gShowPastePrompt = aMessage.showPastePrompt;
     break;
