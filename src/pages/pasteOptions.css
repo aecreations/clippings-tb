@@ -5,18 +5,29 @@
 @import url("../style/dialog.css");
 
 
+:root {
+    --color-dlg-fieldset-border: #b1b1b1;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+	--color-dlg-fieldset-border: #585858;
+    }
+}
+
 body {
     overflow: hidden;
-    font-size: 15px;
+    font-size: 13px;
 }
 
 fieldset {
-    border-bottom: revert;
+    border-top: 1px solid var(--color-dlg-fieldset-border);
+    border-bottom: 1px solid var(--color-dlg-fieldset-border);
 }
 
 fieldset > legend {
     margin-left: -12px;
-    font-size: 15px;
+    font-size: 13px;
 }
 
 #dlg-buttons > button {
