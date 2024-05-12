@@ -1543,7 +1543,7 @@ let gCmd = {
 
         let folderID = parseInt(selectedNode.key);
         if (folderID == gPrefs.syncFolderID) {
-          window.setTimeout(() => {gDialogs.moveSyncFldr.showModal()});
+          console.warn("Cannot move the Synced Clippings folder.");
           return;
         }
       }
@@ -1594,7 +1594,7 @@ let gCmd = {
       }
       
       if (id == gPrefs.syncFolderID) {
-        window.setTimeout(() => {gDialogs.deleteSyncFldr.showModal()}, 100);
+        console.warn("Cannot delete the Synced Clippings folder, because Sync Clippings is turned on.");
         return;
       }
 
@@ -4833,8 +4833,6 @@ function initDialogs()
     }, 100);
   };
 
-  gDialogs.moveSyncFldr = new aeDialog("#move-sync-fldr-msgbox");
-  gDialogs.deleteSyncFldr = new aeDialog("#delete-sync-fldr-msgbox");
   gDialogs.syncFldrReadOnly = new aeDialog("#sync-file-readonly-msgbar");
 
   gDialogs.miniHelp = new aeDialog("#mini-help-dlg");
@@ -5693,7 +5691,7 @@ function updateDisplay(aEvent, aData)
   let selectedItemID = parseInt(aData.node.key);
 
   if (aData.node.isFolder()) {
-    $("#move").prop("disabled", false);
+    $("#move, #delete").prop("disabled", false);
     $("#clipping-name").prop("disabled", false)
 
     gClippingsDB.folders.get(selectedItemID).then(aResult => {
@@ -5708,16 +5706,16 @@ function updateDisplay(aEvent, aData)
       $("#item-properties").addClass("folder-only");
 
       if (gPrefs.syncClippings) {
-        // Prevent renaming of the Synced Clippings folder.
+        // Prevent moving, deleting or renaming of the Synced Clippings folder.
+        // Also disable editing if this is a synced item and the sync data
+        // is read-only.
         if (selectedItemID == gPrefs.syncFolderID
-            // Disable editing if this is a synced item and the sync data
-            // is read-only.
             || (gSyncedItemsIDs.has(selectedItemID + "F") && gPrefs.isSyncReadOnly)) {
-          $("#clipping-name").prop("disabled", true);
+          $("#move, #delete, #clipping-name").prop("disabled", true);
         }
       }
       else {
-        $("#clipping-name").prop("disabled", false);
+        $("#move, #delete, #clipping-name").prop("disabled", false);
       }
     });
   }
@@ -5732,13 +5730,14 @@ function updateDisplay(aEvent, aData)
 
       if (aResult.separator) {
         $("#move").prop("disabled", true);
+        $("#delete").prop("disabled", false);
         $("#item-properties").addClass("folder-only");
         $("#clipping-name").prop("disabled", true);
         $("#clipping-text").val("").hide();
         $("#options-bar, #placeholder-toolbar").hide();
       }
       else {
-        $("#move").prop("disabled", false);
+        $("#move, #delete").prop("disabled", false);
         $("#clipping-text").val(aResult.content).show();
 
         if (gPrefs.clippingsMgrDetailsPane) {
@@ -5765,6 +5764,7 @@ function updateDisplay(aEvent, aData)
       // Disable editing if this is a synced item and the sync data
       // is read-only.
       if (gSyncedItemsIDs.has(selectedItemID + "C") && gPrefs.isSyncReadOnly) {
+        $("#move, #delete").prop("disabled", true);
         $(`#clipping-name, #clipping-text, #clipping-key, #clipping-label-picker,
            #placeholder-toolbar > button`).prop("disabled", true);
         $("#options-bar label, #placeholder-toolbar label").attr("disabled", "");

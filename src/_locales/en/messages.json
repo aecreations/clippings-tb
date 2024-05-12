@@ -1338,14 +1338,6 @@
     "message": "Updating the Synced Clippings folder. Click Reload to continue."
   },
 
-  "deleteSyncFldr": {
-    "message": "Cannot delete the Synced Clippings folder, because Sync Clippings is turned on."
-  },
-
-  "moveSyncFldr": {
-    "message": "Cannot move the Synced Clippings folder."
-  },
-
   "syncFldrRdOnly": {
     "message": "The Synced Clippings folder is read-only.",
     "description": "Error message that appears in the New Clipping dialog and Clippings Manager when user tries to add, remove or change a clipping or folder under the Synced Clippings folder when the sync file is read only"
