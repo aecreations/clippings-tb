@@ -1738,7 +1738,11 @@ async function showPasteOptionsDlg(aComposeTabID, aClippingContent)
       // Note that the window ID may be invalid because the user closed the
       // dialog by clicking the 'X' button on the title bar instead of
       // clicking Cancel.
-      let wnd = await messenger.windows.get(gWndIDs.pasteClippingOpts);
+      let wnd;
+      try {
+        wnd = await messenger.windows.get(gWndIDs.pasteClippingOpts);
+      }
+      catch {}
       if (wnd) {
         messenger.windows.remove(wnd.id);
       }
