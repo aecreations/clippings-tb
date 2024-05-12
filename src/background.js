@@ -1733,17 +1733,26 @@ async function showPasteOptionsDlg(aComposeTabID, aClippingContent)
 
   if (showPastePrompt) {
     if (gWndIDs.pasteClippingOpts) {
-      // TO DO: If the paste clipping options dialog is open, it's likely that
-      // the user has forgotten or abandoned their previous clipping,
-      // so close it.
+      // If the paste clipping options dialog is open, it's likely that the
+      // user has forgotten or abandoned their previous clipping, so close it.
       // Note that the window ID may be invalid because the user closed the
       // dialog by clicking the 'X' button on the title bar instead of
       // clicking Cancel.
+      let wnd = await messenger.windows.get(gWndIDs.pasteClippingOpts);
+      if (wnd) {
+        messenger.windows.remove(wnd.id);
+      }
+      gWndIDs.pasteClippingOpts = null;
     }
 
     gPastePrompt.add(aComposeTabID, aClippingContent);
     let url = messenger.runtime.getURL("pages/pasteOptions.html?compTabID=" + aComposeTabID);
-    openDlgWnd(url, "pasteClippingOpts", {type: "popup", width: 256, height: 204});  
+    let height = 210;
+    if (gOS == "mac") {
+      height = 200;
+    }
+
+    await openDlgWnd(url, "pasteClippingOpts", {type: "popup", width: 256, height});
     rv = true;
   }
 
@@ -1753,8 +1762,15 @@ async function showPasteOptionsDlg(aComposeTabID, aClippingContent)
 
 async function pasteProcessedClipping(aClippingContent, aComposeTabID, aPasteAsQuoted=false)
 {
-  // TO DO: Perform a final check to confirm that the composer represented by
-  // aComposeTabID is still open. If not, then abort.
+  // Perform a final check to confirm that the composer represented by
+  // aComposeTabID is still open.
+  try {
+    await messenger.tabs.get(aComposeTabID);
+  }
+  catch {
+    warn("Clippings/mx: pasteProcessedClipping(): Can't find compose tab " + aComposeTabID);
+    return;
+  }
 
   let content = aClippingContent.replace(/\\/g, "\\\\");
   content = content.replace(/\"/g, "\\\"");
