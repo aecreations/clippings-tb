@@ -1486,19 +1486,6 @@ async function openBackupDlg()
 }
 
 
-function openMigrationStatusDlg()
-{
-  let url = messenger.runtime.getURL("pages/migrationStatus.html");
-  let wndPpty = {
-    type: "popup",
-    width: 540,
-    height: 180,
-  };
-  
-  openDlgWnd(url, "migrnStatus", wndPpty, aeWndPos.WND_MESSENGER);
-}
-
-
 function openShortcutListWnd()
 {
   let url = messenger.runtime.getURL("pages/shortcutList.html");
