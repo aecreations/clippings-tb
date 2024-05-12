@@ -1108,6 +1108,16 @@
     "message": "Check spelling"
   },
 
+  "cbShowShctMnu": {
+    "message": "Show assigned shortcut key in the Clippings menu",
+    "description": "Checkbox option in extension preferences page"
+  },
+
+  "shctDispOpt": {
+    "message": "Display shortcut key in:",
+    "description": "Drop-down menu option for the 'Show assigned shortcut key' option in the extension preferences page"
+  },
+
   "cbBackupFilenameWithDate": {
     "message": "Add date to backup file name"
   },

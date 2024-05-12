@@ -243,8 +243,34 @@ async function init()
     messenger.runtime.sendMessage({msgID: "set-backup-notifcn-intv"});
   });
 
-  $("#skip-backup-if-no-chg").attr("checked", prefs.skipBackupRemIfUnchg).click(aEvent => {
+  $("#skip-backup-if-no-chg").prop("checked", prefs.skipBackupRemIfUnchg).click(aEvent => {
     aePrefs.setPrefs({skipBackupRemIfUnchg: aEvent.target.checked});
+  });
+
+  $("#show-shct-key-in-menu").prop("checked", prefs.showShctKey).click(async (aEvent) => {
+    await aePrefs.setPrefs({showShctKey: aEvent.target.checked});
+    $("#shct-key-in-menu-opt").prop("disabled", !aEvent.target.checked);
+    if (aEvent.target.checked) {
+      $("#shct-key-in-menu-opt-label").removeClass("disabled");
+    }
+    else {
+      $("#shct-key-in-menu-opt-label").addClass("disabled");
+    }
+    messenger.runtime.sendMessage({msgID: "rebuild-cxt-menu"});
+  });
+
+  if (prefs.showShctKey) {
+    $("#shct-key-in-menu-opt-label").removeClass("disabled");
+    $("#shct-key-in-menu-opt").val(prefs.showShctKeyDispStyle).prop("disabled", false);  
+  }
+  else {
+    $("#shct-key-in-menu-opt-label").addClass("disabled");
+    $("#shct-key-in-menu-opt").val(prefs.showShctKeyDispStyle).prop("disabled", true);
+  }
+
+  $("#shct-key-in-menu-opt").change(async (aEvent) => {
+    await aePrefs.setPrefs({showShctKeyDispStyle: Number(aEvent.target.value)});
+    messenger.runtime.sendMessage({msgID: "rebuild-cxt-menu"});
   });
 
   $("#wnds-dlgs-settings").on("click", aEvent => {

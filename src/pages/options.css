@@ -302,7 +302,8 @@ description {
     font-size: 13px;
 }
 
-#html-paste-note.disabled {
+#html-paste-note.disabled,
+#shct-key-in-menu-opt-label.disabled {
     color: #999;
     opacity: .5;
 }
@@ -333,15 +334,19 @@ description {
     font-size: 15px;
 }
 
-#backup-reminder-freq {
+#backup-reminder-freq,
+#shct-key-in-menu-opt {
     vertical-align: 0;
+    font-size: 15px;
 }
 
-body[data-os="win"] #backup-reminder-freq {
+body[data-os="win"] #backup-reminder-freq,
+body[data-os="win"] #shct-key-in-menu-opt {
     vertical-align: 1px;
 }
 
-body[data-os="linux"]:not([data-laf="true"]) #backup-reminder-freq {
+body[data-os="linux"]:not([data-laf="true"]) #backup-reminder-freq,
+body[data-os="linux"]:not([data-laf="true"]) #shct-key-in-menu-opt {
     vertical-align: 3px;
 }
 
@@ -349,11 +354,13 @@ body[data-os="linux"]:not([data-laf="true"]) #backup-reminder-freq {
     margin-left: 4px;
 }
 
-body[data-os="win"] #backup-reminder-freq + label {
+body[data-os="win"] #backup-reminder-freq + label,
+body[data-os="win"] #shct-key-in-menu-opt + label {
     vertical-align: 2px;
 }
 
-body[data-os="linux"]:not([data-laf="true"]) #backup-reminder-freq + label {
+body[data-os="linux"]:not([data-laf="true"]) #backup-reminder-freq + label
+body[data-os="linux"]:not([data-laf="true"]) #shct-key-in-menu-opt + label {
     vertical-align: 3px;
 }
 
@@ -365,12 +372,20 @@ body[data-locale="de"] #skip-backup-label {
     letter-spacing: 0px;
 }
 
+#shct-key-in-menu-opt-label {
+    font-size: 15px;
+}
+
+#shct-key-in-menu-opt-label {
+    margin-left: 2px;
+}
+
 #backup-filename-opt {
     margin-top:0;
 }
 
 #wnds-dlgs-settings {
-    margin-top: 8px;
+    margin-top: 12px;
 }
 
 #sync-options .description {
