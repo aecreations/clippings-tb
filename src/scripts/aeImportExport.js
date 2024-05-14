@@ -27,6 +27,7 @@ let aeImportExport = function () {
 
     CLIPPINGS_JSON_VER: "6.0",
     CLIPPINGS_JSON_VER_WITH_SEQ: "6.1",
+    CLIPPINGS_JSON_VER_WITH_SEP: "6.2",
     CLIPPINGS_JSON_CREATED_BY: "Clippings/mx",
     ROOT_FOLDER_ID: 0,
     LAST_SEQ_VALUE: 9999999,
@@ -78,6 +79,7 @@ let aeImportExport = function () {
       let knownVersions = [
         this.CLIPPINGS_JSON_VER,
         this.CLIPPINGS_JSON_VER_WITH_SEQ,
+        this.CLIPPINGS_JSON_VER_WITH_SEP,
       ];
 
       rv = ("userClippingsRoot" in importData
@@ -169,6 +171,13 @@ let aeImportExport = function () {
             });
           }
           else {
+            // TEMPORARY - Clippings 6.x only
+            // Skip over separators in import data from Clippings 7.0 and newer.
+            if (item.sep) {
+              continue;
+            }
+            // END TEMPORARY
+
             let clipping = {};
             let shortcutKey = "";
 
