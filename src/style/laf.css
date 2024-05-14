@@ -183,19 +183,19 @@ select.browser-style.focused {
 }
 
 button.browser-style.default {
-  background-color: #0996f8;
-  border-color: #0670cc;
+  background-color: #0073E0;
+  border-color: #0073E0;
   color: #fff;
 }
 
 button.browser-style.default.hover {
-  background-color: #0670cc;
-  border-color: #005bab;
+  background-color: #0062BE;
+  border-color: #0062BE;
 }
 
 button.browser-style.default.pressed {
-  background-color: #005bab;
-  border-color: #004480;
+  background-color: #005AAF;
+  border-color: #005AAF;
 }
 
 button.browser-style.default.focused {
@@ -352,8 +352,8 @@ select.browser-style[disabled] {
 }
 
 button.default {
-    border: 1px solid #0060df;
-    background-color: #0060df;
+    border: 1px solid #0073E0;
+    background-color: #0073E0;
     color: #fff;
 }
 
@@ -369,8 +369,8 @@ button:hover {
 }
 
 button.default:hover {
-    border: 1px solid #003eaa;
-    background-color: #003eaa;
+    border: 1px solid #0062BE;
+    background-color: #0062BE;
 }
 
 button:active {
@@ -379,8 +379,8 @@ button:active {
 }
 
 button.default:active {
-    border: 1px solid #002275;
-    background-color: #002275;
+    border: 1px solid #005AAF;
+    background-color: #005AAF;
 }
 
 select.browser-style {

@@ -20,15 +20,15 @@ button {
 }
 
 button.default {
-    border: 1px solid #005bab;
+    border: 1px solid #0073E0;
 }
 
 button.default:focus {
-    border: 1px solid #003eaa;
+    border: 1px solid #0670cc;
 }
 
 button.default:hover {
-    border-color: #002275;
+    border-color: #0062BE;
 }
 
 #icon {
