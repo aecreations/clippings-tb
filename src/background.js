@@ -594,10 +594,6 @@ async function refreshSyncedClippings(aRebuildClippingsMenu)
 {
   let perms = await messenger.permissions.getAll();
   if (! perms.permissions.includes("nativeMessaging")) {
-    // TO DO: The permission may not have been granted by the user who has
-    // upgraded from a previous version of Clippings!
-    // Add a pref that is set to `true` only if user has upgraded; if this is
-    // the case, open the dialog requesting additional permission.
     showNoNativeMsgPermNotification();
     return;
   }
@@ -786,15 +782,6 @@ function getContextMenuData(aFolderID = aeConst.ROOT_FOLDER_ID)
     }
     return rv;    
   }
-
-  function sanitizeMenuTitle(aTitle)
-  {
-    // Escape the ampersand character, which would normally be used to denote
-    // the access key for the menu item.
-    let rv = aTitle.replace(/&/g, "&&");
-
-    return rv;
-  }
   // END nested functions
 
   let rv = [];
@@ -920,6 +907,16 @@ function getContextMenuData(aFolderID = aeConst.ROOT_FOLDER_ID)
 getContextMenuData.isDarkMode = null;
 
 
+function sanitizeMenuTitle(aTitle)
+{
+  // Escape the ampersand character, which would normally be used to denote
+  // the access key for the menu item.
+  let rv = aTitle.replace(/&/g, "&&");
+
+  return rv;
+}
+
+
 function updateContextMenuForFolder(aUpdatedFolderID)
 {
   log("Clippings/mx: updateContextMenuForFolder(): Updating folder " + aUpdatedFolderID);
@@ -929,7 +926,8 @@ function updateContextMenuForFolder(aUpdatedFolderID)
   clippingsDB.folders.get(id).then(aResult => {
     let menuItemID = gFolderMenuItemIDMap[id];
     if (menuItemID) {
-      messenger.menus.update(menuItemID, {title: aResult.name});
+      let title = sanitizeMenuTitle(aResult.name);
+      messenger.menus.update(menuItemID, {title});
     }
   });
 }
