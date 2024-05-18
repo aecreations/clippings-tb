@@ -196,8 +196,9 @@ description {
     margin: 0;
     padding-top: 40px;
     padding-bottom: 22px;
-    padding-left: 16px;
-    padding-right: 16px;
+    padding-left: 6px;
+    padding-right: 6px;
+    min-width: 72px;
 
     border: unset;
     border-radius: 0;
@@ -212,8 +213,8 @@ description {
 .tab > button:-moz-focusring {
     margin-top: -2px;
     margin-bottom: -2px;
-    padding-left: 14px;
-    padding-right: 14px;
+    padding-left: 4px;
+    padding-right: 4px;
 
     outline: none;
     border: 2px solid #45a1ff !important;
@@ -223,8 +224,8 @@ description {
 .tab > button:-moz-focusring:active {
     margin-top: -2px;
     margin-bottom: -2px;
-    padding-left: 14px;
-    padding-right: 14px;
+    padding-left: 4px;
+    padding-right: 4px;
 
     outline: none;
     border: 2px solid #45a1ff !important;
