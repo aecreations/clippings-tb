@@ -2706,7 +2706,7 @@ let gCmd = {
     messenger.runtime.openOptionsPage();
 
     // Workaround to extension preferences page not focused if already open.
-    messenger.runtime.sendMessage({msgID: "focus-extension-prefs-pg"});
+    messenger.runtime.sendMessage({msgID: "focus-ext-prefs-pg"});
   },
   
   backup: function ()
@@ -2761,7 +2761,7 @@ let gCmd = {
         gSuppressAutoMinzWnd = false;
 
       }).finally(() => {
-        window.focus();
+        focusWnd();
       });
     }).catch(aErr => {
       window.alert("Sorry, an error occurred during the backup.\n\nDetails:\n" + getErrStr(aErr));
@@ -3273,7 +3273,8 @@ $(async () => {
   if (gPrefs.defDlgBtnFollowsFocus) {
     aeInterxn.initDialogButtonFocusHandlers();
   }
-  window.focus();
+
+  focusWnd();
   
   // Fix for Fx57 bug where bundled page loaded using
   // messenger.windows.create won't show contents unless resized.
@@ -3486,7 +3487,7 @@ messenger.runtime.onMessage.addListener(aRequest => {
     break;
 
   case "focus-clippings-mgr-wnd":
-    window.focus();
+    focusWnd();
     break;
 
   case "sync-activated":
@@ -5691,8 +5692,7 @@ function updateDisplay(aEvent, aData)
   let selectedItemID = parseInt(aData.node.key);
 
   if (aData.node.isFolder()) {
-    $("#move, #delete").prop("disabled", false);
-    $("#clipping-name").prop("disabled", false)
+    $("#move, #delete, #clipping-name").prop("disabled", false);
 
     gClippingsDB.folders.get(selectedItemID).then(aResult => {
       $("#clipping-name").val(aResult.name);
@@ -5875,6 +5875,12 @@ function setSaveWndGeometryInterval(aSaveWndGeom)
   }
 }
 setSaveWndGeometryInterval.intvID = null;
+
+
+async function focusWnd()
+{
+  await messenger.windows.update(messenger.windows.WINDOW_ID_CURRENT, {focused: true});
+}
 
 
 function closeWnd()

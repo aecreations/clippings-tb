@@ -1831,6 +1831,23 @@ function showNoNativeMsgPermNotification()
 }
 
 
+async function openOptionsPage()
+{
+  let resp;
+  try {
+    resp = await messenger.runtime.sendMessage({msgID: "ping-ext-prefs-pg"});
+  }
+  catch {}
+
+  if (resp) {
+    await messenger.runtime.sendMessage({msgID: "focus-ext-prefs-pg"});
+  }
+  else {
+    messenger.runtime.openOptionsPage();
+  }
+}
+
+
 //
 // Utility functions
 //
@@ -1945,7 +1962,7 @@ messenger.menus.onHidden.addListener(() => {
 });
 
 
-messenger.menus.onClicked.addListener(async (aInfo, aTab) => {
+messenger.menus.onClicked.addListener((aInfo, aTab) => {
   switch (aInfo.menuItemId) {
   case "ae-clippings-new":
     newClipping(aTab);
@@ -1960,7 +1977,7 @@ messenger.menus.onClicked.addListener(async (aInfo, aTab) => {
     break;
 
   case "ae-clippings-prefs":
-    messenger.runtime.openOptionsPage();
+    openOptionsPage();
     break;
 
   default:
@@ -2052,7 +2069,6 @@ messenger.runtime.onMessage.addListener(aRequest => {
   case "close-new-clipping-dlg":
     gWndIDs.newClipping = null;
     break;
-
 
   case "close-keybd-paste-dlg":
     gWndIDs.keyboardPaste = null;
