@@ -31,7 +31,5 @@ fieldset > legend {
 }
 
 #dlg-buttons > button {
-    min-width: 96px;
-    height: 32px;
-    font-size: 15px !important;
+    height: 28px;
 }
