@@ -239,7 +239,7 @@
   },
 
   "baMenuResetAutoIncrPlaceholders": {
-    "message": "Reset Auto-increment Placeholders",
+    "message": "Reset Numeric Placeholders",
     "description": "Clippings browser action submenu"
   },
 
@@ -1088,7 +1088,7 @@
   },
   
   "prefsDefaultNumPlchldrStart": {
-    "message": "Default starting value for auto-incrementing placeholders:"
+    "message": "Default starting value for numeric placeholders:"
   },
 
   "prefsHdgGeneralOptions": {
@@ -1318,7 +1318,7 @@
   },
 
   "errSyncOptsInit": {
-    "message": "Unable to initialize Sync Clippings settings. Restart Firefox and try again."
+    "message": "Unable to initialize Sync Clippings settings. Reinstall Sync Clippings Helper, and then try again."
   },
 
   "errSync": {
