@@ -74,40 +74,6 @@
     "description": "Default button in the extension permission request dialog, which appears when requesting an optional extension permission such as 'nativeMessaging'"
   },
 
-  "migrnStatusTitle": {
-    "message": "Clippings Migration Status",
-    "description": "Clippings for Thunderbird"
-  },
-
-  "migrnStatusSuccess": {
-    "message": "Your clippings have been successfully migrated.",
-    "description": "Clippings for Thunderbird"
-  },
-
-  "migrnStatusFail": {
-    "message": "Sorry, an error occurred while Clippings was trying to migrate your data.",
-    "description": "Clippings for Thunderbird"
-  },
-
-  "migrnFailDetail": {
-    "message": "Click Save Clippings to save a copy of your data.",
-    "description": "Clippings for Thunderbird"
-  },
-
-  "migrnSaveData": {
-    "message": "Save Clippings",
-    "description": "Clippings for Thunderbird"
-  },
-
-  "migrnFailTtip": {
-    "message": "There was a problem migrating your Clippings data. Click for more info.",
-    "description": "Clippings for Thunderbird - tooltip"
-  },
-  
-  "saveConfirm": {
-    "message": "Saved."
-  },
-
   "pasteTitle": {
     "message": "Paste Clipping",
     "description": "Title bar text of keyboard paste dialog"
