@@ -87,7 +87,7 @@ main {
 input[type="number"],
 select {
     font: caption;
-    font-size: 13px;
+    font-size: 15px;
 }
 
 input[type="number"] {
@@ -606,25 +606,25 @@ body[data-locale|="es"] #wnds-dlgs-opts-dlg #clpmgr-save-wnd-pos-label {
 
 #sync-clippings-dlg {
     top: 128px;
-    --width: 500px;
-    --height: 280px;
+    --width: 530px;
+    --height: 270px;
 }
 
 body[data-locale="de"] #sync-clippings-dlg {
-    --width: 570px;
+    --width: 600px;
 }
 
 body[data-locale|="es"] #sync-clippings-dlg {
-    --width: 620px;
+    --width: 650px;
 }
 
 body[data-locale="nl"] #sync-clippings-dlg,
 body[data-locale="uk"] #sync-clippings-dlg {
-    --width: 522px;
+    --width: 552px;
 }
 
 #sync-clippings-dlg.expanded {
-    height: 304px;
+    height: 300px;
 }
 
 #sync-clippings-dlg fieldset {
@@ -637,11 +637,15 @@ body[data-locale="uk"] #sync-clippings-dlg {
     padding-left: 0;
 }
 
+#sync-clippings-dlg input[type="checkbox"] ~ label {
+    font-size: 15px !important;
+}
+
 #sync-clippings-dlg #cmprs-sync-data-reqmt {
     display: none;
-    font-size: 11.5px;
+    font-size: 13px;
     margin-top: 2px;
-    margin-left: 25px;
+    margin-left: 28px;
 }
 
 #request-native-app-conxn-perm-dlg .msgbox-icon,

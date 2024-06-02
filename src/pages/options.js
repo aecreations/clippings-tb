@@ -479,15 +479,6 @@ function initDialogs()
 
   gDialogs.syncClippings.onFirstInit = function ()
   {
-    if (gOS == "win") {
-      $("#example-sync-path").text(messenger.i18n.getMessage("syncFileDirExWin"));
-    }
-    else if (gOS == "mac") {
-      $("#example-sync-path").text(messenger.i18n.getMessage("syncFileDirExMac"));
-    }
-    else {
-      $("#example-sync-path").text(messenger.i18n.getMessage("syncFileDirExLinux"));
-    }
     $("#sync-conxn-error-detail").html(sanitizeHTML(messenger.i18n.getMessage("errSyncConxnDetail")));
     $("#sync-fldr-curr-location").on("focus", aEvent => { aEvent.target.select() });
   };

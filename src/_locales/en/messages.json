@@ -1241,25 +1241,6 @@
     "message": "Sync file location:"
   },
 
-  "syncFileDirExample": {
-    "message": "Example:"
-  },
-
-  "syncFileDirExWin": {
-    "message": "C:\\Users\\YourName\\Documents\\Synced Clippings",
-    "description": "Example folder path on Windows."
-  },
-
-  "syncFileDirExMac": {
-    "message": "/Users/YourName/Documents/Synced Clippings",
-    "description": "Example folder path on macOS."
-  },
-
-  "syncFileDirExLinux": {
-    "message": "/home/YourName/synced-clippings",
-    "description": "Example folder path on Linux."
-  },
-
   "extPrmNativeMessaging": {
     "message": "Exchange messages with programs other than $1",
     "description": "Exchange messages with programs other than <Firefox or Thunderbird> - User-facing description of the 'nativeMessaging' extension permission"
