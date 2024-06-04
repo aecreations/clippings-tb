@@ -19,18 +19,6 @@ button {
     text-align: center !important;
 }
 
-button.default {
-    border: 1px solid #0073E0;
-}
-
-button.default:focus {
-    border: 1px solid #0670cc;
-}
-
-button.default:hover {
-    border-color: #0062BE;
-}
-
 #icon {
     float: left;
 }
