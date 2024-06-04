@@ -1929,8 +1929,13 @@ messenger.commands.onCommand.addListener(async (aCmdName) => {
     return;
   }
 
-  if (aCmdName == "ae-clippings-paste-clipping" && gPrefs.keyboardPaste) {
-    openKeyboardPasteDlg(tab.id);
+  if (aCmdName == "ae-clippings-paste-clipping") {
+    if (gOS == "mac") {
+      gPrefs.keyboardPaste && openKeyboardPasteDlg(tab.id);
+    }
+    else {
+      gPrefs.wxPastePrefixKey && openKeyboardPasteDlg(tab.id);
+    }
   }
 });
 
