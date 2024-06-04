@@ -399,13 +399,17 @@ select.browser-style:active {
 
 button:-moz-focusring,
 button.default:-moz-focusring,
-select:-moz-focusring {
+select:-moz-focusring,
+.browser-style > input[type="checkbox"],
+.browser-style > input[type="radio"] {
     outline-style: none;
 }
 
 button:-moz-focusring:not(:disabled),
 select:-moz-focusring:not([size]):not(:disabled),
-select.browser-style:-moz-focusring:not([size]):not(:disabled) {
+select.browser-style:-moz-focusring:not([size]):not(:disabled),
+.browser-style > input[type="checkbox"]:-moz-focusring:not(:disabled),
+.browser-style > input[type="radio"]:-moz-focusring:not(:disabled) {
     border-color: var(--color-bkgd) !important;
     box-shadow: 0 0 0 2px #45a1ff;
 }
@@ -415,7 +419,9 @@ button.default:-moz-focusring:not(:disabled) {
 }
 
 button:-moz-focusring:not(:disabled),
-button.default:-moz-focusring:not(:disabled) {
+button.default:-moz-focusring:not(:disabled),
+.browser-style > input[type="checkbox"]:-moz-focusring:not(:disabled),
+.browser-style > input[type="radio"]:-moz-focusring:not(:disabled) {
     transition-duration: 250ms;
     transition-property: box-shadow;
 }
