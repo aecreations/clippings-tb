@@ -1825,7 +1825,7 @@ function showNoNativeMsgPermNotification()
   messenger.notifications.create("native-msg-perm-error", {
     type: "basic",
     title: messenger.i18n.getMessage("syncStartupFailedHdg"),
-    message: "Unable to connect to the Sync Clippings helper app. To fix this, go to Add-ons Manager and turn on the permission to allow Clippings to exchange messages with other programs.",
+    message: messenger.i18n.getMessage("syncPermNotif"),
     iconUrl: "img/error.svg",
   });
 }
