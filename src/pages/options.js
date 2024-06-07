@@ -664,7 +664,7 @@ function initDialogs()
   
   gDialogs.turnOffSync = new aeDialog("#turn-off-sync-clippings-dlg");
   gDialogs.turnOffSync.onFirstInit = async function () {
-    $("#turn-off-sync-clippings-dlg > .dlg-btns > .dlg-btn-yes").click(async (aEvent) => {
+    this.find(".dlg-btns > .dlg-btn-yes").click(async (aEvent) => {
       this.close();
 
       let oldSyncFolderID = await messenger.runtime.sendMessage({
@@ -722,8 +722,8 @@ function initDialogs()
     let diagDeck = $("#about-dlg > .dlg-content #diag-info .deck");
     diagDeck.children("#sync-diag-loading").show();
     diagDeck.children("#sync-diag").hide();
-    $("#about-dlg > .dlg-content #diag-info #sync-diag-detail").hide();
-    $("#about-dlg > .dlg-content #diag-info #sync-file-size").text("");
+    this.find("#sync-diag-detail").hide();
+    this.find("#sync-file-size").text("");
 
     if (! this.extInfo) {
       let extManifest = messenger.runtime.getManifest();
@@ -735,10 +735,10 @@ function initDialogs()
       };
     }
 
-    $("#about-dlg > .dlg-content #ext-name").text(this.extInfo.name);
-    $("#about-dlg > .dlg-content #ext-ver").text(messenger.i18n.getMessage("aboutExtVer", this.extInfo.version));
-    $("#about-dlg > .dlg-content #ext-desc").text(this.extInfo.description);
-    $("#about-dlg > .dlg-content #ext-home-pg").attr("href", this.extInfo.homePgURL);
+    this.find("#ext-name").text(this.extInfo.name);
+    this.find("#ext-ver").text(messenger.i18n.getMessage("aboutExtVer", this.extInfo.version));
+    this.find("#ext-desc").text(this.extInfo.description);
+    this.find("#ext-home-pg").attr("href", this.extInfo.homePgURL);
   };
 
   gDialogs.about.onShow = async function ()

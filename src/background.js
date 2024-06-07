@@ -1852,12 +1852,12 @@ async function openOptionsPage()
 // Utility functions
 //
 
-async function alertEx(aMessageID, aUsePopupWnd=false)
+async function alertEx(aMessageName, aUsePopupWnd=false)
 {
-  let message = messenger.i18n.getMessage(aMessageID);
+  let message = messenger.i18n.getMessage(aMessageName);
   info("Clippings/mx: " + message);
 
-  let url = "pages/msgbox.html?msgid=" + aMessageID;
+  let url = "pages/msgbox.html?msgid=" + aMessageName;
 
   // Center the common message box popup within originating composer window,
   // both horizontally and vertically.
