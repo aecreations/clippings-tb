@@ -510,7 +510,7 @@ function initDialogs()
         isBrwsSyncFldrVisible = false;
       }
 
-      if (aeVersionCmp(aResp.appVersion, "2.0") < 0) {
+      if (aeVersionCmp(aResp.appVersion, "2.0b1") < 0) {
         $("#sync-clippings-dlg").addClass("expanded");
         $("#cmprs-sync-data-reqmt").html(
           messenger.i18n.getMessage("cmprsSyncReqmt", aeConst.SYNC_CLIPPINGS_DWNLD_URL)
