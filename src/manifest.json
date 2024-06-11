@@ -8,7 +8,7 @@
   "browser_specific_settings": {
     "gecko": {
       "id": "clippings-tb@aecreations.github.io",
-      "strict_min_version": "115.0",
+      "strict_min_version": "126.0",
       "update_url": "https://aecreations.github.io/updates/update-test.json"
     }
   },

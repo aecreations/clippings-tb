@@ -1919,22 +1919,21 @@ messenger.composeAction.onClicked.addListener(aTab => {
 });
 
 
-messenger.commands.onCommand.addListener(async (aCmdName) => {
+messenger.commands.onCommand.addListener(async (aCmdName, aTab) => {
   info(`Clippings/mx: Command "${aCmdName}" invoked!`);
 
   // Ignore command if not invoked from the message composer.
-  let [tab] = await messenger.tabs.query({active: true, currentWindow: true});
-  if (!tab || tab.type != "messageCompose") {
-    log(`Clippings/mx: Command invoked from tab ${tab.id}, which isn't a messageCompose tab.`);
+  if (aTab.type != "messageCompose") {
+    log(`Clippings/mx: Command invoked from tab ${aTab.id}, which isn't a messageCompose tab.`);
     return;
   }
 
   if (aCmdName == "ae-clippings-paste-clipping") {
     if (gOS == "mac") {
-      gPrefs.keyboardPaste && openKeyboardPasteDlg(tab.id);
+      gPrefs.keyboardPaste && openKeyboardPasteDlg(aTab.id);
     }
     else {
-      gPrefs.wxPastePrefixKey && openKeyboardPasteDlg(tab.id);
+      gPrefs.wxPastePrefixKey && openKeyboardPasteDlg(aTab.id);
     }
   }
 });
