@@ -3270,6 +3270,7 @@ $(async () => {
     }
   }
 
+  aeInterxn.init(gEnvInfo.os);
   if (gPrefs.defDlgBtnFollowsFocus) {
     aeInterxn.initDialogButtonFocusHandlers();
   }

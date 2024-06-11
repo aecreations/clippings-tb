@@ -37,16 +37,12 @@ function capitalize(aString)
 
 
 // Options page initialization
-$(() => {
+$(async () => {
   messenger.windows.update(messenger.windows.WINDOW_ID_CURRENT, {focused: true});
-  init();
-});
 
-
-async function init()
-{
   let platform = await messenger.runtime.getPlatformInfo();
   document.body.dataset.os = gOS = platform.os;
+  aeInterxn.init(gOS);
 
   if (gOS == "win") {
     let prefPgTitleWin = messenger.i18n.getMessage("prefsTitleWin");
@@ -327,7 +323,7 @@ async function init()
   if (prefs.defDlgBtnFollowsFocus) {
     aeInterxn.initDialogButtonFocusHandlers();
   }
-}
+});
 
 
 function switchPrefsPanel(aEvent)

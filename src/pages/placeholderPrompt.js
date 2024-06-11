@@ -33,6 +33,7 @@ $(async () => {
 
   let platform = await messenger.runtime.getPlatformInfo();
   document.body.dataset.os = gOS = platform.os;
+  aeInterxn.init(gOS);
 
   let resp = await messenger.runtime.sendMessage({
     msgID: "init-placeholder-prmt-dlg"

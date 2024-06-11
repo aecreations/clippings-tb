@@ -298,6 +298,7 @@ $(async () => {
 
   let envInfo = await messenger.runtime.sendMessage({msgID: "get-env-info"});
   document.body.dataset.os = gOS = envInfo.os;
+  aeInterxn.init(gOS);
 
   aeClippings.init();
   gClippingsDB = aeClippings.getDB();

@@ -10,6 +10,7 @@ let gBackupConfirmMsgBox;
 $(async () => {
   let platform = await messenger.runtime.getPlatformInfo();
   document.body.dataset.os = platform.os;
+  aeInterxn.init(platform.os);
 
   // Reset backup notification interval timer so that it fires 24 hours after
   // displaying this first-time backup dialog.
@@ -71,6 +72,11 @@ $(async () => {
 
   initDialogs();
   window.focus();
+
+  let defDlgBtnFollowsFocus = await aePrefs.getPref("defDlgBtnFollowsFocus");
+  if (defDlgBtnFollowsFocus) {
+    aeInterxn.initDialogButtonFocusHandlers();
+  }
 
   // Fix for Fx57 bug where bundled page loaded using
   // browser.windows.create won't show contents unless resized.
