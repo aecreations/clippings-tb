@@ -654,6 +654,7 @@ function initDialogs()
   gDialogs.syncClippings.onUnload = function ()
   {
     $("#sync-clippings-dlg").removeClass("expanded");
+    $("#cmprs-sync-data-reqmt").text("").hide();
     gDialogs.syncClippings.isCanceled = true;
     this.lastFocusedElt?.focus();
   };
