@@ -1257,6 +1257,11 @@
     "description": "Exchange messages with programs other than <Firefox or Thunderbird> - User-facing description of the 'nativeMessaging' extension permission"
   },
 
+  "syncPermReqTitle": {
+    "message": "Clippings needs additional permission to connect to Sync Clippings Helper:",
+    "description": "Header for modal dialog in extension preferences page that appears when trying to turn on Sync Clippings without the optional 'nativeMessaging' permission turned on first"
+  },
+
   "syncPermReqDetail": {
     "message": "<a href=\"https://aecreations.io/clippings/sync-clippings-helper.php\" class=\"hyperlink\">Sync Clippings Helper</a> is an application that works quietly in the background to keep your synced clippings updated.",
     "description": "Message in modal dialog in extension preferences page that appears when trying to turn on Sync Clippings without the optional 'nativeMessaging' permission turned on first"
