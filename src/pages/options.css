@@ -628,7 +628,7 @@ body[data-locale|="es"] #wnds-dlgs-opts-dlg #clpmgr-save-wnd-pos-label {
 #request-native-app-conxn-perm-dlg {
     top: 128px;
     --width: 510px;
-    --height: 260px;
+    --height: 270px;
 }
 
 #sync-clippings-dlg {
@@ -709,9 +709,8 @@ body[data-locale="uk"] #sync-clippings-dlg {
     font-weight: bold;
 }
 
-#request-native-app-conxn-perm-dlg .dlg-title {
+#request-native-app-conxn-perm-dlg p:first-of-type {
     margin-top: 8px;
-    font-weight: bold;
 }
 
 #request-native-app-conxn-perm-dlg ul {
