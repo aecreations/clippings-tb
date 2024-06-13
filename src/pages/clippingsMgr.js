@@ -1387,28 +1387,7 @@ let gCmd = {
       // TO DO: Show modal dialog instructing user to accept permission request
       // to access the clipboard.
       // Once the dialog is displayed, exit this function.
-      let askPerm = window.confirm("Clippings needs additional permission to access the clipboard.\n\n  • Get data from the clipboard");
-
-      if (! askPerm) {
-        return;
-      }
-      
-      // When the following MailExtension API is called, a puzzle piece icon
-      // will appear next to the Thunderbird menu button.
-      // User needs to click on it to grant Clippings the "clipboardRead"
-      // permission.
-      // !! BUG !!
-      // The following will NOT work on latest Thunderbird beta.
-      // It is confirmed to be functional in Thunderbird 115.
-      let permGranted = await messenger.permissions.request({
-        permissions: ["clipboardRead"],
-      });
-
-      if (permGranted) {
-        this.newClippingFromClipboard();
-      }
-      // END TO DO
-
+      window.alert(`${messenger.i18n.getMessage('permReqTitle')}\n\n  • ${messenger.i18n.getMessage('extPrmClipbdR')}\n\n${messenger.i18n.getMessage('extPermInstr')}`);
       return;
     }
 
