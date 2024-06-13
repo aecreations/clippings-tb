@@ -616,7 +616,7 @@ async function refreshSyncedClippings(aRebuildClippingsMenu)
 
   let isCompressedSyncData = false;
   let natMsg = {msgID: "get-synced-clippings"};
-  if (aeVersionCmp(resp.appVersion, "2.0") >= 0 && gPrefs.compressSyncData) {
+  if (aeVersionCmp(resp.appVersion, "2.0b1") >= 0 && gPrefs.compressSyncData) {
     isCompressedSyncData = true;
     natMsg.msgID = "get-compressed-synced-clippings";
   }
