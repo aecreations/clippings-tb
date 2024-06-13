@@ -478,7 +478,7 @@ function initDialogs()
     $("#sync-conxn-error-detail").html(sanitizeHTML(messenger.i18n.getMessage("errSyncConxnDetail")));
     $("#sync-fldr-curr-location").on("focus", aEvent => { aEvent.target.select() });
   };
-  gDialogs.syncClippings.onInit = function ()
+  gDialogs.syncClippings.onInit = async function ()
   {
     this.isCanceled = false;
     $("#sync-clippings-dlg .dlg-accept").hide();
@@ -497,55 +497,22 @@ function initDialogs()
 
     let isBrwsSyncFldrVisible = true;
     let lang = messenger.i18n.getUILanguage();
-    let natMsg = {msgID: "get-app-version"};
-    messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg).then(aResp => {
-      console.info("Sync Clippings helper app version: " + aResp.appVersion);
-
-      if (aeVersionCmp(aResp.appVersion, "1.2b1") < 0) {
-        $("#browse-sync-fldr").hide();
-        isBrwsSyncFldrVisible = false;
-      }
-
-      if (aeVersionCmp(aResp.appVersion, "2.0b1") < 0) {
-        $("#sync-clippings-dlg").addClass("expanded");
-        $("#cmprs-sync-data-reqmt").html(
-          messenger.i18n.getMessage("cmprsSyncReqmt", aeConst.SYNC_CLIPPINGS_DWNLD_URL)
-        ).show();
-      }
-      
-      return aePrefs.getAllPrefs();
-
-    }).then(aPrefs => {
-      $("#sync-helper-app-update-check").prop("checked", aPrefs.syncHelperCheckUpdates);
-      $("#show-only-sync-items").prop("checked", aPrefs.cxtMenuSyncItemsOnly);
-      $("#cmprs-sync-data").prop("checked", aPrefs.compressSyncData);
-
-      this.oldShowSyncItemsOpt = $("#show-only-sync-items").prop("checked");
-
-      let natMsg = {msgID: "get-sync-dir"};
-      return messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg);
-      
-    }).then(aResp => {
-      $("#sync-fldr-curr-location").val(aResp.syncFilePath);
-      $("#sync-clippings-dlg .dlg-accept").show();
-      $("#sync-clippings-dlg .dlg-cancel").text(messenger.i18n.getMessage("btnCancel"));
-
-      deckSyncChk.hide();
-      deckSyncSettings.show();
-      this._initKeyboardNav("sync-folder-location", isBrwsSyncFldrVisible);
-
-    }).catch(aErr => {
-      console.error("Clippings/mx::options.js: Error returned from syncClippings native app: " + aErr);
+    let resp;
+    try {
+      resp = await messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, {msgID: "get-app-version"});
+    }
+    catch (e) {
+      console.error("Clippings/mx::options.js: Error returned from syncClippings native app: " + e);
       
       $("#sync-clippings-dlg .dlg-cancel").text(messenger.i18n.getMessage("btnClose"));
 
-      if (aErr == aeConst.SYNC_ERROR_CONXN_FAILED
-          || aErr == aeConst.SYNC_ERROR_NAT_APP_NOT_FOUND) {
+      if (e == aeConst.SYNC_ERROR_CONXN_FAILED
+          || e == aeConst.SYNC_ERROR_NAT_APP_NOT_FOUND) {
         // This would occur if Sync Clippings helper app won't start.
         deckSyncChk.hide();
         deckSyncConxnError.show();
       }
-      else if (aErr == aeConst.SYNC_ERROR_UNKNOWN) {
+      else if (e == aeConst.SYNC_ERROR_UNKNOWN) {
         deckSyncChk.hide();
         deckSyncSettings.hide();
         deckSyncError.show();
@@ -561,7 +528,38 @@ function initDialogs()
       }
 
       this._initKeyboardNav(null, false);
-    });
+      return;
+    }
+    
+    console.info("Sync Clippings helper app version: " + resp.appVersion);
+
+    if (aeVersionCmp(resp.appVersion, "1.2b1") < 0) {
+      $("#browse-sync-fldr").hide();
+      isBrwsSyncFldrVisible = false;
+    }
+    if (aeVersionCmp(resp.appVersion, "2.0b1") < 0) {
+      $("#sync-clippings-dlg").addClass("expanded");
+      $("#cmprs-sync-data-reqmt").html(
+        messenger.i18n.getMessage("cmprsSyncReqmt", aeConst.SYNC_CLIPPINGS_DWNLD_URL)
+      ).show();
+    }
+      
+    let prefs = await aePrefs.getAllPrefs();
+    $("#sync-helper-app-update-check").prop("checked", prefs.syncHelperCheckUpdates);
+    $("#show-only-sync-items").prop("checked", prefs.cxtMenuSyncItemsOnly);
+    $("#cmprs-sync-data").prop("checked", prefs.compressSyncData);
+
+    this.oldShowSyncItemsOpt = $("#show-only-sync-items").prop("checked");
+
+    resp = await messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, {msgID: "get-sync-dir"});
+
+    $("#sync-fldr-curr-location").val(resp.syncFilePath);
+    $("#sync-clippings-dlg .dlg-accept").show();
+    $("#sync-clippings-dlg .dlg-cancel").text(messenger.i18n.getMessage("btnCancel"));
+
+    deckSyncChk.hide();
+    deckSyncSettings.show();
+    this._initKeyboardNav("sync-folder-location", isBrwsSyncFldrVisible);
   };
 
   gDialogs.syncClippings.onAccept = async function ()
