@@ -69,9 +69,14 @@
     "message": "Reset"
   },
 
+  "permReqTitle": {
+    "message": "Clippings needs additional permission to complete the selected action:",
+    "description": "Header for modal dialog that appears when trying to complete an action that requires an optional extension permission to be turned on"
+  },
+  
   "btnReqPerm": {
     "message": "Request Permission",
-    "description": "Default button in the extension permission request dialog, which appears when requesting an optional extension permission such as 'nativeMessaging'"
+    "description": "Default button in the extension permission request dialog, which appears when requesting an optional extension permission"
   },
 
   "pasteTitle": {
@@ -269,8 +274,14 @@
     "message": "Close This Page"
   },
 
-  "welcCancelDlg": {
-    "message": "Go Back"
+  "extPrmClipbdR": {
+    "message": "Get data from the clipboard",
+    "description": "User-facing description of the 'clipboardRead' extension permission"
+  },
+
+  "extPermInstr": {
+    "message": "To grant Clippings this permission, open Add-ons Manager, click on Clippings in the list of installed extensions, and then turn on the permission in the Permissions tab.",
+    "description": "Instructions in the optional permission request dialog"
   },
 
   "newClippingDlgTitle": {
@@ -1244,11 +1255,6 @@
   "extPrmNativeMessaging": {
     "message": "Exchange messages with programs other than $1",
     "description": "Exchange messages with programs other than <Firefox or Thunderbird> - User-facing description of the 'nativeMessaging' extension permission"
-  },
-  
-  "syncPermReqTitle": {
-    "message": "Clippings needs additional permission to connect to Sync Clippings Helper.",
-    "description": "Header for modal dialog in extension preferences page that appears when trying to turn on Sync Clippings without the optional 'nativeMessaging' permission turned on first"
   },
 
   "syncPermReqDetail": {
