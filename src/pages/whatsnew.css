@@ -37,7 +37,7 @@ body {
 h1 {
     font-size: 28px;
     font-weight: 600;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.25px;
     margin-bottom: 8px;
 }
 
@@ -95,7 +95,7 @@ button {
     margin-top: 0px;
     font-size: 17px;
     font-weight: 200;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.25px;
 }
 
 #dlg-content {
