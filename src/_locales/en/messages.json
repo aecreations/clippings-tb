@@ -1386,7 +1386,7 @@
   },
 
   "aboutExtVer": {
-    "message": "version $1",
+    "message": "Version $1",
     "description": "Extension version number"
   },
 
@@ -1448,33 +1448,38 @@
   },
 
   "upgrade": {
-    "message": "Clippings has been upgraded to version 6.5.",
-    "description": "What's New page (appears after upgrading Clippings)"
-  },
-
-  "upgradeTB": {
-    "message": "Clippings for Thunderbird has been upgraded to version 6.3.",
-    "description": "What's New page (appears after upgrading Clippings for Thunderbird)"
+    "message": "$1 has been upgraded to the latest version.",
+    "description": "Clippings/Clippings for Thunderbird has been upgraded - What's New page (appears after upgrading Clippings)"
   },
 
   "whatsNew": {
     "message": "What’s New",
-    "description": "What's New page (appears after upgrading Clippings)"
+    "description": "Subheading in the What's New page"
   },
 
   "whatsNew1": {
-    "message": "Symbols and emojis are now supported in placeholder default values 🙂",
+    "message": "You can now add separators to organize your clippings",
     "description": "Description of an enhancement or fix in the new version of Clippings"
   },
 
   "whatsNew2": {
-    "message": "Formatted date/time placeholder values show up correctly in languages other than English",
+    "message": "New option to show the shortcut key of a clipping in the Clippings menu",
     "description": "Description of an enhancement or fix in the new version of Clippings"
   },
 
-  "whatsNew3": {
-    "message": "Placeholder prompt dialogs now display the name of the selected clipping, so that you know you've selected the right one",
-    "description": "Description of an enhancement or fix in the new version of Clippings"
+  "whatsNewFx1": {
+    "message": "Clipping text can be copied by right-clicking on a clipping in Clippings Manager or the new Clippings sidebar",
+    "description": "Description of a Firefox-specific enhancement in the new version of Clippings"
+  },
+
+  "whatsNewSync": {
+    "message": "Sync Clippings enhancements: sync data is now compressed, allowing you to sync more of your clippings; also, improved handling of read-only sync files (requires <a href=\"$1\">Sync Clippings Helper</a> version 2.0 or newer)",
+    "description": "Description of enhancements for the Sync Clippings feature in the new version of Clippings"
+  },
+
+  "hostAppCompat": {
+    "message": "Other behind-the-scenes improvements to ensure compatibility with future versions of $1",
+    "description": "Description of improvements to ensure compatibility with future versions of Firefox or Thunderbird"
   },
 
   "contribHdg": {
