@@ -1411,7 +1411,7 @@ let gCmd = {
 
       let folderID = parseInt(selectedNode.key);
       if (folderID == gPrefs.syncFolderID) {
-        window.setTimeout(() => {gDialogs.moveSyncFldr.showModal()});
+        console.warn("Cannot move the Synced Clippings folder.");
         return;
       }
     }
@@ -1447,7 +1447,7 @@ let gCmd = {
       }
       
       if (id == gPrefs.syncFolderID) {
-        window.setTimeout(() => {gDialogs.deleteSyncFldr.showModal()}, 100);
+        console.warn("Cannot delete the Synced Clippings folder, because Sync Clippings is turned on.");
         return;
       }
 
@@ -4506,9 +4506,6 @@ function initDialogs()
     }, 100);
   };
 
-  gDialogs.moveSyncFldr = new aeDialog("#move-sync-fldr-msgbox");
-  gDialogs.deleteSyncFldr = new aeDialog("#delete-sync-fldr-msgbox");
-
   gDialogs.miniHelp = new aeDialog("#mini-help-dlg");
   gDialogs.miniHelp.onFirstInit = function ()
   {
@@ -5317,6 +5314,8 @@ function updateDisplay(aEvent, aData)
   let selectedItemID = parseInt(aData.node.key);
 
   if (aData.node.isFolder()) {
+    $("#move, #delete").prop("disabled", false);
+    
     gClippingsDB.folders.get(selectedItemID).then(aResult => {
       $("#clipping-name").val(aResult.name);
       $("#clipping-text").val("").hide();
@@ -5329,21 +5328,22 @@ function updateDisplay(aEvent, aData)
       $("#item-properties").addClass("folder-only");
 
       if (gPrefs.syncClippings && selectedItemID == gPrefs.syncFolderID) {
-        // Prevent renaming of the Synced Clippings folder.
-        $("#clipping-name").attr("disabled", "true");
+        // Prevent moving, deleting or renaming of the Synced Clippings folder.
+        $("#move, #delete, #clipping-name").prop("disabled", true);
       }
       else {
-        $("#clipping-name").removeAttr("disabled");
+        $("#move, #delete, #clipping-name").prop("disabled", false);
       }
     });
   }
   else {
     $("#item-properties").removeClass("folder-only");
-    $("#clipping-name").removeAttr("disabled");
+    $("#clipping-name").prop("disabled", false);
     
     gClippingsDB.clippings.get(selectedItemID).then(aResult => {
       $("#clipping-name").val(aResult.name);
       $("#clipping-text").val(aResult.content).show();
+      $("#move, #delete").prop("disabled", false);
 
       if (gPrefs.clippingsMgrDetailsPane) {
         $("#options-bar").show();
