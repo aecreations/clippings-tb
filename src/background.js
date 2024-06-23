@@ -335,6 +335,11 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
       log("Initializing 7.0 user preferences.");
       await aePrefs.setSanFranciscoPrefs(gPrefs);
 
+      let platform = await browser.runtime.getPlatformInfo();
+      if (platform.os == "linux") {
+        aePrefs.setPrefs({clippingsMgrAutoShowStatusBar: true});
+      }
+
       // Enable post-update notifications which users can click on to open the
       // What's New page.
       await aePrefs.setPrefs({

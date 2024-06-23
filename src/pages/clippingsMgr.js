@@ -2674,10 +2674,11 @@ let gCmd = {
     gIsMaximized = updWnd.state == "maximized";
   },
 
-  toggleMinimizeWhenInactive: function ()
+  toggleMinimizeWhenInactive()
   {
     let currSetting = gPrefs.clippingsMgrMinzWhenInactv;
-    aePrefs.setPrefs({ clippingsMgrMinzWhenInactv: !currSetting });
+    aePrefs.setPrefs({clippingsMgrMinzWhenInactv: !currSetting});
+    $("#minz-when-inactv-mode").attr("data-checked", !currSetting);
   },
   
   openExtensionPrefs: function ()
@@ -3204,6 +3205,19 @@ $(async () => {
   if (gEnvInfo.os == "mac") {
     $("#status-bar").css({backgroundImage: "none"});
   }
+  else if (gEnvInfo.os == "linux") {
+    if (gPrefs.clippingsMgrAutoShowStatusBar) {
+      $("#status-bar").show();
+      aePrefs.setPrefs({
+        clippingsMgrAutoShowStatusBar: false,
+        clippingsMgrStatusBar: true,
+      });
+    }
+
+    $("#minz-when-inactv-mode").show();
+    $("#minz-when-inactv-mode").attr("data-checked", !!gPrefs.clippingsMgrMinzWhenInactv)
+      .attr("title", browser.i18n.getMessage("mnuMinimizeWhenInactive"));
+  }
 
   let lang = messenger.i18n.getUILanguage();
   document.body.dataset.locale = lang;
@@ -3442,6 +3456,11 @@ $(window).on("blur", aEvent => {
       messenger.windows.update(messenger.windows.WINDOW_ID_CURRENT, updWndInfo);
     }
   }
+});
+
+
+$("#minz-when-inactv-mode").on("click", aEvent => {
+  gCmd.toggleMinimizeWhenInactive();
 });
 
 
