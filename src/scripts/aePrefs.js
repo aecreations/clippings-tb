@@ -165,6 +165,11 @@ let aePrefs = function () {
       // Removed deprecated prefs.
       delete aPrefs.enhancedLaF;
       
+      // Change default setting of Linux-specific pref.
+      if (aPrefs.clippingsMgrMinzWhenInactv) {
+        await this.setPrefs({clippingsMgrMinzWhenInactv: false});
+      }
+
       await this._addPrefs(aPrefs, newPrefs);
     },
 

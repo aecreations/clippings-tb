@@ -384,7 +384,7 @@ async function init()
   log("Clippings/mx: OS: " + gOS);
 
   if (gOS == "linux" && gPrefs.clippingsMgrMinzWhenInactv === null) {
-    await aePrefs.setPrefs({clippingsMgrMinzWhenInactv: true});
+    await aePrefs.setPrefs({clippingsMgrMinzWhenInactv: false});
   }
 
   if (gPrefs.autoAdjustWndPos === null) {
