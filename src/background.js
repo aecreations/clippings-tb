@@ -335,7 +335,7 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
       log("Initializing 7.0 user preferences.");
       await aePrefs.setSanFranciscoPrefs(gPrefs);
 
-      let platform = await browser.runtime.getPlatformInfo();
+      let platform = await messenger.runtime.getPlatformInfo();
       if (platform.os == "linux") {
         aePrefs.setPrefs({clippingsMgrAutoShowStatusBar: true});
       }
@@ -943,7 +943,7 @@ function buildContextMenu()
   log("Clippings/mx: buildContextMenu()");
 
   // Context menu for compose action button.
-  browser.menus.create({
+  messenger.menus.create({
     id: "ae-clippings-reset-autoincr-plchldrs",
     title: messenger.i18n.getMessage("baMenuResetAutoIncrPlaceholders"),
     enabled: false,
