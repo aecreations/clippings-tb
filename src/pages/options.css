@@ -11,7 +11,7 @@
     --color-main-border: #d9d9d9;
     --color-main-border-shadow: #d7d7db;
     --color-main-bkgd: #f9f9fa;
-    --color-header-bkgd: #f9f9fb;
+    --color-header-bkgd: radial-gradient(#fff, #f0f0f4);
     --color-tab-cntr-border: #cfcfd8;
     --color-tab-bkgd-hover: #e0e0e6;
     --color-tab-bkgd-active: #cfcfd8;
@@ -20,11 +20,11 @@
     --color-fieldset-border: #d7d7db;
     --color-dlg-fieldset-border: #d7d7db;
     --color-text-sync-status-on: #003706;
-    --color-about-btn-bkgd: #f9f9fa;
-    --color-about-btn-bkgd-hover: #ededf0;
+    --color-about-btn-bkgd: #f0f0f4;
+    --color-about-btn-bkgd-hover: #e0e0e6;
     --color-about-btn-bkgd-active: #d7d7db;
-    --color-about-btn-border: #ededf0;
-    --color-about-btn-border-hover: #ededf0;
+    --color-about-btn-border: #e0e0e6;
+    --color-about-btn-border-hover: #e0e0e6;
     --color-about-btn: black;
 }
 
@@ -86,7 +86,7 @@ header, main {
 
 header {
     margin: 24px auto 12px auto;
-    background-color: var(--color-header-bkgd);
+    background: var(--color-header-bkgd);
 }
 
 main {
