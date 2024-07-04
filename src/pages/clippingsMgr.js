@@ -1392,7 +1392,7 @@ let gCmd = {
     }
 
     if (content == "") {
-      window.setTimeout(() => {gDialogs.clipboardEmpty.openPopup()}, 100);
+      setTimeout(() => {gDialogs.clipboardEmpty.openPopup()}, 100);
       return;
     }
 
@@ -2825,7 +2825,7 @@ let gCmd = {
     }
     
     if (this.undoStack.length == 0) {
-      window.setTimeout(() => { gDialogs.noUndoNotify.openPopup() }, 100);
+      setTimeout(() => { gDialogs.noUndoNotify.openPopup() }, 100);
       return;
     }
 
@@ -2973,7 +2973,7 @@ let gCmd = {
     }
     
     if (this.redoStack.length == 0) {
-      window.setTimeout(() => { gDialogs.noRedoNotify.openPopup() }, 100);
+      setTimeout(() => { gDialogs.noRedoNotify.openPopup() }, 100);
       return;
     }
 
@@ -3722,7 +3722,7 @@ function initToolbar()
         break;
 
       case "maximizeWnd":
-        window.setTimeout(async () => { gCmd.toggleMaximize() }, 100);
+        setTimeout(async () => { gCmd.toggleMaximize() }, 100);
         break;
 
       case "minimizeWhenInactive":
@@ -5862,13 +5862,13 @@ async function saveWindowGeometry()
 function setSaveWndGeometryInterval(aSaveWndGeom)
 {
   if (aSaveWndGeom) {
-    setSaveWndGeometryInterval.intvID = window.setInterval(async () => {
+    setSaveWndGeometryInterval.intvID = setInterval(async () => {
       await saveWindowGeometry();
     }, gPrefs.clippingsMgrSaveWndGeomIntv);    
   }
   else {
     if (!! setSaveWndGeometryInterval.intvID) {
-      window.clearInterval(setSaveWndGeometryInterval.intvID);
+      clearInterval(setSaveWndGeometryInterval.intvID);
       setSaveWndGeometryInterval.intvID = null;
     }
   }
