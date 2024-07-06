@@ -2,15 +2,14 @@
   "manifest_version": 2,
   "name": "__MSG_extNameTB__",
   "description": "__MSG_extDesc__",
-  "version": "6.3.5.1a1",
+  "version": "6.3.5+",
   "author": "AE Creations",
   "homepage_url": "https://aecreations.io/clippings/index.php",
   "browser_specific_settings": {
     "gecko": {
       "id": "clippings-tb@aecreations.github.io",
       "strict_min_version": "115.0",
-      "strict_max_version": "115.*",
-      "update_url": "https://aecreations.github.io/updates/update-test.json"
+      "strict_max_version": "115.*"
     }
   },
   
