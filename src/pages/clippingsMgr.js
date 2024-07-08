@@ -5572,9 +5572,12 @@ function initTreeSplitter()
 
 function setEmptyClippingsState()
 {
-  var rv;
-  rv = [{ title: messenger.i18n.getMessage("clipMgrNoItems"), key: "0" }];
+  let rv = [
+    {title: messenger.i18n.getMessage("clipMgrNoItems"), key: "0"}
+  ];
+
   gIsClippingsTreeEmpty = true;
+  $("#move, #delete").prop("disabled", true);
   $("#clipping-name, #clipping-text, #placeholder-toolbar, #options-bar").hide();
   $("#intro-content").show();
   
@@ -5670,6 +5673,7 @@ function isSeparatorSelected()
 function updateDisplay(aEvent, aData)
 {
   if (gIsClippingsTreeEmpty) {
+    $("#move, #delete").prop("disabled", true);
     $("#options-bar").hide();
     setStatusBarMsg(messenger.i18n.getMessage("clipMgrStatusBar", "0"));
     return;
@@ -5755,7 +5759,7 @@ function updateDisplay(aEvent, aData)
             shortcutKeyMenu.selectedIndex = i;
             break;
           }
-      }
+        }
 
         gClippingLabelPicker.selectedLabel = aResult.label;
       }
