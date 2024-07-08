@@ -38,7 +38,7 @@ function capitalize(aString)
 
 // Options page initialization
 $(() => {
-  window.focus();
+  messenger.windows.update(messenger.windows.WINDOW_ID_CURRENT, {focused: true});
   init();
 });
 
@@ -757,7 +757,7 @@ $(window).on("contextmenu", aEvent => {
 
 messenger.runtime.onMessage.addListener(aRequest => {
   if (aRequest.msgID == "focus-extension-prefs-pg") {
-    window.focus();
+    messenger.windows.update(messenger.windows.WINDOW_ID_CURRENT, {focused: true});
   }
 });
 

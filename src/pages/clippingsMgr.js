@@ -2477,7 +2477,7 @@ let gCmd = {
         gSuppressAutoMinzWnd = false;
 
       }).finally(() => {
-        window.focus();
+        focusWnd();
       });
     }).catch(aErr => {
       window.alert("Sorry, an error occurred during the backup.\n\nDetails:\n" + getErrStr(aErr));
@@ -2982,7 +2982,7 @@ $(async () => {
     }
   }
 
-  window.focus();
+  focusWnd();
   
   // Fix for Fx57 bug where bundled page loaded using
   // messenger.windows.create won't show contents unless resized.
@@ -3195,7 +3195,7 @@ messenger.runtime.onMessage.addListener(aRequest => {
     break;
 
   case "focus-clippings-mgr-wnd":
-    window.focus();
+    focusWnd();
     break;
 
   case "sync-activated":
@@ -3735,7 +3735,7 @@ function initDialogs()
         }
 
       }).finally(() => {
-        window.focus();
+        focusWnd();
       });
     });    
   };
@@ -4238,7 +4238,7 @@ function initDialogs()
         }
 
       }).finally(() => {
-        window.focus();
+        focusWnd();
       });
     }
 
@@ -5470,6 +5470,12 @@ function setSaveWndGeometryInterval(aSaveWndGeom)
   }
 }
 setSaveWndGeometryInterval.intvID = null;
+
+
+async function focusWnd()
+{
+  await messenger.windows.update(messenger.windows.WINDOW_ID_CURRENT, {focused: true});
+}
 
 
 function closeWnd()
