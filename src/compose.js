@@ -115,7 +115,7 @@ function insertTextIntoPlainTextEditor(aClippingText, aIsQuoted)
   let range = selection.getRangeAt(0);
   range.deleteContents();
 
-  let frag = range.createContextualFragment(clippingText);
+  let frag = range.createContextualFragment(DOMPurify.sanitize(clippingText));
   range.insertNode(frag);
   range.collapse();
 }
