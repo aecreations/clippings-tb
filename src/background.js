@@ -388,10 +388,6 @@ async function init()
   gOS = platform.os;
   log("Clippings/mx: OS: " + gOS);
 
-  if (gOS == "linux" && gPrefs.clippingsMgrMinzWhenInactv === null) {
-    await aePrefs.setPrefs({clippingsMgrMinzWhenInactv: false});
-  }
-
   if (gPrefs.autoAdjustWndPos === null) {
     let autoAdjustWndPos = gOS == "win";
     let clippingsMgrSaveWndGeom = autoAdjustWndPos;

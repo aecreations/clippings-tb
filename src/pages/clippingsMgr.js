@@ -2686,13 +2686,6 @@ let gCmd = {
     gIsMaximized = updWnd.state == "maximized";
   },
 
-  toggleMinimizeWhenInactive()
-  {
-    let currSetting = gPrefs.clippingsMgrMinzWhenInactv;
-    aePrefs.setPrefs({clippingsMgrMinzWhenInactv: !currSetting});
-    $("#minz-when-inactv-mode").attr("data-checked", !currSetting);
-  },
-  
   openExtensionPrefs: function ()
   {
     messenger.runtime.openOptionsPage();
@@ -3225,10 +3218,6 @@ $(async () => {
         clippingsMgrStatusBar: true,
       });
     }
-
-    $("#minz-when-inactv-mode").show();
-    $("#minz-when-inactv-mode").attr("data-checked", !!gPrefs.clippingsMgrMinzWhenInactv)
-      .attr("title", browser.i18n.getMessage("mnuMinimizeWhenInactive"));
   }
 
   let lang = messenger.i18n.getUILanguage();
@@ -3240,12 +3229,6 @@ $(async () => {
   gIsBackupMode = wndURL.searchParams.get("backupMode") || false;
   
   gIsMaximized = false;
-
-  if (DEBUG_WND_ACTIONS) {
-    if (gPrefs.clippingsMgrMinzWhenInactv === null) {
-      aePrefs.setPrefs({clippingsMgrMinzWhenInactv: true});
-    }
-  }
 
   initToolbar();
   initInstantEditing();
@@ -3461,18 +3444,6 @@ $(window).on("blur", aEvent => {
   if (gPrefs.clippingsMgrSaveWndGeom) {
     setSaveWndGeometryInterval(false);
   }
-  
-  if (gEnvInfo.os == "linux" || DEBUG_WND_ACTIONS) {
-    if (gPrefs.clippingsMgrMinzWhenInactv && !gSuppressAutoMinzWnd) {
-      let updWndInfo = { state: "minimized" };
-      messenger.windows.update(messenger.windows.WINDOW_ID_CURRENT, updWndInfo);
-    }
-  }
-});
-
-
-$("#minz-when-inactv-mode").on("click", aEvent => {
-  gCmd.toggleMinimizeWhenInactive();
 });
 
 
@@ -3738,10 +3709,6 @@ function initToolbar()
         setTimeout(async () => { gCmd.toggleMaximize() }, 100);
         break;
 
-      case "minimizeWhenInactive":
-        gCmd.toggleMinimizeWhenInactive();
-        break;
-        
       case "openExtensionPrefs":
         gCmd.openExtensionPrefs();
         break;
@@ -3827,18 +3794,6 @@ function initToolbar()
         },
         icon: function (aKey, aOpt) {
           if (gIsMaximized) {
-            return "context-menu-icon-checked";
-          }
-        }
-      },
-      minimizeWhenInactive: {
-        name: messenger.i18n.getMessage("mnuMinimizeWhenInactive"),
-        className: "ae-menuitem",
-        visible: function (aKey, aOpt) {
-          return (gEnvInfo.os == "linux" || DEBUG_WND_ACTIONS);
-        },
-        icon: function (aKey, aOpt) {
-          if (gPrefs.clippingsMgrMinzWhenInactv) {
             return "context-menu-icon-checked";
           }
         }

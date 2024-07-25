@@ -17,7 +17,6 @@ let aePrefs = function () {
     clippingsMgrDetailsPane: false,
     clippingsMgrStatusBar: false,
     clippingsMgrPlchldrToolbar: false,
-    clippingsMgrMinzWhenInactv: null,
     syncClippings: false,
     syncFolderID: null,
     cxtMenuSyncItemsOnly: false,
@@ -110,12 +109,6 @@ let aePrefs = function () {
         upgradeNotifCount: 0,
       };
 
-      let platform = await messenger.runtime.getPlatformInfo();
-      if (platform.os != "linux") {
-        // Fix incorrect default value of pref.
-        newPrefs.clippingsMgrMinzWhenInactv = null;
-      }
-
       await this._addPrefs(aPrefs, newPrefs);
     },
 
@@ -164,11 +157,7 @@ let aePrefs = function () {
 
       // Removed deprecated prefs.
       delete aPrefs.enhancedLaF;
-      
-      // Change default setting of Linux-specific pref.
-      if (aPrefs.clippingsMgrMinzWhenInactv) {
-        await this.setPrefs({clippingsMgrMinzWhenInactv: false});
-      }
+      delete aPrefs.clippingsMgrMinzWhenInactv;
 
       await this._addPrefs(aPrefs, newPrefs);
     },
