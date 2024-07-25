@@ -2614,6 +2614,18 @@ let gCmd = {
     gDialogs.insDateTimePlchldr.showModal();
   },
   
+  insertClippingInClippingPlaceholder()
+  {
+    let contentTextArea = $("#clipping-text");
+    let arg = messenger.i18n.getMessage("plchldrClipClipArg");
+    let plchldr = "$[CLIPPING(" + arg + ")]";
+    insertTextIntoTextbox(contentTextArea, plchldr);
+
+    // Select the placeholder argument.
+    contentTextArea[0].selectionStart = contentTextArea[0].selectionEnd - arg.length - 2;
+    contentTextArea[0].selectionEnd -= 2;
+  },
+
   showHidePlaceholderToolbar: function ()
   {
     let currSetting = gPrefs.clippingsMgrPlchldrToolbar;
@@ -3615,6 +3627,10 @@ function initToolbar()
         gCmd.insertFormattedDateTimePlaceholder();
         break;
         
+      case "insClippingInClipping":
+        gCmd.insertClippingInClippingPlaceholder();
+        break;
+
       default:
         window.alert("The selected action is not available right now.");
         break;
@@ -3626,36 +3642,33 @@ function initToolbar()
         name: messenger.i18n.getMessage("mnuPlchldrDate"),
         className: "ae-menuitem"
       },
-
       insTime: {
         name: messenger.i18n.getMessage("mnuPlchldrTime"),
         className: "ae-menuitem"
       },
-
       insAppName: {
         name: messenger.i18n.getMessage("mnuPlchldrAppName"),
         className: "ae-menuitem"
       },
-
       insUserAgent: {
         name: messenger.i18n.getMessage("mnuPlchldrUsrAgent"),
         className: "ae-menuitem"
       },
-
       insClippingName: {
         name: messenger.i18n.getMessage("mnuPlchldrClipName"),
         className: "ae-menuitem"
       },
-
       insParentFolderName: {
         name: messenger.i18n.getMessage("mnuPlchldrFldrName"),
         className: "ae-menuitem"
       },
-
       separator1: "--------",
-
       insFormattedDateTime: {
         name: messenger.i18n.getMessage("mnuPlchldrFmtDateTime"),
+        className: "ae-menuitem"
+      },
+      insClippingInClipping: {
+        name: messenger.i18n.getMessage("mnuPlchldrClipClip"),
         className: "ae-menuitem"
       },
     }
