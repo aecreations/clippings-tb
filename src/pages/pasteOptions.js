@@ -12,6 +12,7 @@ async function init()
   gComposeTabID = Number(params.get("compTabID"));
 
   window.focus();
+  document.getElementById("paste-as-normal").focus();
 
   // Fix for Fx57 bug where bundled page loaded using
   // browser.windows.create won't show contents unless resized.
@@ -70,3 +71,20 @@ document.getElementById("btn-cancel").addEventListener("click", aEvent => {
   cancel(aEvent);
 });
 
+window.addEventListener("keydown", aEvent => {
+  if (aEvent.key == "Enter") {
+    if (aEvent.target.tagName == "BUTTON" && aEvent.target.id != "btn-accept"
+        && !aEvent.target.classList.contains("dlg-accept")) {
+      aEvent.target.click();
+      aEvent.preventDefault();
+      return;
+    }
+
+    if (aEvent.target.id != "btn-accept") {
+      accept(aEvent);
+    }
+  }
+  else if (aEvent.key == "Escape") {
+    cancel();
+  }
+});
