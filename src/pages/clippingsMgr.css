@@ -924,6 +924,24 @@ ul.fancytree-container {
     top: 64px;
 }
 
+#request-ext-perm-dlg {
+    --width: 372px;
+    --height: 220px;
+    top: 48px;
+}
+
+#request-ext-perm-dlg p:first-of-type {
+    margin-top: 4px;
+}
+
+#request-ext-perm-dlg ul {
+    padding-left: 24px;
+}
+
+#request-ext-perm-dlg .dlg-content {
+    margin-left: 48px;
+}
+
 #custom-placeholder-dlg {
     --width: 336px;
     --height: 204px;
