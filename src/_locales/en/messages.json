@@ -211,16 +211,12 @@
     "message": "Welcome to Clippings!"
   },
 
-  "welcInstallSuccessSubh": {
-    "message": "Installation successfully completed."
-  },
-
   "welcWhatsNewHdg": {
     "message": "What\u2019s New"
   },
 
   "welcWhatsNewDesc": {
-    "message": "Clippings 6.5 comes with many fixes and improvements, such as support for symbols and emojis in placeholder default values. 🙂"
+    "message": "Clippings 7.0 contains many new features and improvements, such as copying clipping text, and separators for organizing your clippings."
   },
 
   "welcWhatsNewCTA": {
@@ -910,11 +906,11 @@
   },
 
   "statusSavingBkup": {
-    "message": "Saving backup file..."
+    "message": "Saving backup file…"
   },
 
   "statusSavingBkupDone": {
-    "message": "Saving backup file... done"
+    "message": "Saving backup file… done"
   },
 
   "statusSavingBkupFailed": {
@@ -999,12 +995,12 @@
   },
 
   "statusExportStart": {
-    "message": "Exporting...",
+    "message": "Exporting…",
     "description": "Status bar text in Clippings Manager"
   },
 
   "statusExportDone": {
-    "message": "Exporting... done",
+    "message": "Exporting… done",
     "description": "Status bar text in Clippings Manager"
   },
 
@@ -1669,7 +1665,7 @@
   },
 
   "whatsNew1": {
-    "message": "You can now add separators to organize your clippings",
+    "message": "You can now add separators to organize your clippings.",
     "description": "Description of an enhancement or fix in the new version of Clippings"
   },
 
@@ -1684,7 +1680,7 @@
   },
   
   "whatsNewFx1": {
-    "message": "Copy clipping text to the clipboard by right-clicking on a clipping in Clippings Manager or in the new Clippings Sidebar",
+    "message": "Copy clipping text to the clipboard from Clippings Manager or in the new Clippings Sidebar.",
     "description": "Description of a Firefox-specific enhancement in the new version of Clippings"
   },
 
@@ -1694,7 +1690,7 @@
   },
 
   "whatsNewTb1": {
-    "message": "The Clippings toolbar button in the message compose window has moved from the status bar to the Composition Toolbar. The Clippings toolbar button is no longer available in the main Thunderbird window",
+    "message": "The Clippings toolbar button in the message compose window has moved from the status bar to the Composition Toolbar.  The Clippings toolbar button no longer appears in the main Thunderbird window",
     "description": "Description of a Thunderbird-specific enhancement in the new version of Clippings"
   },
 
@@ -1714,7 +1710,7 @@
   },
 
   "contribCTA": {
-    "message": "Support the development of $1 by <a href=\"$2\">making a donation</a>. Learn more about other ways to <a href=\"$3\">get involved</a>!",
+    "message": "Support the development of $1 by <a href=\"$2\">making a donation</a>. Learn more about other ways to <a href=\"$3\">get\u00a0involved</a>!",
     "description": "Call to action message to make donation or learn more about contributing to Clippings (or Clippings for Thunderbird)"
   },
 
