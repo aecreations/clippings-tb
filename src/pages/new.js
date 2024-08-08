@@ -378,14 +378,16 @@ function initDialogs()
         $("#new-folder-dlg-fldr-tree").addClass("show-sync-items-only");
       }
     }
-    
+
+    let hideSyncFldr = gPrefs.isSyncReadOnly && !gPrefs.cxtMenuSyncItemsOnly;
     this.fldrTree = new aeFolderPicker(
       "#new-folder-dlg-fldr-tree",
       gClippingsDB,
       rootFldrID,
       rootFldrName,
       rootFldrCls,
-      selectedFldrID
+      selectedFldrID,
+      hideSyncFldr
     );
 
     this.fldrTree.onSelectFolder = aFolderData => {
@@ -591,13 +593,15 @@ function initFolderPicker()
     }
   }
   
+  let hideSyncFldr = gPrefs.isSyncReadOnly && !gPrefs.cxtMenuSyncItemsOnly;
   gFolderPickerPopup = new aeFolderPicker(
     "#new-clipping-fldr-tree",
     gClippingsDB,
     rootFldrID,
     rootFldrName,
     rootFldrCls,
-    selectedFldrID
+    selectedFldrID,
+    hideSyncFldr
   );
 
   gFolderPickerPopup.onSelectFolder = selectFolder;
