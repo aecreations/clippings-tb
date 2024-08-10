@@ -3535,6 +3535,7 @@ function initToolbar()
   $.contextMenu({
     selector: "#plchldr-presets",
     trigger: "left",
+    className: "placeholder-menu",
 
     events: {
       activated: function (aOptions) {
@@ -3645,6 +3646,7 @@ function initToolbar()
   $.contextMenu({
     selector: "#clippings-mgr-options",
     trigger: "left",
+    className: "tools-menu",
 
     events: {
       activated: function (aOptions) {
@@ -3807,6 +3809,9 @@ function initToolbar()
     }
   });
 
+  aeInterxn.initContextMenuAriaRoles(".placeholder-menu");
+  aeInterxn.initContextMenuAriaRoles(".tools-menu");
+  
   $("#custom-plchldr").click(aEvent => { gCmd.insertCustomPlaceholder() });
   $("#auto-incr-plchldr").click(aEvent => { gCmd.insertNumericPlaceholder() });
   $("#show-shortcut-list").click(aEvent => { gCmd.showShortcutList() });
@@ -5122,9 +5127,15 @@ async function buildClippingsTree()
   // Context menu for the clippings tree.
   $.contextMenu({
     selector: "#clippings-tree > ul.ui-fancytree > li",
+    className: "clippings-tree-cxt-menu",
 
     events: {
-      show: function (aOpts) {
+      activated(aOpts) {
+        let mnu = aOpts.$menu;
+        mnu[0].focus();  
+      },
+
+      show(aOpts) {
         return (! gIsClippingsTreeEmpty);
       }
     },
@@ -5329,6 +5340,8 @@ async function buildClippingsTree()
     }
   });
 
+  aeInterxn.initContextMenuAriaRoles(".clippings-tree-cxt-menu");
+  
   if (gPrefs.syncClippings) {
     initSyncedClippingsTree();
   }

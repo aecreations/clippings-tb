@@ -38,16 +38,22 @@ let aeInterxn = {
 
       dlgBtns?.forEach(aDlgBtn => {
         aDlgBtn.addEventListener("focus", aEvent => {
-          aDlg.querySelector(".dlg-accept").classList.remove("default");
-          dlgBtns.forEach(aOtherDlgBtns => {
-            aOtherDlgBtns.classList.remove("default");
-          });
-          aEvent.target.classList.add("default");
+          let acceptBtn = aDlg.querySelector(".dlg-accept");
+          if (acceptBtn) {
+            acceptBtn.classList.remove("default");
+            dlgBtns.forEach(aOtherDlgBtns => {
+              aOtherDlgBtns.classList.remove("default");
+            });
+            aEvent.target.classList.add("default");
+          }
         });
 
         aDlgBtn.addEventListener("blur", aEvent => {
           aEvent.target.classList.remove("default");
-          aDlg.querySelector(".dlg-accept").classList.add("default");
+          let acceptBtn = aDlg.querySelector(".dlg-accept");
+          if (acceptBtn) {
+            acceptBtn.classList.add("default");
+          }
         });
       });
     });
@@ -93,6 +99,28 @@ let aeInterxn = {
 	aEvent.preventDefault();
       }
     }
+  },
+
+
+  initContextMenuAriaRoles(aStor)
+  {
+    let menu = $(aStor);
+    if (menu.length == 0) {
+      throw new RangeError(`aeInterxn.initContextMenuAriaRoles(): jQuery selector "${aStor}" does not match one or more elements`);
+    }
+
+    menu.attr("role", "menu");
+    menu.attr("tabindex", "0");
+    menu.children(".context-menu-item").attr("role", "menuitem");
+    menu.children(".context-menu-not-selectable").attr("role", "presentation");
+
+    // BUG!!  Submenus aren't selectable. There doesn't appear to be a way to
+    // cause the submenu to take the focus, even if "tabindex" is set on
+    // the nested <ul> element in the UI code that defines the menu.
+    menu.children(".context-menu-submenu").children(".context-menu-list")
+      .attr("role", "menu").attr("tabindex", "0")
+      .children(".ae-menuitem").attr("role", "menuitem")
+      .children(".context-menu-not-selectable").attr("role", "presentation");
   },
 
 
