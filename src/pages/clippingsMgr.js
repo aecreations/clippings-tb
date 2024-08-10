@@ -3380,6 +3380,12 @@ $(document).keydown(async (aEvent) => {
   else if (aEvent.key == "F10" && isAccelKeyPressed()) {
     gCmd.toggleMaximize();
   }
+  else if (aEvent.key == "F10" && aEvent.shiftKey) {
+    let focusedTreeNodeElt = $(".fancytree-focused");
+    if (focusedTreeNodeElt.length == 1) {
+      focusedTreeNodeElt.parent().trigger("contextmenu");
+    }
+  }
   else if (aEvent.key.toUpperCase() == "A" && isAccelKeyPressed()) {
     if (! isTextboxFocused(aEvent)) {
       aEvent.preventDefault();
@@ -3650,6 +3656,8 @@ function initToolbar()
 
     events: {
       activated: function (aOptions) {
+        let mnu = aOptions.$menu;
+        mnu[0].focus();
         $("#clippings-mgr-options").addClass("toolbar-button-menu-open");
       },
 
@@ -4335,6 +4343,11 @@ function initDialogs()
     $("#import-clippings-file-path").val("");
     $("#import-dlg button.dlg-accept").attr("disabled", "true");
     gSuppressAutoMinzWnd = true;
+
+    // Delay to allow time to switch to import or restore backup UI.
+    setTimeout(() => {
+      this.find("#import-clippings-browse")[0].focus();
+    }, 200);
   };
   gDialogs.importFromFile.onUnload = function ()
   {   
