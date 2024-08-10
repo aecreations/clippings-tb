@@ -13,25 +13,25 @@
 
   <body>
     <header>
-      <div id="pref-pg-hdr">
-        <img id="addon-icon" src="../img/icon.svg"/>
+      <div id="pref-pg-hdr" role="heading">
+        <img id="addon-icon" src="../img/icon.svg" role="presentation"/>
         <h2 id="pref-pg-hdr-text" data-i18n="prefsTitle"></h2>
 	<button id="about-btn" class="ae-button" data-i18n="aboutBtn"></button>
       </div>
     </header>
 
     <main id="ae-clippings-preferences">
-      <div class="tab-container">
+      <div class="tab-container" role="tablist">
 	<div id="preftab-general" class="tab">
-	  <button id="preftab-general-btn" class="active-tab" data-i18n="prefTabGen"></button>
+	  <button id="preftab-general-btn" class="active-tab" role="tab" aria-controls="prefpane-general" data-i18n="prefTabGen"></button>
 	</div><div id="preftab-paste" class="tab">
-	  <button id="preftab-paste-btn" data-i18n="prefTabPaste"></button>
+	  <button id="preftab-paste-btn" role="tab" aria-controls="prefpane-paste" data-i18n="prefTabPaste"></button>
 	</div><div id="preftab-sync-clippings" class="tab">
-	  <button id="preftab-sync-clippings-btn" data-i18n="syncClippings"></button>
+	  <button id="preftab-sync-clippings-btn" role="tab" aria-controls="prefpane-sync-clippings" data-i18n="syncClippings"></button>
 	</div>
       </div>
 
-      <div id="prefpane-general" class="tab-panel active-tab-panel">
+      <div id="prefpane-general" class="tab-panel active-tab-panel" role="tabpanel">
 	<fieldset id="general-options">
 	  <legend data-i18n="prefsHdgGeneralOptions"></legend>
 
@@ -78,18 +78,18 @@
 	</fieldset>
       </div> <!-- /prefpane-general -->
 
-      <div id="prefpane-paste" class="tab-panel">
+      <div id="prefpane-paste" class="tab-panel" role="tabpanel">
 	<p id="html-paste-options" data-i18n="labelPasteOptsTB"></p>
         <div id="html-paste-options-ctr">
 	  <div class="row browser-style">
-	    <input type="radio" id="paste-opt-formatted" name="html-paste-opt" value="1"/><label for="paste-opt-formatted" data-i18n="pasteOptFormatted"></label>
+	    <input type="radio" id="paste-opt-formatted" name="html-paste-opt" value="1" aria-described-by="html-paste-options"/><label for="paste-opt-formatted" data-i18n="pasteOptFormatted"></label>
 	  </div>
 	  <div id="paste-formatted-opts" class="row indent browser-style">
 	    <p id="html-paste-note" data-i18n="htmlPasteDescTB"></p>
 	    <input type="checkbox" id="html-auto-line-break" class="checkbox"/><label id="html-auto-line-break-label" for="html-auto-line-break" data-i18n="cbAutoLineBreak"></label>
 	  </div>
 	  <div id="paste-opt-raw-html-row" class="row browser-style">
-	    <input type="radio" id="paste-opt-raw-html" name="html-paste-opt" value="2"/><label for="paste-opt-raw-html" data-i18n="pasteOptRawHTML"></label>
+	    <input type="radio" id="paste-opt-raw-html" name="html-paste-opt" value="2" aria-described-by="html-paste-options"/><label for="paste-opt-raw-html" data-i18n="pasteOptRawHTML"></label>
 	  </div>
         </div>
 
@@ -108,7 +108,7 @@
 	</fieldset>
       </div> <!-- /prefpane-paste -->
 
-      <div id="prefpane-sync-clippings" class="tab-panel">
+      <div id="prefpane-sync-clippings" class="tab-panel" role="tabpanel">
 	<fieldset id="sync-options">
 	  <legend data-i18n="syncClippings"></legend>
 
@@ -127,7 +127,8 @@
     </main>
 
     <!-- Dialog boxes -->
-    <div id="wnds-dlgs-opts-dlg" class="lightbox">
+    <div id="lightbox-bkgrd-ovl" class="lightbox-bkgrd"></div>
+    <div id="wnds-dlgs-opts-dlg" class="lightbox" role="dialog">
       <div class="dlg-content">
         <fieldset>
           <legend data-i18n="wndsDlgsOptsTitle"></legend>
@@ -155,7 +156,7 @@
       </div>
     </div>
 
-    <div id="request-native-app-conxn-perm-dlg" class="lightbox">
+    <div id="request-native-app-conxn-perm-dlg" class="lightbox" role="alertdialog">
       <div class="msgbox-icon"></div>
       <div class="dlg-content">
 	<p class="label" data-i18n="syncPermReqTitle"></p>
@@ -172,8 +173,9 @@
       </div>
     </div>
 
-    <div id="sync-clippings-dlg" class="lightbox">
+    <div id="sync-clippings-dlg" class="lightbox" role="dialog">
       <div class="dlg-content">
+        <!-- TO DO: Put dialog title here -->
         <div id="sync-connection-check" class="deck">
 	  <p class="label" data-i18n="syncConnect"><p>
 	  <progress></progress>
@@ -221,7 +223,7 @@
       </div>
     </div>
 
-    <div id="turn-off-sync-clippings-dlg" class="lightbox">
+    <div id="turn-off-sync-clippings-dlg" class="lightbox" role="alertdialog">
       <div class="msgbox-icon"></div>
       <div class="dlg-content">
 	<p class="label" data-i18n="syncTurnOffConf"></p>
@@ -232,7 +234,7 @@
       </div>
     </div>
 
-    <div id="turn-off-sync-clippings-ack-dlg" class="lightbox">
+    <div id="turn-off-sync-clippings-ack-dlg" class="lightbox" role="alertdialog">
       <div class="info-icon"></div>
       <div class="dlg-content">
 	<p class="label" data-i18n="syncTurnOffAck"></p>
@@ -245,14 +247,14 @@
       </div>
     </div>
 
-    <div id="sync-clippings-help-dlg" class="lightbox">
+    <div id="sync-clippings-help-dlg" class="lightbox" role="dialog">
       <div class="dlg-content"></div>
       <div class="dlg-btns">
 	<button class="dlg-accept default" data-i18n="btnOK"></button>
       </div>
     </div>
 
-    <div id="about-dlg" class="lightbox">
+    <div id="about-dlg" class="lightbox" role="dialog">
       <div class="dlg-content">
         <div id="ext-icon"></div>
 	<div id="ext-info">
@@ -296,7 +298,6 @@
 	<button class="dlg-accept default" data-i18n="btnOK"></button>
       </div>
     </div>
-    <div id="lightbox-bkgrd-ovl" class="lightbox-bkgrd"></div>
     
     <script src="../lib/jquery.js"></script>
     <script src="../lib/purify.min.js"></script>
