@@ -978,6 +978,10 @@ ul.fancytree-container {
     --width: 430px;
 }
 
+#shortcut-key-conflict-msgbox .msgbox-icon {
+    margin-top: 8px;
+}
+
 #shortcut-list-dlg {
     --width: 424px;
     --height: 324px;
