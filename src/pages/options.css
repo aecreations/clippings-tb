@@ -558,7 +558,7 @@ body[data-locale="de"] #skip-backup-label {
 #wnds-dlgs-opts-dlg {
     top: 160px;
     --width: 500px;
-    --height: 226px;
+    --height: 234px;
 }
 
 body[data-locale="fr"] #wnds-dlgs-opts-dlg {
@@ -574,8 +574,8 @@ body[data-locale="uk"] #wnds-dlgs-opts-dlg {
     --width: 560px;
 }
 
-#wnds-dlgs-opts-dlg fieldset {
-    padding-bottom: 14px;
+#wnds-dlgs-opts-dlg .dlg-content {
+    padding-bottom: 12px;
     border-bottom: 1px solid var(--color-fieldset-border);
 }
 
@@ -598,7 +598,7 @@ body[data-os="mac"] #wnds-dlgs-opts-dlg #wnds-dlgs-opts-exp-warn .warning-icon {
 }
 
 #wnds-dlgs-opts-dlg #wnds-dlgs-opts-exp-warn-msg {
-    height: 82px;
+    height: 64px;
     margin: 8px 0 12px 40px;
     padding: 12px;
     border-radius: 4px;
@@ -634,7 +634,7 @@ body[data-locale|="es"] #wnds-dlgs-opts-dlg #clpmgr-save-wnd-pos-label {
 #sync-clippings-dlg {
     top: 128px;
     --width: 530px;
-    --height: 270px;
+    --height: 312px;
 }
 
 body[data-locale="de"] #sync-clippings-dlg {
@@ -651,7 +651,7 @@ body[data-locale="uk"] #sync-clippings-dlg {
 }
 
 #sync-clippings-dlg.expanded {
-    height: 300px;
+    height: 334px;
 }
 
 #sync-clippings-dlg fieldset {
@@ -672,6 +672,7 @@ body[data-locale="uk"] #sync-clippings-dlg {
     display: none;
     font-size: 13px;
     margin-top: 2px;
+    margin-bottom: 4px;
     margin-left: 28px;
 }
 
@@ -724,6 +725,7 @@ body[data-locale="uk"] #sync-clippings-dlg {
 #wnds-dlgs-opts-dlg #wnds-dlgs-opts-exp-warn-msg,
 #request-native-app-conxn-perm-dlg .error-msg,
 #sync-clippings-dlg #sync-cxn-error .error-msg {
+    line-height: 1.23;
     background-color: #fbfb77;
     color: black;
 }
