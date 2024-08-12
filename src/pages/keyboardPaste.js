@@ -293,13 +293,6 @@ let gAutocompleteMenu = {
 };
 
 
-// DOM utility
-function sanitizeHTML(aHTMLStr)
-{
-  return DOMPurify.sanitize(aHTMLStr, {SAFE_FOR_JQUERY: true});
-}
-
-
 // Initialize dialog
 $(async () => {
   let params = new URLSearchParams(window.location.search);
@@ -345,6 +338,8 @@ $(async () => {
     let srchBox = $("#clipping-search")[0];
     srchBox.focus();
   }
+
+  aeVisual.cacheIcons("insClipping-hover.svg", "export_hover.svg");
 
   // Fix for Fx57 bug where bundled page loaded using
   // browser.windows.create won't show contents unless resized.
@@ -614,6 +609,12 @@ async function closeDlg()
   
   await messenger.runtime.sendMessage({ msgID: "close-keybd-paste-dlg" });
   messenger.windows.remove(messenger.windows.WINDOW_ID_CURRENT);
+}
+
+
+function sanitizeHTML(aHTMLStr)
+{
+  return DOMPurify.sanitize(aHTMLStr, {SAFE_FOR_JQUERY: true});
 }
 
 
