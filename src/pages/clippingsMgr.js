@@ -264,6 +264,9 @@ let gClippingsListener = {
 
     if (aID == gPrefs.syncFolderID) {
       newNodeData.extraClasses = "ae-synced-clippings-fldr";
+      if (gPrefs.isSyncReadOnly) {
+        newNodeData.extraClasses += " ae-synced-clippings-readonly";
+      }
     }
 
     let newNode = null;
@@ -617,6 +620,7 @@ let gSyncClippingsListener = {
     let clippingsTree = getClippingsTree();
     let syncFldrTreeNode = clippingsTree.getNodeByKey(aOldSyncFolderID + "F");
     syncFldrTreeNode.removeClass("ae-synced-clippings-fldr");
+    syncFldrTreeNode.removeClass("ae-synced-clippings-readonly");
 
     let clippingsTreeElt = $("#clippings-tree");
     if (clippingsTreeElt.hasClass("cxt-menu-show-sync-items-only")) {
@@ -5397,6 +5401,9 @@ function buildClippingsTreeHelper(aFolderID)
 
         if (aItem.id == gPrefs.syncFolderID) {
           folderNode.extraClasses = "ae-synced-clippings-fldr";
+          if (gPrefs.isSyncReadOnly) {
+            folderNode.extraClasses += " ae-synced-clippings-readonly";
+          }
         }
 
         if ("displayOrder" in aItem) {

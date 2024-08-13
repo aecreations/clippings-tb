@@ -81,6 +81,7 @@
     --url-toolbar-btn-img-autoIncPlchldr: url("../img/numericPlchldr.svg");
     --url-toolbar-btn-img-autoIncPlchldr-hover: url("../img/numericPlchldr_hover.svg");
     --url-icon-synced-clippings-fldr: url("../img/synced-clippings.svg");
+    --url-icon-synced-clippings-readonly-fldr: url("../img/synced-clippings-readonly.svg");
 }
 
 @media (prefers-color-scheme: dark) {
@@ -151,6 +152,7 @@
 	--url-toolbar-btn-img-autoIncPlchldr: url("../img/numericPlchldr_dk.svg");
 	--url-toolbar-btn-img-autoIncPlchldr-hover: url("../img/numericPlchldr_dk.svg");
 	--url-icon-synced-clippings-fldr: url("../img/synced-clippings-dk.svg");
+	--url-icon-synced-clippings-readonly-fldr: url("../img/synced-clippings-readonly-dk.svg");
 
 	#options-bar > #clipping-label > #clipping-label-picker {
 	    color: black;
@@ -500,6 +502,11 @@ body[data-os="linux"]:not([data-laf="true"]) input[type="checkbox"] + label {
 #clippings-tree .ae-synced-clippings-fldr > .fancytree-icon {
     background-image: var(--url-icon-synced-clippings-fldr);
 }
+
+#clippings-tree .ae-synced-clippings-fldr.ae-synced-clippings-readonly > .fancytree-icon {
+    background-image: var(--url-icon-synced-clippings-readonly-fldr);
+}
+
 
 /* Search results in tree list. */
 .fancytree-ext-filter-hide span.fancytree-node.fancytree-match span.fancytree-title, .fancytree-ext-filter-hide tr.fancytree-match span.fancytree-title {
