@@ -340,6 +340,17 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
         aePrefs.setPrefs({clippingsMgrAutoShowStatusBar: true});
       }
 
+      // Starting in Clippings 7.0, window positioning prefs are turned on
+      // by default for macOS.
+      // They were previously turned off due to a bug occurring on systems with
+      // multiple displays in older versions of macOS.
+      if (platform.os == "mac") {
+        aePrefs.setPrefs({
+          autoAdjustWndPos: true,
+          clippingsMgrSaveWndGeom: true,
+        });
+      }
+
       // Enable post-update notifications which users can click on to open the
       // What's New page.
       await aePrefs.setPrefs({
@@ -389,7 +400,7 @@ async function init()
   log("Clippings/mx: OS: " + gOS);
 
   if (gPrefs.autoAdjustWndPos === null) {
-    let autoAdjustWndPos = gOS == "win";
+    let autoAdjustWndPos = (gOS == "win" || gOS == "mac");
     let clippingsMgrSaveWndGeom = autoAdjustWndPos;
     await aePrefs.setPrefs({autoAdjustWndPos, clippingsMgrSaveWndGeom});
   }

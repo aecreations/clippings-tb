@@ -371,7 +371,7 @@ function initDialogs()
   });
   gDialogs.wndsDlgsOpts.onFirstInit = function ()
   {   
-    if (gOS != "win") {
+    if (! ["win", "mac"].includes(gOS)) {
       let os = gOS == "mac" ? "macOS" : capitalize(gOS);
       $("#wnds-dlgs-opts-dlg").css({height: "308px"});
       $("#wnds-dlgs-opts-exp-warn-msg").text(messenger.i18n.getMessage("wndsDlgsOptsExpWarn", os));
