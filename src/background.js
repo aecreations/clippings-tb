@@ -474,6 +474,8 @@ async function init()
   };  
   messenger.composeScripts.register(compScriptOpts);
 
+  initToolsMenuItem();
+
   gIsInitialized = true;
   log("Clippings/mx: MailExtension initialization complete.");    
 }
@@ -953,7 +955,7 @@ function updateContextMenuForFolder(aUpdatedFolderID)
 }
 
 
-function buildContextMenu()
+async function buildContextMenu()
 {
   log("Clippings/mx: buildContextMenu()");
 
@@ -999,21 +1001,27 @@ function buildContextMenu()
     rootFldrID = gSyncFldrID;
   }
 
-  getContextMenuData(rootFldrID).then(aMenuData => {
-    if (aeConst.DEBUG) {
-      console.log("buildContextMenu(): Menu data: ");
-      console.log(aMenuData);
-    }
-    
-    if (aMenuData.length > 0) {
-      messenger.menus.create({
-        type: "separator",
-        contexts: ["compose_body"],
-      });
+  let menuData;
+  try {
+    menuData = await getContextMenuData(rootFldrID);
+  }
+  catch (e) {
+    onError(e);
+  }
 
-      buildContextMenuHelper(aMenuData);
-    }
-  }).catch(aErr => { onError(aErr) });
+  if (aeConst.DEBUG) {
+    console.log("buildContextMenu(): Menu data: ");
+    console.log(menuData);
+  }
+    
+  if (menuData.length > 0) {
+    messenger.menus.create({
+      type: "separator",
+      contexts: ["compose_body"],
+    });
+
+    buildContextMenuHelper(menuData);
+  }
 }
 
 
@@ -1058,7 +1066,26 @@ async function rebuildContextMenu()
 
   gClippingMenuItemIDMap = {};
   gFolderMenuItemIDMap = {};
-  buildContextMenu();
+  initToolsMenuItem();
+  await buildContextMenu();
+}
+
+
+function initToolsMenuItem()
+{
+  if (gPrefs.showToolsCmd) {
+    messenger.menus.create({
+      id: "ae-tools-clippings-mgr",
+      title: messenger.i18n.getMessage("cxtMenuOpenClippingsMgr"),
+      contexts: ["tools_menu"],
+    });
+  }
+  else {
+    try {
+      messenger.menus.remove("ae-tools-clippings-mgr");
+    }
+    catch {}
+  }
 }
 
 
@@ -2001,6 +2028,7 @@ messenger.menus.onClicked.addListener((aInfo, aTab) => {
     break;
 
   case "ae-clippings-manager":
+  case "ae-tools-clippings-mgr":
     openClippingsManager();
     break;
     
@@ -2061,6 +2089,9 @@ messenger.storage.onChanged.addListener((aChanges, aAreaName) => {
 
     if (pref == "autoIncrPlchldrStartVal") {
       aeClippingSubst.setAutoIncrementStartValue(aChanges[pref].newValue);
+    }
+    else if (pref == "showToolsCmd") {
+      initToolsMenuItem();
     }
   }
 });

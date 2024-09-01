@@ -111,6 +111,10 @@ $(async () => {
 
   initDialogs();
 
+  $("#show-tools-cmd").prop("checked", prefs.showToolsCmd).click(aEvent => {
+    aePrefs.setPrefs({showToolsCmd: aEvent.target.checked});
+  });
+
   $("#paste-opt-formatted").click(aEvent => {
     $("#html-auto-line-break").prop("disabled", false);
     $("#html-paste-note").removeClass("disabled");
