@@ -107,7 +107,9 @@ $(async () => {
   
   let hostApp = messenger.i18n.getMessage("hostAppTb");
   $("#ext-perm-native-msg").text(messenger.i18n.getMessage("extPrmNativeMessaging", hostApp));
-  $("#ext-perm-native-msg-detail").html(sanitizeHTML(messenger.i18n.getMessage("syncPermReqDetail")));
+  $("#ext-perm-native-msg-detail").html(
+    sanitizeHTML(messenger.i18n.getMessage("syncPermReqDetail", aeConst.SYNC_CLIPPINGS_DWNLD_URL))
+  );
 
   initDialogs();
 

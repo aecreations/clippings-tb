@@ -1479,7 +1479,7 @@
   },
 
   "syncPermReqDetail": {
-    "message": "<a href=\"https://aecreations.io/clippings/sync-clippings-helper.php\" class=\"hyperlink\">Sync Clippings Helper</a> is an application that works quietly in the background to keep your synced clippings updated.",
+    "message": "<a href=\"$1\" class=\"hyperlink\">Sync Clippings Helper</a> is an application that works quietly in the background to keep your synced clippings updated.",
     "description": "Message in modal dialog in extension preferences page that appears when trying to turn on Sync Clippings without the optional 'nativeMessaging' permission turned on first"
   },
 
