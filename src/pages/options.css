@@ -354,6 +354,10 @@ description {
     margin-bottom: 0;
 }
 
+#keyb-shct-note {
+    margin-top: 2px;
+}
+
 #auto-inc-plchldr-opts {
     margin-top: 8px;
 }

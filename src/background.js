@@ -399,6 +399,8 @@ async function init()
   gOS = platform.os;
   log("Clippings/mx: OS: " + gOS);
 
+  aePrefs.migrateKeyboardPastePref(gPrefs, gOS);
+
   if (gPrefs.autoAdjustWndPos === null) {
     let autoAdjustWndPos = (gOS == "win" || gOS == "mac");
     let clippingsMgrSaveWndGeom = autoAdjustWndPos;
@@ -771,17 +773,82 @@ async function purgeFolderItems(aFolderID, aKeepFolder)
 async function getShortcutKeyPrefixStr()
 {
   let rv = "";
-  let keyAlt   = messenger.i18n.getMessage("keyAlt");
-  let keyShift = messenger.i18n.getMessage("keyShift");
-  let shctModeKeys = `${keyAlt}+${keyShift}+Y`;
+  let platform = await messenger.runtime.getPlatformInfo();
+  let isMacOS = platform.os == "mac";
+  let [cmd] = await messenger.commands.getAll();
+  let shct = cmd.shortcut;
 
-  if (gOS == "mac") {
-    let keyOption = messenger.i18n.getMessage("keyOption");
-    let keyCmd = messenger.i18n.getMessage("keyCommand");
-    shctModeKeys = `${keyOption}${keyCmd}V`;
+  if (! shct) {
+    // Keyboard shortcut may not be defined if user removed it but didn't set a
+    // new shortcut in Manage Extension Shortcuts.
+    return rv;
   }
-  rv = shctModeKeys;
+  
+  let keybPasteKey = shct.substring(shct.lastIndexOf("+") + 1);
+  let keybPasteMods = shct.substring(0, shct.lastIndexOf("+"));
 
+  let keys = [
+    "Home", "End", "PageUp", "PageDown", "Space", "Insert", "Delete",
+    "Up", "Down", "Left", "Right"
+  ];
+  let localizedKey = "";
+
+  if (keys.includes(keybPasteKey)) {
+    if (keybPasteKey == "Delete" && isMacOS) {
+      localizedKey = messenger.i18n.getMessage("keyMacDel");
+    }
+    else {
+      localizedKey = messenger.i18n.getMessage(`key${keybPasteKey}`);
+    }
+  }
+  else {
+    if (keybPasteKey == "Period") {
+      localizedKey = ".";
+    }
+    else if (keybPasteKey == "Comma") {
+      localizedKey = ",";
+    }
+    else {
+      localizedKey = keybPasteKey;
+    }
+  }
+
+  let modifiers = keybPasteMods.split("+");
+
+  // On macOS, always put the primary modifier key (e.g. Command) at the end.
+  if (isMacOS && modifiers.length > 1 && modifiers[1] == "Shift") {
+    let modPrimary = modifiers.shift();
+    modifiers.push(modPrimary);
+  }
+  
+  let localizedMods = "";
+
+  for (let i = 0; i < modifiers.length; i++) {
+    let modifier = modifiers[i];
+    let localzMod;
+    
+    if (isMacOS) {
+      if (modifier == "Alt") {
+        localzMod = messenger.i18n.getMessage("keyOption");
+      }
+      else if (modifier == "Ctrl") {
+        localzMod = messenger.i18n.getMessage("keyCommand");
+      }
+      else if (modifier == "Shift") {
+        localzMod = messenger.i18n.getMessage("keyMacShift");
+      }
+      else {
+        localzMod = messenger.i18n.getMessage(`key${modifier}`);
+      }
+    }
+    else {
+      localzMod = messenger.i18n.getMessage(`key${modifier}`);
+      localzMod += "+";
+    }
+    localizedMods += localzMod;
+  }
+
+  rv = `${localizedMods}${localizedKey}`;
   return rv;
 }
 
@@ -1984,12 +2051,7 @@ messenger.commands.onCommand.addListener(async (aCmdName, aTab) => {
   }
 
   if (aCmdName == "ae-clippings-paste-clipping") {
-    if (gOS == "mac") {
-      gPrefs.keyboardPaste && openKeyboardPasteDlg(aTab.id);
-    }
-    else {
-      gPrefs.wxPastePrefixKey && openKeyboardPasteDlg(aTab.id);
-    }
+    gPrefs.keybdPaste && openKeyboardPasteDlg(aTab.id);
   }
 });
 

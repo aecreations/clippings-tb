@@ -62,44 +62,6 @@ $(async () => {
   tabSync.on("click", switchPrefsPanel);
   tabSync.ariaSelected = false;
 
-  let keyCtrl  = messenger.i18n.getMessage("keyCtrl");
-  let keyAlt   = messenger.i18n.getMessage("keyAlt");
-  let keyShift = messenger.i18n.getMessage("keyShift");
-  let shctModeKeys = `${keyCtrl}+${keyAlt}+V`;
-  let shctModeKeysNew = `${keyAlt}+${keyShift}+Y`;
-  
-  if (gOS == "win") {
-    // Cannot use Ctrl+Alt+V - already assigned to a global shortcut for
-    // inserting the radical symbol (√) on Windows 10
-    $("#shortcut-key").css({ display: "none" });
-    $("#shct-label").css({ display: "none" });
-    $("#row-shct-key-new").removeClass("indent");
-  }
-  else if (gOS == "mac") {
-    let keyOption = messenger.i18n.getMessage("keyOption");
-    let keyCmd = messenger.i18n.getMessage("keyCommand");
-    shctModeKeys = `${keyOption}${keyCmd}V`;
-    
-    // Cannot use Cmd+Shift+Y - already assigned to a composer command.
-    $("#shortcut-key-new").css({ display: "none" });
-    $("#shct-new-label").css({ display: "none" });
-  }
-
-  $("#shct-label").text(messenger.i18n.getMessage("prefsShctMode", shctModeKeys));
-
-  let shctNewLabelTxt = messenger.i18n.getMessage("prefsShctModeNew", shctModeKeysNew);
-  if (gOS == "win") {
-    shctNewLabelTxt = messenger.i18n.getMessage("prefsShctMode", shctModeKeysNew);
-  }
-  $("#shct-new-label").text(shctNewLabelTxt);
-
-  let prefs = await aePrefs.getAllPrefs();
-
-  if (! prefs.keyboardPaste) {
-    $("#shortcut-key-new").prop("disabled", true);
-    $("#shct-new-label").attr("disabled", true);
-  }
-
   let lang = messenger.i18n.getUILanguage();
   document.body.dataset.locale = lang;
 
@@ -113,6 +75,7 @@ $(async () => {
 
   initDialogs();
 
+  let prefs = await aePrefs.getAllPrefs();
   $("#show-tools-cmd").prop("checked", prefs.showToolsCmd).click(aEvent => {
     aePrefs.setPrefs({showToolsCmd: aEvent.target.checked});
   });
@@ -179,25 +142,19 @@ $(async () => {
     aePrefs.setPrefs({ autoLineBreak: aEvent.target.checked });
   });
 
-  $("#shortcut-key").attr("checked", prefs.keyboardPaste).click(aEvent => {
-    let shortcutCb = aEvent.target;
-    aePrefs.setPrefs({ keyboardPaste: shortcutCb.checked });
-
-    if (gOS != "mac") {
-      $("#shortcut-key-new").prop("disabled", !shortcutCb.checked);
-      $("#shct-new-label").attr("disabled", !shortcutCb.checked);
-
-      if (! shortcutCb.checked) {
-        $("#shortcut-key-new").prop("checked", false);
-        aePrefs.setPrefs({ wxPastePrefixKey: false });
-      }
-    }
-  });
-
-  $("#shortcut-key-new").attr("checked", prefs.wxPastePrefixKey).click(aEvent => {
-    aePrefs.setPrefs({ wxPastePrefixKey: aEvent.target.checked });
-  });
-
+  let keybPasteKeys = await messenger.runtime.sendMessage({msgID: "get-shct-key-prefix-ui-str"});
+  if (keybPasteKeys) {
+    $("#shortcut-key").prop("checked", prefs.keybdPaste).click(aEvent => {
+      aePrefs.setPrefs({keybdPaste: aEvent.target.checked});
+    });
+  }
+  else {
+    // Keyboard shortcut may not be defined if user removed it but didn't set a
+    // new shortcut in Manage Extension Shortcuts.
+    $("#shortcut-key").prop("checked", false).prop("disabled", true);
+  }
+  $("#shct-label").text(messenger.i18n.getMessage("prefsShctMode", keybPasteKeys));
+  
   $("#auto-inc-plchldrs-start-val").val(prefs.autoIncrPlchldrStartVal).click(aEvent => {
     aePrefs.setPrefs({ autoIncrPlchldrStartVal: aEvent.target.valueAsNumber });
   });
