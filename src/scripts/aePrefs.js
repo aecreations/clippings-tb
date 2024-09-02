@@ -9,8 +9,7 @@ let aePrefs = function () {
     htmlPaste: aeConst.HTMLPASTE_AS_FORMATTED,
     autoLineBreak: true,
     autoIncrPlchldrStartVal: 0,
-    keyboardPaste: true,
-    wxPastePrefixKey: true,
+    keybdPaste: true,
     checkSpelling: true,
     pastePromptAction: aeConst.PASTEACTION_SHORTCUT_KEY,
     clippingsMgrAutoShowDetailsPane: true,
@@ -155,13 +154,28 @@ let aePrefs = function () {
         showShctKeyDispStyle: aeConst.SHCTKEY_DISPLAY_PARENS,
         defDlgBtnFollowsFocus: false,
         showToolsCmd: true,
+        keybdPaste: true,
       };
 
       // Removed deprecated prefs.
       delete aPrefs.enhancedLaF;
       delete aPrefs.clippingsMgrMinzWhenInactv;
+      await this._removePrefs("enhancedLaF", "clippingsMgrMinzWhenInactv");
 
       await this._addPrefs(aPrefs, newPrefs);
+    },
+
+    async migrateKeyboardPastePref(aPrefs, aOSName)
+    {
+      if ("wxPastePrefixKey" in aPrefs) {
+        let keybdPaste = aOSName == "mac" ? aPrefs.keyboardPaste : aPrefs.wxPastePrefixKey;
+        aPrefs.keybdPaste = keybdPaste;
+        await this.setPrefs({keybdPaste});
+
+        delete aPrefs.keyboardPaste;
+        delete aPrefs.wxPastePrefixKey;
+        await this._removePrefs("keyboardPaste", "wxPastePrefixKey");
+      }
     },
 
     
@@ -175,6 +189,11 @@ let aePrefs = function () {
         aCurrPrefs[pref] = aNewPrefs[pref];
       }
       await this.setPrefs(aNewPrefs);
+    },
+
+    async _removePrefs(aPrefs)
+    {
+      await messenger.storage.local.remove(aPrefs);
     },
   };
 }();
