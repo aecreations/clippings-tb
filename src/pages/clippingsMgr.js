@@ -4048,7 +4048,7 @@ function initDialogs()
         [extVer, `${gEnvInfo.hostAppName} ${gEnvInfo.hostAppVer}`]
       ),
       shctKeyInstrxns: messenger.i18n.getMessage("expHTMLShctKeyInstrxnTB"),
-      shctKeyCustNote: "",
+      shctKeyCustNote: messenger.i18n.getMessage("expHTMLShctKeyCustNoteTB"),
       shctKeyColHdr: messenger.i18n.getMessage("expHTMLShctKeyCol"),
       clippingNameColHdr: messenger.i18n.getMessage("expHTMLClipNameCol"),
     });

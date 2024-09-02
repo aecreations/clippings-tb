@@ -310,7 +310,10 @@ $(async () => {
   aeImportExport.setDatabase(gClippingsDB);
   aeImportExport.setL10nStrings({
     shctTitle: messenger.i18n.getMessage("expHTMLTitle"),
-    hostAppInfo: messenger.i18n.getMessage("expHTMLHostAppInfo", [extVer, envInfo.hostAppName]),
+    hostAppInfo: messenger.i18n.getMessage(
+      "expHTMLHostAppInfo",
+      [extVer, `${envInfo.hostAppName} ${envInfo.hostAppVer}`]
+    ),
     shctKeyInstrxns: messenger.i18n.getMessage("expHTMLShctKeyInstrxnTB"),
     shctKeyCustNote: messenger.i18n.getMessage("expHTMLShctKeyCustNoteTB"),
     shctKeyColHdr: messenger.i18n.getMessage("expHTMLShctKeyCol"),
