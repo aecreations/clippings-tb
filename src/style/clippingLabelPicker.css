@@ -3,22 +3,28 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-body[data-laf="true"]:not([data-os="mac"]) #clipping-label-picker.browser-style {
+#clipping-label-picker.browser-style {
     background-color: #fdfefd;
     border-color: #d7d7db;
     color: black;
+
+    background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMCAwIDE2IDE2Ij4KICA8cGF0aCBkPSJNOCwxMkwzLDcsNCw2bDQsNCw0LTQsMSwxWiIgZmlsbD0iIzZBNkE2QSIgLz4KPC9zdmc+Cg==");
 }
 
 @media (prefers-color-scheme: dark) {
-    body[data-laf="true"][data-os="mac"] #clipping-label-picker.browser-style {
+    #clipping-label-picker.browser-style {
 	background-color: #fdfefd;
 	border-color: #d7d7db;
 	color: black;
     }
 }
 
-body[data-laf="true"]:not([data-os="mac"]) #clipping-label-picker.browser-style:hover {
+#clipping-label-picker.browser-style:hover {
     border-color: #b1b1b1;
+}
+
+#clipping-label-picker.browser-style:active {
+    background-color: rgba(12, 12, 13, 0.3) !important;
 }
 
 #clipping-label-picker > option {
