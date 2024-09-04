@@ -47,6 +47,12 @@ let aePrefs = function () {
     showShctKeyDispStyle: aeConst.SHCTKEY_DISPLAY_PARENS,
     defDlgBtnFollowsFocus: false,
     showToolsCmd: true,
+
+    // Deprecated prefs - these will be removed during extension upgrade.
+    clippingsMgrMinzWhenInactv: null,
+    enhancedLaF: true,
+    keyboardPaste: true,
+    wxPastePrefixKey: true,
   };
 
   return {
@@ -191,7 +197,7 @@ let aePrefs = function () {
       await this.setPrefs(aNewPrefs);
     },
 
-    async _removePrefs(aPrefs)
+    async _removePrefs(...aPrefs)
     {
       await messenger.storage.local.remove(aPrefs);
     },

@@ -345,7 +345,7 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
       // They were previously turned off due to a bug occurring on systems with
       // multiple displays in older versions of macOS.
       if (platform.os == "mac") {
-        aePrefs.setPrefs({
+        await aePrefs.setPrefs({
           autoAdjustWndPos: true,
           clippingsMgrSaveWndGeom: true,
         });
@@ -399,7 +399,7 @@ async function init()
   gOS = platform.os;
   log("Clippings/mx: OS: " + gOS);
 
-  aePrefs.migrateKeyboardPastePref(gPrefs, gOS);
+  await aePrefs.migrateKeyboardPastePref(gPrefs, gOS);
 
   if (gPrefs.autoAdjustWndPos === null) {
     let autoAdjustWndPos = (gOS == "win" || gOS == "mac");
