@@ -292,18 +292,6 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
 
     await setDefaultPrefs();
     await init();
-
-    // Load the compose script and its dependencies into all message compose
-    // windows that may be open at the time the extension is installed.
-    let compTabs = await messenger.tabs.query({type: "messageCompose"});
-    for (let tab of compTabs) {
-      messenger.tabs.executeScript(tab.id, {
-        file: messenger.runtime.getURL("lib/purify.min.js"),
-      });
-      messenger.tabs.executeScript(tab.id, {
-        file: messenger.runtime.getURL("compose.js"),
-      });
-    }
   }
   else if (aInstall.reason == "update") {
     let oldVer = aInstall.previousVersion;
@@ -358,8 +346,13 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
       });
     }
 
-    init();
+    await init();
   }
+
+  // Load the compose script and its dependencies into all message compose
+  // windows that may be open at the time the extension is installed
+  // or updated.
+  await loadComposeScripts();
 });
 
 
@@ -380,6 +373,20 @@ async function setDefaultPrefs()
 
   gPrefs = defaultPrefs;
   await aePrefs.setPrefs(defaultPrefs);
+}
+
+
+async function loadComposeScripts()
+{
+  let compTabs = await messenger.tabs.query({type: "messageCompose"});
+  for (let tab of compTabs) {
+    messenger.tabs.executeScript(tab.id, {
+      file: messenger.runtime.getURL("lib/purify.min.js"),
+    });
+    messenger.tabs.executeScript(tab.id, {
+      file: messenger.runtime.getURL("compose.js"),
+    });
+  }
 }
 
 
