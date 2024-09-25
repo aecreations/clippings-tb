@@ -363,6 +363,10 @@ body:not([data-locale="uk"]):not([data-locale|="pt"]):not([data-locale|="es"]) #
     background-size: contain;
 }
 
+#create-clipping-error-msgbox .msgbox-error-icon[os="win"] {
+    background-image: url("../img/alert-win.png");
+}
+
 #create-clipping-error-msgbox .msgbox-error-icon[os="mac"] {
     background-image: url("../img/warning-64-mac.png");
 }
