@@ -4795,6 +4795,12 @@ async function buildClippingsTree()
 
     events: {
       show: function (aOpts) {
+        let treeItemSpan = aOpts.$trigger[0].firstChild;
+        if (treeItemSpan.classList.contains("fancytree-statusnode-nodata")) {
+          // Hide the context menu if "No items found" in the search results
+          // is selected.
+          return false;
+        }
         return (! gIsClippingsTreeEmpty);
       }
     },
