@@ -351,7 +351,7 @@ body[data-os="linux"]:not([data-laf="true"]) input[type="checkbox"] + label {
 
 #toolbar > #clippings-mgr-options {
     order: 7;
-    padding-right: 12px;
+    padding-right: 18px;
     background-image: var(--url-toolbar-btn-img-tools), var(--url-toolbar-btn-img-dropdown);
     background-position-x: 4px, right;
     
@@ -371,6 +371,8 @@ body[data-os="linux"]:not([data-laf="true"]) input[type="checkbox"] + label {
 
 /* jQuery contextMenu CSS overrides */
 .context-menu-list {
+    padding: 4px 0;
+    border-radius: 4px;
     border: 1px solid var(--color-cxtmenu-border);
     background-color: var(--color-cxtmenu-bkgd);
 }
@@ -381,6 +383,8 @@ body[data-os="linux"]:not([data-laf="true"]) input[type="checkbox"] + label {
 
 .ae-menuitem,
 .context-menu-submenu {
+    border-radius: 2px;
+    margin: 0 4px 0 4px;
     padding-top: 4px;
     padding-bottom: 4px;
     font-size: 12px;
@@ -407,6 +411,8 @@ body[data-os="linux"]:not([data-laf="true"]) input[type="checkbox"] + label {
 }
 
 .context-menu-separator {
+    margin-left: 10px;
+    margin-right: 10px;
     border-bottom: 1px solid var(--color-cxtmenu-separator);
 }
 
@@ -711,7 +717,7 @@ ul.fancytree-container {
 #item-properties > #placeholder-toolbar > #plchldr-presets,
 #item-properties > #placeholder-toolbar > #plchldr-presets:active {
     padding-left: 6px;
-    padding-right: 12px;
+    padding-right: 18px;
 }
 
 #item-properties > #placeholder-toolbar > #custom-plchldr {
@@ -749,7 +755,7 @@ ul.fancytree-container {
     order: 2;
     flex: 0 1 auto;
     
-    padding-right: 12px;
+    padding-right: 18px;
     background-image: var(--url-toolbar-btn-img-dropdown);
     background-position-x: right;
 }
@@ -940,6 +946,10 @@ ul.fancytree-container {
     --width: 372px;
     --height: 220px;
     top: 48px;
+}
+
+#request-ext-perm-dlg > .msgbox-icon {
+    margin-top: 4px;
 }
 
 #request-ext-perm-dlg p:first-of-type {
