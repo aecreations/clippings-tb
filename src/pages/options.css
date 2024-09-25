@@ -337,8 +337,7 @@ description {
 
 #html-paste-note.disabled,
 #shct-key-in-menu-opt-label.disabled {
-    color: #999;
-    opacity: .5;
+    opacity: 0.4;
 }
 
 #paste-opt-raw-html-row {
@@ -503,7 +502,7 @@ body[data-locale="de"] #skip-backup-label {
     top: 64px;
     padding-left: 22px;
     padding-right: 22px;
-    border-radius: 6px;
+    border-radius: 8px;
     font-size: 15px;
 }
 
