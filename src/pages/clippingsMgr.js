@@ -4738,6 +4738,9 @@ function initDialogs()
           $("#move-to-label").text(messenger.i18n.getMessage("labelCopyClipping"));
         }
         $("#move-dlg-action-btn").text(messenger.i18n.getMessage("btnCopy"));
+
+        // Clear any error messages since copying to same folder is allowed.
+        $("#move-error").text('');
       }
       else {
         if (getClippingsTree().activeNode.folder) {
@@ -4767,15 +4770,22 @@ function initDialogs()
         null,
         hideSyncFldr
       );
+
+      // Attach event handler every time the folder tree is regenerated.
+      this.find("#move-to-fldr-tree").on("click", aEvent => {
+        log("Clippings::clippingsMgr.js: gDialogs.moveTo: Detected 'click' event in the folder tree");
+        $("#move-error").text('');
+      });
     }
 
     // Workaround to allow keyboard navigation into the folder tree list.
     $("#activate-move-to-fldr-tree").on("focus", aEvent => {
       try {
         this.fldrTree.getContainer().focus();
+      }      
+      catch (e) {
+        // Ignore thrown exception; it still works.
       }
-      // Ignore thrown exception; it still works.
-      catch {}
     });
 
     $("#copy-instead-of-move").prop("checked", false).prop("disabled", false);
