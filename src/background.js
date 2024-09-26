@@ -427,6 +427,8 @@ async function init()
     shctKeyColHdr: messenger.i18n.getMessage("expHTMLShctKeyCol"),
     clippingNameColHdr: messenger.i18n.getMessage("expHTMLClipNameCol"),
   });
+
+  aeVisual.init(gOS);
   
   if (gPrefs.syncClippings) {
     gSyncFldrID = gPrefs.syncFolderID;
@@ -1922,7 +1924,7 @@ function showSyncAppErrorNotification()
     type: "basic",
     title: messenger.i18n.getMessage("syncStartupFailedHdg"),
     message: messenger.i18n.getMessage("syncStartupFailed"),
-    iconUrl: "img/error.svg",
+    iconUrl: aeVisual.getErrorIconPath(),
   });
 }
 
@@ -1933,7 +1935,7 @@ function showSyncReadErrorNotification()
     type: "basic",
     title: messenger.i18n.getMessage("syncStartupFailedHdg"),
     message: messenger.i18n.getMessage("syncGetFailed"),
-    iconUrl: "img/error.svg",
+    iconUrl: aeVisual.getErrorIconPath(),
   });
 }
 
@@ -1944,7 +1946,7 @@ function showSyncPushReadOnlyNotification()
     type: "basic",
     title: messenger.i18n.getMessage("syncStartupFailedHdg"),
     message: messenger.i18n.getMessage("syncFldrRdOnly"),
-    iconUrl: "img/error.svg",
+    iconUrl: aeVisual.getErrorIconPath(),
   });
 }
 
@@ -1955,7 +1957,7 @@ function showNoNativeMsgPermNotification()
     type: "basic",
     title: messenger.i18n.getMessage("syncStartupFailedHdg"),
     message: messenger.i18n.getMessage("syncPermNotif"),
-    iconUrl: "img/error.svg",
+    iconUrl: aeVisual.getErrorIconPath(),
   });
 }
 
