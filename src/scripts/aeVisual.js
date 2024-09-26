@@ -5,8 +5,14 @@
 
 
 let aeVisual = {
+  _os: null,
   _iconCache: [],
 
+
+  init(aOSName)
+  {
+    this._os = aOSName;
+  },
 
   preloadLafImages()
   {
@@ -20,6 +26,27 @@ let aeVisual = {
     );
   },
 
+  preloadMsgBoxIcons(aPreloadAll)
+  {
+    this.cacheIcons(
+      "warning-64.png",
+      "warning-64-mac.png",
+      "alert-win.png"
+    );
+
+    if (aPreloadAll) {
+      this.cacheIcons(
+        "question-64.png",
+        "question-64-mac.png",
+        "confirm-win.png",
+        "info.svg",
+        "info-win.png",
+        "error.svg",
+        "error-win.png",
+      );
+    }
+  },
+
   cacheIcons(...aIconFileNames)
   {
     for (let fileName of aIconFileNames) {
@@ -27,5 +54,36 @@ let aeVisual = {
       img.src = `../img/${fileName}`;
       this._iconCache.push(img);
     }
+  },
+
+  getErrorIconPath(aFromExtSubdir=false)
+  {
+    let rv = "";
+    if (this._os == "win") {
+      rv = "img/error-win.png";
+    }
+    else {
+      rv = "img/error.svg";
+    }
+    if (aFromExtSubdir) {
+      rv = `../${rv}`;
+    }
+    return rv;
+  },
+
+  formatShortcutKey(aLabelText, aShortcutKey)
+  {
+    let rv;
+    let idx = aLabelText.indexOf(aShortcutKey);
+    if (idx == -1) {
+      rv = `${aLabelText} (<u>${aShortcutKey}</u>)`;
+    }
+    else {
+      let pre = aLabelText.slice(0, idx);
+      let post = aLabelText.slice(idx + 1);
+      rv = `${pre}<u>${aShortcutKey}</u>${post}`;
+    }
+
+    return rv;
   },
 };
