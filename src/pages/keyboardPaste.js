@@ -342,8 +342,13 @@ $(async () => {
     srchBox.focus();
   }
 
-  aeVisual.cacheIcons("insClipping-hover.svg", "export_hover.svg");
-
+  aeVisual.cacheIcons(
+    "insClipping-hover.svg",
+    "insClipping-active-dk.svg",
+    "export_hover.svg",
+    "export-active-dk.svg"
+  );
+ 
   // Fix for Fx57 bug where bundled page loaded using
   // browser.windows.create won't show contents unless resized.
   // See <https://bugzilla.mozilla.org/show_bug.cgi?id=1402110>
