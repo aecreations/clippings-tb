@@ -103,6 +103,15 @@ $(async () => {
   $("#btn-accept").click(aEvent => { accept(aEvent) });
   $("#btn-cancel").click(aEvent => { cancel(aEvent) });
 
+  aeVisual.init(platform.os);
+  aeVisual.preloadMsgBoxIcons();
+  aeVisual.cacheIcons(
+    "tree-fldr-open.svg",
+    "tree-fldr-close.svg",
+    "tree-fldr-open-dk.svg",
+    "tree-fldr-close-dk.svg"
+  );
+
   aeInterxn.init(gEnvInfo.os);
   if (gPrefs.defDlgBtnFollowsFocus) {
     aeInterxn.initDialogButtonFocusHandlers();
