@@ -709,8 +709,8 @@ body[data-locale="uk"] #sync-clippings-dlg {
     background-image: url("../img/warning-64.png");
 }
 
-#request-native-app-conxn-perm-dlg .msgbox-icon[os="mac"],
-#sync-clippings-dlg #sync-cxn-error .msgbox-icon[os="mac"] {
+#request-native-app-conxn-perm-dlg .msgbox-icon[os="win"],
+#sync-clippings-dlg #sync-cxn-error .msgbox-icon[os="win"] {
     background-image: url("../img/alert-win.png");
 }
 
