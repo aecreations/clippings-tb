@@ -727,11 +727,11 @@ function initDialogs()
     let perms = await messenger.permissions.getAll();
     if (perms.permissions.includes("nativeMessaging")) {
       this.find("#diag-info").show();
-      // TO DO: Resize dialog to show the Sync Clippings status.
+      // Resize dialog to show the Sync Clippings status.
+      this._dlgElt.attr("data-expanded", "true");
     }
     else {
       this.find("#diag-info").hide();
-      // TO DO: Reduce dialog height.
       return;
     }
 
@@ -784,6 +784,11 @@ function initDialogs()
     }
       
     this.find("#sync-diag-detail").show();
+  };
+
+  gDialogs.about.onUnload = function ()
+  {
+    this._dlgElt.removeAttr("data-expanded");
   };
   
   gDialogs.syncClippingsHelp = new aeDialog("#sync-clippings-help-dlg");
