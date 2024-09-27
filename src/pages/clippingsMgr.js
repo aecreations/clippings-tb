@@ -3831,6 +3831,7 @@ function initToolbar()
   gSearchBox.init();
 
   aeVisual.preloadLafImages();
+  aeVisual.preloadMsgBoxIcons(true);
   aeVisual.cacheIcons(
     "newClipping_hover.svg",
     "newClipping-active-dk.svg",
