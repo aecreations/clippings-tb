@@ -14,7 +14,9 @@
   },
   
   "icons": {
-    "32": "icon.svg"
+    "16": "img/clippings-tb16.svg",
+    "32": "img/clippings-tb32.svg",
+    "48": "icon.svg"
   },
 
   "permissions": [
