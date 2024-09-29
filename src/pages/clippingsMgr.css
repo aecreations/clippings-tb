@@ -46,8 +46,8 @@
     --color-cxtmenu-bkgd: #fff;
     --color-cxtmenu-border: #bebebe;
     --color-cxtmenu-text: #2f2f2f;
-    --color-cxtmenu-menuitem-active-bkgd: rgba(12, 12, 12, 0.3);
-    --color-cxtmenu-menuitem-hover-bkgd: rgba(12, 12, 13, 0.2);
+    --color-cxtmenu-menuitem-active-bkgd: #CCCCCD;
+    --color-cxtmenu-menuitem-hover-bkgd: #DFDFDF;
     --color-cxtmenu-menuitem-hover-text: #0c0c0d;
     --color-cxtmenu-separator: #e6e6e6;
     --color-dlg-fieldset-border: #b1b1b1;
@@ -265,12 +265,7 @@ body[data-os="linux"]:not([data-laf="true"]) input[type="checkbox"] + label {
 }
 
 .toolbar-button-menu-open {
-    Border-radius: 3px 3px 0px 0px;
     background-color: var(--color-toolbar-menubtn-open);
-}
-
-#plchldr-presets.toolbar-button-menu-open {
-    border-radius: 0px 0px 3px 3px;
 }
 
 .toolbar-button-labelled {
@@ -396,7 +391,7 @@ body[data-os="linux"]:not([data-laf="true"]) input[type="checkbox"] + label {
 /* jQuery contextMenu CSS overrides */
 .context-menu-list {
     padding: 4px 0;
-    border-radius: 4px;
+    border-radius: 6px;
     border: 1px solid var(--color-cxtmenu-border);
     background-color: var(--color-cxtmenu-bkgd);
 }
@@ -407,7 +402,7 @@ body[data-os="linux"]:not([data-laf="true"]) input[type="checkbox"] + label {
 
 .ae-menuitem,
 .context-menu-submenu {
-    border-radius: 2px;
+    border-radius: 3px;
     margin: 0 4px 0 4px;
     padding-top: 4px;
     padding-bottom: 4px;
