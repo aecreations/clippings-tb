@@ -603,7 +603,7 @@ function initDialogs()
         || isCheckSyncAppUpdatesEnabled != this.oldCheckSyncAppUpdatesOpt
     );
     if (isCheckSyncAppUpdates) {
-      browser.runtime.sendMessage({
+      messenger.runtime.sendMessage({
         msgID: "set-sync-clippings-app-upd-chk",
         enable: isCheckSyncAppUpdatesEnabled,
       });
