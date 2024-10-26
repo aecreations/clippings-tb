@@ -5,20 +5,20 @@
 
 const ROOT_FOLDER_NAME = "clippings-root";
 
-let gClippingsDB;
+let gOS;
 let gHostAppName;
 let gHostAppVer;
-let gOS;
-let gIsDirty = false;
+let gAutoIncrPlchldrs = null;
 let gClippingMenuItemIDMap = {};
 let gFolderMenuItemIDMap = {};
 let gSyncFldrID = null;
+let gSyncHelperUpdNotifcnTimeoutID = null;
 let gBackupRemIntervalID = null;
 let gIsReloadingSyncFldr = false;
 let gSyncClippingsHelperDwnldPgURL;
 let gForceShowFirstTimeBkupNotif = false;
-let gMigrateLegacyData = false;
 let gClippingsMgrCleanUpIntvID = null;
+let gIsSyncPushFailed = false;
 
 let gClippingsListener = {
   _isImporting: false,
@@ -146,7 +146,7 @@ let gSyncClippingsListener = {
   {
     function resetCxtMenuSyncItemsOnlyOpt(aRebuildCxtMenu) {
       if (gPrefs.cxtMenuSyncItemsOnly) {
-        aePrefs.setPrefs({ cxtMenuSyncItemsOnly: false });
+        aePrefs.setPrefs({cxtMenuSyncItemsOnly: false});
       }
       if (aRebuildCxtMenu) {
         rebuildContextMenu();
@@ -205,7 +205,7 @@ let gNewClipping = {
   },
 
   copy: function () {
-    let rv = { name: this._name, content: this._content };
+    let rv = {name: this._name, content: this._content};
     return rv;
   },
   
@@ -215,14 +215,76 @@ let gNewClipping = {
   }
 };
 
+let gPastePrompt = {
+  _composeTabs: [],
+
+  add(aComposeTabID, aClippingContent)
+  {
+    this._composeTabs[aComposeTabID] = aClippingContent;
+  },
+
+  delete(aComposeTabID)
+  {
+    delete this._composeTabs[aComposeTabID];
+  },
+
+  get(aComposeTabID)
+  {
+    return this._composeTabs[aComposeTabID];
+  }
+};
+
+let gPlaceholders = {
+  _clippingName: null,
+  _plchldrs: null,
+  _clpCtnt: null,
+  _plchldrsWithDefVals: null,
+
+  set: function (aClippingName, aPlaceholders, aPlaceholdersWithDefaultVals, aClippingText) {
+    this._clippingName = aClippingName;
+    this._plchldrs = aPlaceholders;
+    this._plchldrsWithDefVals = aPlaceholdersWithDefaultVals;
+    this._clpCtnt = aClippingText;
+  },
+
+  get: function () {
+    let rv = this.copy();
+    this.reset();
+
+    return rv;
+  },
+
+  copy: function () {
+    let rv = {
+      clippingName: this._clippingName,
+      placeholders: this._plchldrs.slice(),
+      placeholdersWithDefaultVals: Object.assign({}, this._plchldrsWithDefVals),
+      content: this._clpCtnt
+    };
+    return rv;
+  },
+
+  reset: function () {
+    this._clippingName = null;
+    this._plchldrs = null;
+    this._plchldrsWithDefVals = null;
+    this._clpCtnt = null;
+  }
+};
+
 let gWndIDs = {
   newClipping: null,
   clippingsMgr: null,
+  pasteClippingOpts: null,
 };
 
 let gPrefs = null;
 let gIsInitialized = false;
 let gSetDisplayOrderOnRootItems = false;
+
+// For the Clippings toolbar button context menu.
+let gLastMenuInstID = 0;
+let gNextMenuInstID = 1;
 
 
 messenger.runtime.onInstalled.addListener(async (aInstall) => {
@@ -230,7 +292,7 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
     info("Clippings/mx: MailExtension installed.");
 
     await setDefaultPrefs();
-    init();
+    await init();
   }
   else if (aInstall.reason == "update") {
     let oldVer = aInstall.previousVersion;
@@ -241,8 +303,6 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
 
     if (! aePrefs.hasSantaBarbaraPrefs(gPrefs)) {
       await setDefaultPrefs();
-      await migrateLegacyPrefs();
-      gMigrateLegacyData = true;
     }
 
     if (! aePrefs.hasCarpinteriaPrefs(gPrefs)) {
@@ -260,8 +320,26 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
       await aePrefs.setCorralDeTierraPrefs(gPrefs);
     }
 
-    // Detect upgrade to version 6.3, which doesn't have any new prefs.
-    if (aeVersionCmp(oldVer, "6.3") < 0) {
+    if (! aePrefs.hasSanFranciscoPrefs(gPrefs)) {
+      log("Initializing 7.0 user preferences.");
+      await aePrefs.setSanFranciscoPrefs(gPrefs);
+
+      let platform = await messenger.runtime.getPlatformInfo();
+      if (platform.os == "linux") {
+        aePrefs.setPrefs({clippingsMgrAutoShowStatusBar: true});
+      }
+
+      // Starting in Clippings 7.0, window positioning prefs are turned on
+      // by default for macOS.
+      // They were previously turned off due to a bug occurring on systems with
+      // multiple displays in older versions of macOS.
+      if (platform.os == "mac") {
+        await aePrefs.setPrefs({
+          autoAdjustWndPos: true,
+          clippingsMgrSaveWndGeom: true,
+        });
+      }
+
       // Enable post-update notifications which users can click on to open the
       // What's New page.
       await aePrefs.setPrefs({
@@ -269,8 +347,13 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
       });
     }
 
-    init();
+    await init();
   }
+
+  // Load the compose script and its dependencies into all message compose
+  // windows that may be open at the time the extension is installed
+  // or updated.
+  await loadComposeScripts();
 });
 
 
@@ -294,87 +377,17 @@ async function setDefaultPrefs()
 }
 
 
-async function migrateLegacyPrefs()
+async function loadComposeScripts()
 {
-  log("Clippings/mx: migrateLegacyPrefs()");
-
-  let htmlPaste = await messenger.aeClippingsLegacy.getPref(
-    "extensions.aecreations.clippings.html_paste", 0
-  );
-  let autoLineBreak = await messenger.aeClippingsLegacy.getPref(
-    "extensions.aecreations.clippings.html_auto_line_break", true
-  );
-  let keyboardPaste = await messenger.aeClippingsLegacy.getPref(
-    "extensions.aecreations.clippings.enable_keyboard_paste", true
-  );
-  let wxPastePrefixKey = await messenger.aeClippingsLegacy.getPref(
-    "extensions.aecreations.clippings.enable_wx_paste_prefix_key", true
-  );
-  let pastePromptAction = await messenger.aeClippingsLegacy.getPref(
-    "extensions.aecreations.clippings.paste_shortcut_mode", 1
-  );
-  let checkSpelling = await messenger.aeClippingsLegacy.getPref(
-    "extensions.aecreations.clippings.check_spelling", true
-  );
-  let clippingsMgrDetailsPane = await messenger.aeClippingsLegacy.getPref(
-    "extensions.aecreations.clippings.clipmgr.details_pane", false
-  );
-  let clippingsMgrPlchldrToolbar = await messenger.aeClippingsLegacy.getPref(
-    "extensions.aecreations.clippings.clipmgr.placeholder_toolbar", false
-  );
-  let clippingsMgrStatusBar = await messenger.aeClippingsLegacy.getPref(
-    "extensions.aecreations.clippings.clipmgr.status_bar", true
-  );
-
-  log(`Pref values:\nhtmlPaste = ${htmlPaste}\nautoLineBreak = ${autoLineBreak}\nkeyboardPaste = ${keyboardPaste}\nwxPastePrefixKey = ${wxPastePrefixKey}\npastePromptAction = ${pastePromptAction}\ncheckSpelling = ${checkSpelling}\nclippingsMgrDetailsPane = ${clippingsMgrDetailsPane}\nclippingsMgrPlchldrToolbar = ${clippingsMgrPlchldrToolbar}\nclippingsMgrStatusBar = ${clippingsMgrStatusBar}`);
-
-  // The option to ask the user when pasting a formatted clipping is no longer
-  // available - change default to always paste as rich text.
-  if (htmlPaste == aeConst.HTMLPASTE_ASK_THE_USER) {
-    htmlPaste = aeConst.HTMLPASTE_AS_FORMATTED;
+  let compTabs = await messenger.tabs.query({type: "messageCompose"});
+  for (let tab of compTabs) {
+    messenger.tabs.executeScript(tab.id, {
+      file: messenger.runtime.getURL("lib/purify.min.js"),
+    });
+    messenger.tabs.executeScript(tab.id, {
+      file: messenger.runtime.getURL("compose.js"),
+    });
   }
-  
-  aePrefs.setPrefs({
-    htmlPaste, autoLineBreak, keyboardPaste, wxPastePrefixKey, pastePromptAction,
-    checkSpelling, clippingsMgrDetailsPane, clippingsMgrPlchldrToolbar,
-    clippingsMgrStatusBar
-  });
-}
-
-
-function removeLegacyPrefs(aKeepDataSrcLocationPref)
-{
-  // Don't reset the data source location pref if legacy data migration failed;
-  // keep the old pref for troubleshooting.
-  if (! aKeepDataSrcLocationPref) {
-    messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.datasource.location");
-  }
-
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.html_paste");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.html_auto_line_break");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.enable_keyboard_paste");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.enable_wx_paste_prefix_key");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.paste_shortcut_mode");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.tb78.show_warning");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.tb78.show_notice");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.tb78.show_anncmt");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.beep_on_error");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.first_run");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.v3.first_run");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.datasource.process_root");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.datasource.wx_sync.enabled");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.datasource.wx_sync.location");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.clipmgr.first_run");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.clipmgr.wnd_position");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.clipmgr.wnd_size");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.clipmgr.is_maximized");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.clipmgr.status_bar");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.clipmgr.placeholder_toolbar");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.clipmgr.details_pane");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.use_clipboard");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.migrate_common_ds_pref");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.migrated_prefs");
-  messenger.aeClippingsLegacy.clearPref("extensions.aecreations.clippings.check_spelling");
 }
 
 
@@ -382,200 +395,117 @@ async function init()
 {
   info("Clippings/mx: Initializing integration of MailExtension with host app...");
 
-  aeClippings.init();
-  gClippingsDB = aeClippings.getDB();
-  aeImportExport.setDatabase(gClippingsDB);
-
-  if (gMigrateLegacyData) {
-    let keepDataSrcLocnPref = false;
+  let [msgr, platform] = await Promise.all([
+    messenger.runtime.getBrowserInfo(),
+    messenger.runtime.getPlatformInfo(),
+  ]);
     
-    try {
-      await aeClippings.verifyDB();
+  gHostAppName = msgr.name;
+  gHostAppVer = msgr.version;
+  log(`Clippings/mx: Host app: ${gHostAppName} (version ${gHostAppVer})`);
 
-      log("Clippings/mx: init(): Successfully verified Clippings DB.  Starting data migration...")
-      await migrateClippingsData();
-    }
-    catch (e) {
-      console.error("Clippings/mx: migrateClippingsData(): Failed to verify IndexedDB database - cannot migrate legacy Clippings data.\n" + e);
-      await aePrefs.setPrefs({
-        legacyDataMigrnSuccess: false,
-        showLegacyDataMigrnStatus: true,
-      });
-      keepDataSrcLocnPref = true;
-    }
+  gOS = platform.os;
+  log("Clippings/mx: OS: " + gOS);
 
-    removeLegacyPrefs(keepDataSrcLocnPref);
+  await aePrefs.migrateKeyboardPastePref(gPrefs, gOS);
+
+  if (gPrefs.autoAdjustWndPos === null) {
+    let autoAdjustWndPos = (gOS == "win" || gOS == "mac");
+    let clippingsMgrSaveWndGeom = autoAdjustWndPos;
+    await aePrefs.setPrefs({autoAdjustWndPos, clippingsMgrSaveWndGeom});
+  }
+
+  let extVer = messenger.runtime.getManifest().version;
+  
+  aeClippings.init();
+  aeImportExport.setDatabase(aeClippings.getDB());
+
+  aeImportExport.setL10nStrings({
+    shctTitle: messenger.i18n.getMessage("expHTMLTitle"),
+    hostAppInfo: messenger.i18n.getMessage("expHTMLHostAppInfo", [extVer, gHostAppName]),
+    shctKeyInstrxns: messenger.i18n.getMessage("expHTMLShctKeyInstrxnTB"),
+    shctKeyCustNote: "",
+    shctKeyColHdr: messenger.i18n.getMessage("expHTMLShctKeyCol"),
+    clippingNameColHdr: messenger.i18n.getMessage("expHTMLClipNameCol"),
+  });
+
+  aeVisual.init(gOS);
+  
+  if (gPrefs.syncClippings) {
+    gSyncFldrID = gPrefs.syncFolderID;
+
+    let isSyncReadOnly = await isSyncedClippingsReadOnly();
+    log(`Clippings/mx: It is ${isSyncReadOnly} that the sync data is read only.`);
+
+    // The context menu will be built when refreshing the sync data, via the
+    // onReloadFinish event handler of the Sync Clippings listener.
+    refreshSyncedClippings(true);
+    aePrefs.setPrefs({isSyncReadOnly});
+  }
+  else {
+    buildContextMenu();
   }
   
-  let getMsgrInfo = messenger.runtime.getBrowserInfo();
-  let getPlatInfo = messenger.runtime.getPlatformInfo();
+  aeClippingSubst.init(navigator.userAgent, gPrefs.autoIncrPlchldrStartVal);
+  gAutoIncrPlchldrs = new Set();
 
-  Promise.all([getMsgrInfo, getPlatInfo]).then(async (aResults) => {
-    let msgr = aResults[0];
-    let platform = aResults[1];
-    
-    gHostAppName = msgr.name;
-    gHostAppVer = msgr.version;
-    log(`Clippings/mx: Host app: ${gHostAppName} (version ${gHostAppVer})`);
-
-    await checkHostAppVer();
-
-    gOS = platform.os;
-    log("Clippings/mx: OS: " + gOS);
-
-    if (gOS == "linux" && gPrefs.clippingsMgrMinzWhenInactv === null) {
-      await aePrefs.setPrefs({ clippingsMgrMinzWhenInactv: true });
-    }
-
-    if (gPrefs.autoAdjustWndPos === null) {
-      let autoAdjustWndPos = gOS == "win";
-      let clippingsMgrSaveWndGeom = autoAdjustWndPos;
-      await aePrefs.setPrefs({autoAdjustWndPos, clippingsMgrSaveWndGeom});
-    }
-
-    let extVer = messenger.runtime.getManifest().version;
-    
-    aeImportExport.setL10nStrings({
-      shctTitle: messenger.i18n.getMessage("expHTMLTitle"),
-      hostAppInfo: messenger.i18n.getMessage("expHTMLHostAppInfo", [extVer, gHostAppName]),
-      shctKeyInstrxns: messenger.i18n.getMessage("expHTMLShctKeyInstrxnTB"),
-      shctKeyCustNote: "",
-      shctKeyColHdr: messenger.i18n.getMessage("expHTMLShctKeyCol"),
-      clippingNameColHdr: messenger.i18n.getMessage("expHTMLClipNameCol"),
+  if (gPrefs.backupRemFirstRun && !gPrefs.lastBackupRemDate) {
+    aePrefs.setPrefs({
+      lastBackupRemDate: new Date().toString(),
     });
-    
-    if (gPrefs.syncClippings) {
-      gSyncFldrID = gPrefs.syncFolderID;
-
-      // The context menu will be built when refreshing the sync data, via the
-      // onReloadFinish event handler of the Sync Clippings listener.
-      refreshSyncedClippings(true);
-    }
-    
-    if (gPrefs.backupRemFirstRun && !gPrefs.lastBackupRemDate) {
-      aePrefs.setPrefs({
-        lastBackupRemDate: new Date().toString(),
-      });
-    }
-
-    if (gPrefs.upgradeNotifCount > 0) {
-      // Show post-upgrade notification in 1 minute.
-      messenger.alarms.create("show-upgrade-notifcn", {
-        delayInMinutes: aeConst.POST_UPGRADE_NOTIFCN_DELAY_MS / 60000
-      });
-    }
-
-    // Check in 5 minutes whether to show backup reminder notification.
-    window.setTimeout(
-      async (aEvent) => { showBackupNotification() },
-      aeConst.BACKUP_REMINDER_DELAY_MS
-    );
-
-    if (gPrefs.syncClippings && gPrefs.syncHelperCheckUpdates) {
-      // Check for updates to Sync Clippings Helper native app in 10 minutes.
-      window.setTimeout(showSyncHelperUpdateNotification, aeConst.SYNC_HELPER_CHECK_UPDATE_DELAY_MS);
-    }
-
-    if (gSetDisplayOrderOnRootItems) {
-      if (gMigrateLegacyData) {
-        window.setTimeout(async () => {
-          await setDisplayOrderOnRootItems();
-          log("Clippings/mx: Display order on root folder items have been set (after data source migration).");
-        }, 3000);
-      }
-      else {
-        await setDisplayOrderOnRootItems();
-        log("Clippings/mx: Display order on root folder items have been set.");
-      }
-    }
-
-    messenger.WindowListener.registerChromeUrl([
-      ["content",  "clippings", "legacy/chrome/content/"],
-      ["locale",   "clippings", "en-US", "legacy/chrome/locale/en-US/"],
-      ["resource", "clippings", "legacy/"]
-    ]);
-
-    messenger.WindowListener.registerWindow(
-      "chrome://messenger/content/messenger.xhtml",
-      "chrome://clippings/content/messenger.js"
-    );
-    messenger.WindowListener.registerWindow(
-      "chrome://messenger/content/messengercompose/messengercompose.xhtml",
-      "chrome://clippings/content/messengercompose.js"
-    );
-    
-    messenger.WindowListener.startListening();
-
-    gIsInitialized = true;
-    log("Clippings/mx: MailExtension initialization complete.");    
-  });
-}
-
-
-async function migrateClippingsData()
-{
-  let clippingsJSONData;
-
-  try {
-    clippingsJSONData = await messenger.aeClippingsLegacy.getClippingsFromJSONFile();
   }
-  catch (e) {
-    console.error("Clippings/mx: migrateClippingsData(): " + e);
-    await aePrefs.setPrefs({
-      legacyDataMigrnSuccess: false,
-      showLegacyDataMigrnStatus: true,
-      legacyDataMigrnErrorMsg: e.message,
+
+  if (gPrefs.upgradeNotifCount > 0) {
+    // Show post-upgrade notification in 1 minute.
+    messenger.alarms.create("show-upgrade-notifcn", {
+      delayInMinutes: aeConst.POST_UPGRADE_NOTIFCN_DELAY_MS / 60000
     });
-
-    return;
   }
 
-  log("Clippings/mx: migrateClippingsData(): Migrating clippings from legacy data source");    
-  aeImportExport.importFromJSON(clippingsJSONData, true, false);
+  // Check in 5 minutes whether to show backup reminder notification.
+  window.setTimeout(
+    async (aEvent) => { showBackupNotification() },
+    aeConst.BACKUP_REMINDER_DELAY_MS
+  );
 
-  await aePrefs.setPrefs({
-    legacyDataMigrnSuccess: true,
-    showLegacyDataMigrnStatus: true,
-  });
-}
-
-
-async function checkHostAppVer()
-{
-  let extInfo = messenger.runtime.getManifest();
-  let maxHostAppVer = extInfo.browser_specific_settings.gecko.strict_max_version;
-
-  if (! maxHostAppVer) {
-    return;
+  if (gPrefs.syncClippings && gPrefs.syncHelperCheckUpdates) {
+    await setSyncHelperUpdateNotificationDelay(true);
   }
 
-  log(`Clippings/mx: checkHostAppVer(): Checking compatibility with Thunderbird. Maximum compatible version: ${maxHostAppVer}`);
-
-  if (maxHostAppVer[maxHostAppVer.length - 1] == "*") {
-    maxHostAppVer = maxHostAppVer.substring(0, maxHostAppVer.lastIndexOf(".")) + ".999";
+  if (gSetDisplayOrderOnRootItems) {
+    await setDisplayOrderOnRootItems();
+    log("Clippings/mx: Display order on root folder items have been set.");
   }
 
-  if (aeVersionCmp(gHostAppVer, maxHostAppVer) > 0) {
-    // Thunderbird version exceeds strict max supported version
-    // - disable Clippings.
-    await messenger.management.setEnabled(aeConst.EXTENSION_ID, false);
-  }
+  let compScriptOpts = {
+    js: [
+      {file: "lib/purify.min.js"},
+      {file: "compose.js"}
+    ],
+  };  
+  messenger.composeScripts.register(compScriptOpts);
+
+  initToolsMenuItem();
+
+  gIsInitialized = true;
+  log("Clippings/mx: MailExtension initialization complete.");    
 }
 
 
 async function setDisplayOrderOnRootItems()
 {
+  let clippingsDB = aeClippings.getDB();
   let seq = 1;
 
-  gClippingsDB.transaction("rw", gClippingsDB.clippings, gClippingsDB.folders, () => {
-    gClippingsDB.folders.where("parentFolderID").equals(aeConst.ROOT_FOLDER_ID).each((aItem, aCursor) => {
+  clippingsDB.transaction("rw", clippingsDB.clippings, clippingsDB.folders, () => {
+    clippingsDB.folders.where("parentFolderID").equals(aeConst.ROOT_FOLDER_ID).each((aItem, aCursor) => {
       log(`Clippings/mx: setDisplayOrderOnRootItems(): Folder "${aItem.name}" (id=${aItem.id}): display order = ${seq}`);
-      let numUpd = gClippingsDB.folders.update(aItem.id, { displayOrder: seq++ });
+      let numUpd = clippingsDB.folders.update(aItem.id, {displayOrder: seq++});
 
     }).then(() => {
-      return gClippingsDB.clippings.where("parentFolderID").equals(aeConst.ROOT_FOLDER_ID).each((aItem, aCursor) => {
+      return clippingsDB.clippings.where("parentFolderID").equals(aeConst.ROOT_FOLDER_ID).each((aItem, aCursor) => {
         log(`Clippings/mx: setDisplayOrderOnRootItems(): Clipping "${aItem.name}" (id=${aItem.id}): display order = ${seq}`);
-        let numUpd = gClippingsDB.clippings.update(aItem.id, { displayOrder: seq++ });
+        let numUpd = clippingsDB.clippings.update(aItem.id, {displayOrder: seq++});
       });
 
     }).then(() => {
@@ -592,22 +522,23 @@ async function setDisplayOrderOnRootItems()
 function addStaticIDs(aFolderID)
 {
   let rv = false;
+  let clippingsDB = aeClippings.getDB();
   
   return new Promise((aFnResolve, aFnReject) => {
-    gClippingsDB.transaction("rw", gClippingsDB.clippings, gClippingsDB.folders, () => {
-      gClippingsDB.folders.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
+    clippingsDB.transaction("rw", clippingsDB.clippings, clippingsDB.folders, () => {
+      clippingsDB.folders.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
         if (! ("sid" in aItem)) {
           let sid = aeUUID();
-          gClippingsDB.folders.update(aItem.id, {sid});
+          clippingsDB.folders.update(aItem.id, {sid});
           log(`Clippings/mx: addStaticIDs(): Static ID added to folder ${aItem.id} - "${aItem.name}"`);
           rv = true;
         }
         addStaticIDs(aItem.id);
       }).then(() => {
-        return gClippingsDB.clippings.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
+        return clippingsDB.clippings.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
           if (! ("sid" in aItem)) {
             let sid = aeUUID();
-            gClippingsDB.clippings.update(aItem.id, {sid});
+            clippingsDB.clippings.update(aItem.id, {sid});
             log(`Clippings/mx: addStaticIDs(): Static ID added to clipping ${aItem.id} - "${aItem.name}"`);
             rv = true;
           }
@@ -622,6 +553,8 @@ function addStaticIDs(aFolderID)
 
 async function enableSyncClippings(aIsEnabled)
 {
+  let clippingsDB = aeClippings.getDB();
+
   if (aIsEnabled) {
     log("Clippings/mx: enableSyncClippings(): Turning ON");
 
@@ -634,13 +567,13 @@ async function enableSyncClippings(aIsEnabled)
         isSync: true,
       };
       try {
-        gSyncFldrID = await gClippingsDB.folders.add(syncFldr);
+        gSyncFldrID = await clippingsDB.folders.add(syncFldr);
       }
       catch (e) {
         console.error("Clippings/mx: enableSyncClippings(): Failed to create the Synced Clipping folder: " + e);
       }
 
-      await aePrefs.setPrefs({ syncFolderID: gSyncFldrID });
+      await aePrefs.setPrefs({syncFolderID: gSyncFldrID});
       log("Clippings/mx: enableSyncClippings(): Synced Clippings folder ID: " + gSyncFldrID);
       return gSyncFldrID;
     }
@@ -649,75 +582,127 @@ async function enableSyncClippings(aIsEnabled)
     log("Clippings/mx: enableSyncClippings(): Turning OFF");
     let oldSyncFldrID = gSyncFldrID;
 
-    let numUpd = await gClippingsDB.folders.update(gSyncFldrID, { isSync: undefined });
-    await aePrefs.setPrefs({ syncFolderID: null });
+    let numUpd = await clippingsDB.folders.update(gSyncFldrID, {isSync: undefined});
+    await aePrefs.setPrefs({syncFolderID: null});
     gSyncFldrID = null;
     return oldSyncFldrID;
   }
 }
 
 
-function refreshSyncedClippings(aRebuildClippingsMenu)
+async function isSyncedClippingsReadOnly()
 {
-  log("Clippings/mx: refreshSyncedClippings(): Retrieving synced clippings from the Sync Clippings helper app...");
+  let rv = null;
+  let perms = await messenger.permissions.getAll();
+  if (! perms.permissions.includes("nativeMessaging")) {
+    return rv;
+  }
+  
+  let resp;
+  try {
+    resp = await messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, {
+      msgID: "get-sync-file-info",
+    });
+  }
+  catch (e) {
+    console.error("Clippings/mx: isSyncedClippingsReadOnly(): Error sending native message to Sync Clippings Helper: " + e);
+    return rv;
+  }
 
+  rv = !!resp.readOnly;
+
+  return rv;
+}
+
+
+async function refreshSyncedClippings(aRebuildClippingsMenu)
+{
+  let perms = await messenger.permissions.getAll();
+  if (! perms.permissions.includes("nativeMessaging")) {
+    showNoNativeMsgPermNotification();
+    return;
+  }
+
+  let resp;
+  try {
+    resp = await messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, {
+      msgID: "get-app-version",
+    });
+  }
+  catch (e) {
+    console.error("Clippings/mx: refreshSyncedClippings(): Error sending native message to Sync Clippings Helper: " + e);
+    if (e == aeConst.SYNC_ERROR_CONXN_FAILED
+        || e == aeConst.SYNC_ERROR_NAT_APP_NOT_FOUND) {
+      showSyncAppErrorNotification();
+      return;
+    }
+  }
+  log(`Clippings/mx: refreshSyncedClippings(): Sync Clippings Helper version: ${resp.appVersion}`);
+
+  let isCompressedSyncData = false;
   let natMsg = {msgID: "get-synced-clippings"};
-  let getSyncedClippings = messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg);
+  if (aeVersionCmp(resp.appVersion, "2.0b1") >= 0 && gPrefs.compressSyncData) {
+    isCompressedSyncData = true;
+    natMsg.msgID = "get-compressed-synced-clippings";
+  }
+  
+  log(`Clippings/mx: refreshSyncedClippings(): Retrieving synced clippings from Sync Clippings Helper by sending native message "${natMsg.msgID}"`);
   let syncJSONData = "";
+  resp = await messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg); 
 
-  getSyncedClippings.then(aResp => {
-    if (aResp) {
-      syncJSONData = aResp;
+  if (resp) {
+    if (isCompressedSyncData) {
+      log("Clippings/mx: refreshSyncedClippings(): Received Sync Clippings Helper 2.0 response (base64-encoded gzip format)");
+      if (resp.status == "ok") {
+        let zipData = aeCompress.base64ToBytes(resp.data);
+        syncJSONData = await aeCompress.decompress(zipData);
+      }
+      else {
+        console.error("Sync Clippings Helper is unable to read the sync file.  Error details:\n" + resp.details);
+        showSyncReadErrorNotification();
+        return;
+      }
     }
     else {
-      throw new Error("Clippings/mx: refreshSyncedClippings(): Response data from native app is invalid");
+      log("Clippings/mx: refreshSyncedClippings(): Received Sync Clippings Helper 1.x response");
+      syncJSONData = resp;
     }
+  }
+  else {
+    throw new Error("Clippings/mx: refreshSyncedClippings(): Response data from native app is invalid");
+  }
+
+  let clippingsDB = aeClippings.getDB();
+
+  if (gSyncFldrID === null) {
+    log("Clippings/mx: The Synced Clippings folder is missing. Creating it...");
+    let syncFldr = {
+      name: messenger.i18n.getMessage("syncFldrName"),
+      parentFolderID: aeConst.ROOT_FOLDER_ID,
+      displayOrder: 0,
+    };
     
-    if (gSyncFldrID === null) {
-      log("Clippings/mx: The Synced Clippings folder is missing. Creating it...");
-      let syncFldr = {
-        name: messenger.i18n.getMessage("syncFldrName"),
-        parentFolderID: aeConst.ROOT_FOLDER_ID,
-        displayOrder: 0,
-      };
-      
-      return gClippingsDB.folders.add(syncFldr);
-    }
+    gSyncFldrID = await clippingsDB.folders.add(syncFldr);
+  }
 
-    log("Clippings/mx: refreshSyncedClippings(): Synced Clippings folder ID: " + gSyncFldrID);
-    return gSyncFldrID;
+  log("Clippings/mx: refreshSyncedClippings(): Synced Clippings folder ID: " + gSyncFldrID);
+  await aePrefs.setPrefs({syncFolderID: gSyncFldrID});
 
-  }).then(aSyncFldrID => {
-    if (gSyncFldrID === null) {
-      gSyncFldrID = aSyncFldrID;
-      log("Clippings/mx: Synced Clippings folder ID: " + gSyncFldrID);
-      return aePrefs.setPrefs({ syncFolderID: gSyncFldrID });
-    }
-      
-    gSyncClippingsListener.onReloadStart();
+  gSyncClippingsListener.onReloadStart();
 
-    log("Clippings/mx: Purging existing items in the Synced Clippings folder...");
-    return purgeFolderItems(gSyncFldrID, true);
+  log("Clippings/mx: Purging existing items in the Synced Clippings folder...");
+  await purgeFolderItems(gSyncFldrID, true);
 
-  }).then(() => {
-    log("Clippings/mx: Importing clippings data from sync file...");
+  log("Clippings/mx: Importing clippings data from sync file...");
 
-    // Method aeImportExport.importFromJSON() is asynchronous, so the import
-    // may not yet be finished when this function has finished executing!
-    aeImportExport.setDatabase(gClippingsDB);
-    aeImportExport.importFromJSON(syncJSONData, false, false, gSyncFldrID);
+  // Method aeImportExport.importFromJSON() is asynchronous, so the import
+  // may not yet be finished when this function has finished executing!
+  aeImportExport.setDatabase(clippingsDB);
+  aeImportExport.importFromJSON(syncJSONData, false, false, gSyncFldrID);
 
-    window.setTimeout(function () {
-      gSyncClippingsListener.onReloadFinish();
-    }, gPrefs.afterSyncFldrReloadDelay);
-    
-  }).catch(aErr => {
-    console.error("Clippings/mx: refreshSyncedClippings(): " + aErr);
-    if (aErr == aeConst.SYNC_ERROR_CONXN_FAILED
-        || aErr == aeConst.SYNC_ERROR_NAT_APP_NOT_FOUND) {
-      showSyncErrorNotification();
-    }
-  });
+  window.setTimeout(function () {
+    gSyncClippingsListener.onReloadFinish();
+  }, gPrefs.afterSyncFldrReloadDelay);
 }
 
 
@@ -727,7 +712,12 @@ async function pushSyncFolderUpdates()
     throw new Error("Sync Clippings is not turned on!");
   }
   
-  let syncData = await aeImportExport.exportToJSON(true, true, gSyncFldrID, false, true);
+  let perms = await messenger.permissions.getAll();
+  if (! perms.permissions.includes("nativeMessaging")) {
+    return;
+  }
+
+  let syncData = await aeImportExport.exportToJSON(true, true, gSyncFldrID, false, true, true);
   let natMsg = {
     msgID: "set-synced-clippings",
     syncData: syncData.userClippingsRoot,
@@ -747,26 +737,38 @@ async function pushSyncFolderUpdates()
 
   log("Clippings/mx: pushSyncFolderUpdates(): Response from native app:");
   log(resp);
+
+  if (resp.status == "error") {
+    // An error may occur if the push failed because the sync file is
+    // read only.
+    if (resp.details.search(/TypeError/) != -1 && !gIsSyncPushFailed) {
+      showSyncPushReadOnlyNotification();
+      gIsSyncPushFailed = true;
+    }
+
+  }
 }
 
 
 async function purgeFolderItems(aFolderID, aKeepFolder)
 {
-  gClippingsDB.transaction("rw", gClippingsDB.clippings, gClippingsDB.folders, () => {
-    gClippingsDB.folders.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
+  let clippingsDB = aeClippings.getDB();
+
+  clippingsDB.transaction("rw", clippingsDB.clippings, clippingsDB.folders, () => {
+    clippingsDB.folders.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
       purgeFolderItems(aItem.id, false).then(() => {});
 
     }).then(() => {
       if (!aKeepFolder && aFolderID != aeConst.DELETED_ITEMS_FLDR_ID) {
         log("Clippings/mx: purgeFolderItems(): Deleting folder: " + aFolderID);
-        return gClippingsDB.folders.delete(aFolderID);
+        return clippingsDB.folders.delete(aFolderID);
       }
       return null;
       
     }).then(() => {
-      return gClippingsDB.clippings.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
+      return clippingsDB.clippings.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
         log("Clippings/mx: purgeFolderItems(): Deleting clipping: " + aItem.id);
-        gClippingsDB.clippings.delete(aItem.id);
+        clippingsDB.clippings.delete(aItem.id);
       });
     }).then(() => {
       Promise.resolve();
@@ -780,40 +782,83 @@ async function purgeFolderItems(aFolderID, aKeepFolder)
 async function getShortcutKeyPrefixStr()
 {
   let rv = "";
-  let keyAlt   = messenger.i18n.getMessage("keyAlt");
-  let keyShift = messenger.i18n.getMessage("keyShift");
-  let shctModeKeys = `${keyAlt}+${keyShift}+Y`;
+  let platform = await messenger.runtime.getPlatformInfo();
+  let isMacOS = platform.os == "mac";
+  let [cmd] = await messenger.commands.getAll();
+  let shct = cmd.shortcut;
 
-  if (gOS == "mac") {
-    let keyOption = messenger.i18n.getMessage("keyOption");
-    let keyCmd = messenger.i18n.getMessage("keyCommand");
-    shctModeKeys = `${keyOption}${keyCmd}V`;
+  if (! shct) {
+    // Keyboard shortcut may not be defined if user removed it but didn't set a
+    // new shortcut in Manage Extension Shortcuts.
+    return rv;
   }
-  rv = shctModeKeys;
-
-  return rv;
-}
-
-
-function getClippingSearchData()
-{
-  let rv = [];
   
-  return new Promise((aFnResolve, aFnReject) => {
-    gClippingsDB.clippings.where("parentFolderID").notEqual(aeConst.DELETED_ITEMS_FLDR_ID)
-      .each((aItem, aCursor) => {
-        rv.push({
-          clippingID: aItem.id,
-          name: aItem.name,
-          text: aItem.content,
-        });
-      }).then(() => {
-        log("Clippings/mx: getClippingSearchData()");
-        log(rv);
-        
-        aFnResolve(rv);
-      });
-  });
+  let keybPasteKey = shct.substring(shct.lastIndexOf("+") + 1);
+  let keybPasteMods = shct.substring(0, shct.lastIndexOf("+"));
+
+  let keys = [
+    "Home", "End", "PageUp", "PageDown", "Space", "Insert", "Delete",
+    "Up", "Down", "Left", "Right"
+  ];
+  let localizedKey = "";
+
+  if (keys.includes(keybPasteKey)) {
+    if (keybPasteKey == "Delete" && isMacOS) {
+      localizedKey = messenger.i18n.getMessage("keyMacDel");
+    }
+    else {
+      localizedKey = messenger.i18n.getMessage(`key${keybPasteKey}`);
+    }
+  }
+  else {
+    if (keybPasteKey == "Period") {
+      localizedKey = ".";
+    }
+    else if (keybPasteKey == "Comma") {
+      localizedKey = ",";
+    }
+    else {
+      localizedKey = keybPasteKey;
+    }
+  }
+
+  let modifiers = keybPasteMods.split("+");
+
+  // On macOS, always put the primary modifier key (e.g. Command) at the end.
+  if (isMacOS && modifiers.length > 1 && modifiers[1] == "Shift") {
+    let modPrimary = modifiers.shift();
+    modifiers.push(modPrimary);
+  }
+  
+  let localizedMods = "";
+
+  for (let i = 0; i < modifiers.length; i++) {
+    let modifier = modifiers[i];
+    let localzMod;
+    
+    if (isMacOS) {
+      if (modifier == "Alt") {
+        localzMod = messenger.i18n.getMessage("keyOption");
+      }
+      else if (modifier == "Ctrl") {
+        localzMod = messenger.i18n.getMessage("keyCommand");
+      }
+      else if (modifier == "Shift") {
+        localzMod = messenger.i18n.getMessage("keyMacShift");
+      }
+      else {
+        localzMod = messenger.i18n.getMessage(`key${modifier}`);
+      }
+    }
+    else {
+      localzMod = messenger.i18n.getMessage(`key${modifier}`);
+      localzMod += "+";
+    }
+    localizedMods += localzMod;
+  }
+
+  rv = `${localizedMods}${localizedKey}`;
+  return rv;
 }
 
 
@@ -827,28 +872,48 @@ function getContextMenuData(aFolderID = aeConst.ROOT_FOLDER_ID)
     }
     return rv;    
   }
+  // END nested functions
 
   let rv = [];
+  let clippingsDB = aeClippings.getDB();
 
   return new Promise((aFnResolve, aFnReject) => {
-    gClippingsDB.transaction("r", gClippingsDB.folders, gClippingsDB.clippings, () => {
-      gClippingsDB.folders.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
+    clippingsDB.transaction("r", clippingsDB.folders, clippingsDB.clippings, () => {
+      clippingsDB.folders.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
         let fldrMenuItemID = "ae-clippings-folder-" + aItem.id + "_" + Date.now();
         gFolderMenuItemIDMap[aItem.id] = fldrMenuItemID;
 
         let submenuItemData = {
           id: fldrMenuItemID,
-          title: aItem.name,
+          title: sanitizeMenuTitle(aItem.name),
         };
 
         // Submenu icon
         let iconPath = "img/folder.svg";
         if (aItem.id == gSyncFldrID) {
+          // Firefox bug on macOS:
+          // Dark Mode setting isn't applied to the browser context menu when
+          // a Firefox dark color theme is used.
+          if (getContextMenuData.isDarkMode) {
+            if (gPrefs.isSyncReadOnly) {
+              iconPath = "img/synced-clippings-readonly-dk.svg";
+            }
+            else {
+              iconPath = "img/synced-clippings-dk.svg";
+            }
+          }
+          else {
+            if (gPrefs.isSyncReadOnly) {
+              iconPath = "img/synced-clippings-readonly.svg";
+            }
+            else {
+              iconPath = "img/synced-clippings.svg";
+            }
+          }
           submenuItemData.isSync = true;
-          iconPath = "img/synced-clippings.svg";
         }
 
-        submenuItemData.icons = { 16: iconPath };
+        submenuItemData.icons = {16: iconPath};
 
         if (! ("displayOrder" in aItem)) {
           submenuItemData.displayOrder = 0;
@@ -869,26 +934,53 @@ function getContextMenuData(aFolderID = aeConst.ROOT_FOLDER_ID)
         });
 
       }).then(() => {
-        return gClippingsDB.clippings.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
-          let menuItemID = "ae-clippings-clipping-" + aItem.id + "_" + Date.now();
-          gClippingMenuItemIDMap[aItem.id] = menuItemID;
+        return clippingsDB.clippings.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
+          let menuItemData;
+          if (aItem.separator) {
+            menuItemData = {separator: true};
 
-          let menuItemData = {
-            id: menuItemID,
-            title: aItem.name,
-          };
-
-          if (aItem.label) {
-            menuItemData.label = aItem.label;
-          }
-
-          if (! ("displayOrder" in aItem)) {
-            menuItemData.displayOrder = 0;
+            if ("displayOrder" in aItem) {
+              menuItemData.displayOrder = aItem.displayOrder;
+            }
+            else {
+              menuItemData.displayOrder = 0;
+            }           
           }
           else {
-            menuItemData.displayOrder = aItem.displayOrder;
+            let menuItemID = "ae-clippings-clipping-" + aItem.id + "_" + Date.now();
+            gClippingMenuItemIDMap[aItem.id] = menuItemID;
+
+            menuItemData = {
+              id: menuItemID,
+              title: sanitizeMenuTitle(aItem.name),
+              icons: {
+                16: "img/" + (aItem.label ? `clipping-${aItem.label}.svg` : "clipping.svg")
+              },
+            };
+
+            if (aItem.label) {
+              menuItemData.label = aItem.label;
+            }
+
+            if ("shortcutKey" in aItem && aItem.shortcutKey != "" && gPrefs.showShctKey) {
+              let shctKey = "";
+              if (gPrefs.showShctKeyDispStyle == aeConst.SHCTKEY_DISPLAY_SQ_BRKT) {
+                shctKey = ` [${aItem.shortcutKey}]`;
+              }
+              else {
+                shctKey = ` (${aItem.shortcutKey})`;
+              }
+              menuItemData.title += shctKey;
+            }
+
+            if ("displayOrder" in aItem) {
+              menuItemData.displayOrder = aItem.displayOrder;
+            }
+            else {
+              menuItemData.displayOrder = 0;
+            }
           }
-          
+
           if (aFolderID != aeConst.ROOT_FOLDER_ID) {
             let fldrMenuItemID = gFolderMenuItemIDMap[aFolderID];
             menuItemData.parentId = fldrMenuItemID;
@@ -910,23 +1002,207 @@ function getContextMenuData(aFolderID = aeConst.ROOT_FOLDER_ID)
     });
   });
 }
+getContextMenuData.isDarkMode = null;
+
+
+function sanitizeMenuTitle(aTitle)
+{
+  // Escape the ampersand character, which would normally be used to denote
+  // the access key for the menu item.
+  let rv = aTitle.replace(/&/g, "&&");
+
+  return rv;
+}
 
 
 function updateContextMenuForFolder(aUpdatedFolderID)
 {
+  log("Clippings/mx: updateContextMenuForFolder(): Updating folder " + aUpdatedFolderID);
   let id = Number(aUpdatedFolderID);
-  gClippingsDB.folders.get(id).then(aResult => {
+  let clippingsDB = aeClippings.getDB();
+
+  clippingsDB.folders.get(id).then(aResult => {
     let menuItemID = gFolderMenuItemIDMap[id];
     if (menuItemID) {
-      gIsDirty = true;
+      let title = sanitizeMenuTitle(aResult.name);
+      messenger.menus.update(menuItemID, {title});
     }
   });
 }
 
 
-function rebuildContextMenu()
+async function buildContextMenu()
 {
-  gIsDirty = true;
+  log("Clippings/mx: buildContextMenu()");
+
+  // Context menu for compose action button.
+  messenger.menus.create({
+    id: "ae-clippings-reset-autoincr-plchldrs",
+    title: messenger.i18n.getMessage("baMenuResetAutoIncrPlaceholders"),
+    enabled: false,
+    contexts: ["compose_action"],
+  });
+
+  let prefsMnuStrKey = "mnuPrefs";
+  if (gOS == "win") {
+    prefsMnuStrKey = "mnuPrefsWin";
+  }
+  messenger.menus.create({
+    id: "ae-clippings-prefs",
+    title: messenger.i18n.getMessage(prefsMnuStrKey),
+    contexts: ["compose_action"],
+  });
+  messenger.menus.create({
+    id: "ae-clippings-show-paste-opts",
+    title: messenger.i18n.getMessage("cxtMenuShowPasteOpts"),
+    type: "checkbox",
+    checked: false,
+    contexts: ["compose_action"],
+  });
+
+  // Context menu for composer.
+  messenger.menus.create({
+    id: "ae-clippings-new",
+    title: messenger.i18n.getMessage("cxtMenuNew"),
+    contexts: ["compose_body"],
+  });
+  messenger.menus.create({
+    id: "ae-clippings-manager",
+    title: messenger.i18n.getMessage("cxtMenuOpenClippingsMgr"),
+    contexts: ["compose_body"],
+  });
+
+  let rootFldrID = aeConst.ROOT_FOLDER_ID;
+  if (gPrefs.syncClippings && gPrefs.cxtMenuSyncItemsOnly) {
+    rootFldrID = gSyncFldrID;
+  }
+
+  let menuData;
+  try {
+    menuData = await getContextMenuData(rootFldrID);
+  }
+  catch (e) {
+    onError(e);
+  }
+
+  if (aeConst.DEBUG) {
+    console.log("buildContextMenu(): Menu data: ");
+    console.log(menuData);
+  }
+    
+  if (menuData.length > 0) {
+    messenger.menus.create({
+      type: "separator",
+      contexts: ["compose_body"],
+    });
+
+    buildContextMenuHelper(menuData);
+  }
+}
+
+
+function buildContextMenuHelper(aMenuData)
+{
+  for (let i = 0; i < aMenuData.length; i++) {
+    let menuData = aMenuData[i];
+    let menuItem;
+
+    if (menuData.separator) {
+      menuItem = {
+        type: "separator",
+        contexts: ["compose_body"],
+      };
+    }
+    else {
+      menuItem = {
+        id: menuData.id,
+        title: menuData.title,
+        icons: menuData.icons,
+        contexts: ["compose_body"],
+      };
+    }
+
+    if ("parentId" in menuData && menuData.parentId != aeConst.ROOT_FOLDER_ID) {
+      menuItem.parentId = menuData.parentId;
+    }
+
+    messenger.menus.create(menuItem);
+    
+    if (menuData.submenuItems) {
+      buildContextMenuHelper(menuData.submenuItems);
+    }
+  }
+}
+
+
+async function rebuildContextMenu()
+{
+  log("Clippings/mx: rebuildContextMenu(): Removing all Clippings context menu items and rebuilding the menu...");
+  await messenger.menus.removeAll();
+
+  gClippingMenuItemIDMap = {};
+  gFolderMenuItemIDMap = {};
+  initToolsMenuItem();
+  await buildContextMenu();
+}
+
+
+function initToolsMenuItem()
+{
+  if (gPrefs.showToolsCmd) {
+    messenger.menus.create({
+      id: "ae-tools-clippings-mgr",
+      title: messenger.i18n.getMessage("cxtMenuOpenClippingsMgr"),
+      contexts: ["tools_menu"],
+    });
+  }
+  else {
+    try {
+      messenger.menus.remove("ae-tools-clippings-mgr");
+    }
+    catch {}
+  }
+}
+
+
+function buildAutoIncrementPlchldrResetMenu(aAutoIncrPlchldrs)
+{
+  let enabledResetMenu = false;
+  
+  aAutoIncrPlchldrs.forEach(async (aItem, aIndex, aArray) => {
+    if (! gAutoIncrPlchldrs.has(aItem)) {
+      gAutoIncrPlchldrs.add(aItem);
+
+      let menuItem = {
+        id: `ae-clippings-reset-autoincr-${aItem}`,
+        title: `#[${aItem}]`,
+        parentId: "ae-clippings-reset-autoincr-plchldrs",
+        contexts: ["compose_action"],
+      };
+      
+      await messenger.menus.create(menuItem);
+      if (! enabledResetMenu) {
+        await messenger.menus.update("ae-clippings-reset-autoincr-plchldrs", {
+          enabled: true
+        });
+        enabledResetMenu = true;
+      }
+    }
+  });
+}
+
+
+async function resetAutoIncrPlaceholder(aPlaceholder)
+{
+  log(`Clippings/mx: resetAutoIncrPlaceholder(): Resetting placeholder: #[${aPlaceholder}]`);
+
+  aeClippingSubst.resetAutoIncrementVar(aPlaceholder);
+  gAutoIncrPlchldrs.delete(aPlaceholder);
+  await messenger.menus.remove(`ae-clippings-reset-autoincr-${aPlaceholder}`);
+  
+  if (gAutoIncrPlchldrs.size == 0) {
+    messenger.menus.update("ae-clippings-reset-autoincr-plchldrs", {enabled: false});
+  }
 }
 
 
@@ -1022,7 +1298,7 @@ async function showBackupNotification()
     clearBackupNotificationInterval();
     setBackupNotificationInterval();
   }
-}   
+}
 
 
 function setBackupNotificationInterval()
@@ -1056,11 +1332,43 @@ async function showWhatsNewNotification()
 }
 
 
+async function setSyncHelperUpdateNotificationDelay(aEnableNotifcn)
+{
+  log("Clippings: setSyncHelperUpdateNotificationDelay(): " + aEnableNotifcn);
+
+  if (aEnableNotifcn) {
+    gSyncHelperUpdNotifcnTimeoutID = setTimeout(showSyncHelperUpdateNotification, aeConst.SYNC_HELPER_CHECK_UPDATE_DELAY_MS);
+
+    if (! gPrefs.lastSyncHelperUpdChkDate) {
+      // Sync Clippings Helper app update check was just turned on.
+      // Default to the start of the Unix epoch to force app update check.
+      await aePrefs.setPrefs({lastSyncHelperUpdChkDate: new Date(0).toString()});
+    }
+  }
+  else {
+    await aePrefs.setPrefs({lastSyncHelperUpdChkDate: null});
+    if (gSyncHelperUpdNotifcnTimeoutID) {
+      clearTimeout(gSyncHelperUpdNotifcnTimeoutID);
+      gSyncHelperUpdNotifcnTimeoutID = null;
+    }
+  }
+}
+
+
 async function showSyncHelperUpdateNotification()
 {
   if (!gPrefs.syncClippings || !gPrefs.syncHelperCheckUpdates) {
     return;
   }
+
+  // Don't bother proceeding if the native messaging optional permission
+  // wasn't granted.
+  let perms = await messenger.permissions.getAll();
+  if (! perms.permissions.includes("nativeMessaging")) {
+    return;
+  }
+
+  log("Clippings: showSyncHelperUpdateNotification(): Last update check: " + gPrefs.lastSyncHelperUpdChkDate);
 
   let today, lastUpdateCheck, diff;
   if (gPrefs.lastSyncHelperUpdChkDate) {
@@ -1115,6 +1423,9 @@ async function showSyncHelperUpdateNotification()
         lastSyncHelperUpdChkDate: new Date().toString()
       });
     }
+    else {
+      await aePrefs.setPrefs({lastSyncHelperUpdChkDate: new Date().toString()});
+    }
   }
 }
 
@@ -1149,7 +1460,7 @@ function getClippingsBackupData()
     excludeSyncFldrID = gPrefs.syncFolderID;
   }
 
-  return aeImportExport.exportToJSON(false, false, aeConst.ROOT_FOLDER_ID, excludeSyncFldrID, true);
+  return aeImportExport.exportToJSON(false, false, aeConst.ROOT_FOLDER_ID, excludeSyncFldrID, true, true);
 }
 
 
@@ -1203,7 +1514,7 @@ async function openClippingsManager(aBackupMode)
     // `browser.windows.create()`. If unable to get window geometry, then
     // default to centering on screen.
     if (wndGeom) {
-      messenger.windows.update(wnd.id, { left, top });
+      messenger.windows.update(wnd.id, {left, top});
     }
 
     gClippingsMgrCleanUpIntvID = window.setInterval(async () => {
@@ -1250,19 +1561,50 @@ function cleanUpClippingsMgr()
 }
 
 
+function newClipping(aComposeTab)
+{
+  let injectOpts = {code: `getSelectedText()`};
+  messenger.tabs.executeScript(aComposeTab.id, injectOpts);
+}
+
+
 function openNewClippingDlg(aNewClippingContent)
 {
   if (aNewClippingContent) {
     let name = createClippingNameFromText(aNewClippingContent);
-    gNewClipping.set({ name, content: aNewClippingContent });
+    gNewClipping.set({name, content: aNewClippingContent});
   }
   
   let url = messenger.runtime.getURL("pages/new.html");
-  let height = 412;
+  let height = 410;
   if (gOS == "win") {
-    height = 444;
+    height = 434;
   }
-  openDlgWnd(url, "newClipping", { type: "detached_panel", width: 432, height });
+  openDlgWnd(url, "newClipping", {type: "popup", width: 432, height});
+}
+
+
+function openKeyboardPasteDlg(aComposeTabID)
+{
+  let url = messenger.runtime.getURL("pages/keyboardPaste.html?compTabID=" + aComposeTabID);
+  openDlgWnd(url, "keyboardPaste", {
+    type: "popup",
+    width: 500,
+    height: 164,
+    topOffset: 256,
+  });
+}
+
+
+function openPlaceholderPromptDlg(aComposeTabID)
+{
+  let url = messenger.runtime.getURL("pages/placeholderPrompt.html?compTabID=" + aComposeTabID);
+  openDlgWnd(url, "placeholderPrmt", {
+    type: "popup",
+    width: 536,
+    height: 228,
+    topOffset: 256,
+  });
 }
 
 
@@ -1293,19 +1635,6 @@ async function openBackupDlg()
 }
 
 
-function openMigrationStatusDlg()
-{
-  let url = messenger.runtime.getURL("pages/migrationStatus.html");
-  let wndPpty = {
-    type: "popup",
-    width: 540,
-    height: 180,
-  };
-  
-  openDlgWnd(url, "migrnStatus", wndPpty, aeWndPos.WND_MESSENGER);
-}
-
-
 function openShortcutListWnd()
 {
   let url = messenger.runtime.getURL("pages/shortcutList.html");
@@ -1315,7 +1644,7 @@ function openShortcutListWnd()
     height = 286;
   }
   
-  openDlgWnd(url, "shctList", { type: "popup", width, height, topOffset: 256 });
+  openDlgWnd(url, "shctList", {type: "popup", width, height, topOffset: 256});
 }
 
 
@@ -1362,7 +1691,7 @@ async function openDlgWnd(aURL, aWndKey, aWndPpty, aWndType)
   if (gWndIDs[aWndKey]) {
     try {
       await messenger.windows.get(gWndIDs[aWndKey]);
-      messenger.windows.update(gWndIDs[aWndKey], { focused: true });
+      messenger.windows.update(gWndIDs[aWndKey], {focused: true});
     }
     catch (e) {
       gWndIDs[aWndKey] = null;
@@ -1375,88 +1704,306 @@ async function openDlgWnd(aURL, aWndKey, aWndPpty, aWndType)
 }
 
 
-function getClipping(aClippingID)
+async function getWndGeometryFromComposeTab()
 {
-  return new Promise((aFnResolve, aFnReject) => {
-    gClippingsDB.transaction("r", gClippingsDB.clippings, gClippingsDB.folders, () => {
-      let clipping = null;
-      
-      gClippingsDB.clippings.get(aClippingID).then(aClipping => {
-        if (! aClipping) {
-          throw new Error("Cannot find clipping with ID = " + aClippingID);
-        }
+  let rv = null;
 
-        if (aClipping.parentFolderID == -1) {
-          throw new Error("Attempting to paste a deleted clipping!");
-        }
+  let [tab] = await messenger.tabs.query({active: true, currentWindow: true});
+  if (!tab || tab.type != "messageCompose") {
+    // This could happen if the compose window was closed while the
+    // placeholder prompt dialog was open.
+    return rv;
+  }
 
-        clipping = aClipping;
-        log(`Pasting clipping named "${clipping.name}"\nid = ${clipping.id}`);
-        
-        return gClippingsDB.folders.get(aClipping.parentFolderID);
-      }).then(aFolder => {
-        let parentFldrName = "";
-        if (aFolder) {
-          parentFldrName = aFolder.name;
-        }
-        else {
-          parentFldrName = ROOT_FOLDER_NAME;
-        }
-        let clippingInfo = {
-          id: clipping.id,
-          name: clipping.name,
-          text: clipping.content,
-          parentFolderName: parentFldrName
-        };
+  let wnd = await messenger.windows.get(tab.windowId);
+  let wndGeom = {
+    w: tab.width,
+    h: tab.height,
+    x: wnd.left,
+    y: wnd.top,
+  };
+  rv = wndGeom;
 
-        log(`Clippings/mx::getClipping(): Retrieved clipping (ID = ${aClippingID}):`);
-        log(clippingInfo);
-        
-        aFnResolve(clippingInfo);
-      });
-    }).catch(aErr => {
-      console.error("Clippings/mx: getClipping(): " + aErr);
-      aFnReject(aErr);
-    });
+  return rv;
+}
+
+
+async function toggleShowPastePrompt(aComposeTabID)
+{
+  let showPastePrompt = await messenger.tabs.sendMessage(aComposeTabID, {
+    id: "get-paste-prompt-pref",
+  });
+
+  messenger.tabs.sendMessage(aComposeTabID, {
+    id: "set-paste-prompt-pref",
+    showPastePrompt: !showPastePrompt,
   });
 }
 
 
-function getShortcutKeyListHTML(aIsFullHTMLDoc)
+function pasteClippingByID(aClippingID, aComposeTabID)
 {
-  return aeImportExport.getShortcutKeyListHTML(aIsFullHTMLDoc);
-}
-
-
-function getShortcutKeyMap()
-{
-  let rv = new Map();
+  let clippingsDB = aeClippings.getDB();
   
-  return new Promise((aFnResolve, aFnReject) => {
-    gClippingsDB.clippings.where("shortcutKey").notEqual("").each((aItem, aCursor) => {
-      let key = aItem.shortcutKey;
-      let value = {
-        id: aItem.id,
-        name: aItem.name,
-        text: aItem.content,
-      };
-      rv.set(key, value);
+  clippingsDB.transaction("r", clippingsDB.clippings, clippingsDB.folders, () => {
+    let clipping = null;
+    
+    clippingsDB.clippings.get(aClippingID).then(aClipping => {
+      if (! aClipping) {
+        throw new Error("Cannot find clipping with ID = " + aClippingID);
+      }
 
-    }).then(() => {
-      aFnResolve(rv);
+      if (aClipping.parentFolderID == -1) {
+        throw new Error("Attempting to paste a deleted clipping!");
+      }
+
+      clipping = aClipping;
+      log(`Pasting clipping named "${clipping.name}"\nid = ${clipping.id}`);
+        
+      return clippingsDB.folders.get(aClipping.parentFolderID);
+    }).then(aFolder => {
+      let parentFldrName = "";
+      if (aFolder) {
+        parentFldrName = aFolder.name;
+      }
+      else {
+        parentFldrName = ROOT_FOLDER_NAME;
+      }
+      let clippingInfo = {
+        id: clipping.id,
+        name: clipping.name,
+        text: clipping.content,
+        parentFolderName: parentFldrName
+      };
+
+      pasteClipping(clippingInfo, aComposeTabID);
     });
+  }).catch(aErr => {
+    console.error("Clippings/wx: pasteClippingByID(): " + aErr);
   });
 }
 
 
-function showSyncErrorNotification()
+function pasteClippingByShortcutKey(aShortcutKey, aComposeTabID)
 {
-  messenger.notifications.create("sync-error", {
+  let clippingsDB = aeClippings.getDB();
+
+  clippingsDB.transaction("r", clippingsDB.clippings, clippingsDB.folders, () => {
+    let results = clippingsDB.clippings.where("shortcutKey").equals(aShortcutKey.toUpperCase());
+    let clipping = {};
+    
+    results.first().then(aClipping => {
+      if (! aClipping) {
+        log(`Cannot find clipping with shortcut key '${aShortcutKey}'`);
+        return null;
+      }
+
+      if (aClipping.parentFolderID == -1) {
+        throw new Error(`Shortcut key '${aShortcutKey}' is assigned to a deleted clipping!`);
+      }
+
+      clipping = aClipping;
+      log(`Pasting clipping named "${clipping.name}"\nid = ${clipping.id}`);
+
+      return clippingsDB.folders.get(aClipping.parentFolderID);
+    }).then(aFolder => {
+      if (aFolder === null) {
+        return;
+      }
+
+      let parentFldrName = "";
+
+      if (aFolder) {
+        parentFldrName = aFolder.name;
+      }
+      else {
+        parentFldrName = ROOT_FOLDER_NAME;
+      }
+      let clippingInfo = {
+        id: clipping.id,
+        name: clipping.name,
+        text: clipping.content,
+        parentFolderName: parentFldrName
+      };
+
+      pasteClipping(clippingInfo, aComposeTabID);
+    });
+  }).catch(aErr => {
+    console.error("Clippings/mx: pasteClippingByShortcutKey(): " + aErr);
+  });
+}
+
+
+async function pasteClipping(aClippingInfo, aComposeTabID)
+{
+  let processedCtnt = "";
+
+  if (aeClippingSubst.hasNoSubstFlag(aClippingInfo.name)) {
+    processedCtnt = aClippingInfo.text;
+  }
+  else {
+    processedCtnt = await aeClippingSubst.processStdPlaceholders(aClippingInfo);
+    let failedPlchldrs = aeClippingSubst.getFailedPlaceholders();
+    if (failedPlchldrs.length > 0) {
+      // TO DO: Show dialog giving the user the option to edit the clipping in
+      // Clippings Manager, paste anyway, or cancel.
+      warn(`Clipping: ${aClippingInfo.name}\nOne or more placeholders could not be filled in.`);
+      log(failedPlchldrs.toString());
+    }
+
+    let autoIncrPlchldrs = aeClippingSubst.getAutoIncrPlaceholders(processedCtnt);
+    if (autoIncrPlchldrs.length > 0) {
+      buildAutoIncrementPlchldrResetMenu(autoIncrPlchldrs);
+      processedCtnt = aeClippingSubst.processAutoIncrPlaceholders(processedCtnt);
+    }
+
+    let plchldrs = aeClippingSubst.getCustomPlaceholders(processedCtnt);
+    if (plchldrs.length > 0) {
+      let plchldrsWithDefaultVals = aeClippingSubst.getCustomPlaceholderDefaultVals(processedCtnt, aClippingInfo);
+      gPlaceholders.set(aClippingInfo.name, plchldrs, plchldrsWithDefaultVals, processedCtnt);
+
+      openPlaceholderPromptDlg(aComposeTabID);
+      return;
+    }
+  }
+
+  // Check if user wants to be prompted to format the clipping as normal or
+  // quoted text.
+  let isPasteOptsDlgShown = await showPasteOptionsDlg(aComposeTabID, processedCtnt);
+  if (isPasteOptsDlgShown) {
+    // Control returns to function pasteProcessedClipping() when user clicks OK
+    // in the paste options dialog.
+    return;
+  }
+  
+  pasteProcessedClipping(processedCtnt, aComposeTabID);
+}
+
+
+async function showPasteOptionsDlg(aComposeTabID, aClippingContent)
+{
+  let rv = false;
+
+  let showPastePrompt = await messenger.tabs.sendMessage(aComposeTabID, {
+    id: "get-paste-prompt-pref",
+  });
+
+  if (showPastePrompt) {
+    if (gWndIDs.pasteClippingOpts) {
+      // If the paste clipping options dialog is open, it's likely that the
+      // user has forgotten or abandoned their previous clipping, so close it.
+      // Note that the window ID may be invalid because the user closed the
+      // dialog by clicking the 'X' button on the title bar instead of
+      // clicking Cancel.
+      let wnd;
+      try {
+        wnd = await messenger.windows.get(gWndIDs.pasteClippingOpts);
+      }
+      catch {}
+      if (wnd) {
+        messenger.windows.remove(wnd.id);
+      }
+      gWndIDs.pasteClippingOpts = null;
+    }
+
+    gPastePrompt.add(aComposeTabID, aClippingContent);
+    let url = messenger.runtime.getURL("pages/pasteOptions.html?compTabID=" + aComposeTabID);
+    let height = 210;
+    if (gOS == "mac") {
+      height = 200;
+    }
+
+    await openDlgWnd(url, "pasteClippingOpts", {type: "popup", width: 256, height});
+    rv = true;
+  }
+
+  return rv;
+}
+
+
+async function pasteProcessedClipping(aClippingContent, aComposeTabID, aPasteAsQuoted=false)
+{
+  // Perform a final check to confirm that the composer represented by
+  // aComposeTabID is still open.
+  try {
+    await messenger.tabs.get(aComposeTabID);
+  }
+  catch {
+    warn("Clippings/mx: pasteProcessedClipping(): Can't find compose tab " + aComposeTabID);
+    return;
+  }
+
+  let comp = await messenger.compose.getComposeDetails(aComposeTabID);
+
+  await messenger.tabs.sendMessage(aComposeTabID, {
+    id: "paste-clipping",
+    content: aClippingContent,
+    isPlainText: comp.isPlainText,
+    htmlPaste: gPrefs.htmlPaste,
+    autoLineBreak: gPrefs.autoLineBreak,
+    pasteAsQuoted: aPasteAsQuoted,
+  });
+}
+
+
+function showSyncAppErrorNotification()
+{
+  messenger.notifications.create("sync-app-error", {
     type: "basic",
     title: messenger.i18n.getMessage("syncStartupFailedHdg"),
     message: messenger.i18n.getMessage("syncStartupFailed"),
-    iconUrl: "img/error.svg",
+    iconUrl: aeVisual.getErrorIconPath(),
   });
+}
+
+
+function showSyncReadErrorNotification()
+{
+  messenger.notifications.create("sync-read-error", {
+    type: "basic",
+    title: messenger.i18n.getMessage("syncStartupFailedHdg"),
+    message: messenger.i18n.getMessage("syncGetFailed"),
+    iconUrl: aeVisual.getErrorIconPath(),
+  });
+}
+
+
+function showSyncPushReadOnlyNotification()
+{
+  messenger.notifications.create("sync-push-read-only-error", {
+    type: "basic",
+    title: messenger.i18n.getMessage("syncStartupFailedHdg"),
+    message: messenger.i18n.getMessage("syncFldrRdOnly"),
+    iconUrl: aeVisual.getErrorIconPath(),
+  });
+}
+
+
+function showNoNativeMsgPermNotification()
+{
+  messenger.notifications.create("native-msg-perm-error", {
+    type: "basic",
+    title: messenger.i18n.getMessage("syncStartupFailedHdg"),
+    message: messenger.i18n.getMessage("syncPermNotif"),
+    iconUrl: aeVisual.getErrorIconPath(),
+  });
+}
+
+
+async function openOptionsPage()
+{
+  let resp;
+  try {
+    resp = await messenger.runtime.sendMessage({msgID: "ping-ext-prefs-pg"});
+  }
+  catch {}
+
+  if (resp) {
+    await messenger.runtime.sendMessage({msgID: "focus-ext-prefs-pg"});
+  }
+  else {
+    messenger.runtime.openOptionsPage();
+  }
 }
 
 
@@ -1464,31 +2011,60 @@ function showSyncErrorNotification()
 // Utility functions
 //
 
-// DEPRECATED
-// - These functions are currently called from WindowListener scripts.
-function getPrefs()
+async function alertEx(aMessageName, aUsePopupWnd=false)
 {
-  return gPrefs;
-}
+  let message = messenger.i18n.getMessage(aMessageName);
+  info("Clippings/mx: " + message);
 
-async function setPrefs(aPrefs)
-{
-  await aePrefs.setPrefs(aPrefs);
-}
-// END DEPRECATED
+  let url = "pages/msgbox.html?msgid=" + aMessageName;
 
-function isDirty()
-{
-  return gIsDirty;
-}
+  // Center the common message box popup within originating composer window,
+  // both horizontally and vertically.
+  let wndGeom = null;
+  let width = 520;
+  let height = 170;
 
-function setDirtyFlag(aFlag)
-{
-  if (aFlag === undefined) {
-    gIsDirty = true
+  // Default popup window coords.  Unless replaced by window geometry calcs,
+  // these coords will be ignored - popup window will always be centered
+  // on screen due to a WebExtension API bug; see next comment.
+  let left = 256;
+  let top = 64;
+
+  if (gPrefs && gPrefs.autoAdjustWndPos) {
+    wndGeom = await getWndGeometryFromComposeTab();
+
+    if (wndGeom) {
+      if (wndGeom.w < width) {
+        left = null;
+      }
+      else {
+        left = Math.ceil((wndGeom.w - width) / 2) + wndGeom.x;
+      }
+
+      if ((wndGeom.h) < height) {
+        top = null;
+      }
+      else {
+        top = Math.ceil((wndGeom.h - height) / 2) + wndGeom.y;
+      }
+    }
   }
-  else {
-    gIsDirty = aFlag;
+
+  let wndKey = "ae_clippings_msgbox";
+  let wnd = await messenger.windows.create({
+    url,
+    type: "popup",
+    width, height,
+    left, top,
+  });
+
+  gWndIDs[wndKey] = wnd.id;
+
+  // Workaround to bug where window position isn't correctly set when calling
+  // `browser.windows.create()`. If unable to get window geometry, then default
+  // to centering on screen.
+  if (wndGeom) {
+    messenger.windows.update(wnd.id, {left, top});
   }
 }
 
@@ -1496,6 +2072,129 @@ function setDirtyFlag(aFlag)
 //
 // Event handlers
 //
+
+messenger.composeAction.onClicked.addListener(aTab => {
+  openClippingsManager(false);
+});
+
+
+messenger.commands.onCommand.addListener(async (aCmdName, aTab) => {
+  info(`Clippings/mx: Command "${aCmdName}" invoked!`);
+
+  // Ignore command if not invoked from the message composer.
+  if (aTab.type != "messageCompose") {
+    log(`Clippings/mx: Command invoked from tab ${aTab.id}, which isn't a messageCompose tab.`);
+    return;
+  }
+
+  if (aCmdName == "ae-clippings-paste-clipping") {
+    gPrefs.keybdPaste && openKeyboardPasteDlg(aTab.id);
+  }
+});
+
+
+messenger.menus.onShown.addListener(async (aInfo, aTab) => {
+  if (aTab.type != "messageCompose" || !aInfo.contexts.includes("compose_action")) {
+    return;
+  }
+
+  let menuInstID = gNextMenuInstID++;
+  gLastMenuInstID = menuInstID;
+
+  let showPastePrmpt = await messenger.tabs.sendMessage(aTab.id, {id: "get-paste-prompt-pref"});
+
+  // Check if the menu is still shown when the above async call finished.
+  if (menuInstID != gLastMenuInstID) {
+    return;
+  }
+
+  messenger.menus.update("ae-clippings-show-paste-opts", {
+    checked: showPastePrmpt,
+  });
+  messenger.menus.refresh();
+});
+
+
+messenger.menus.onHidden.addListener(() => {
+  gLastMenuInstID = 0;
+});
+
+
+messenger.menus.onClicked.addListener((aInfo, aTab) => {
+  switch (aInfo.menuItemId) {
+  case "ae-clippings-new":
+    newClipping(aTab);
+    break;
+
+  case "ae-clippings-manager":
+  case "ae-tools-clippings-mgr":
+    openClippingsManager();
+    break;
+    
+  case "ae-clippings-show-paste-opts":
+    toggleShowPastePrompt(aTab.id);
+    break;
+
+  case "ae-clippings-prefs":
+    openOptionsPage();
+    break;
+
+  default:
+    if (aInfo.menuItemId.startsWith("ae-clippings-clipping-")) {
+      let id = Number(aInfo.menuItemId.substring(aInfo.menuItemId.lastIndexOf("-") + 1, aInfo.menuItemId.indexOf("_")));
+      pasteClippingByID(id, aTab.id);
+    }
+    else if (aInfo.menuItemId.startsWith("ae-clippings-reset-autoincr-")) {
+      let plchldr = aInfo.menuItemId.substr(28);
+      resetAutoIncrPlaceholder(plchldr);
+    }
+    break;
+  }
+});
+
+
+messenger.alarms.onAlarm.addListener(async (aAlarm) => {
+  info(`Clippings/mx: Alarm "${aAlarm.name}" was triggered.`);
+
+  if (aAlarm.name == "show-upgrade-notifcn") {
+    showWhatsNewNotification();
+  }
+});
+
+
+messenger.notifications.onClicked.addListener(aNotifID => {
+  if (aNotifID == "backup-reminder") {
+    // Open Clippings Manager in backup mode.
+    openClippingsManager(true);
+  }
+  else if (aNotifID == "backup-reminder-firstrun") {
+    openBackupDlg();
+  }
+  else if (aNotifID == "sync-helper-update") {
+    messenger.tabs.create({url: gSyncClippingsHelperDwnldPgURL});
+  }
+  else if (aNotifID == "whats-new") {
+    messenger.tabs.create({url: messenger.runtime.getURL("pages/whatsnew.html")});
+    aePrefs.setPrefs({upgradeNotifCount: 0});
+  }
+});
+
+
+messenger.storage.onChanged.addListener((aChanges, aAreaName) => {
+  let changedPrefs = Object.keys(aChanges);
+
+  for (let pref of changedPrefs) {
+    gPrefs[pref] = aChanges[pref].newValue;
+
+    if (pref == "autoIncrPlchldrStartVal") {
+      aeClippingSubst.setAutoIncrementStartValue(aChanges[pref].newValue);
+    }
+    else if (pref == "showToolsCmd") {
+      initToolsMenuItem();
+    }
+  }
+});
+
 
 messenger.runtime.onMessage.addListener(aRequest => {
   log(`Clippings/mx: Background script received MailExtension message "${aRequest.msgID}"`);
@@ -1509,6 +2208,16 @@ messenger.runtime.onMessage.addListener(aRequest => {
     };
     return Promise.resolve(envInfo);
 
+  case "new-from-selection":
+    if (aRequest.content) {
+      openNewClippingDlg(aRequest.content);
+    }
+    else {
+      alertEx("msgNoTextSel");
+      return;
+    }
+    break;
+
   case "init-new-clipping-dlg":
     let newClipping = gNewClipping.get();
     if (newClipping !== null) {
@@ -1516,9 +2225,71 @@ messenger.runtime.onMessage.addListener(aRequest => {
     }
     return Promise.resolve(newClipping);
 
+  case "init-placeholder-prmt-dlg":
+    return Promise.resolve(gPlaceholders.get());
+
   case "close-new-clipping-dlg":
     gWndIDs.newClipping = null;
-    gIsDirty = true;
+    break;
+
+  case "close-keybd-paste-dlg":
+    gWndIDs.keyboardPaste = null;
+    break;
+
+  case "close-paste-options-dlg":
+    if (! aRequest.userCancel) {
+      pasteProcessedClipping(
+        gPastePrompt.get(aRequest.composeTabID),
+        aRequest.composeTabID,
+        aRequest.pasteAsQuoted
+      );
+    }
+    gPastePrompt.delete(aRequest.composeTabID);
+    gWndIDs.pasteClippingOpts = null;
+    break;
+
+  case "paste-shortcut-key":
+    if (! aRequest.shortcutKey) {
+      return;
+    }
+    messenger.tabs.get(aRequest.composeTabID).then(aTab => {
+      if (aTab.type == "messageCompose") {
+        pasteClippingByShortcutKey(aRequest.shortcutKey, aTab.id);
+      }
+    }).catch(aErr => {
+      warn("Clippings/mx: Can't find compose tab " + aRequest.composeTabID);
+    });
+    break;
+
+  case "paste-clipping-by-name":
+    messenger.tabs.get(aRequest.composeTabID).then(aTab => {
+      if (aTab.type == "messageCompose") {
+        pasteClippingByID(aRequest.clippingID, aRequest.composeTabID);
+      }
+    }).catch(aErr => {
+      warn("Clippings/mx: Can't find compose tab " + aRequest.composeTabID);
+    });
+    break;
+
+  case "paste-clipping-with-plchldrs":
+    messenger.tabs.get(aRequest.composeTabID).then(aTab => {
+      if (aTab.type != "messageCompose") {
+        return null;
+      }
+      return showPasteOptionsDlg(aTab.id, aRequest.processedContent);
+    }).then(aIsDlgShown => {
+      // If the Paste Options dialog was shown, control returns to function
+      // pasteProcessedClipping() after user clicks OK in the dialog.
+      if (aIsDlgShown === false) {
+        pasteProcessedClipping(aRequest.processedContent, aRequest.composeTabID);
+      }
+    }).catch(aErr => {
+      warn("Clippings/mx: Can't find compose tab " + aRequest.composeTabID);
+    });
+    break;
+
+  case "close-placeholder-prmt-dlg":
+    gWndIDs.placeholderPrmt = null;
     break;
 
   case "get-shct-key-prefix-ui-str":
@@ -1534,9 +2305,6 @@ messenger.runtime.onMessage.addListener(aRequest => {
   case "backup-clippings":
     openClippingsManager(true);
     break;
-
-  case "get-shct-key-list-html":
-    return getShortcutKeyListHTML(aRequest.isFullHTMLDoc);
 
   case "get-clippings-backup-data":
     return getClippingsBackupData();
@@ -1565,6 +2333,9 @@ messenger.runtime.onMessage.addListener(aRequest => {
   case "sync-deactivated-after":
     gSyncClippingsListener.onAfterDeactivate(aRequest.removeSyncFolder, aRequest.oldSyncFolderID);
     break;
+
+  case "set-sync-clippings-app-upd-chk":
+    return setSyncHelperUpdateNotificationDelay(aRequest.enable);
 
   case "new-clipping-created":
     gClippingsListener.newClippingCreated(aRequest.newClippingID, aRequest.newClipping, aRequest.origin);
@@ -1608,108 +2379,6 @@ messenger.runtime.onMessage.addListener(aRequest => {
     
   default:
     break;
-  }
-});
-
-
-messenger.NotifyTools.onNotifyBackground.addListener(async (aMessage) => {
-  log(`Clipping/mx: Received NotifyTools message "${aMessage.command}" from legacy overlay script`);
-
-  let rv = null;
-  let isAsync = false;
-  
-  switch (aMessage.command) {
-  case "get-prefs":
-    rv = gPrefs;
-    isAsync = true;
-    break;
-
-  case "set-prefs":
-    rv = await aePrefs.setPrefs(aMessage.prefs);
-    break;
-
-  case "open-clippings-mgr":
-    openClippingsManager(false);
-    break;
-
-  case "open-new-clipping-dlg":
-    openNewClippingDlg(aMessage.clippingContent);
-    break;
-
-  case "get-clipping":
-    rv = await getClipping(aMessage.clippingID);
-    break;
-
-  case "get-shct-key-map":
-    rv = await getShortcutKeyMap();
-    break;
-
-  case "get-clipping-srch-data":
-    rv = await getClippingSearchData();
-    break;
-
-  case "get-clippings-dirty-flag":
-    rv = isDirty();
-    isAsync = true;
-    break;
-
-  case "get-clippings-cxt-menu-data":
-    rv = await getContextMenuData(aMessage.rootFldrID);
-    isAsync = true;
-    break;
-
-  case "open-migrn-status-dlg":
-    openMigrationStatusDlg();
-    break;
-
-  case "open-shct-list-wnd":
-    openShortcutListWnd();
-    break;
-
-  default:
-    break;
-  }
-
-  if (isAsync) {
-    return Promise.resolve(rv);
-  }
-
-  return rv;
-});
-  
-
-messenger.storage.onChanged.addListener((aChanges, aAreaName) => {
-  let changedPrefs = Object.keys(aChanges);
-
-  for (let pref of changedPrefs) {
-    gPrefs[pref] = aChanges[pref].newValue;
-  }
-});
-
-
-messenger.alarms.onAlarm.addListener(async (aAlarm) => {
-  info(`Clippings/mx: Alarm "${aAlarm.name}" was triggered.`);
-
-  if (aAlarm.name == "show-upgrade-notifcn") {
-    showWhatsNewNotification();
-  }
-});
-
-
-messenger.notifications.onClicked.addListener(aNotifID => {
-  if (aNotifID == "backup-reminder") {
-    // Open Clippings Manager in backup mode.
-    openClippingsManager(true);
-  }
-  else if (aNotifID == "backup-reminder-firstrun") {
-    openBackupDlg();
-  }
-  else if (aNotifID == "sync-helper-update") {
-    messenger.tabs.create({ url: gSyncClippingsHelperDwnldPgURL });
-  }
-  else if (aNotifID == "whats-new") {
-    messenger.tabs.create({ url: messenger.runtime.getURL("pages/whatsnew.html") });
-    aePrefs.setPrefs({ upgradeNotifCount: 0 });
   }
 });
 

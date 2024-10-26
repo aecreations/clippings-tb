@@ -214,6 +214,11 @@ let aeImportExport = function () {
               parentFolderID: aParentFolderID
             };
 
+            if (item.sep) {
+              clipping.name = messenger.i18n.getMessage("sepName");
+              clipping.separator = true;
+            }
+
             if (aAppendItems) {
               // Append items to root folder, but preserve sort order relative to
               // the other imported items.
@@ -253,7 +258,7 @@ let aeImportExport = function () {
       });
     },
 
-    exportToJSON(aIncludeSrcURLs, aDontStringify, aFolderID, aExcludeFolderID, aIncludeDisplayOrder)
+    exportToJSON(aIncludeSrcURLs, aDontStringify, aFolderID, aExcludeFolderID, aIncludeDisplayOrder, aIncludeSeparators)
     {
       let expData = {
         version: this.CLIPPINGS_JSON_VER,
@@ -262,7 +267,12 @@ let aeImportExport = function () {
       };
 
       if (aIncludeDisplayOrder) {
-        expData.version = this.CLIPPINGS_JSON_VER_WITH_SEQ;
+        if (aIncludeSeparators) {
+          expData.version = this.CLIPPINGS_JSON_VER_WITH_SEP;
+        }
+        else {
+          expData.version = this.CLIPPINGS_JSON_VER_WITH_SEQ;
+        }
       }
 
       if (! aFolderID) {
@@ -270,7 +280,7 @@ let aeImportExport = function () {
       }
 
       return new Promise((aFnResolve, aFnReject) => {
-        this._exportToJSONHelper(aFolderID, aIncludeSrcURLs, aExcludeFolderID, aIncludeDisplayOrder).then(aExpItems => {
+        this._exportToJSONHelper(aFolderID, aIncludeSrcURLs, aExcludeFolderID, aIncludeDisplayOrder, aIncludeSeparators).then(aExpItems => {
           expData.userClippingsRoot = aExpItems;
 
           if (aDontStringify) {
@@ -285,7 +295,7 @@ let aeImportExport = function () {
       });
     },
 
-    _exportToJSONHelper(aFolderID, aIncludeSrcURLs, aExcludeFolderID, aIncludeDisplayOrder)
+    _exportToJSONHelper(aFolderID, aIncludeSrcURLs, aExcludeFolderID, aIncludeDisplayOrder, aIncludeSeparators)
     {
       let rv = [];
       
@@ -309,12 +319,16 @@ let aeImportExport = function () {
               folder.sid = aItem.sid;
             }
 
-            this._exportToJSONHelper(aItem.id, aIncludeSrcURLs, aExcludeFolderID, aIncludeDisplayOrder).then(aChildItems => {
+            this._exportToJSONHelper(aItem.id, aIncludeSrcURLs, aExcludeFolderID, aIncludeDisplayOrder, aIncludeSeparators).then(aChildItems => {
               folder.children = aChildItems;
               rv.push(folder);
             });
           }).then(() => {
             return _db.clippings.where("parentFolderID").equals(aFolderID).each((aItem, aCursor) => {
+              if (aItem.separator && !aIncludeSeparators) {
+                return;
+              }
+
               let clipping = {
                 name: aItem.name,
                 content: aItem.content,
@@ -329,6 +343,10 @@ let aeImportExport = function () {
               
               if ("sid" in aItem) {
                 clipping.sid = aItem.sid;
+              }
+
+              if (aItem.separator) {
+                clipping.sep = true;
               }
 
               rv.push(clipping);

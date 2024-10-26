@@ -4,10 +4,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-const WNDH_NORMAL = 412;
-const WNDH_NORMAL_WINDOWS = 448;
-const WNDH_OPTIONS_EXPANDED = 490;
-const DLG_HEIGHT_ADJ_WINDOWS = 48;
+const WNDH_NORMAL = 410;
+const WNDH_NORMAL_WINDOWS = 434;
+const WNDH_OPTIONS_EXPANDED = 500;
+const DLG_HEIGHT_ADJ_WINDOWS = 24;
 const DLG_HEIGHT_ADJ_LOCALE = 20;
 const DLG_HEIGHT_ADJ_LOCALE_DE = 10;
 
@@ -41,7 +41,6 @@ $(async () => {
   document.body.dataset.os = gEnvInfo.os;
 
   gPrefs = await aePrefs.getAllPrefs();
-  document.body.dataset.laf = gPrefs.enhancedLaF;
 
   let lang = messenger.i18n.getUILanguage();
   document.body.dataset.locale = lang;
@@ -103,6 +102,20 @@ $(async () => {
   $("#show-preview").click(aEvent => { gPreviewDlg.showModal() });
   $("#btn-accept").click(aEvent => { accept(aEvent) });
   $("#btn-cancel").click(aEvent => { cancel(aEvent) });
+
+  aeVisual.init(platform.os);
+  aeVisual.preloadMsgBoxIcons();
+  aeVisual.cacheIcons(
+    "tree-fldr-open.svg",
+    "tree-fldr-close.svg",
+    "tree-fldr-open-dk.svg",
+    "tree-fldr-close-dk.svg"
+  );
+
+  aeInterxn.init(gEnvInfo.os);
+  if (gPrefs.defDlgBtnFollowsFocus) {
+    aeInterxn.initDialogButtonFocusHandlers();
+  }
 
   window.focus();
 
@@ -273,6 +286,16 @@ function initDialogs()
 
   gNewFolderDlg.selectFolder = function (aFolderData)
   {
+    if (gPrefs.syncClippings && gPrefs.isSyncReadOnly) {
+      let folderID = Number(aFolderData.node.key);
+      if (folderID == gPrefs.syncFolderID || gSyncedFldrIDs.has(folderID)) {
+        // This should never happen, because the Synced Clippings folder
+        // won't appear in the folder list when the sync file is read-only.
+        alert(messenger.i18n.getMessage("syncFldrRdOnly"));
+        return;
+      }
+    }
+
     this.selectedFldrNode = aFolderData.node;
 
     let fldrID = aFolderData.node.key;
@@ -365,14 +388,16 @@ function initDialogs()
         $("#new-folder-dlg-fldr-tree").addClass("show-sync-items-only");
       }
     }
-    
+
+    let hideSyncFldr = gPrefs.isSyncReadOnly && !gPrefs.cxtMenuSyncItemsOnly;
     this.fldrTree = new aeFolderPicker(
       "#new-folder-dlg-fldr-tree",
       gClippingsDB,
       rootFldrID,
       rootFldrName,
       rootFldrCls,
-      selectedFldrID
+      selectedFldrID,
+      hideSyncFldr
     );
 
     this.fldrTree.onSelectFolder = aFolderData => {
@@ -566,16 +591,27 @@ function initFolderPicker()
       selectSyncedClippingsFldr();
       $("#new-clipping-fldr-tree").addClass("show-sync-items-only");
       selectedFldrID = gPrefs.syncFolderID;
+
+      // Handle read-only sync folder.
+      if (gPrefs.isSyncReadOnly) {
+        $("#new-clipping-fldr-picker-menubtn").prop("disabled", true);
+        $("#new-folder-btn").prop("disabled", true);
+        $("#btn-accept").prop("disabled", true).removeClass("default");
+        $("#btn-cancel").addClass("default");
+        return;
+      }
     }
   }
   
+  let hideSyncFldr = gPrefs.isSyncReadOnly && !gPrefs.cxtMenuSyncItemsOnly;
   gFolderPickerPopup = new aeFolderPicker(
     "#new-clipping-fldr-tree",
     gClippingsDB,
     rootFldrID,
     rootFldrName,
     rootFldrCls,
-    selectedFldrID
+    selectedFldrID,
+    hideSyncFldr
   );
 
   gFolderPickerPopup.onSelectFolder = selectFolder;
@@ -592,6 +628,14 @@ function openFolderPicker()
 
 function selectFolder(aFolderData)
 {
+  if (gPrefs.syncClippings && gPrefs.isSyncReadOnly) {
+    let folderID = Number(aFolderData.node.key);
+    if (folderID == gPrefs.syncFolderID || gSyncedFldrIDs.has(folderID)) {
+      alert(messenger.i18n.getMessage("syncFldrRdOnly"));
+      return;
+    }
+  }
+
   gParentFolderID = Number(aFolderData.node.key);
   
   let fldrPickerMenuBtn = $("#new-clipping-fldr-picker-menubtn");
@@ -798,7 +842,7 @@ function accept(aEvent)
       if (gPrefs.syncClippings) {
         aeImportExport.setDatabase(gClippingsDB);
         
-        return aeImportExport.exportToJSON(true, true, gPrefs.syncFolderID, false, true);
+        return aeImportExport.exportToJSON(true, true, gPrefs.syncFolderID, false, true, true);
       }
       return null;
 

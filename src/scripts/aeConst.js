@@ -7,9 +7,6 @@
 const aeConst = Object.freeze({
   DEBUG: false,
   
-  // Extension GUID
-  EXTENSION_ID: "clippings-tb@aecreations.github.io",
-
   // Maximum number of chars of clipping names.
   MAX_NAME_LENGTH: 64,
 
@@ -24,6 +21,10 @@ const aeConst = Object.freeze({
   // Keyboard pasting mode
   PASTEACTION_SHORTCUT_KEY:   1,
   PASTEACTION_SEARCH_CLIPPING: 2,
+
+  // Display of assigned shortcut key in Clippings menu
+  SHCTKEY_DISPLAY_PARENS: 0,
+  SHCTKEY_DISPLAY_SQ_BRKT: 1,
 
   // Special folder IDs
   ROOT_FOLDER_ID: 0,
@@ -85,4 +86,5 @@ const aeConst = Object.freeze({
   CONTRIB_URL: "https://aecreations.io/clippings/contribute.php",
   HELP_URL: "https://aecreations.io/clippings/help.php",
   SYNC_CLIPPINGS_HELP_URL: "https://aecreations.io/clippings/sync.php",
+  SYNC_CLIPPINGS_DWNLD_URL: "https://aecreations.io/clippings/sync-clippings-helper.php",
 });

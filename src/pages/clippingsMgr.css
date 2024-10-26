@@ -6,7 +6,7 @@
 @import url("../lib/contextMenu/jquery.contextMenu.css");
 @import url("../style/laf.css");
 @import url("../style/lightbox.css");
-@import url("../style/clippingTree.css");
+@import url("../style/clippingsTree.css");
 @import url("../style/clippingLabelPicker.css");
 @import url("../style/searchbox.css");
 
@@ -29,12 +29,6 @@
     --color-plchldr-toolbar-text: #0c0c0d;
     --color-toolbarbtn-hover-bkgd: rgba(12, 12, 13, 0.2);
     --color-toolbarbtn-active-bkgd: rgba(12, 12, 13, 0.3);
-    --color-reload-sync-fldr-btn-bkgd: #fbfbfb;
-    --color-reload-sync-fldr-btn-border: #ddd;
-    --color-reload-sync-fldr-btn-hover-bkgd: #ebebeb;
-    --color-reload-sync-fldr-btn-hover-border: #b1b1b1;
-    --color-reload-sync-fldr-btn-active-bkgd: #d7d7db;
-    --color-reload-sync-fldr-btn-active-border: #b1b1b1;
     --color-toolbar-menubtn-open: #d7d7db;
     --color-clippings-tree-bkgd: #fbfbfb;
     --color-tree-splitter: #fbfbfb;
@@ -52,8 +46,8 @@
     --color-cxtmenu-bkgd: #fff;
     --color-cxtmenu-border: #bebebe;
     --color-cxtmenu-text: #2f2f2f;
-    --color-cxtmenu-menuitem-active-bkgd: #d7d7db;
-    --color-cxtmenu-menuitem-hover-bkgd: #ededf0;
+    --color-cxtmenu-menuitem-active-bkgd: #CCCCCD;
+    --color-cxtmenu-menuitem-hover-bkgd: #DFDFDF;
     --color-cxtmenu-menuitem-hover-text: #0c0c0d;
     --color-cxtmenu-separator: #e6e6e6;
     --color-dlg-fieldset-border: #b1b1b1;
@@ -61,7 +55,17 @@
     --url-contextmenu-checked-img: url("../img/checked.svg");
     --url-contextmenu-submenu-arrow: url("../img/submenu-arrow.svg");
     --url-toolbar-btn-img-newClipping: url("../img/newClipping.svg");
+    --url-toolbar-btn-img-newClipping-active: url("../img/newClipping.svg");
+    --url-toolbar-btn-img-newClipping-hover: url("../img/newClipping_hover.svg");
     --url-toolbar-btn-img-newFolder: url("../img/newFolder.svg");
+    --url-toolbar-btn-img-newFolder-active: url("../img/newFolder.svg");
+    --url-toolbar-btn-img-newFolder-hover: url("../img/newFolder_hover.svg");
+    --url-toolbar-btn-img-move: url("../img/moveTo.svg");
+    --url-toolbar-btn-img-move-active: url("../img/moveTo.svg");
+    --url-toolbar-btn-img-move-hover: url("../img/moveTo_hover.svg");
+    --url-toolbar-btn-img-delete: url("../img/delete.svg");
+    --url-toolbar-btn-img-delete-active: url("../img/delete.svg");
+    --url-toolbar-btn-img-delete-hover: url("../img/delete_hover.svg");
     --url-toolbar-btn-img-undo: url("../img/undo.svg");
     --url-toolbar-btn-img-undo-hover: url("../img/undo_hover.svg");
     --url-toolbar-btn-img-undo-active: url("../img/undo_hover.svg");
@@ -81,7 +85,7 @@
     --url-toolbar-btn-img-autoIncPlchldr: url("../img/numericPlchldr.svg");
     --url-toolbar-btn-img-autoIncPlchldr-hover: url("../img/numericPlchldr_hover.svg");
     --url-icon-synced-clippings-fldr: url("../img/synced-clippings.svg");
-    --url-btn-icon-reload-sync-fldr: url("../img/reload.svg");
+    --url-icon-synced-clippings-readonly-fldr: url("../img/synced-clippings-readonly.svg");
 }
 
 @media (prefers-color-scheme: dark) {
@@ -100,12 +104,6 @@
 	--color-plchldr-toolbar-text: #f9f9fa;
 	--color-toolbarbtn-hover-bkgd: #737373;
 	--color-toolbarbtn-active-bkgd: #b1b1b3;
-	--color-reload-sync-fldr-btn-bkgd: #4a4a4f;
-	--color-reload-sync-fldr-btn-border: #4a4a4f;
-	--color-reload-sync-fldr-btn-hover-bkgd: #606060;
-	--color-reload-sync-fldr-btn-hover-border: #737373;
-	--color-reload-sync-fldr-btn-active-bkgd: #737373;
-	--color-reload-sync-fldr-btn-active-border: #737373;
 	--color-toolbar-menubtn-open: #737373;
 	--color-tree-splitter: #4a4a4f;
 	--color-tree-splitter-border: #4a4a4f;
@@ -131,8 +129,18 @@
 
 	--url-contextmenu-checked-img: url("../img/checked-dk.svg");
 	--url-contextmenu-submenu-arrow: url("../img/submenu-arrow-dk.svg");
-	--url-toolbar-btn-img-newClipping: url("../img/newClipping.svg");
-	--url-toolbar-btn-img-newFolder: url("../img/newFolder.svg");
+	--url-toolbar-btn-img-newClipping: url("../img/newClipping-dk.svg");
+	--url-toolbar-btn-img-newClipping-active: url("../img/newClipping-active-dk.svg");
+	--url-toolbar-btn-img-newClipping-hover: url("../img/newClipping-dk.svg");
+	--url-toolbar-btn-img-newFolder: url("../img/newFolder-dk.svg");
+	--url-toolbar-btn-img-newFolder-active: url("../img/newFolder-active-dk.svg");
+	--url-toolbar-btn-img-newFolder-hover: url("../img/newFolder-dk.svg");
+	--url-toolbar-btn-img-move: url("../img/moveTo-dk.svg");
+	--url-toolbar-btn-img-move-active: url("../img/moveTo-active-dk.svg");
+	--url-toolbar-btn-img-move-hover: url("../img/moveTo-dk.svg");
+	--url-toolbar-btn-img-delete: url("../img/delete-dk.svg");
+	--url-toolbar-btn-img-delete-active: url("../img/delete-active-dk.svg");
+	--url-toolbar-btn-img-delete-hover: url("../img/delete-dk.svg");
 	--url-toolbar-btn-img-undo: url("../img/undo_dk.svg");
 	--url-toolbar-btn-img-undo-hover: url("../img/undo_dk.svg");
 	--url-toolbar-btn-img-undo-active: url("../img/undo_hover.svg");
@@ -152,7 +160,7 @@
 	--url-toolbar-btn-img-autoIncPlchldr: url("../img/numericPlchldr_dk.svg");
 	--url-toolbar-btn-img-autoIncPlchldr-hover: url("../img/numericPlchldr_dk.svg");
 	--url-icon-synced-clippings-fldr: url("../img/synced-clippings-dk.svg");
-	--url-btn-icon-reload-sync-fldr: url("../img/reload-dk.svg");
+	--url-icon-synced-clippings-readonly-fldr: url("../img/synced-clippings-readonly-dk.svg");
 
 	#options-bar > #clipping-label > #clipping-label-picker {
 	    color: black;
@@ -204,7 +212,10 @@ input[type="checkbox"] + label {
     vertical-align: 0;
 }
 
-body[data-os="win"] input[type="checkbox"] + label,
+body[data-os="win"] input[type="checkbox"] + label {
+    vertical-align: -1px !important;
+}
+
 body[data-os="linux"]:not([data-laf="true"]) input[type="checkbox"] + label {
     vertical-align: 2.5px;
 }
@@ -254,12 +265,7 @@ body[data-os="linux"]:not([data-laf="true"]) input[type="checkbox"] + label {
 }
 
 .toolbar-button-menu-open {
-    Border-radius: 3px 3px 0px 0px;
     background-color: var(--color-toolbar-menubtn-open);
-}
-
-#plchldr-presets.toolbar-button-menu-open {
-    border-radius: 0px 0px 3px 3px;
 }
 
 .toolbar-button-labelled {
@@ -299,7 +305,11 @@ body[data-os="linux"]:not([data-laf="true"]) input[type="checkbox"] + label {
 }
 
 #toolbar > #new-clipping:hover {
-    background-image: url("../img/newClipping_hover.svg");
+    background-image: var(--url-toolbar-btn-img-newClipping-hover);
+}
+
+#toolbar > #new-clipping:active {
+    background-image: var(--url-toolbar-btn-img-newClipping-active);
 }
 
 #toolbar > #new-folder {
@@ -308,25 +318,37 @@ body[data-os="linux"]:not([data-laf="true"]) input[type="checkbox"] + label {
 }
 
 #toolbar > #new-folder:hover {
-    background-image: url("../img/newFolder_hover.svg");
+    background-image: var(--url-toolbar-btn-img-newFolder-hover);
+}
+
+#toolbar > #new-folder:active {
+    background-image: var(--url-toolbar-btn-img-newFolder-active);
 }
 
 #toolbar > #move {
     order: 3;
-    background-image: url("../img/moveTo.svg");
+    background-image: var(--url-toolbar-btn-img-move);
 }
 
 #toolbar > #move:hover {
-    background-image: url("../img/moveTo_hover.svg");
+    background-image: var(--url-toolbar-btn-img-move-hover);
+}
+
+#toolbar > #move:active {
+    background-image: var(--url-toolbar-btn-img-move-active);
 }
 
 #toolbar > #delete {
     order: 4;
-    background-image: url("../img/delete.svg");
+    background-image: var(--url-toolbar-btn-img-delete);
 }
 
 #toolbar > #delete:hover {
-    background-image: url("../img/delete_hover.svg");
+    background-image: var(--url-toolbar-btn-img-delete-hover);
+}
+
+#toolbar > #delete:active {
+    background-image: var(--url-toolbar-btn-img-delete-active);
 }
 
 #toolbar > #undo {
@@ -348,7 +370,7 @@ body[data-os="linux"]:not([data-laf="true"]) input[type="checkbox"] + label {
 
 #toolbar > #clippings-mgr-options {
     order: 7;
-    padding-right: 12px;
+    padding-right: 18px;
     background-image: var(--url-toolbar-btn-img-tools), var(--url-toolbar-btn-img-dropdown);
     background-position-x: 4px, right;
     
@@ -368,12 +390,20 @@ body[data-os="linux"]:not([data-laf="true"]) input[type="checkbox"] + label {
 
 /* jQuery contextMenu CSS overrides */
 .context-menu-list {
+    padding: 4px 0;
+    border-radius: 6px;
     border: 1px solid var(--color-cxtmenu-border);
     background-color: var(--color-cxtmenu-bkgd);
 }
 
+.context-menu-list:-moz-focusring {
+    outline-style: none;
+}
+
 .ae-menuitem,
 .context-menu-submenu {
+    border-radius: 3px;
+    margin: 0 4px 0 4px;
     padding-top: 4px;
     padding-bottom: 4px;
     font-size: 12px;
@@ -393,6 +423,10 @@ body[data-os="linux"]:not([data-laf="true"]) input[type="checkbox"] + label {
     background-color: var(--color-cxtmenu-menuitem-active-bkgd) !important;
 }
 
+.ae-menuitem.context-menu-disabled:active {
+    background-color: transparent !important;
+}
+
 .context-menu-item.context-menu-hover {
     background-color: var(--color-cxtmenu-menuitem-hover-bkgd);
     color: var(--color-cxtmenu-menuitem-hover-text);
@@ -400,6 +434,8 @@ body[data-os="linux"]:not([data-laf="true"]) input[type="checkbox"] + label {
 }
 
 .context-menu-separator {
+    margin-left: 10px;
+    margin-right: 10px;
     border-bottom: 1px solid var(--color-cxtmenu-separator);
 }
 
@@ -496,38 +532,14 @@ body[data-os="linux"]:not([data-laf="true"]) input[type="checkbox"] + label {
     background-image: var(--url-icon-synced-clippings-fldr);
 }
 
+#clippings-tree .ae-synced-clippings-fldr.ae-synced-clippings-readonly > .fancytree-icon {
+    background-image: var(--url-icon-synced-clippings-readonly-fldr);
+}
+
+
 /* Search results in tree list. */
 .fancytree-ext-filter-hide span.fancytree-node.fancytree-match span.fancytree-title, .fancytree-ext-filter-hide tr.fancytree-match span.fancytree-title {
     color: var(--color-default-text);
-}
-
-#reload-sync-fldr-btn {
-    display: inline-block;
-
-    position: relative;
-    top: 0px;
-    left: 4px;
-    width: 24px;
-    height: 20px;
-
-    border: 1px solid var(--color-reload-sync-fldr-btn-border);
-    border-radius: 3px;
-
-    background-color: var(--color-reload-sync-fldr-btn-bkgd);
-    background-image: var(--url-btn-icon-reload-sync-fldr);
-    background-size: 14px 14px;
-    background-repeat: no-repeat;
-    background-position: center;
-}
-
-#reload-sync-fldr-btn:hover {
-    border: 1px solid var(--color-reload-sync-fldr-btn-hover-border);
-    background-color: var(--color-reload-sync-fldr-btn-hover-bkgd);
-}
-
-#reload-sync-fldr-btn:active {
-    border: 1px solid var(--color-reload-sync-fldr-btn-active-border);
-    background-color: var(--color-reload-sync-fldr-btn-active-bkgd);
 }
 
 /* If user has set the option to only show synced items in the Clippings menu,
@@ -672,6 +684,10 @@ ul.fancytree-container {
     font-size: 13px;
 }
 
+#item-properties > #clipping-text[disabled] {
+    opacity: 0.4;
+}
+
 #item-properties > #placeholder-toolbar {
     order: 3;
     flex: 0 1 auto;
@@ -695,7 +711,7 @@ ul.fancytree-container {
 #item-properties > #placeholder-toolbar > #plchldr-presets,
 #item-properties > #placeholder-toolbar > #plchldr-presets:active {
     padding-left: 6px;
-    padding-right: 12px;
+    padding-right: 18px;
 }
 
 #item-properties > #placeholder-toolbar > #custom-plchldr {
@@ -733,7 +749,7 @@ ul.fancytree-container {
     order: 2;
     flex: 0 1 auto;
     
-    padding-right: 12px;
+    padding-right: 18px;
     background-image: var(--url-toolbar-btn-img-dropdown);
     background-position-x: right;
 }
@@ -819,9 +835,6 @@ ul.fancytree-container {
     
     border-top: 1px solid var(--color-tb-border);
     background-color: var(--color-statusbar-bkgd);
-    background-image: url("chrome://global/skin/icons/resizer.png");
-    background-position: right bottom;
-    background-repeat: no-repeat;
 
     font: small-caption;
 }
@@ -853,6 +866,10 @@ ul.fancytree-container {
     height: 32px;
 }
 
+body[data-os="win"] .lightbox .msgbox-icon {
+    background-image: url("../img/alert-win.png");
+}
+
 .lightbox .msgbox-icon {
     background-image: url("../img/warning-64.png");
     background-size: contain;
@@ -860,6 +877,11 @@ ul.fancytree-container {
 
 .lightbox .msgbox-info-icon {
     background-image: url("../img/info.svg");
+    background-size: contain;
+}
+
+body[data-os="win"] .lightbox .msgbox-info-icon {
+    background-image: url("../img/info-win.png");
     background-size: contain;
 }
 
@@ -923,6 +945,28 @@ ul.fancytree-container {
     top: 64px;
 }
 
+#request-ext-perm-dlg {
+    --width: 372px;
+    --height: 220px;
+    top: 48px;
+}
+
+#request-ext-perm-dlg > .msgbox-icon {
+    margin-top: 4px;
+}
+
+#request-ext-perm-dlg p:first-of-type {
+    margin-top: 4px;
+}
+
+#request-ext-perm-dlg ul {
+    padding-left: 24px;
+}
+
+#request-ext-perm-dlg .dlg-content {
+    margin-left: 48px;
+}
+
 #custom-placeholder-dlg {
     --width: 336px;
     --height: 204px;
@@ -953,6 +997,10 @@ ul.fancytree-container {
 
 #clipping-missing-src-url-msgbox {
     --width: 430px;
+}
+
+#shortcut-key-conflict-msgbox .msgbox-icon {
+    margin-top: 8px;
 }
 
 #shortcut-list-dlg {
@@ -1135,6 +1183,10 @@ body[data-locale="de"] #import-dlg {
     background-size: contain;
 }
 
+body[data-os="win"] #import-dlg #restore-backup-warning > .warning-icon {
+    background-image: url("../img/alert-win.png");
+}
+
 #import-dlg #restore-backup-warning > .warning-icon[os="mac"] {
     background-image: url("../img/warning-64-mac.png");
 }
@@ -1166,7 +1218,7 @@ body[data-locale="de"] #import-dlg #restore-backup-warning > p {
 
 #export-dlg {
     --width: 360px;
-    --height: 276px;
+    --height: 296px;
     top: 22px;
 }
 
@@ -1188,7 +1240,7 @@ body[data-locale="de"] #export-dlg #export-format-list-label {
 
 #export-dlg fieldset {
     margin-top: 6px;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     height: 106px;
 }
 

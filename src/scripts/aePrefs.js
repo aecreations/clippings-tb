@@ -9,15 +9,13 @@ let aePrefs = function () {
     htmlPaste: aeConst.HTMLPASTE_AS_FORMATTED,
     autoLineBreak: true,
     autoIncrPlchldrStartVal: 0,
-    keyboardPaste: true,
-    wxPastePrefixKey: true,
+    keybdPaste: true,
     checkSpelling: true,
     pastePromptAction: aeConst.PASTEACTION_SHORTCUT_KEY,
     clippingsMgrAutoShowDetailsPane: true,
     clippingsMgrDetailsPane: false,
     clippingsMgrStatusBar: false,
     clippingsMgrPlchldrToolbar: false,
-    clippingsMgrMinzWhenInactv: null,
     syncClippings: false,
     syncFolderID: null,
     cxtMenuSyncItemsOnly: false,
@@ -41,9 +39,20 @@ let aePrefs = function () {
     clippingsMgrWndGeom: null,
     clippingsMgrTreeWidth: null,
     autoAdjustWndPos: null,
-    enhancedLaF: true,
     upgradeNotifCount: 0,
     showNewClippingOpts: false,
+    compressSyncData: true,
+    isSyncReadOnly: false,
+    showShctKey: false,
+    showShctKeyDispStyle: aeConst.SHCTKEY_DISPLAY_PARENS,
+    defDlgBtnFollowsFocus: false,
+    showToolsCmd: true,
+
+    // Deprecated prefs - these will be removed during extension upgrade.
+    clippingsMgrMinzWhenInactv: null,
+    enhancedLaF: true,
+    keyboardPaste: true,
+    wxPastePrefixKey: true,
   };
 
   return {
@@ -84,13 +93,13 @@ let aePrefs = function () {
     hasSantaBarbaraPrefs(aPrefs)
     {
       // Version 6.0
-      return aPrefs.hasOwnProperty("htmlPaste");
+      return ("htmlPaste" in aPrefs);
     },
     
     hasCarpinteriaPrefs(aPrefs)
     {
       // Version 6.1
-      return aPrefs.hasOwnProperty("skipBackupRemIfUnchg");
+      return ("skipBackupRemIfUnchg" in aPrefs);
     },
 
     async setCarpinteriaPrefs(aPrefs)
@@ -103,15 +112,8 @@ let aePrefs = function () {
         clippingsMgrWndGeom: null,
         clippingsMgrTreeWidth: null,
         autoAdjustWndPos: null,
-        enhancedLaF: true,
         upgradeNotifCount: 0,
       };
-
-      let platform = await messenger.runtime.getPlatformInfo();
-      if (platform.os != "linux") {
-        // Fix incorrect default value of pref.
-        newPrefs.clippingsMgrMinzWhenInactv = null;
-      }
 
       await this._addPrefs(aPrefs, newPrefs);
     },
@@ -119,7 +121,7 @@ let aePrefs = function () {
     hasVenturaPrefs(aPrefs)
     {
       // Version 6.1.1
-      return aPrefs.hasOwnProperty("legacyDataMigrnErrorMsg");
+      return ("legacyDataMigrnErrorMsg" in aPrefs);
     },
 
     async setVenturaPrefs(aPrefs)
@@ -134,13 +136,52 @@ let aePrefs = function () {
     hasCorralDeTierraPrefs(aPrefs)
     {
       // Version 6.2
-      return aPrefs.hasOwnProperty("showNewClippingOpts");
+      return ("showNewClippingOpts" in aPrefs);
     },
 
     async setCorralDeTierraPrefs(aPrefs)
     {
       let newPrefs = {showNewClippingOpts: false};
       await this._addPrefs(aPrefs, newPrefs);
+    },
+
+    hasSanFranciscoPrefs(aPrefs)
+    {
+      // Version 7.0
+      return ("compressSyncData" in aPrefs);
+    },
+
+    async setSanFranciscoPrefs(aPrefs)
+    {
+      let newPrefs = {
+        compressSyncData: true,
+        isSyncReadOnly: false,
+        showShctKey: false,
+        showShctKeyDispStyle: aeConst.SHCTKEY_DISPLAY_PARENS,
+        defDlgBtnFollowsFocus: false,
+        showToolsCmd: true,
+        keybdPaste: true,
+      };
+
+      // Removed deprecated prefs.
+      delete aPrefs.enhancedLaF;
+      delete aPrefs.clippingsMgrMinzWhenInactv;
+      await this._removePrefs("enhancedLaF", "clippingsMgrMinzWhenInactv");
+
+      await this._addPrefs(aPrefs, newPrefs);
+    },
+
+    async migrateKeyboardPastePref(aPrefs, aOSName)
+    {
+      if ("wxPastePrefixKey" in aPrefs) {
+        let keybdPaste = aOSName == "mac" ? aPrefs.keyboardPaste : aPrefs.wxPastePrefixKey;
+        aPrefs.keybdPaste = keybdPaste;
+        await this.setPrefs({keybdPaste});
+
+        delete aPrefs.keyboardPaste;
+        delete aPrefs.wxPastePrefixKey;
+        await this._removePrefs("keyboardPaste", "wxPastePrefixKey");
+      }
     },
 
     
@@ -154,6 +195,11 @@ let aePrefs = function () {
         aCurrPrefs[pref] = aNewPrefs[pref];
       }
       await this.setPrefs(aNewPrefs);
+    },
+
+    async _removePrefs(...aPrefs)
+    {
+      await messenger.storage.local.remove(aPrefs);
     },
   };
 }();

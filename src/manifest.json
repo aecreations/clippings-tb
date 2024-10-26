@@ -2,35 +2,42 @@
   "manifest_version": 2,
   "name": "__MSG_extNameTB__",
   "description": "__MSG_extDesc__",
-  "version": "6.3.7",
+  "version": "7.0",
   "author": "AE Creations",
   "homepage_url": "https://aecreations.io/clippings/index.php",
   "browser_specific_settings": {
     "gecko": {
       "id": "clippings-tb@aecreations.github.io",
-      "strict_min_version": "115.0",
-      "strict_max_version": "128.*"
+      "strict_min_version": "128.0"
     }
   },
   
   "icons": {
-    "32": "icon.svg"
+    "16": "img/clippings-tb16.svg",
+    "32": "img/clippings-tb32.svg",
+    "48": "icon.svg"
   },
 
   "permissions": [
     "alarms",
+    "compose",
     "downloads",
-    "management",
-    "nativeMessaging",
+    "menus",
     "notifications",
     "storage",
     "unlimitedStorage"
   ],
 
+  "optional_permissions": [
+    "clipboardRead",
+    "nativeMessaging"
+  ],
+
   "background": {
     "scripts": [
       "lib/dexie/dexie.min.js",
-      "lib/jquery.js",
+      "lib/moment/moment.min.js",
+      "lib/moment/locales.min.js",
       "scripts/aeConst.js",
       "scripts/aeDateDiff.js",
       "scripts/aeImportExport.js",
@@ -39,8 +46,31 @@
       "scripts/aeVersionCmp.js",
       "scripts/aeUUID.js",
       "scripts/aeClippings.js",
+      "scripts/aeClippingSubst.js",
+      "scripts/aeCompress.js",
+      "scripts/aeVisual.js",
       "background.js"
     ]
+  },
+
+  "compose_action": {
+    "type": "button",
+    "default_label": "",
+    "default_title": "__MSG_browserActionTitle__",
+    "default_icon": {
+      "32": "icon.svg"
+    },
+    "default_area": "maintoolbar"
+  },
+
+  "commands" : {
+    "ae-clippings-paste-clipping": {
+      "suggested_key": {
+        "default": "Alt+Shift+Y",
+        "mac": "Alt+Command+V"
+      },
+      "description": "__MSG_cmdDesc__"
+    }
   },
 
   "options_ui": {
@@ -49,32 +79,5 @@
     "browser_style": true
   },
   
-  "experiment_apis": {
-    "WindowListener": {
-      "schema": "api/WindowListener/schema.json",
-      "parent": {
-        "scopes": ["addon_parent"],
-        "paths": [["WindowListener"]],
-        "script": "api/WindowListener/implementation.js"
-      }
-    },
-    "NotifyTools": {
-      "schema": "api/NotifyTools/schema.json",
-      "parent": {
-        "scopes": ["addon_parent"],
-        "paths": [["NotifyTools"]],
-        "script": "api/NotifyTools/implementation.js"
-      }
-    },
-    "aeClippingsLegacy": {
-      "schema": "api/aeClippingsLegacy/schema.json",
-      "parent": {
-        "scopes": ["addon_parent"],
-        "paths": [["aeClippingsLegacy"]],
-        "script": "api/aeClippingsLegacy/implementation.js"
-      }
-    }
-  },
-
   "default_locale": "en"
 }

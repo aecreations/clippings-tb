@@ -37,16 +37,12 @@ function capitalize(aString)
 
 
 // Options page initialization
-$(() => {
+$(async () => {
   messenger.windows.update(messenger.windows.WINDOW_ID_CURRENT, {focused: true});
-  init();
-});
 
-
-async function init()
-{
   let platform = await messenger.runtime.getPlatformInfo();
   document.body.dataset.os = gOS = platform.os;
+  aeInterxn.init(gOS);
 
   if (gOS == "win") {
     let prefPgTitleWin = messenger.i18n.getMessage("prefsTitleWin");
@@ -54,70 +50,64 @@ async function init()
     $("#pref-pg-hdr-text").text(prefPgTitleWin);
   }
 
-  let keyCtrl  = messenger.i18n.getMessage("keyCtrl");
-  let keyAlt   = messenger.i18n.getMessage("keyAlt");
-  let keyShift = messenger.i18n.getMessage("keyShift");
-  let shctModeKeys = `${keyCtrl}+${keyAlt}+V`;
-  let shctModeKeysNew = `${keyAlt}+${keyShift}+Y`;
-  
-  if (gOS == "win") {
-    // Cannot use Ctrl+Alt+V - already assigned to a global shortcut for
-    // inserting the radical symbol (√) on Windows 10
-    $("#shortcut-key").css({ display: "none" });
-    $("#shct-label").css({ display: "none" });
-    $("#row-shct-key-new").removeClass("indent");
-  }
-  else if (gOS == "mac") {
-    let keyOption = messenger.i18n.getMessage("keyOption");
-    let keyCmd = messenger.i18n.getMessage("keyCommand");
-    shctModeKeys = `${keyOption}${keyCmd}V`;
-    
-    // Cannot use Cmd+Shift+Y - already assigned to a composer command.
-    $("#shortcut-key-new").css({ display: "none" });
-    $("#shct-new-label").css({ display: "none" });
-  }
+  let tabGeneral = $("#preftab-general-btn");
+  tabGeneral.on("click", switchPrefsPanel);
+  tabGeneral.ariaSelected = true;
 
-  $("#shct-label").text(messenger.i18n.getMessage("prefsShctMode", shctModeKeys));
+  let tabPaste = $("#preftab-paste-btn");
+  tabPaste.on("click", switchPrefsPanel);
+  tabPaste.ariaSelected = false;
 
-  let shctNewLabelTxt = messenger.i18n.getMessage("prefsShctModeNew", shctModeKeysNew);
-  if (gOS == "win") {
-    shctNewLabelTxt = messenger.i18n.getMessage("prefsShctMode", shctModeKeysNew);
-  }
-  $("#shct-new-label").text(shctNewLabelTxt);
-
-  let prefs = await aePrefs.getAllPrefs();
-
-  if (! prefs.keyboardPaste) {
-    $("#shortcut-key-new").prop("disabled", true);
-    $("#shct-new-label").attr("disabled", true);
-  }
+  let tabSync = $("#preftab-sync-clippings-btn");
+  tabSync.on("click", switchPrefsPanel);
+  tabSync.ariaSelected = false;
 
   let lang = messenger.i18n.getUILanguage();
   document.body.dataset.locale = lang;
-  document.body.dataset.laf = prefs.enhancedLaF;
 
   $("#sync-intro").html(sanitizeHTML(messenger.i18n.getMessage("syncIntroTB")));
+  
+  let hostApp = messenger.i18n.getMessage("hostAppTb");
+  $("#ext-perm-native-msg").text(messenger.i18n.getMessage("extPrmNativeMessaging", hostApp));
+  $("#ext-perm-native-msg-detail").html(
+    sanitizeHTML(messenger.i18n.getMessage("syncPermReqDetail", aeConst.SYNC_CLIPPINGS_DWNLD_URL))
+  );
 
   initDialogs();
 
-   $("#html-paste-options").on("change", aEvent => {
-    let pasteOpt = aEvent.target.value;
-    if (pasteOpt == aeConst.HTMLPASTE_AS_FORMATTED) {
-      $("#paste-formatted-opts").fadeIn();
-    }
-    else {
-      $("#paste-formatted-opts").fadeOut();
-    }
+  let prefs = await aePrefs.getAllPrefs();
+  $("#show-tools-cmd").prop("checked", prefs.showToolsCmd).click(aEvent => {
+    aePrefs.setPrefs({showToolsCmd: aEvent.target.checked});
   });
 
+  $("#paste-opt-formatted").click(aEvent => {
+    $("#html-auto-line-break").prop("disabled", false);
+    $("#html-paste-note").removeClass("disabled");
+    aePrefs.setPrefs({htmlPaste: aEvent.target.value});
+  });
+
+  $("#paste-opt-raw-html").click(aEvent => {
+    $("#html-auto-line-break").prop("disabled", true);
+    $("#html-paste-note").addClass("disabled");
+    aePrefs.setPrefs({htmlPaste: aEvent.target.value});
+  });
+  
   $("#toggle-sync").click(async (aEvent) => {
     let syncClippings = await aePrefs.getPref("syncClippings");
     if (syncClippings) {
       gDialogs.turnOffSync.showModal();
     }
     else {
-      gIsActivatingSyncClippings = true;
-      gDialogs.syncClippings.showModal();
+      // Check if the optional extension permission "nativeMessaging"
+      // was granted.
+      let perms = await messenger.permissions.getAll();
+      if (perms.permissions.includes("nativeMessaging")) {
+        gIsActivatingSyncClippings = true;
+        gDialogs.syncClippings.showModal();
+      }
+      else {
+        gDialogs.reqNativeAppConxnPerm.showModal();
+      }
     }
   });
 
@@ -135,33 +125,36 @@ async function init()
   // Sync Clippings help dialog content.
   $("#sync-clippings-help-dlg > .dlg-content").html(sanitizeHTML(messenger.i18n.getMessage("syncHelpTB", aeConst.SYNC_CLIPPINGS_HELP_URL)));
 
-  $("#html-paste-options").val(prefs.htmlPaste).change(aEvent => {
-    aePrefs.setPrefs({ htmlPaste: aEvent.target.value });
-  });
-
+  if (prefs.htmlPaste == aeConst.HTMLPASTE_AS_FORMATTED) {
+    $("#paste-opt-formatted").prop("checked", true);
+    $("#paste-opt-raw-html").prop("checked", false);
+    $("#html-auto-line-break").prop("disabled", false);
+    $("#html-paste-note").removeClass("disabled");
+  }
+  else if (prefs.htmlPaste == aeConst.HTMLPASTE_AS_IS) {
+    $("#paste-opt-formatted").prop("checked", false);
+    $("#paste-opt-raw-html").prop("checked", true);
+    $("#html-auto-line-break").prop("disabled", true);
+    $("#html-paste-note").addClass("disabled");
+  }
+  
   $("#html-auto-line-break").attr("checked", prefs.autoLineBreak).click(aEvent => {
     aePrefs.setPrefs({ autoLineBreak: aEvent.target.checked });
   });
 
-  $("#shortcut-key").attr("checked", prefs.keyboardPaste).click(aEvent => {
-    let shortcutCb = aEvent.target;
-    aePrefs.setPrefs({ keyboardPaste: shortcutCb.checked });
-
-    if (gOS != "mac") {
-      $("#shortcut-key-new").prop("disabled", !shortcutCb.checked);
-      $("#shct-new-label").attr("disabled", !shortcutCb.checked);
-
-      if (! shortcutCb.checked) {
-        $("#shortcut-key-new").prop("checked", false);
-        aePrefs.setPrefs({ wxPastePrefixKey: false });
-      }
-    }
-  });
-
-  $("#shortcut-key-new").attr("checked", prefs.wxPastePrefixKey).click(aEvent => {
-    aePrefs.setPrefs({ wxPastePrefixKey: aEvent.target.checked });
-  });
-
+  let keybPasteKeys = await messenger.runtime.sendMessage({msgID: "get-shct-key-prefix-ui-str"});
+  if (keybPasteKeys) {
+    $("#shortcut-key").prop("checked", prefs.keybdPaste).click(aEvent => {
+      aePrefs.setPrefs({keybdPaste: aEvent.target.checked});
+    });
+  }
+  else {
+    // Keyboard shortcut may not be defined if user removed it but didn't set a
+    // new shortcut in Manage Extension Shortcuts.
+    $("#shortcut-key").prop("checked", false).prop("disabled", true);
+  }
+  $("#shct-label").text(messenger.i18n.getMessage("prefsShctMode", keybPasteKeys));
+  
   $("#auto-inc-plchldrs-start-val").val(prefs.autoIncrPlchldrStartVal).click(aEvent => {
     aePrefs.setPrefs({ autoIncrPlchldrStartVal: aEvent.target.valueAsNumber });
   });
@@ -217,8 +210,34 @@ async function init()
     messenger.runtime.sendMessage({msgID: "set-backup-notifcn-intv"});
   });
 
-  $("#skip-backup-if-no-chg").attr("checked", prefs.skipBackupRemIfUnchg).click(aEvent => {
+  $("#skip-backup-if-no-chg").prop("checked", prefs.skipBackupRemIfUnchg).click(aEvent => {
     aePrefs.setPrefs({skipBackupRemIfUnchg: aEvent.target.checked});
+  });
+
+  $("#show-shct-key-in-menu").prop("checked", prefs.showShctKey).click(async (aEvent) => {
+    await aePrefs.setPrefs({showShctKey: aEvent.target.checked});
+    $("#shct-key-in-menu-opt").prop("disabled", !aEvent.target.checked);
+    if (aEvent.target.checked) {
+      $("#shct-key-in-menu-opt-label").removeClass("disabled");
+    }
+    else {
+      $("#shct-key-in-menu-opt-label").addClass("disabled");
+    }
+    messenger.runtime.sendMessage({msgID: "rebuild-cxt-menu"});
+  });
+
+  if (prefs.showShctKey) {
+    $("#shct-key-in-menu-opt-label").removeClass("disabled");
+    $("#shct-key-in-menu-opt").val(prefs.showShctKeyDispStyle).prop("disabled", false);  
+  }
+  else {
+    $("#shct-key-in-menu-opt-label").addClass("disabled");
+    $("#shct-key-in-menu-opt").val(prefs.showShctKeyDispStyle).prop("disabled", true);
+  }
+
+  $("#shct-key-in-menu-opt").change(async (aEvent) => {
+    await aePrefs.setPrefs({showShctKeyDispStyle: Number(aEvent.target.value)});
+    messenger.runtime.sendMessage({msgID: "rebuild-cxt-menu"});
   });
 
   $("#wnds-dlgs-settings").on("click", aEvent => {
@@ -236,7 +255,14 @@ async function init()
     $("#toggle-sync").text(messenger.i18n.getMessage("syncTurnOn"));
   }
 
-  $("#sync-settings").click(aEvent => {
+  $("#sync-settings").click(async (aEvent) => {
+    let perms = await messenger.permissions.getAll();
+    if (! perms.permissions.includes("nativeMessaging")) {
+      // The "nativeMessaging" extension permission was revoked while
+      // Sync Clippings was turned on.
+      gDialogs.reqNativeAppConxnPerm.showModal();
+      return;
+    }
     gDialogs.syncClippings.showModal();
   });
 
@@ -264,6 +290,48 @@ async function init()
     aEvent.preventDefault();
     gotoURL(aEvent.target.href, ("openInTbWnd" in aEvent.target.dataset));
   });
+
+  if (prefs.defDlgBtnFollowsFocus) {
+    aeInterxn.initDialogButtonFocusHandlers();
+  }
+
+  aeVisual.init(gOS);
+  aeVisual.cacheIcons(
+    "pref-general-checked.svg",
+    "pref-paste-checked.svg",
+    "pref-sync-clippings-checked.svg",
+    "pref-general-checked-dk.svg",
+    "pref-paste-checked-dk.svg",
+    "pref-sync-clippings-checked-dk.svg"
+  );
+  aeVisual.preloadMsgBoxIcons(true);
+});
+
+
+function switchPrefsPanel(aEvent)
+{
+  let id = aEvent.target.id;
+
+  if (id == "preftab-general-btn") {
+    $("#preftab-paste-btn, #preftab-sync-clippings-btn").removeClass("active-tab")
+      .attr("aria-selected", "false");
+    $("#prefpane-paste, #prefpane-sync-clippings").removeClass("active-tab-panel");
+    $("#prefpane-general").addClass("active-tab-panel");
+  }
+  else if (id == "preftab-paste-btn") {
+    $("#preftab-general-btn, #preftab-sync-clippings-btn").removeClass("active-tab")
+      .attr("aria-selected", "false");
+    $("#prefpane-general, #prefpane-sync-clippings").removeClass("active-tab-panel");
+    $("#prefpane-paste").addClass("active-tab-panel");
+  }
+  else if (id == "preftab-sync-clippings-btn") {   
+    $("#preftab-general-btn, #preftab-paste-btn").removeClass("active-tab")
+      .attr("aria-selected", "false");
+    $("#prefpane-general, #prefpane-paste").removeClass("active-tab-panel");
+    $("#prefpane-sync-clippings").addClass("active-tab-panel");
+  }
+  aEvent.target.classList.add("active-tab");
+  aEvent.target.ariaSelected = true;
 }
 
 
@@ -277,9 +345,9 @@ function initDialogs()
   });
   gDialogs.wndsDlgsOpts.onFirstInit = function ()
   {   
-    if (gOS != "win") {
+    if (! ["win", "mac"].includes(gOS)) {
       let os = gOS == "mac" ? "macOS" : capitalize(gOS);
-      $("#wnds-dlgs-opts-dlg").css({height: "320px"});
+      $("#wnds-dlgs-opts-dlg").css({height: "308px"});
       $("#wnds-dlgs-opts-exp-warn-msg").text(messenger.i18n.getMessage("wndsDlgsOptsExpWarn", os));
       $("#wnds-dlgs-opts-exp-warn").show();
     }
@@ -345,9 +413,25 @@ function initDialogs()
     $("#reset-clpmgr-wnd-pos-ack").css({visibility: "hidden"});
   };
 
+  gDialogs.reqNativeAppConxnPerm = new aeDialog("#request-native-app-conxn-perm-dlg");
+  gDialogs.reqNativeAppConxnPerm.onAccept = async function ()
+  {
+    this.close();
+    
+    let permGranted = await messenger.permissions.request({
+      permissions: ["nativeMessaging"],
+    });
+
+    if (permGranted) {
+      gIsActivatingSyncClippings = true;
+      gDialogs.syncClippings.showModal();
+    }
+  };
+
   gDialogs.syncClippings = new aeDialog("#sync-clippings-dlg");
   gDialogs.syncClippings.setProps({
     oldShowSyncItemsOpt: null,
+    oldCheckSyncAppUpdatesOpt: null,
     isCanceled: false,
     lastFocusedElt: null,
   });
@@ -378,19 +462,10 @@ function initDialogs()
 
   gDialogs.syncClippings.onFirstInit = function ()
   {
-    if (gOS == "win") {
-      $("#example-sync-path").text(messenger.i18n.getMessage("syncFileDirExWin"));
-    }
-    else if (gOS == "mac") {
-      $("#example-sync-path").text(messenger.i18n.getMessage("syncFileDirExMac"));
-    }
-    else {
-      $("#example-sync-path").text(messenger.i18n.getMessage("syncFileDirExLinux"));
-    }
     $("#sync-conxn-error-detail").html(sanitizeHTML(messenger.i18n.getMessage("errSyncConxnDetail")));
     $("#sync-fldr-curr-location").on("focus", aEvent => { aEvent.target.select() });
   };
-  gDialogs.syncClippings.onInit = function ()
+  gDialogs.syncClippings.onInit = async function ()
   {
     this.isCanceled = false;
     $("#sync-clippings-dlg .dlg-accept").hide();
@@ -409,47 +484,22 @@ function initDialogs()
 
     let isBrwsSyncFldrVisible = true;
     let lang = messenger.i18n.getUILanguage();
-    let natMsg = {msgID: "get-app-version"};
-    messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg).then(aResp => {
-      console.info("Sync Clippings helper app version: " + aResp.appVersion);
-
-      if (aeVersionCmp(aResp.appVersion, "1.2b1") < 0) {
-        $("#browse-sync-fldr").hide();
-        isBrwsSyncFldrVisible = false;
-      }
-      
-      return aePrefs.getAllPrefs();
-
-    }).then(aPrefs => {
-      $("#sync-helper-app-update-check").prop("checked", aPrefs.syncHelperCheckUpdates);
-      $("#show-only-sync-items").prop("checked", aPrefs.cxtMenuSyncItemsOnly);
-
-      this.oldShowSyncItemsOpt = $("#show-only-sync-items").prop("checked");
-
-      let natMsg = {msgID: "get-sync-dir"};
-      return messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg);
-      
-    }).then(aResp => {
-      $("#sync-fldr-curr-location").val(aResp.syncFilePath);
-      $("#sync-clippings-dlg .dlg-accept").show();
-      $("#sync-clippings-dlg .dlg-cancel").text(messenger.i18n.getMessage("btnCancel"));
-
-      deckSyncChk.hide();
-      deckSyncSettings.show();
-      this._initKeyboardNav("sync-folder-location", isBrwsSyncFldrVisible);
-
-    }).catch(aErr => {
-      console.error("Clippings/mx::options.js: Error returned from syncClippings native app: " + aErr);
+    let resp;
+    try {
+      resp = await messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, {msgID: "get-app-version"});
+    }
+    catch (e) {
+      console.error("Clippings/mx::options.js: Error returned from syncClippings native app: " + e);
       
       $("#sync-clippings-dlg .dlg-cancel").text(messenger.i18n.getMessage("btnClose"));
 
-      if (aErr == aeConst.SYNC_ERROR_CONXN_FAILED
-          || aErr == aeConst.SYNC_ERROR_NAT_APP_NOT_FOUND) {
+      if (e == aeConst.SYNC_ERROR_CONXN_FAILED
+          || e == aeConst.SYNC_ERROR_NAT_APP_NOT_FOUND) {
         // This would occur if Sync Clippings helper app won't start.
         deckSyncChk.hide();
         deckSyncConxnError.show();
       }
-      else if (aErr == aeConst.SYNC_ERROR_UNKNOWN) {
+      else if (e == aeConst.SYNC_ERROR_UNKNOWN) {
         deckSyncChk.hide();
         deckSyncSettings.hide();
         deckSyncError.show();
@@ -465,7 +515,39 @@ function initDialogs()
       }
 
       this._initKeyboardNav(null, false);
-    });
+      return;
+    }
+    
+    console.info("Sync Clippings helper app version: " + resp.appVersion);
+
+    if (aeVersionCmp(resp.appVersion, "1.2b1") < 0) {
+      $("#browse-sync-fldr").hide();
+      isBrwsSyncFldrVisible = false;
+    }
+    if (aeVersionCmp(resp.appVersion, "2.0b1") < 0) {
+      $("#sync-clippings-dlg").addClass("expanded");
+      $("#cmprs-sync-data-reqmt").html(
+        messenger.i18n.getMessage("cmprsSyncReqmt", aeConst.SYNC_CLIPPINGS_DWNLD_URL)
+      ).show();
+    }
+      
+    let prefs = await aePrefs.getAllPrefs();
+    $("#sync-helper-app-update-check").prop("checked", prefs.syncHelperCheckUpdates);
+    $("#show-only-sync-items").prop("checked", prefs.cxtMenuSyncItemsOnly);
+    $("#cmprs-sync-data").prop("checked", prefs.compressSyncData);
+
+    this.oldShowSyncItemsOpt = $("#show-only-sync-items").prop("checked");
+    this.oldCheckSyncAppUpdatesOpt = $("#sync-helper-app-update-check").prop("checked");
+
+    resp = await messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, {msgID: "get-sync-dir"});
+
+    $("#sync-fldr-curr-location").val(resp.syncFilePath);
+    $("#sync-clippings-dlg .dlg-accept").show();
+    $("#sync-clippings-dlg .dlg-cancel").text(messenger.i18n.getMessage("btnCancel"));
+
+    deckSyncChk.hide();
+    deckSyncSettings.show();
+    this._initKeyboardNav("sync-folder-location", isBrwsSyncFldrVisible);
   };
 
   gDialogs.syncClippings.onAccept = async function ()
@@ -484,9 +566,10 @@ function initDialogs()
     aePrefs.setPrefs({
       syncHelperCheckUpdates: $("#sync-helper-app-update-check").prop("checked"),
       cxtMenuSyncItemsOnly: $("#show-only-sync-items").prop("checked"),
+      compressSyncData: $("#cmprs-sync-data").prop("checked"),
     });
 
-    let rebuildClippingsMenu = $("#show-only-sync-items").prop("checked") != gDialogs.syncClippings.oldShowSyncItemsOpt;
+    let rebuildClippingsMenu = $("#show-only-sync-items").prop("checked") != this.oldShowSyncItemsOpt;
 
     let natMsg = {
       msgID: "set-sync-dir",
@@ -512,6 +595,27 @@ function initDialogs()
       this.close();
       return;
     }
+
+    // Sync Clippings Helper app update checking.
+    let isCheckSyncAppUpdatesEnabled = $("#sync-helper-app-update-check").prop("checked");
+    let isCheckSyncAppUpdates = (
+      gIsActivatingSyncClippings && isCheckSyncAppUpdatesEnabled
+        || isCheckSyncAppUpdatesEnabled != this.oldCheckSyncAppUpdatesOpt
+    );
+    if (isCheckSyncAppUpdates) {
+      messenger.runtime.sendMessage({
+        msgID: "set-sync-clippings-app-upd-chk",
+        enable: isCheckSyncAppUpdatesEnabled,
+      });
+    }
+
+    // Check if the sync file is read only.
+    resp = null;
+    resp = await messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, {
+      msgID: "get-sync-file-info",
+    });
+    let isSyncReadOnly = !!resp.readOnly;
+    aePrefs.setPrefs({isSyncReadOnly});
 
     let syncFolderID = await messenger.runtime.sendMessage({
       msgID: "enable-sync-clippings",
@@ -548,14 +652,15 @@ function initDialogs()
 
   gDialogs.syncClippings.onUnload = function ()
   {
-    $("#sync-clippings-dlg").css({height: "256px"});
+    $("#sync-clippings-dlg").removeClass("expanded");
+    $("#cmprs-sync-data-reqmt").text("").hide();
     gDialogs.syncClippings.isCanceled = true;
     this.lastFocusedElt?.focus();
   };
   
   gDialogs.turnOffSync = new aeDialog("#turn-off-sync-clippings-dlg");
   gDialogs.turnOffSync.onFirstInit = async function () {
-    $("#turn-off-sync-clippings-dlg > .dlg-btns > .dlg-btn-yes").click(async (aEvent) => {
+    this.find(".dlg-btns > .dlg-btn-yes").click(async (aEvent) => {
       this.close();
 
       let oldSyncFolderID = await messenger.runtime.sendMessage({
@@ -613,8 +718,8 @@ function initDialogs()
     let diagDeck = $("#about-dlg > .dlg-content #diag-info .deck");
     diagDeck.children("#sync-diag-loading").show();
     diagDeck.children("#sync-diag").hide();
-    $("#about-dlg > .dlg-content #diag-info #sync-diag-detail").hide();
-    $("#about-dlg > .dlg-content #diag-info #sync-file-size").text("");
+    this.find("#sync-diag-detail").hide();
+    this.find("#sync-file-size").text("");
 
     if (! this.extInfo) {
       let extManifest = messenger.runtime.getManifest();
@@ -626,59 +731,79 @@ function initDialogs()
       };
     }
 
-    $("#about-dlg > .dlg-content #ext-name").text(this.extInfo.name);
-    $("#about-dlg > .dlg-content #ext-ver").text(messenger.i18n.getMessage("aboutExtVer", this.extInfo.version));
-    $("#about-dlg > .dlg-content #ext-desc").text(this.extInfo.description);
-    $("#about-dlg > .dlg-content #ext-home-pg").attr("href", this.extInfo.homePgURL);
+    this.find("#ext-name").text(this.extInfo.name);
+    this.find("#ext-ver").text(messenger.i18n.getMessage("aboutExtVer", this.extInfo.version));
+    this.find("#ext-desc").text(this.extInfo.description);
+    this.find("#ext-home-pg").attr("href", this.extInfo.homePgURL);
   };
 
   gDialogs.about.onShow = async function ()
   {
-    let natMsg = {msgID: "get-app-version"};
-    messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg).then(aResp => {
-      $("#about-dlg > .dlg-content #diag-info #sync-ver").text(aResp.appVersion);
-      return aePrefs.getPref("syncClippings");
+    let perms = await messenger.permissions.getAll();
+    if (perms.permissions.includes("nativeMessaging")) {
+      this.find("#diag-info").show();
+      // Resize dialog to show the Sync Clippings status.
+      this._dlgElt.attr("data-expanded", "true");
+    }
+    else {
+      this.find("#diag-info").hide();
+      return;
+    }
 
-    }).then(aPrefSyncClpgs => {
-      if (!!aPrefSyncClpgs) {
-        let natMsg = {msgID: "get-sync-file-info"};
-        return messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg);
-      }
-      else {
-        return null;
-      }
-    }).then(aResp => {
-      if (aResp) {
-        let syncFileSize;
-        if (aResp.fileSizeKB == "") {
-          // Sync Clippings is turned on, but sync file is not yet created.
-          syncFileSize = "-";
-        }
-        else {
-          syncFileSize = `${aResp.fileSizeKB} KiB`;
-        }
-        $("#about-dlg > .dlg-content #diag-info #about-sync-status").hide();
-        $("#about-dlg > .dlg-content #diag-info #sync-file-size-label").show();
-        $("#about-dlg > .dlg-content #diag-info #sync-file-size").text(syncFileSize);
-      }
-      else {
-        // Sync Clippings is inactive.
-        $("#about-dlg > .dlg-content #diag-info #sync-file-size-label").hide();
-        $("#about-dlg > .dlg-content #diag-info #about-sync-status").text(messenger.i18n.getMessage("syncStatusOff")).show();
-      }
-      
-      $("#about-dlg > .dlg-content #diag-info #sync-diag-detail").show();
-
-    }).catch(aErr => {
+    let resp;
+    try {
+      resp = await messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, {
+        msgID: "get-app-version"
+      });
+    }
+    catch (e) {
       // Native app is not installed.
-      log("Clippings/mx: About dialog: Error returned from native app: " + aErr);
-      $("#about-dlg > .dlg-content #diag-info #sync-ver").text(messenger.i18n.getMessage("noSyncHelperApp"));
+      log("Clippings/mx: About dialog: Error returned from native app: " + e);
+      this.find("#sync-ver").text(messenger.i18n.getMessage("noSyncHelperApp"));
+    }
+
+    let diagDeck = this.find("#diag-info .deck");
+    diagDeck.children("#sync-diag-loading").hide();
+    diagDeck.children("#sync-diag").show();
+
+    if (! resp) {
+      return;
+    }
+    
+    this.find("#sync-ver").text(resp.appVersion);
+    let syncClippings = await aePrefs.getPref("syncClippings");
+    resp = null;
+    
+    if (syncClippings) {
+      resp = await messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, {
+        msgID: "get-sync-file-info"
+      });
+
+      let syncFileSize;
+      if (resp.fileSizeKB == "") {
+        // Sync Clippings is turned on, but sync file is not yet created.
+          syncFileSize = "-";
+      }
+      else {
+        syncFileSize = `${resp.fileSizeKB} KiB`;
+      }
       
-    }).finally(() => {
-      let diagDeck = $("#about-dlg > .dlg-content #diag-info .deck");
-      diagDeck.children("#sync-diag-loading").hide();
-      diagDeck.children("#sync-diag").show();
-    });
+      this.find("#about-sync-status").hide();
+      this.find("#sync-file-size-label").show();
+      this.find("#sync-file-size").text(syncFileSize);
+    }
+    else {
+      // Sync Clippings is inactive.
+      this.find("#sync-file-size-label").hide();
+      this.find("#about-sync-status").text(messenger.i18n.getMessage("syncStatusOff")).show();
+    }
+      
+    this.find("#sync-diag-detail").show();
+  };
+
+  gDialogs.about.onUnload = function ()
+  {
+    this._dlgElt.removeAttr("data-expanded");
   };
   
   gDialogs.syncClippingsHelp = new aeDialog("#sync-clippings-help-dlg");
@@ -756,8 +881,16 @@ $(window).on("contextmenu", aEvent => {
 
 
 messenger.runtime.onMessage.addListener(aRequest => {
-  if (aRequest.msgID == "focus-extension-prefs-pg") {
-    messenger.windows.update(messenger.windows.WINDOW_ID_CURRENT, {focused: true});
+  if (aRequest.msgID == "focus-ext-prefs-pg") {
+    messenger.windows.update(messenger.windows.WINDOW_ID_CURRENT, {focused: true}).then(aWnd => {
+      return messenger.tabs.getCurrent();
+    }).then(aTab => {
+      messenger.tabs.update(aTab.id, {active: true});
+    });
+  }
+  else if (aRequest.msgID == "ping-ext-prefs-pg") {
+    let resp = {isOpen: true};
+    return Promise.resolve(resp);
   }
 });
 
@@ -765,16 +898,10 @@ messenger.runtime.onMessage.addListener(aRequest => {
 function gotoURL(aURL, aOpenInTbWnd)
 {
   if (aOpenInTbWnd) {
-    messenger.tabs.create({ url: aURL });
+    messenger.tabs.create({url: aURL});
   }
   else {
-    try {
-      // Requires Thunderbird 78.6.0 or newer
-      messenger.windows.openDefaultBrowser(aURL);
-    }
-    catch (e) {
-      messenger.tabs.create({ url: aURL });
-    }
+    messenger.windows.openDefaultBrowser(aURL);
   }
 }
 

@@ -41,27 +41,14 @@ select.browser-style {
     font-size: 13px;
 }
 
-body[data-laf="true"][data-os="mac"] select.browser-style {
-    height: 26px;
-}
-
-#backup-now {
+#btn-accept {
     min-width: 160px;
     height: 48px;
     padding-left: 16px;
     padding-right: 16px;
+    border-radius: 5px;
     font-size: 17px !important;
     font-weight: 600;
-}
-
-body[data-laf="true"]:not([data-os="mac"]) #backup-now {
-    border-radius: 5px;
-}
-
-body[data-os="mac"] #backup-now {
-    height: 26px;
-    font-size: 15px !important;
-    font-weight: 400;
 }
 
 body[data-locale="fr"] #backup-hint,
@@ -98,10 +85,6 @@ body[data-os="mac"] #backup-reminder-freq {
     min-width: 96px;
     height: 32px;
     font-size: 15px !important;
-}
-
-body[data-os="mac"] #dlg-buttons > button {
-    height: 26px;
 }
 
 /*

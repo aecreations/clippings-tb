@@ -6,15 +6,21 @@
 
 function sanitizeHTML(aHTMLStr)
 {
-  return DOMPurify.sanitize(aHTMLStr, { SAFE_FOR_JQUERY: true });
+  return DOMPurify.sanitize(aHTMLStr, {SAFE_FOR_JQUERY: true});
 }
 
 
 // Page initialization
 $(async () => {
   let extInfo = messenger.runtime.getManifest();
+  $("#latest-ver").text(messenger.i18n.getMessage("upgrade", extInfo.name));
+  $("#ver-subhead").text(messenger.i18n.getMessage("aboutExtVer", extInfo.version));
   let contribCTA = messenger.i18n.getMessage("contribCTA", [extInfo.name, aeConst.DONATE_URL, aeConst.CONTRIB_URL]);
   $("#contrib-cta").html(sanitizeHTML(contribCTA));
+
+  let hostAppName = messenger.i18n.getMessage("hostAppTb");
+  $("#hostapp-compat").text(messenger.i18n.getMessage("hostAppCompat", hostAppName));
+  $("#whats-new-sync").html(sanitizeHTML(messenger.i18n.getMessage("whatsNewSync", aeConst.SYNC_CLIPPINGS_DWNLD_URL)));
   
   $("#link-website > a").attr("href", extInfo.homepage_url);
   $("#link-atn > a").attr("href", aeConst.ATN_URL);
@@ -27,21 +33,12 @@ $(async () => {
     aEvent.preventDefault();
     gotoURL(aEvent.target.href);
   });
-
-  let enhancedLaF = await aePrefs.getPref("enhancedLaF");
-  document.body.dataset.laf = enhancedLaF;
 });
 
 
 function gotoURL(aURL)
 {
-  try {
-    // Requires Thunderbird 78.6.0 or newer
-    messenger.windows.openDefaultBrowser(aURL);
-  }
-  catch (e) {
-    messenger.tabs.create({ url: aURL });
-  }
+  messenger.windows.openDefaultBrowser(aURL);
 }
 
 

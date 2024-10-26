@@ -19,11 +19,6 @@ button {
     font-size: 13px !important;
 }
 
-body[data-os="mac"] button,
-body[data-os="mac"] button.default {
-    min-height: 21px;
-}
-
 button[disabled] {
     opacity: 0.4;
 }
@@ -53,10 +48,6 @@ fieldset > legend {
     flex-flow: column nowrap;
 }
 
-select {
-    font: caption;
-}
-
 .browser-style > input[type="text"],
 .browser-style > textarea,
 select.browser-style {
@@ -68,6 +59,14 @@ select.browser-style {
 .browser-style > input[type="text"][readonly],
 .browser-style > input[type="text"][readonly]:hover{
     border-bottom: 1px dotted;
+}
+
+input[type="checkbox"] {
+    vertical-align: -2px;
+}
+
+input[type="checkbox"] + label {
+    line-height: 1.8em;
 }
 
 .browser-style > input[type="checkbox"] + label::before {

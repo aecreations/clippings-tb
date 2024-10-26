@@ -7,7 +7,6 @@ const DEBUG_TREE = false;
 const DEBUG_WND_ACTIONS = false;
 const REBUILD_BRWS_CXT_MENU_DELAY = 3000;
 const ENABLE_PASTE_CLIPPING = false;
-const NEW_CLIPPING_FROM_CLIPBOARD = "New Clipping From Clipboard";
 
 let gEnvInfo;
 let gClippingsDB;
@@ -27,7 +26,7 @@ let gReorderedTreeNodeNextSibling = null;
 // DOM utility
 function sanitizeHTML(aHTMLStr)
 {
-  return DOMPurify.sanitize(aHTMLStr, { SAFE_FOR_JQUERY: true });
+  return DOMPurify.sanitize(aHTMLStr, {SAFE_FOR_JQUERY: true});
 }
 
 
@@ -95,7 +94,7 @@ let gClippingsSvc = {
   {
     if (! aOldFolder) {
       aOldFolder = await gClippingsDB.folders.get(aFolderID);
-    } 
+    }
     let numUpd = await gClippingsDB.folders.update(aFolderID, aChanges);
 
     let newFolder = {};
@@ -160,11 +159,34 @@ let gClippingsListener = {
 
     if (selectedNode) {
       if (aData.parentFolderID == aeConst.ROOT_FOLDER_ID) {
-        newNode = tree.rootNode.addNode(newNodeData);
+        if (aData.separator) {
+          let childNodes = tree.rootNode.getChildren();
+          // For separators only:
+          // Need to subtract 1 from display order due to starting index of 1
+          // for the root folder to accommodate the Synced Clippings folder.
+          let idx = aData.displayOrder - 1;
+          idx < 0 && (idx = 0);
+          newNodeData.title = "<hr>";
+          let siblingNode = childNodes[idx];
+          newNode = siblingNode.appendSibling(newNodeData);
+        }
+        else {
+          newNode = tree.rootNode.addNode(newNodeData);
+        }
       }
       else {
         let parentNode = tree.getNodeByKey(aData.parentFolderID + "F");
-        newNode = parentNode.addNode(newNodeData);
+        if (aData.separator) {
+          let childNodes = parentNode.getChildren();
+          let idx = aData.displayOrder;
+          idx < 0 && (idx = 0);
+          newNodeData.title = "<hr>";
+          let siblingNode = childNodes[idx];
+          newNode = siblingNode.appendSibling(newNodeData)
+        }
+        else {
+          newNode = parentNode.addNode(newNodeData);
+        }
       }
     }
     else {
@@ -174,6 +196,10 @@ let gClippingsListener = {
 
     if (aData.label) {
       newNode.addClass(`ae-clipping-label-${aData.label}`);
+    }
+
+    if (aData.separator) {
+      newNode.addClass("ae-separator");
     }
 
     if (aDontSelect) {
@@ -238,6 +264,9 @@ let gClippingsListener = {
 
     if (aID == gPrefs.syncFolderID) {
       newNodeData.extraClasses = "ae-synced-clippings-fldr";
+      if (gPrefs.isSyncReadOnly) {
+        newNodeData.extraClasses += " ae-synced-clippings-readonly";
+      }
     }
 
     let newNode = null;
@@ -332,20 +361,53 @@ let gClippingsListener = {
             title: sanitizeTreeNodeTitle(DEBUG_TREE ? `${aData.name} [key=${aID}C]` : aData.name)
           };
 
-          if (aData.parentFolderID == aeConst.ROOT_FOLDER_ID) {
-            changedNode = tree.rootNode.addNode(newNodeData);
+          if (aData.separator) {
+            newNodeData.extraClasses = "ae-separator";
+            newNodeData.title = "<hr>";
+            if (aData.parentFolderID == aeConst.ROOT_FOLDER_ID) {
+              // Position the separator node in the tree list.
+              // For the root folder, displayOrder starts at 1 to accommodate
+              // the Synced Clippings folder.
+              let rootNodes = tree.rootNode.getChildren();
+              let sibling = rootNodes[aData.displayOrder];
+              if (sibling) {
+                changedNode = sibling.addNode(newNodeData, "before");
+              }
+              else {
+                // The given displayOrder is invalid.
+                sibling = tree.rootNode.getLastChild();
+                changedNode = sibling.appendSibling(newNodeData);
+              }
+            }
+            else {
+              let parentNode = tree.getNodeByKey(aData.parentFolderID + "F");
+              let fldrNodes = parentNode.getChildren();
+              let sibling = fldrNodes[aData.displayOrder + 1];
+              if (sibling) {
+                changedNode = sibling.addNode(newNodeData, "before");
+              }
+              else {
+                sibling = parentNode.getLastChild();
+                changedNode = sibling.appendSibling(newNodeData);
+              }
+            }
           }
           else {
-            let parentNode = tree.getNodeByKey(aData.parentFolderID + "F");
-            changedNode = parentNode.addNode(newNodeData);
-          }
+            if (aData.parentFolderID == aeConst.ROOT_FOLDER_ID) {
+              changedNode = tree.rootNode.addNode(newNodeData);
+            }
+            else {
+              let parentNode = tree.getNodeByKey(aData.parentFolderID + "F");
+              changedNode = parentNode.addNode(newNodeData);
+            }
 
-          if (aData.label) {
-            changedNode.addClass(`ae-clipping-label-${aData.label}`);
-          }
+            if (aData.label) {
+              changedNode.addClass(`ae-clipping-label-${aData.label}`);
+            }
 
-          log(`Clippings/mx::clippingsMgr.js: gCmd.clippingChanged(): Updating display order of items under folder (ID = ${newParentFldrID}) after undoing clipping deletion`);
-          gCmd.updateDisplayOrder(newParentFldrID, null, null, true);
+            log(`Clippings/mx::clippingsMgr.js: gCmd.clippingChanged(): Updating display order of items under folder (ID = ${newParentFldrID}) after undoing clipping deletion`);
+            gCmd.updateDisplayOrder(newParentFldrID, null, null, true);
+          }
         }
 
         changedNode.makeVisible().then(() => { changedNode.setActive() });
@@ -558,6 +620,7 @@ let gSyncClippingsListener = {
     let clippingsTree = getClippingsTree();
     let syncFldrTreeNode = clippingsTree.getNodeByKey(aOldSyncFolderID + "F");
     syncFldrTreeNode.removeClass("ae-synced-clippings-fldr");
+    syncFldrTreeNode.removeClass("ae-synced-clippings-readonly");
 
     let clippingsTreeElt = $("#clippings-tree");
     if (clippingsTreeElt.hasClass("cxt-menu-show-sync-items-only")) {
@@ -868,6 +931,7 @@ let gCmd = {
   ACTION_IMPORT: 17,
   ACTION_EXPORT: 18,
   ACTION_RELOAD_SYNC_FLDR: 19,
+  ACTION_INSERT_SEPARATOR: 20,
 
   // flags for aDestUndoStack parameter of functions for reversible actions
   UNDO_STACK: 1,
@@ -1170,7 +1234,7 @@ let gCmd = {
     return rv;
   },
   
-  newClipping: function (aDestUndoStack, aIsFromClipboard)
+  newClipping(aDestUndoStack)
   {
     if (gIsClippingsTreeEmpty) {
       unsetEmptyClippingsState();
@@ -1180,7 +1244,7 @@ let gCmd = {
     let selectedNode = tree.activeNode;
     let parentFolderID = aeConst.ROOT_FOLDER_ID;
     let displayOrder = 0;
-    
+   
     if (selectedNode) {
       parentFolderID = this._getParentFldrIDOfTreeNode(selectedNode);
       let parentFldrChildNodes = selectedNode.getParent().getChildren();
@@ -1192,13 +1256,14 @@ let gCmd = {
       }
     }
 
-    let name = messenger.i18n.getMessage("newClipping");
-    if (aIsFromClipboard) {
-      name = NEW_CLIPPING_FROM_CLIPBOARD;
+    if (gSyncedItemsIDs.has(parentFolderID + "F") && gPrefs.isSyncReadOnly) {
+      setTimeout(() => { gDialogs.syncFldrReadOnly.openPopup() }, 100);
+      return;
     }
 
     this.recentAction = this.ACTION_CREATENEW;
 
+    let name = messenger.i18n.getMessage("newClipping");
     let newClipping = {
       name,
       content: "",
@@ -1316,6 +1381,46 @@ let gCmd = {
     });
   },
 
+  async newClippingFromClipboard()
+  {
+    let perms = await messenger.permissions.getAll();
+    if (! perms.permissions.includes("clipboardRead")) {
+      gDialogs.requestExtPerm.setPermission("clipboardRead");
+      gDialogs.requestExtPerm.showModal();
+      return;
+    }
+
+    let content = await navigator.clipboard.readText();
+    if (content == "") {
+      setTimeout(() => {gDialogs.clipboardEmpty.openPopup()}, 100);
+      return;
+    }
+
+    content = DOMPurify.sanitize(content);
+    let name = aeClippings.createClippingNameFromText(content);
+    
+    let tree = getClippingsTree();
+    let selectedNode = tree.activeNode;
+    let parentFolderID = aeConst.ROOT_FOLDER_ID;
+    
+    if (selectedNode) {
+      parentFolderID = this._getParentFldrIDOfTreeNode(selectedNode);
+      let parentFldrChildNodes = selectedNode.getParent().getChildren();
+      if (parentFldrChildNodes === undefined) {
+        warn("Clippings/mx::clippingsMgr.js: gCmd.newClippingFromClipboard(): Can't get child nodes of the parent node, because Fancytree lazy loading is in effect!");
+      }
+    }
+
+    // If attempting to create new clipping in the Synced Clippings folder
+    // when sync file is read-only, create in the root folder instead.
+    if (gPrefs.syncClippings && gPrefs.isSyncReadOnly
+        && gSyncedItemsIDs.has(parentFolderID + "F")) {
+      parentFolderID = aeConst.ROOT_FOLDER_ID;
+    }
+
+    this.newClippingWithContent(parentFolderID, name, content, gCmd.UNDO_STACK);
+  },
+
   newFolder: function (aDestUndoStack)
   {
     if (gIsClippingsTreeEmpty) {
@@ -1336,6 +1441,11 @@ let gCmd = {
       else {
         displayOrder = parentFldrChildNodes.length;
       }
+    }
+
+    if (gSyncedItemsIDs.has(parentFolderID + "F") && gPrefs.isSyncReadOnly) {
+      setTimeout(() => { gDialogs.syncFldrReadOnly.openPopup() }, 100);
+      return;
     }
 
     this.recentAction = this.ACTION_CREATENEWFOLDER;
@@ -1396,23 +1506,31 @@ let gCmd = {
 
     let tree = getClippingsTree();
     let selectedNode = tree.activeNode;
-    if (selectedNode && selectedNode.isFolder()) {
-      // Disallow if New Clipping dialog is open to prevent errors due to saving
-      // a new clipping into a non-existent folder.
-      let pingResp;
-      try {
-        pingResp = await messenger.runtime.sendMessage({msgID: "ping-new-clipping-dlg"});
-      }
-      catch {}
-      if (pingResp) {
-        gDialogs.actionUnavailable.openPopup();
-        return;
-      }
+    if (selectedNode) {
+      if (selectedNode.isFolder()) {
+        // Disallow if New Clipping dialog is open to prevent errors due to saving
+        // a new clipping into a non-existent folder.
+        let pingResp;
+        try {
+          pingResp = await messenger.runtime.sendMessage({msgID: "ping-new-clipping-dlg"});
+        }
+        catch {}
+        if (pingResp) {
+          gDialogs.actionUnavailable.openPopup();
+          return;
+        }
 
-      let folderID = parseInt(selectedNode.key);
-      if (folderID == gPrefs.syncFolderID) {
-        console.warn("Cannot move the Synced Clippings folder.");
-        return;
+        let folderID = parseInt(selectedNode.key);
+        if (folderID == gPrefs.syncFolderID) {
+          console.warn("Cannot move the Synced Clippings folder.");
+          return;
+        }
+      }
+      else {
+        if (selectedNode.extraClasses == "ae-separator") {
+          // Don't allow moving/copying a separator.
+          return;
+        }
       }
     }
 
@@ -1433,7 +1551,15 @@ let gCmd = {
 
     let id = parseInt(selectedNode.key);
     let parentFolderID = this._getParentFldrIDOfTreeNode(selectedNode);
+
+    if (gSyncedItemsIDs.has(parentFolderID + "F") && gPrefs.isSyncReadOnly) {
+      setTimeout(() => { gDialogs.syncFldrReadOnly.openPopup() }, 100);
+      return;
+    }
+
     let sid, parentFldrSID;  // Permanent IDs for synced items.
+    let isSeparator = false;
+    let displayOrder = null;  // For separators.
     
     if (selectedNode.isFolder()) {
       let pingResp;
@@ -1513,6 +1639,12 @@ let gCmd = {
         if ("sid" in aClipping) {
           sid = aClipping.sid;
         }
+
+        if (aClipping.separator) {
+          isSeparator = true;
+          displayOrder = aClipping.displayOrder;
+        }
+
         return gClippingsDB.folders.get(parentFolderID);
 
       }).then(aFolder => {
@@ -1537,7 +1669,7 @@ let gCmd = {
             action: this.ACTION_DELETECLIPPING,
             itemType: this.ITEMTYPE_CLIPPING,
             id,
-            parentFolderID
+            parentFolderID,
           };
           if (gSyncedItemsIDs.has(parentFolderID + "F")) {
             state.sid = sid;
@@ -1546,6 +1678,11 @@ let gCmd = {
             }
           }
           
+          if (isSeparator) {
+            state.isSeparator = true;
+            state.displayOrder = displayOrder;
+          }
+
           this.undoStack.push(state);
         }
 
@@ -1560,6 +1697,120 @@ let gCmd = {
       });
     }
   },
+
+
+  async insertSeparator(aDestUndoStack)
+  {
+    if (gIsClippingsTreeEmpty) {
+      unsetEmptyClippingsState();
+    }
+    
+    let tree = getClippingsTree();
+    let selectedNode = tree.activeNode;
+    let parentFolderID = aeConst.ROOT_FOLDER_ID;
+    let displayOrder = 0;
+
+    if (selectedNode) {
+      parentFolderID = this._getParentFldrIDOfTreeNode(selectedNode);
+      let parentFldrChildNodes = selectedNode.getParent().getChildren();
+      if (parentFldrChildNodes === undefined) {
+        warn("Clippings/mx::clippingsMgr.js: gCmd.insertSeparator(): Can't get child nodes of the parent node, because Fancytree lazy loading is in effect!");
+      }
+    }
+
+    if (gSyncedItemsIDs.has(parentFolderID + "F") && gPrefs.isSyncReadOnly) {
+      setTimeout(() => { gDialogs.syncFldrReadOnly.openPopup() }, 100);
+      return;
+    }
+
+    // Force displayOrder to be updated on all folder menu items so that the
+    // separator is inserted in the correct position.
+    await this.updateDisplayOrder(parentFolderID, null, null, true);
+
+    let id = parseInt(selectedNode.key);
+
+    // Calculate display order.
+    if (selectedNode.isFolder()) {
+      // Insert separator before the selected item. But insert after if the
+      // selected node is the first item, since the menus API won't render a
+      // separator if it's the first item on the menu.
+      let fldr = await gClippingsDB.folders.get(id);
+      if (fldr.displayOrder == 0) {
+        displayOrder = 0;
+      }
+      else if (fldr.displayOrder == 1 && parentFolderID == aeConst.ROOT_FOLDER_ID) {
+        // Root folder displayOrder numbering starts at 1 to accommodate the
+        // Synced Clippings folder.
+        displayOrder = 1;
+      }
+      else {
+        displayOrder = fldr.displayOrder - 1;
+      }
+    }
+    else {
+      let clipping = await gClippingsDB.clippings.get(id);
+      if (clipping.displayOrder == 0) {
+        displayOrder = 0;
+      }
+      else if (clipping.displayOrder == 1 && parentFolderID == aeConst.ROOT_FOLDER_ID) {
+        displayOrder = 1;
+      }
+      else {
+        displayOrder = clipping.displayOrder - 1;
+      }
+    }
+    log("Clippings/mx::clippingsMgr.js: gCmd.insertSeparator(): At position: " + displayOrder);
+
+    this.recentAction = this.ACTION_INSERT_SEPARATOR;
+
+    let newSeparator = {
+      name: messenger.i18n.getMessage("sepName"),
+      content: "",
+      shortcutKey: "",
+      parentFolderID,
+      label: "",
+      sourceURL: "",
+      displayOrder,      
+      separator: true,
+    };
+
+    if (gSyncedItemsIDs.has(parentFolderID + "F")) {
+      newSeparator.sid = aeUUID();
+    }
+
+    let parentFldrSID;
+    
+    let folder = await gClippingsDB.folders.get(parentFolderID);
+    if (folder && folder.id != gPrefs.syncFolderID && "sid" in folder) {
+      parentFldrSID = folder.sid;
+    }
+
+    let newSeparatorID = await gClippingsSvc.createClipping(newSeparator);
+    this._unsetClippingsUnchangedFlag();
+
+    await this.updateDisplayOrder(parentFolderID, null, null, true);
+
+    let state = {
+      action: this.ACTION_INSERT_SEPARATOR,
+      id: newSeparatorID,
+      parentFldrID: parentFolderID,
+      displayOrder,
+      separator: true,
+    };
+    this._pushToUndoStack(aDestUndoStack, state);
+
+    if (gSyncedItemsIDs.has(parentFolderID + "F")) {
+      gSyncedItemsIDs.add(newSeparatorID + "C");
+      gSyncedItemsIDMap.set(newSeparator.sid, newSeparatorID + "C");
+      try {
+        await messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"});
+      }
+      catch (e) {
+        handlePushSyncItemsError(e);
+      }
+    }
+  },
+
 
   // Internal commands are NOT meant to be invoked directly from the UI.
   moveClippingIntrl(aClippingID, aNewParentFldrID, aDestUndoStack)
@@ -1598,6 +1849,12 @@ let gCmd = {
           clippingChg.sid = undefined;
         }
 
+        if (aClipping.separator && aClipping.displayOrder > 0
+            && aNewParentFldrID != aeConst.DELETED_ITEMS_FLDR_ID) {
+          // Position the separator in the correct sequence.
+          clippingChg.displayOrder = aClipping.displayOrder - 1;
+        }
+
         if (oldParentFldrID == aeConst.DELETED_ITEMS_FLDR_ID) {
           return null;
         }
@@ -1621,7 +1878,12 @@ let gCmd = {
 
       }).then(aNumUpd => {
         this._unsetClippingsUnchangedFlag();
+        if (aNewParentFldrID == aeConst.DELETED_ITEMS_FLDR_ID) {
+          return null;
+        }
+        return this.updateDisplayOrder(aNewParentFldrID, null, null, true);
 
+      }).then(() => {
         let state = {
           action: this.ACTION_MOVETOFOLDER,
           itemType: this.ITEMTYPE_CLIPPING,
@@ -1718,6 +1980,7 @@ let gCmd = {
       if (aDestFldrID == aeConst.DELETED_ITEMS_FLDR_ID) {
         return null;
       }
+
       return gClippingsDB.folders.get(aDestFldrID);
 
     }).then(aFolder => {
@@ -2351,6 +2614,18 @@ let gCmd = {
     gDialogs.insDateTimePlchldr.showModal();
   },
   
+  insertClippingInClippingPlaceholder()
+  {
+    let contentTextArea = $("#clipping-text");
+    let arg = messenger.i18n.getMessage("plchldrClipClipArg");
+    let plchldr = "$[CLIPPING(" + arg + ")]";
+    insertTextIntoTextbox(contentTextArea, plchldr);
+
+    // Select the placeholder argument.
+    contentTextArea[0].selectionStart = contentTextArea[0].selectionEnd - arg.length - 2;
+    contentTextArea[0].selectionEnd -= 2;
+  },
+
   showHidePlaceholderToolbar: function ()
   {
     let currSetting = gPrefs.clippingsMgrPlchldrToolbar;
@@ -2411,18 +2686,12 @@ let gCmd = {
     gIsMaximized = updWnd.state == "maximized";
   },
 
-  toggleMinimizeWhenInactive: function ()
-  {
-    let currSetting = gPrefs.clippingsMgrMinzWhenInactv;
-    aePrefs.setPrefs({ clippingsMgrMinzWhenInactv: !currSetting });
-  },
-  
   openExtensionPrefs: function ()
   {
     messenger.runtime.openOptionsPage();
 
     // Workaround to extension preferences page not focused if already open.
-    messenger.runtime.sendMessage({msgID: "focus-extension-prefs-pg"});
+    messenger.runtime.sendMessage({msgID: "focus-ext-prefs-pg"});
   },
   
   backup: function ()
@@ -2438,7 +2707,7 @@ let gCmd = {
     }
 
     let blobData;
-    aeImportExport.exportToJSON(INCLUDE_SRC_URLS, false, aeConst.ROOT_FOLDER_ID, excludeSyncFldrID, true).then(aJSONData => {
+    aeImportExport.exportToJSON(INCLUDE_SRC_URLS, false, aeConst.ROOT_FOLDER_ID, excludeSyncFldrID, true, true).then(aJSONData => {
       blobData = new Blob([aJSONData], { type: "application/json;charset=utf-8"});
 
       gSuppressAutoMinzWnd = true;
@@ -2561,7 +2830,7 @@ let gCmd = {
     }
     
     if (this.undoStack.length == 0) {
-      window.setTimeout(() => { gDialogs.noUndoNotify.openPopup() }, 100);
+      setTimeout(() => { gDialogs.noUndoNotify.openPopup() }, 100);
       return;
     }
 
@@ -2595,7 +2864,8 @@ let gCmd = {
         this.redoStack.push(undo);
       }
     }
-    else if (undo.action == this.ACTION_CREATENEW) {
+    else if (undo.action == this.ACTION_CREATENEW
+             || undo.action == this.ACTION_INSERT_SEPARATOR) {
       await this.moveClippingIntrl(undo.id, aeConst.DELETED_ITEMS_FLDR_ID);
       this.redoStack.push(undo);
     }
@@ -2708,7 +2978,7 @@ let gCmd = {
     }
     
     if (this.redoStack.length == 0) {
-      window.setTimeout(() => { gDialogs.noRedoNotify.openPopup() }, 100);
+      setTimeout(() => { gDialogs.noRedoNotify.openPopup() }, 100);
       return;
     }
 
@@ -2742,7 +3012,12 @@ let gCmd = {
         this.undoStack.push(redo);
       }
     }
-    else if (redo.action == this.ACTION_CREATENEW) {
+    else if (redo.action == this.ACTION_CREATENEW
+             || redo.action == this.ACTION_INSERT_SEPARATOR) {
+      await this.moveClippingIntrl(redo.id, redo.parentFldrID);
+      this.undoStack.push(redo);
+    }
+    else if (redo.action == this.ACTION_INSERT_SEPARATOR) {
       await this.moveClippingIntrl(redo.id, redo.parentFldrID);
       this.undoStack.push(redo);
     }
@@ -2935,8 +3210,15 @@ $(async () => {
   if (gEnvInfo.os == "mac") {
     $("#status-bar").css({backgroundImage: "none"});
   }
-
-  document.body.dataset.laf = gPrefs.enhancedLaF;
+  else if (gEnvInfo.os == "linux") {
+    if (gPrefs.clippingsMgrAutoShowStatusBar) {
+      $("#status-bar").show();
+      aePrefs.setPrefs({
+        clippingsMgrAutoShowStatusBar: false,
+        clippingsMgrStatusBar: true,
+      });
+    }
+  }
 
   let lang = messenger.i18n.getUILanguage();
   document.body.dataset.locale = lang;
@@ -2947,12 +3229,6 @@ $(async () => {
   gIsBackupMode = wndURL.searchParams.get("backupMode") || false;
   
   gIsMaximized = false;
-
-  if (DEBUG_WND_ACTIONS) {
-    if (gPrefs.clippingsMgrMinzWhenInactv === null) {
-      aePrefs.setPrefs({clippingsMgrMinzWhenInactv: true});
-    }
-  }
 
   initToolbar();
   initInstantEditing();
@@ -2980,6 +3256,11 @@ $(async () => {
         && gPrefs.clippingsMgrShowSyncItemsOnlyRem) {
       gDialogs.showOnlySyncedItemsReminder.showModal();
     }
+  }
+
+  aeInterxn.init(gEnvInfo.os);
+  if (gPrefs.defDlgBtnFollowsFocus) {
+    aeInterxn.initDialogButtonFocusHandlers();
   }
 
   focusWnd();
@@ -3103,6 +3384,12 @@ $(document).keydown(async (aEvent) => {
   else if (aEvent.key == "F10" && isAccelKeyPressed()) {
     gCmd.toggleMaximize();
   }
+  else if (aEvent.key == "F10" && aEvent.shiftKey) {
+    let focusedTreeNodeElt = $(".fancytree-focused");
+    if (focusedTreeNodeElt.length == 1) {
+      focusedTreeNodeElt.parent().trigger("contextmenu");
+    }
+  }
   else if (aEvent.key.toUpperCase() == "A" && isAccelKeyPressed()) {
     if (! isTextboxFocused(aEvent)) {
       aEvent.preventDefault();
@@ -3162,13 +3449,6 @@ $(window).on("focus", aEvent => {
 $(window).on("blur", aEvent => {
   if (gPrefs.clippingsMgrSaveWndGeom) {
     setSaveWndGeometryInterval(false);
-  }
-  
-  if (gEnvInfo.os == "linux" || DEBUG_WND_ACTIONS) {
-    if (gPrefs.clippingsMgrMinzWhenInactv && !gSuppressAutoMinzWnd) {
-      let updWndInfo = { state: "minimized" };
-      messenger.windows.update(messenger.windows.WINDOW_ID_CURRENT, updWndInfo);
-    }
   }
 });
 
@@ -3265,6 +3545,7 @@ function initToolbar()
   $.contextMenu({
     selector: "#plchldr-presets",
     trigger: "left",
+    className: "placeholder-menu",
 
     events: {
       activated: function (aOptions) {
@@ -3324,6 +3605,10 @@ function initToolbar()
         gCmd.insertFormattedDateTimePlaceholder();
         break;
         
+      case "insClippingInClipping":
+        gCmd.insertClippingInClippingPlaceholder();
+        break;
+
       default:
         window.alert("The selected action is not available right now.");
         break;
@@ -3335,36 +3620,33 @@ function initToolbar()
         name: messenger.i18n.getMessage("mnuPlchldrDate"),
         className: "ae-menuitem"
       },
-
       insTime: {
         name: messenger.i18n.getMessage("mnuPlchldrTime"),
         className: "ae-menuitem"
       },
-
       insAppName: {
         name: messenger.i18n.getMessage("mnuPlchldrAppName"),
         className: "ae-menuitem"
       },
-
       insUserAgent: {
         name: messenger.i18n.getMessage("mnuPlchldrUsrAgent"),
         className: "ae-menuitem"
       },
-
       insClippingName: {
         name: messenger.i18n.getMessage("mnuPlchldrClipName"),
         className: "ae-menuitem"
       },
-
       insParentFolderName: {
         name: messenger.i18n.getMessage("mnuPlchldrFldrName"),
         className: "ae-menuitem"
       },
-
       separator1: "--------",
-
       insFormattedDateTime: {
         name: messenger.i18n.getMessage("mnuPlchldrFmtDateTime"),
+        className: "ae-menuitem"
+      },
+      insClippingInClipping: {
+        name: messenger.i18n.getMessage("mnuPlchldrClipClip"),
         className: "ae-menuitem"
       },
     }
@@ -3374,9 +3656,12 @@ function initToolbar()
   $.contextMenu({
     selector: "#clippings-mgr-options",
     trigger: "left",
+    className: "tools-menu",
 
     events: {
       activated: function (aOptions) {
+        let mnu = aOptions.$menu;
+        mnu[0].focus();
         $("#clippings-mgr-options").addClass("toolbar-button-menu-open");
       },
 
@@ -3398,6 +3683,10 @@ function initToolbar()
     
     callback: function (aItemKey, aOpt, aRootMenu, aOriginalEvent) {
       switch (aItemKey) {
+      case "newFromClipboard":
+        gCmd.newClippingFromClipboard();
+        break;
+
       case "backup":
         gCmd.backup();
         break;
@@ -3427,13 +3716,9 @@ function initToolbar()
         break;
 
       case "maximizeWnd":
-        window.setTimeout(async () => { gCmd.toggleMaximize() }, 100);
+        setTimeout(async () => { gCmd.toggleMaximize() }, 100);
         break;
 
-      case "minimizeWhenInactive":
-        gCmd.toggleMinimizeWhenInactive();
-        break;
-        
       case "openExtensionPrefs":
         gCmd.openExtensionPrefs();
         break;
@@ -3444,6 +3729,11 @@ function initToolbar()
       }
     },
     items: {
+      newFromClipboard: {
+        name: messenger.i18n.getMessage("mnuNewFromClipbd"),
+        className: "ae-menuitem",
+      },
+      separator0: "--------",
       backup: {
         name: messenger.i18n.getMessage("mnuBackup"),
         className: "ae-menuitem",
@@ -3475,7 +3765,7 @@ function initToolbar()
             name: messenger.i18n.getMessage("mnuShowHideDetails"),
             className: "ae-menuitem",
             disabled: function (aKey, aOpt) {
-              return (gIsClippingsTreeEmpty || isFolderSelected());
+              return (gIsClippingsTreeEmpty || isFolderSelected() || isSeparatorSelected());
             },
             icon: function (aOpt, $itemElement, aItemKey, aItem) {
               if ($("#options-bar").css("display") != "none") {
@@ -3487,7 +3777,7 @@ function initToolbar()
             name: messenger.i18n.getMessage("mnuShowHidePlchldrBar"),
             className: "ae-menuitem",
             disabled: function (aKey, aOpt) {
-              return (gIsClippingsTreeEmpty || isFolderSelected());
+              return (gIsClippingsTreeEmpty || isFolderSelected() || isSeparatorSelected());
             },
             icon: function (aOpt, $itemElement, aItemKey, aItem) {
               if ($("#placeholder-toolbar").css("display") != "none") {
@@ -3518,18 +3808,6 @@ function initToolbar()
           }
         }
       },
-      minimizeWhenInactive: {
-        name: messenger.i18n.getMessage("mnuMinimizeWhenInactive"),
-        className: "ae-menuitem",
-        visible: function (aKey, aOpt) {
-          return (gEnvInfo.os == "linux" || DEBUG_WND_ACTIONS);
-        },
-        icon: function (aKey, aOpt) {
-          if (gPrefs.clippingsMgrMinzWhenInactv) {
-            return "context-menu-icon-checked";
-          }
-        }
-      },
       windowCmdsSeparator: {
         type: "cm_separator",
         visible: function (akey, aOpt) {
@@ -3543,11 +3821,46 @@ function initToolbar()
     }
   });
 
+  aeInterxn.initContextMenuAriaRoles(".placeholder-menu");
+  aeInterxn.initContextMenuAriaRoles(".tools-menu");
+  
   $("#custom-plchldr").click(aEvent => { gCmd.insertCustomPlaceholder() });
   $("#auto-incr-plchldr").click(aEvent => { gCmd.insertNumericPlaceholder() });
   $("#show-shortcut-list").click(aEvent => { gCmd.showShortcutList() });
 
   gSearchBox.init();
+
+  aeVisual.preloadLafImages();
+  aeVisual.preloadMsgBoxIcons(true);
+  aeVisual.cacheIcons(
+    "newClipping_hover.svg",
+    "newClipping-active-dk.svg",
+    "newFolder_hover.svg",
+    "newFolder-active-dk.svg",
+    "moveTo_hover.svg",
+    "moveTo-active-dk.svg",
+    "delete_hover.svg",
+    "delete-active-dk.svg",
+    "undo_hover.svg",
+    "options_hover.svg",
+    "options_menuopen.svg",
+    "shctkeys_hover.svg",
+    "help_hover.svg",
+    "customPlchldr.svg",
+    "numericPlchldr.svg",
+    "customPlchldr_hover.svg",
+    "numericPlchldr_hover.svg",
+    "options_dk_hover.svg",
+    "options_dk_active.svg",
+    "options_dk_menuopen.svg",
+    "shctkeys_hover-dk.svg",
+    "help-dk.svg",
+    "folder-open.svg",
+    "tree-fldr-open.svg",
+    "tree-fldr-close.svg",
+    "tree-fldr-open-dk.svg",
+    "tree-fldr-close-dk.svg",
+  );
 }
 
 
@@ -3693,7 +4006,43 @@ function initDialogs()
 
   gDialogs.noUndoNotify = new aeDialog("#no-undo-msgbar");
   gDialogs.noRedoNotify = new aeDialog("#no-redo-msgbar");
+  gDialogs.clipboardEmpty = new aeDialog("#clipboard-empty-msgbar");
   gDialogs.actionUnavailable = new aeDialog("#action-not-available");
+
+  gDialogs.requestExtPerm = new aeDialog("#request-ext-perm-dlg");
+  gDialogs.requestExtPerm.setProps({
+    extPerm: null,
+    extPermStrKeys: {
+      clipboardRead: "extPrmClipbdR",
+    },
+  });
+
+  gDialogs.requestExtPerm.setPermission = function (aPermission)
+  {
+    this.extPerm = aPermission;
+  };
+
+  gDialogs.requestExtPerm.onFirstInit = function ()
+  {
+    let extName = messenger.i18n.getMessage("extNameTB");
+    this.find("#grant-ext-perm").text(messenger.i18n.getMessage("extPermInstr", extName));
+  };
+
+  gDialogs.requestExtPerm.onInit = function ()
+  {
+    if (! this.extPerm) {
+      throw new ReferenceError("Extension permission keyword not set");
+    }
+
+    let strKey = this.extPermStrKeys[this.extPerm];
+    this.find(".dlg-content ul > li").text(messenger.i18n.getMessage(strKey));
+  };
+
+  gDialogs.requestExtPerm.onUnload = function ()
+  {
+    this.extPerm = null;
+    this.find(".dlg-content ul > li").text('');
+  };
 
   gDialogs.shortcutList = new aeDialog("#shortcut-list-dlg");
   gDialogs.shortcutList.onFirstInit = async function ()
@@ -3710,7 +4059,7 @@ function initDialogs()
         [extVer, `${gEnvInfo.hostAppName} ${gEnvInfo.hostAppVer}`]
       ),
       shctKeyInstrxns: messenger.i18n.getMessage("expHTMLShctKeyInstrxnTB"),
-      shctKeyCustNote: "",
+      shctKeyCustNote: messenger.i18n.getMessage("expHTMLShctKeyCustNoteTB"),
       shctKeyColHdr: messenger.i18n.getMessage("expHTMLShctKeyCol"),
       clippingNameColHdr: messenger.i18n.getMessage("expHTMLClipNameCol"),
     });
@@ -4030,6 +4379,11 @@ function initDialogs()
     $("#import-clippings-file-path").val("");
     $("#import-dlg button.dlg-accept").attr("disabled", "true");
     gSuppressAutoMinzWnd = true;
+
+    // Delay to allow time to switch to import or restore backup UI.
+    setTimeout(() => {
+      this.find("#import-clippings-browse")[0].focus();
+    }, 200);
   };
   gDialogs.importFromFile.onUnload = function ()
   {   
@@ -4125,7 +4479,8 @@ function initDialogs()
       if (gPrefs.syncClippings) {
         excludeSyncFldrID = gPrefs.syncFolderID;
       }
-      aeImportExport.exportToJSON(true, false, aeConst.ROOT_FOLDER_ID, excludeSyncFldrID, true).then(aJSONData => {
+
+      aeImportExport.exportToJSON(true, false, aeConst.ROOT_FOLDER_ID, excludeSyncFldrID, true, true).then(aJSONData => {
         currClippingsData = aJSONData;
         return messenger.runtime.sendMessage({msgID: "import-started"});
 
@@ -4179,24 +4534,40 @@ function initDialogs()
     FMT_CLIPPINGS_WX: 0,
     FMT_HTML: 1,
     FMT_CSV: 2,
-  });
-  gDialogs.exportToFile.onInit = function ()
-  {
-    let fmtDesc = [
-      messenger.i18n.getMessage("expFmtClippings6Desc"), // Clippings 6
+    inclSeparators: true,
+    fmtDesc: [
+      messenger.i18n.getMessage("expFmtClippings6Desc"), // Clippings
       messenger.i18n.getMessage("expFmtHTMLDocDesc"),    // HTML Document
       messenger.i18n.getMessage("expFmtCSVDesc"),        // CSV File
-    ];
-
-    gSuppressAutoMinzWnd = true;
-
+    ],
+  });
+  gDialogs.exportToFile.onFirstInit = function ()
+  {
     $("#export-format-list").change(aEvent => {
       let selectedFmtIdx = aEvent.target.selectedIndex;
-      $("#format-description").text(fmtDesc[selectedFmtIdx]);
+      $("#format-description").text(this.fmtDesc[selectedFmtIdx]);
+
+      if (selectedFmtIdx == this.FMT_CLIPPINGS_WX) {
+        $("#export-incl-separators").prop("disabled", false).prop("checked", this.inclSeparators);
+      }
+      else if (selectedFmtIdx == this.FMT_HTML || selectedFmtIdx == this.FMT_CSV) {
+        $("#export-incl-separators").prop("disabled", true).prop("checked", false);
+      }
     });
 
-    $("#export-format-list")[0].selectedIndex = gDialogs.exportToFile.FMT_CLIPPINGS_WX;
-    $("#format-description").text(fmtDesc[gDialogs.exportToFile.FMT_CLIPPINGS_WX]);
+    $("#export-incl-separators").click(aEvent => {
+      this.inclSeparators = aEvent.target.checked;
+    });
+  };
+
+  gDialogs.exportToFile.onInit = function ()
+  {
+    this.inclSeparators = true;
+    gSuppressAutoMinzWnd = true;
+
+    $("#export-format-list")[0].selectedIndex = this.FMT_CLIPPINGS_WX;
+    $("#format-description").text(this.fmtDesc[this.FMT_CLIPPINGS_WX]);
+    $("#export-incl-separators").prop("disabled", false).prop("checked", this.inclSeparators);
   };
 
   gDialogs.exportToFile.onShow = function ()
@@ -4217,7 +4588,7 @@ function initDialogs()
         gSuppressAutoMinzWnd = false;
         setStatusBarMsg(messenger.i18n.getMessage("statusExportDone"));
 
-        return messenger.downloads.search({ id: aDownldItemID });
+        return messenger.downloads.search({id: aDownldItemID});
 
       }).then(aDownldItems => {
         if (aDownldItems && aDownldItems.length > 0) {
@@ -4251,8 +4622,10 @@ function initDialogs()
     setStatusBarMsg(messenger.i18n.getMessage("statusExportStart"));
 
     if (selectedFmtIdx == gDialogs.exportToFile.FMT_CLIPPINGS_WX) {
-      aeImportExport.exportToJSON(false, false, aeConst.ROOT_FOLDER_ID, excludeSyncFldrID, true).then(aJSONData => {
-        let blobData = new Blob([aJSONData], { type: "application/json;charset=utf-8"});
+      let inclSeparators = $("#export-incl-separators").prop("checked");
+
+      aeImportExport.exportToJSON(false, false, aeConst.ROOT_FOLDER_ID, excludeSyncFldrID, true, inclSeparators).then(aJSONData => {
+        let blobData = new Blob([aJSONData], {type: "application/json;charset=utf-8"});
 
         saveToFile(blobData, aeConst.CLIPPINGS_EXPORT_FILENAME);
 	gCmd.recentAction = gCmd.ACTION_EXPORT;
@@ -4265,7 +4638,7 @@ function initDialogs()
     }
     else if (selectedFmtIdx == gDialogs.exportToFile.FMT_HTML) {
       aeImportExport.exportToHTML().then(aHTMLData => {
-        let blobData = new Blob([aHTMLData], { type: "text/html;charset=utf-8"});
+        let blobData = new Blob([aHTMLData], {type: "text/html;charset=utf-8"});
         saveToFile(blobData, aeConst.HTML_EXPORT_FILENAME);
 	gCmd.recentAction = gCmd.ACTION_EXPORT;
 	
@@ -4277,7 +4650,7 @@ function initDialogs()
     }
     else if (selectedFmtIdx == gDialogs.exportToFile.FMT_CSV) {
       aeImportExport.exportToCSV(excludeSyncFldrID).then(aCSVData => {
-        let blobData = new Blob([aCSVData], { type: "text/csv;charset=utf-8" });
+        let blobData = new Blob([aCSVData], {type: "text/csv;charset=utf-8"});
         saveToFile(blobData, aeConst.CSV_EXPORT_FILENAME);
 	gCmd.recentAction = gCmd.ACTION_EXPORT;
 
@@ -4340,6 +4713,15 @@ function initDialogs()
   {
     rebuildClippingsTree();
   };
+  gDialogs.reloadSyncFolder.onUnload = function ()
+  {
+    if (gDialogs.showOnlySyncedItemsReminder.isDelayedOpen) {
+      gDialogs.showOnlySyncedItemsReminder.isDelayedOpen = false;
+      setTimeout(() => {
+        gDialogs.showOnlySyncedItemsReminder.showModal();
+      }, 800);
+    }
+  };
 
   gDialogs.moveTo = new aeDialog("#move-dlg");
   gDialogs.moveTo.setProps({
@@ -4398,11 +4780,15 @@ function initDialogs()
       this.fldrTree.getTree().getNodeByKey(Number(aeConst.ROOT_FOLDER_ID).toString()).setActive();
     }
     else {
+      let hideSyncFldr = gPrefs.isSyncReadOnly && !gPrefs.cxtMenuSyncItemsOnly;
       this.fldrTree = new aeFolderPicker(
         "#move-to-fldr-tree",
         gClippingsDB,
         aeConst.ROOT_FOLDER_ID,
-        messenger.i18n.getMessage("rootFldrName")
+        messenger.i18n.getMessage("rootFldrName"),
+        aeFolderPicker.ROOT_FOLDER_CLS,
+        null,
+        hideSyncFldr
       );
 
       // Attach event handler every time the folder tree is regenerated.
@@ -4416,22 +4802,34 @@ function initDialogs()
     $("#activate-move-to-fldr-tree").on("focus", aEvent => {
       try {
         this.fldrTree.getContainer().focus();
-      }
+      }      
       catch (e) {
         // Ignore thrown exception; it still works.
       }
     });
 
-    $("#copy-instead-of-move").prop("checked", false);
+    $("#copy-instead-of-move").prop("checked", false).prop("disabled", false);
     $("#move-dlg-action-btn").text(messenger.i18n.getMessage("btnMove"));
     $("#move-error").text("");
     this.selectedFldrNode = null;
 
-    if (getClippingsTree().activeNode.folder) {
+    let activeNode = getClippingsTree().activeNode;
+    let nodeID = parseInt(activeNode.key);
+    let isSyncedItem;
+    
+    if (activeNode.folder) {
       $("#move-to-label").text(messenger.i18n.getMessage("labelMoveFolder"));
+      isSyncedItem = gSyncedItemsIDs.has(nodeID + "F");
     }
     else {
       $("#move-to-label").text(messenger.i18n.getMessage("labelMoveClipping"));
+      isSyncedItem = gSyncedItemsIDs.has(nodeID + "C");
+    }
+
+    // Only allow copying a clipping or folder out of Synced Clippings folder
+    // if sync file is read-only.
+    if (gPrefs.syncClippings && gPrefs.isSyncReadOnly && isSyncedItem) {
+      $("#copy-instead-of-move").click().prop("disabled", true);
     }
   };
 
@@ -4455,6 +4853,13 @@ function initDialogs()
 
     log(`clippingsMgr.js: Move To dialog: ID of selected item: ${id}; it is ${selectedNode.isFolder()} that the selected item in the clippings tree is a folder; current parent of selected item: ${parentFolderID}; move or copy to folder ID: ${destFolderID}`);
     
+    // Don't allow moving/copying to Synced Clippings folder if the sync file
+    // is read-only.
+    if (gSyncedItemsIDs.has(destFolderID + "F") && gPrefs.isSyncReadOnly) {
+      $("#move-error").text(messenger.i18n.getMessage("syncFldrRdOnly"));
+      return;
+    }
+
     let makeCopy = $("#copy-instead-of-move").prop("checked");
 
     if (parentFolderID == destFolderID && !makeCopy) {
@@ -4507,6 +4912,8 @@ function initDialogs()
   };
 
   gDialogs.showOnlySyncedItemsReminder = new aeDialog("#show-only-synced-items-reminder");
+  gDialogs.showOnlySyncedItemsReminder.isDelayedOpen = false;
+  
   gDialogs.showOnlySyncedItemsReminder.onShow = function ()
   {
     aePrefs.setPrefs({clippingsMgrShowSyncItemsOnlyRem: false});
@@ -4515,6 +4922,8 @@ function initDialogs()
       acceptBtn.focus();
     }, 100);
   };
+
+  gDialogs.syncFldrReadOnly = new aeDialog("#sync-file-readonly-msgbar");
 
   gDialogs.miniHelp = new aeDialog("#mini-help-dlg");
   gDialogs.miniHelp.onFirstInit = function ()
@@ -4541,7 +4950,7 @@ function initDialogs()
 
 function getClippingsTree()
 {
-  let rv = $("#clippings-tree").fancytree("getTree");
+  let rv = $.ui.fancytree.getTree("#clippings-tree");
   return rv;
 }
 
@@ -4598,11 +5007,19 @@ async function buildClippingsTree()
 
     dnd5: {
       autoExpandMS: 1000,
-      preventRecursiveMoves: true,
+      preventRecursion: true,
       preventVoidMoves: true,
       scroll: true,
 
       dragStart: function (aNode, aData) {
+        // Prevent drag 'n drop out of Synced Clippings folder if sync file
+        // is read-only.
+        let nodeID = parseInt(aNode.key);
+        let isSyncedItem = gSyncedItemsIDs.has(nodeID + (aNode.folder ? "F" : "C"));
+        if (gPrefs.syncClippings && gPrefs.isSyncReadOnly && isSyncedItem) {
+          return false;
+        }
+
         gReorderedTreeNodeNextSibling = aNode.getNextSibling();
         return true;
       },
@@ -4672,6 +5089,14 @@ async function buildClippingsTree()
           if (gPrefs.syncClippings && aData.otherNode.isFolder() && id == gPrefs.syncFolderID
               && newParentID != aeConst.ROOT_FOLDER_ID) {
             warn("The Synced Clippings folder cannot be moved.");
+            return;
+          }
+
+          // Prevent drag 'n drop into Synced Clippings folder if sync file
+          // is read-only.
+          if (gPrefs.syncClippings && gPrefs.isSyncReadOnly
+              && gSyncedItemsIDs.has(newParentID + "F")) {
+            setTimeout(() => { gDialogs.syncFldrReadOnly.openPopup() }, 100);
             return;
           }
 
@@ -4792,9 +5217,15 @@ async function buildClippingsTree()
   // Context menu for the clippings tree.
   $.contextMenu({
     selector: "#clippings-tree > ul.ui-fancytree > li",
+    className: "clippings-tree-cxt-menu",
 
     events: {
-      show: function (aOpts) {
+      activated(aOpts) {
+        let mnu = aOpts.$menu;
+        mnu[0].focus();  
+      },
+
+      show(aOpts) {
         let treeItemSpan = aOpts.$trigger[0].firstChild;
         if (treeItemSpan.classList.contains("fancytree-statusnode-nodata")) {
           // Hide the context menu if "No items found" in the search results
@@ -4844,6 +5275,10 @@ async function buildClippingsTree()
         setLabel(aItemKey.substr(5).toLowerCase());
         break;
 
+      case "insertSeparator":
+        gCmd.insertSeparator(gCmd.UNDO_STACK);
+        break;
+
       default:
         window.alert("The selected action is not available right now.");
         break;
@@ -4878,6 +5313,10 @@ async function buildClippingsTree()
             return false;
           }
 
+          if (isSeparatorSelected()) {
+            return true;
+          }
+
           let folderID = parseInt(selectedNode.key);
           return (selectedNode.isFolder() && folderID == gPrefs.syncFolderID);
         }
@@ -4885,7 +5324,16 @@ async function buildClippingsTree()
       labelSubmenu: {
         name: messenger.i18n.getMessage("mnuEditLabel"),
         visible: function (aItemKey, aOpt) {
-          return (! isFolderSelected());
+          return (!isFolderSelected() && !isSeparatorSelected());
+        },
+        disabled(aKey, aOpt) {
+          let selectedNode = getClippingsTree().activeNode;
+          let nodeID = parseInt(selectedNode.key);
+
+          // Prevent changing label on a synced clipping if the sync file
+          // is read-only.
+          let isSyncedItem = gSyncedItemsIDs.has(nodeID + "C");
+          return (gPrefs.syncClippings && gPrefs.isSyncReadOnly && isSyncedItem);
         },
         items: {
           labelNone: {
@@ -4962,6 +5410,22 @@ async function buildClippingsTree()
           },
         }
       },
+      insertSeparator: {
+        name: messenger.i18n.getMessage("mnuInsSeparator"),
+        className: "ae-menuitem",
+        disabled(aKey, aOpt) {
+          let tree = getClippingsTree();
+          let selectedNode = tree.activeNode;
+
+          if (! selectedNode) {
+            return false;
+          }
+
+          if (isSeparatorSelected()) {
+            return true;
+          }
+        }
+      },
       separator0: "--------",
       deleteItem: {
         name: messenger.i18n.getMessage("tbDelete"),
@@ -4981,6 +5445,8 @@ async function buildClippingsTree()
     }
   });
 
+  aeInterxn.initContextMenuAriaRoles(".clippings-tree-cxt-menu");
+  
   if (gPrefs.syncClippings) {
     initSyncedClippingsTree();
   }
@@ -5002,13 +5468,16 @@ function buildClippingsTreeHelper(aFolderID)
 
         if (aItem.id == gPrefs.syncFolderID) {
           folderNode.extraClasses = "ae-synced-clippings-fldr";
+          if (gPrefs.isSyncReadOnly) {
+            folderNode.extraClasses += " ae-synced-clippings-readonly";
+          }
         }
 
-        if (! ("displayOrder" in aItem)) {
-          folderNode.displayOrder = 0;
+        if ("displayOrder" in aItem) {
+          folderNode.displayOrder = aItem.displayOrder;
         }
         else {
-          folderNode.displayOrder = aItem.displayOrder;
+          folderNode.displayOrder = 0;
         }
 
         if ("sid" in aItem) {
@@ -5028,11 +5497,16 @@ function buildClippingsTreeHelper(aFolderID)
             clippingNode.extraClasses = `ae-clipping-label-${aItem.label}`;
           }
 
-          if (! ("displayOrder" in aItem)) {
-            clippingNode.displayOrder = 0;
+          if ("displayOrder" in aItem) {
+            clippingNode.displayOrder = aItem.displayOrder;
           }
           else {
-            clippingNode.displayOrder = aItem.displayOrder;
+            clippingNode.displayOrder = 0;
+          }
+
+          if (aItem.separator) {
+            clippingNode.title = "<hr>";
+            clippingNode.extraClasses = "ae-separator";
           }
 
           rv.push(clippingNode);
@@ -5093,7 +5567,12 @@ async function rebuildClippingsTree()
 
       if (gPrefs.cxtMenuSyncItemsOnly) {
         if (gPrefs.clippingsMgrShowSyncItemsOnlyRem) {
-          gDialogs.showOnlySyncedItemsReminder.showModal();
+          if (aeDialog.isOpen()) {
+            gDialogs.showOnlySyncedItemsReminder.isDelayedOpen = true;
+          }
+          else {
+            gDialogs.showOnlySyncedItemsReminder.showModal();
+          }
         }
       }
       else {
@@ -5309,6 +5788,17 @@ function isFolderSelected()
 }
 
 
+function isSeparatorSelected()
+{
+  let selectedNode = getClippingsTree().activeNode;
+
+  if (! selectedNode) {
+    return undefined;
+  }
+  return selectedNode.extraClasses == "ae-separator";
+}
+
+
 function updateDisplay(aEvent, aData)
 {
   if (gIsClippingsTreeEmpty) {
@@ -5334,8 +5824,8 @@ function updateDisplay(aEvent, aData)
   let selectedItemID = parseInt(aData.node.key);
 
   if (aData.node.isFolder()) {
-    $("#move, #delete").prop("disabled", false);
-    
+    $("#move, #delete, #clipping-name").prop("disabled", false);
+
     gClippingsDB.folders.get(selectedItemID).then(aResult => {
       $("#clipping-name").val(aResult.name);
       $("#clipping-text").val("").hide();
@@ -5347,9 +5837,18 @@ function updateDisplay(aEvent, aData)
 
       $("#item-properties").addClass("folder-only");
 
-      if (gPrefs.syncClippings && selectedItemID == gPrefs.syncFolderID) {
+      if (gPrefs.syncClippings) {
         // Prevent moving, deleting or renaming of the Synced Clippings folder.
-        $("#move, #delete, #clipping-name").prop("disabled", true);
+        // Also disable editing if this is a synced item and the sync data
+        // is read-only.
+        if (selectedItemID == gPrefs.syncFolderID) {
+          $("#move, #delete, #clipping-name").prop("disabled", true);
+        }
+        else if (gSyncedItemsIDs.has(selectedItemID + "F") && gPrefs.isSyncReadOnly) {
+          // Allow the Move/Copy toolbar button to be enabled, since copying
+          // a read-only synced item is permitted.
+          $("#delete, #clipping-name").prop("disabled", true);
+        }
       }
       else {
         $("#move, #delete, #clipping-name").prop("disabled", false);
@@ -5358,32 +5857,55 @@ function updateDisplay(aEvent, aData)
   }
   else {
     $("#item-properties").removeClass("folder-only");
-    $("#clipping-name").prop("disabled", false);
+    $(`#clipping-name, #clipping-text, #clipping-key, #clipping-label-picker,
+       #placeholder-toolbar > button`).prop("disabled", false);
+    $("#options-bar label, #placeholder-toolbar label").removeAttr("disabled");
     
     gClippingsDB.clippings.get(selectedItemID).then(aResult => {
       $("#clipping-name").val(aResult.name);
-      $("#clipping-text").val(aResult.content).show();
-      $("#move, #delete").prop("disabled", false);
 
-      if (gPrefs.clippingsMgrDetailsPane) {
-        $("#options-bar").show();
+      if (aResult.separator) {
+        $("#move").prop("disabled", true);
+        $("#delete").prop("disabled", false);
+        $("#item-properties").addClass("folder-only");
+        $("#clipping-name").prop("disabled", true);
+        $("#clipping-text").val("").hide();
+        $("#options-bar, #placeholder-toolbar").hide();
       }
+      else {
+        $("#move, #delete").prop("disabled", false);
+        $("#clipping-text").val(aResult.content).show();
 
-      if (gPrefs.clippingsMgrPlchldrToolbar) {
-        $("#placeholder-toolbar").show();
-      }
-      
-      let shortcutKeyMenu = $("#clipping-key")[0];
-      shortcutKeyMenu.selectedIndex = 0;
-      
-      for (let i = 0; i < shortcutKeyMenu.options.length; i++) {
-        if (shortcutKeyMenu[i].text == aResult.shortcutKey) {
-          shortcutKeyMenu.selectedIndex = i;
-          break;
+        if (gPrefs.clippingsMgrDetailsPane) {
+          $("#options-bar").show();
         }
+
+        if (gPrefs.clippingsMgrPlchldrToolbar) {
+          $("#placeholder-toolbar").show();
+        }
+        
+        let shortcutKeyMenu = $("#clipping-key")[0];
+        shortcutKeyMenu.selectedIndex = 0;
+        
+        for (let i = 0; i < shortcutKeyMenu.options.length; i++) {
+          if (shortcutKeyMenu[i].text == aResult.shortcutKey) {
+            shortcutKeyMenu.selectedIndex = i;
+            break;
+          }
+        }
+
+        gClippingLabelPicker.selectedLabel = aResult.label;
       }
 
-      gClippingLabelPicker.selectedLabel = aResult.label;
+      // Disable editing if this is a synced item and the sync data is
+      // read-only. But allow the Move/Copy toolbar button to be enabled,
+      // since copying a read-only synced item is permitted.
+      if (gSyncedItemsIDs.has(selectedItemID + "C") && gPrefs.isSyncReadOnly) {
+        $("#delete").prop("disabled", true);
+        $(`#clipping-name, #clipping-text, #clipping-key, #clipping-label-picker,
+           #placeholder-toolbar > button`).prop("disabled", true);
+        $("#options-bar label, #placeholder-toolbar label").attr("disabled", "");
+      }
     });
   }
 }
@@ -5478,13 +6000,13 @@ async function saveWindowGeometry()
 function setSaveWndGeometryInterval(aSaveWndGeom)
 {
   if (aSaveWndGeom) {
-    setSaveWndGeometryInterval.intvID = window.setInterval(async () => {
+    setSaveWndGeometryInterval.intvID = setInterval(async () => {
       await saveWindowGeometry();
     }, gPrefs.clippingsMgrSaveWndGeomIntv);    
   }
   else {
     if (!! setSaveWndGeometryInterval.intvID) {
-      window.clearInterval(setSaveWndGeometryInterval.intvID);
+      clearInterval(setSaveWndGeometryInterval.intvID);
       setSaveWndGeometryInterval.intvID = null;
     }
   }

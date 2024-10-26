@@ -10,6 +10,7 @@ let gBackupConfirmMsgBox;
 $(async () => {
   let platform = await messenger.runtime.getPlatformInfo();
   document.body.dataset.os = platform.os;
+  aeInterxn.init(platform.os);
 
   // Reset backup notification interval timer so that it fires 24 hours after
   // displaying this first-time backup dialog.
@@ -20,10 +21,7 @@ $(async () => {
   document.body.dataset.locale = lang;
   moment.locale(lang);
 
-  let enhancedLaF = await aePrefs.getPref("enhancedLaF");
-  document.body.dataset.laf = enhancedLaF;
-
-  $("#backup-now").click(aEvent => { backup() });
+  $("#btn-accept").click(aEvent => { backup() });
   $("#btn-close").click(aEvent => { closeDlg() });
 
   let backupRemFrequency = await aePrefs.getPref("backupRemFrequency");
@@ -74,6 +72,11 @@ $(async () => {
 
   initDialogs();
   window.focus();
+
+  let defDlgBtnFollowsFocus = await aePrefs.getPref("defDlgBtnFollowsFocus");
+  if (defDlgBtnFollowsFocus) {
+    aeInterxn.initDialogButtonFocusHandlers();
+  }
 
   // Fix for Fx57 bug where bundled page loaded using
   // browser.windows.create won't show contents unless resized.
