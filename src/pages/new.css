@@ -81,8 +81,8 @@ body[data-os="win"] input[type="checkbox"] + label {
     vertical-align: -1px !important;
 }
 
-body[data-os="linux"]:not([data-laf="true"]) input[type="checkbox"] + label {
-    vertical-align: 2.5px;
+body[data-os="linux"] input[type="checkbox"] + label {
+    vertical-align: -2px;
 }
 
 #new-clipping-fldr-tree-btn {

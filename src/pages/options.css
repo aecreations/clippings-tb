@@ -136,8 +136,9 @@ body[data-os="win"] input[type="checkbox"] + label {
     vertical-align: 2px;
 }
 
-body[data-os="linux"]:not([data-laf="true"]) input[type="checkbox"] + label {
-    vertical-align: 3px;
+body[data-os="linux"] input[type="checkbox"] + label,
+body[data-os="linux"] input[type="radio"] + label {
+    vertical-align: -3px;
 }
 
 button:-moz-focusring:not(:disabled),
