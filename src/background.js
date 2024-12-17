@@ -439,7 +439,14 @@ async function init()
 
     // The context menu will be built when refreshing the sync data, via the
     // onReloadFinish event handler of the Sync Clippings listener.
-    refreshSyncedClippings(true);
+    try {
+      await refreshSyncedClippings(true);
+    }
+    catch (e) {
+      // Build the context menu anyway, since that won't happen in the above
+      // event handler due to the error.
+      buildContextMenu();
+    }
     aePrefs.setPrefs({isSyncReadOnly});
   }
   else {
@@ -634,7 +641,7 @@ async function refreshSyncedClippings(aRebuildClippingsMenu)
     if (e == aeConst.SYNC_ERROR_CONXN_FAILED
         || e == aeConst.SYNC_ERROR_NAT_APP_NOT_FOUND) {
       showSyncAppErrorNotification();
-      return;
+      throw e;
     }
   }
   log(`Clippings/mx: refreshSyncedClippings(): Sync Clippings Helper version: ${resp.appVersion}`);
@@ -660,7 +667,7 @@ async function refreshSyncedClippings(aRebuildClippingsMenu)
       else {
         console.error("Sync Clippings Helper is unable to read the sync file.  Error details:\n" + resp.details);
         showSyncReadErrorNotification();
-        return;
+        throw new Error("Sync Clippings Helper is unable to read the sync file: " + resp.details);
       }
     }
     else {
@@ -2313,7 +2320,7 @@ messenger.runtime.onMessage.addListener(aRequest => {
     return enableSyncClippings(aRequest.isEnabled);
 
   case "refresh-synced-clippings":
-    refreshSyncedClippings(aRequest.rebuildClippingsMenu);
+    refreshSyncedClippings(aRequest.rebuildClippingsMenu).catch(aErr => {});
     break;
 
   case "push-sync-fldr-updates":

@@ -56,19 +56,24 @@ body[data-locale|="pt"] #backup-hint {
     letter-spacing: -0.3px;
 }
 
-#backup-reminder ~ label {
-    vertical-align: 2px;
+#backup-reminder-opts {
+    margin-top: 8px;
 }
 
 #backup-reminder-freq {
     margin-left: 4px;
     margin-right: 4px;
     font-size: 15px;
-    vertical-align: 2px;
+    vertical-align: 0;
 }
 
-body[data-os="mac"] #backup-reminder ~ label,
-body[data-os="mac"] #backup-reminder-freq {
+#backup-reminder ~ label,
+#backup-reminder-freq {
+    vertical-align: -2px;
+}
+
+body[data-os="win"] #backup-reminder ~ label,
+body[data-os="win"] #backup-reminder-freq {
     vertical-align: 0;
 }
 
@@ -87,6 +92,7 @@ body[data-os="mac"] #backup-reminder-freq {
     font-size: 15px !important;
 }
 
+
 /*
  * Dialog boxes
  */
@@ -101,6 +107,11 @@ body[data-os="mac"] #backup-reminder-freq {
 
 .lightbox .msgbox-info-icon {
     background-image: url("../img/info.svg");
+    background-size: contain;
+}
+
+body[data-os="win"] .lightbox .msgbox-info-icon {
+    background-image: url("../img/info-win.png");
     background-size: contain;
 }
 
