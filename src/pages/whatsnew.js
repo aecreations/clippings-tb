@@ -4,17 +4,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-function sanitizeHTML(aHTMLStr)
-{
-  return DOMPurify.sanitize(aHTMLStr, {SAFE_FOR_JQUERY: true});
-}
-
-
 // Page initialization
 $(async () => {
   let extInfo = messenger.runtime.getManifest();
   $("#latest-ver").text(messenger.i18n.getMessage("upgrade", extInfo.name));
-  $("#ver-subhead").text(messenger.i18n.getMessage("aboutExtVer", extInfo.version));
+  $("#ver-subhead").text(messenger.i18n.getMessage("aboutExtVer", aeConst.CURR_MAJOR_VER));
   let contribCTA = messenger.i18n.getMessage("contribCTA", [extInfo.name, aeConst.DONATE_URL, aeConst.CONTRIB_URL]);
   $("#contrib-cta").html(sanitizeHTML(contribCTA));
 
@@ -46,6 +40,12 @@ async function closePage()
 {
   let tab = await messenger.tabs.getCurrent();
   messenger.tabs.remove(tab.id);
+}
+
+
+function sanitizeHTML(aHTMLStr)
+{
+  return DOMPurify.sanitize(aHTMLStr, {SAFE_FOR_JQUERY: true});
 }
 
 
