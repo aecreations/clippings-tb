@@ -655,7 +655,14 @@ async function refreshSyncedClippings(aRebuildClippingsMenu)
   
   log(`Clippings/mx: refreshSyncedClippings(): Retrieving synced clippings from Sync Clippings Helper by sending native message "${natMsg.msgID}"`);
   let syncJSONData = "";
-  resp = await messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg); 
+  try {
+    resp = await messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg);
+  }
+  catch (e) {
+    // Error thrown if the sync data size is too big.
+    console.error(e);
+    return;
+  }
 
   if (resp) {
     if (isCompressedSyncData) {
