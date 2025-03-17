@@ -47,6 +47,7 @@ let aePrefs = function () {
     showShctKeyDispStyle: aeConst.SHCTKEY_DISPLAY_PARENS,
     defDlgBtnFollowsFocus: false,
     showToolsCmd: true,
+    logSyncDataSize: false,
 
     // Deprecated prefs - these will be removed during extension upgrade.
     clippingsMgrMinzWhenInactv: null,
@@ -167,6 +168,21 @@ let aePrefs = function () {
       delete aPrefs.enhancedLaF;
       delete aPrefs.clippingsMgrMinzWhenInactv;
       await this._removePrefs("enhancedLaF", "clippingsMgrMinzWhenInactv");
+
+      await this._addPrefs(aPrefs, newPrefs);
+    },
+
+    hasEmbarcaderoPrefs(aPrefs)
+    {
+      // Version 7.0.2
+      return ("logSyncDataSize" in aPrefs);
+    },
+
+    async setEmbarcaderoPrefs(aPrefs)
+    {
+      let newPrefs = {
+        logSyncDataSize: false,
+      };
 
       await this._addPrefs(aPrefs, newPrefs);
     },
