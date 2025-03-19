@@ -411,11 +411,11 @@ body[data-os="linux"]:not([data-laf="true"]) #shct-key-in-menu-opt + label {
 }
 
 body[data-locale="fr"] #skip-backup-label {
-    letter-spacing: 0px;
+    letter-spacing: -0.85px;
 }
 
 body[data-locale="de"] #skip-backup-label {
-    letter-spacing: 0px;
+    letter-spacing: -0.5px;
 }
 
 #shct-key-in-menu-opt {
@@ -432,6 +432,10 @@ body[data-locale="de"] #skip-backup-label {
 
 #wnds-dlgs-settings {
     margin-top: 14px;
+}
+
+body[data-locale="fr"] #html-auto-line-break-label {
+    letter-spacing: -0.5px;
 }
 
 #sync-options .description {
@@ -626,10 +630,6 @@ body[data-locale="nl"] #wnds-dlgs-opts-dlg #clpmgr-save-wnd-pos-label {
     letter-spacing: -0.18px;
 }
 
-body[data-locale|="es"] #wnds-dlgs-opts-dlg #clpmgr-save-wnd-pos-label {
-    letter-spacing: -0.5px;
-}
-
 #wnds-dlgs-opts-dlg #reset-clpmgr-wnd-pos {
     min-width: 72px;
     margin-top: 4px;
@@ -655,16 +655,21 @@ body[data-locale|="es"] #wnds-dlgs-opts-dlg #clpmgr-save-wnd-pos-label {
     --height: 312px;
 }
 
-body[data-locale="de"] #sync-clippings-dlg {
-    --width: 600px;
+body[data-locale="nl"] #sync-clippings-dlg,
+body[data-locale="fr"] #sync-clippings-dlg,
+body[data-locale="uk"] #sync-clippings-dlg {
+    --width: 560px;
 }
 
-body[data-locale|="es"] #sync-clippings-dlg {
+body[data-locale="de"] #sync-clippings-dlg {
     --width: 650px;
 }
 
-body[data-locale="nl"] #sync-clippings-dlg,
-body[data-locale="uk"] #sync-clippings-dlg {
+body[data-locale|="es"] #sync-clippings-dlg {
+    --width: 700px;
+}
+
+body[data-locale|="pt"] #sync-clippings-dlg {
     --width: 552px;
 }
 
@@ -809,21 +814,25 @@ body[data-locale|="zh"] #sync-clippings-dlg #sync-fldr-picker #browse-sync-fldr 
     min-width: 88px;
 }
 
+body[data-locale="fr"] #sync-clippings-dlg #sync-helper-app-update-check + label {
+    letter-spacing: -0.10px;
+}
+
 body[data-locale="de"] #sync-clippings-dlg #sync-helper-app-update-check + label {
-    letter-spacing: -0.51px;
+    letter-spacing: -0.25px;
 }
 
 body[data-locale|="es"] #sync-clippings-dlg #sync-helper-app-update-check + label {
-    letter-spacing: -0.56px;
+    letter-spacing: -0.5px;
 }
 
 body[data-locale|="pt"] #sync-clippings-dlg #sync-helper-app-update-check + label {
-    letter-spacing: -0.56px;
+    letter-spacing: -0.4px;
 }
 
 body[data-locale="nl"] #sync-clippings-dlg #sync-helper-app-update-check + label,
 body[data-locale="uk"] #sync-clippings-dlg #sync-helper-app-update-check + label {
-    letter-spacing: -0.65px;
+    letter-spacing: -0.8px;
     margin-right: 0;
 }
 

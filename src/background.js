@@ -1650,7 +1650,7 @@ async function openBackupDlg()
   let wndKey = "backupFirstRun";
   let height = 412;
   
-  if (lang == "uk" || (lang == "fr" && gOS == "mac")) {
+  if (["fr", "uk"].includes(lang)) {
     height = 450;
   }
 
