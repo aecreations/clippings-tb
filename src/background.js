@@ -347,6 +347,11 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
       });
     }
 
+    if (! aePrefs.hasEmbarcaderoPrefs(gPrefs)) {
+      log("Initializing 7.0.2 user preferences.");
+      await aePrefs.setEmbarcaderoPrefs(gPrefs);
+    }
+
     await init();
   }
 
@@ -655,13 +660,29 @@ async function refreshSyncedClippings(aRebuildClippingsMenu)
   
   log(`Clippings/mx: refreshSyncedClippings(): Retrieving synced clippings from Sync Clippings Helper by sending native message "${natMsg.msgID}"`);
   let syncJSONData = "";
-  resp = await messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg); 
+  try {
+    resp = await messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg);
+  }
+  catch (e) {
+    // Error thrown if the sync data size is too big.
+    console.error(e);
+    return;
+  }
 
   if (resp) {
+    let dataSizeB;
+    
     if (isCompressedSyncData) {
       log("Clippings/mx: refreshSyncedClippings(): Received Sync Clippings Helper 2.0 response (base64-encoded gzip format)");
       if (resp.status == "ok") {
         let zipData = aeCompress.base64ToBytes(resp.data);
+
+        dataSizeB = zipData.length;
+        if (aeConst.DEBUG || gPrefs.logSyncDataSize) {
+          let dataSizeKB = dataSizeB / 1024;
+          console.info(`Clippings: Size of compressed sync data from Sync Clippings Helper: ${dataSizeKB.toFixed(2)} KiB`);
+        }
+
         syncJSONData = await aeCompress.decompress(zipData);
       }
       else {
@@ -672,6 +693,13 @@ async function refreshSyncedClippings(aRebuildClippingsMenu)
     }
     else {
       log("Clippings/mx: refreshSyncedClippings(): Received Sync Clippings Helper 1.x response");
+
+      dataSizeB = new TextEncoder().encode(resp).length;
+      let dataSizeKB = dataSizeB / 1024;
+      if (aeConst.DEBUG || gPrefs.logSyncDataSize) {
+        console.info(`Clippings: Size of sync data from Sync Clippings Helper: ${dataSizeKB.toFixed(2)} KiB`);
+      }
+
       syncJSONData = resp;
     }
   }
@@ -1622,7 +1650,7 @@ async function openBackupDlg()
   let wndKey = "backupFirstRun";
   let height = 412;
   
-  if (lang == "uk" || (lang == "fr" && gOS == "mac")) {
+  if (["fr", "uk"].includes(lang)) {
     height = 450;
   }
 
