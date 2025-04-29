@@ -103,7 +103,7 @@ $(async () => {
   $("#btn-accept").click(aEvent => { accept(aEvent) });
   $("#btn-cancel").click(aEvent => { cancel(aEvent) });
 
-  aeVisual.init(platform.os);
+  aeVisual.init(gEnvInfo.os);
   aeVisual.preloadMsgBoxIcons();
   aeVisual.cacheIcons(
     "tree-fldr-open.svg",
