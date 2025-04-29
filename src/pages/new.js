@@ -911,7 +911,6 @@ async function finishAcceptDlg(aNewClippingID, aNewClipping)
     });
   }
 
-  setDlgButtonEnabledStates(true);
   closeDlg();  
 }
 
