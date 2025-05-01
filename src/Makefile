@@ -1,6 +1,6 @@
 # Makefile
 
-EXT_VER=`./getver.pl`
+EXT_VER=`./getver.py`
 DIST_FILE=clippings-tb-$(EXT_VER).xpi
 EXCLUDE = \*~ \*.psp \*.bak *\.pl Makefile
 
