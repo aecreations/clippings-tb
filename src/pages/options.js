@@ -76,17 +76,17 @@ $(async () => {
   initDialogs();
 
   let prefs = await aePrefs.getAllPrefs();
-  $("#show-tools-cmd").prop("checked", prefs.showToolsCmd).click(aEvent => {
+  $("#show-tools-cmd").prop("checked", prefs.showToolsCmd).on("click", aEvent => {
     aePrefs.setPrefs({showToolsCmd: aEvent.target.checked});
   });
 
-  $("#paste-opt-formatted").click(aEvent => {
+  $("#paste-opt-formatted").on("click", aEvent => {
     $("#html-auto-line-break").prop("disabled", false);
     $("#html-paste-note").removeClass("disabled");
     aePrefs.setPrefs({htmlPaste: aEvent.target.value});
   });
 
-  $("#paste-opt-raw-html").click(aEvent => {
+  $("#paste-opt-raw-html").on("click", aEvent => {
     $("#html-auto-line-break").prop("disabled", true);
     $("#html-paste-note").addClass("disabled");
     aePrefs.setPrefs({htmlPaste: aEvent.target.value});
@@ -111,7 +111,7 @@ $(async () => {
     }
   });
 
-  $("#about-btn").click(aEvent => {
+  $("#about-btn").on("click", aEvent => {
     gDialogs.about.showModal();
   });
 
@@ -138,13 +138,13 @@ $(async () => {
     $("#html-paste-note").addClass("disabled");
   }
   
-  $("#html-auto-line-break").attr("checked", prefs.autoLineBreak).click(aEvent => {
+  $("#html-auto-line-break").attr("checked", prefs.autoLineBreak).on("click", aEvent => {
     aePrefs.setPrefs({ autoLineBreak: aEvent.target.checked });
   });
 
   let keybPasteKeys = await messenger.runtime.sendMessage({msgID: "get-shct-key-prefix-ui-str"});
   if (keybPasteKeys) {
-    $("#shortcut-key").prop("checked", prefs.keybdPaste).click(aEvent => {
+    $("#shortcut-key").prop("checked", prefs.keybdPaste).on("click", aEvent => {
       aePrefs.setPrefs({keybdPaste: aEvent.target.checked});
     });
   }
@@ -155,15 +155,15 @@ $(async () => {
   }
   $("#shct-label").text(messenger.i18n.getMessage("prefsShctMode", keybPasteKeys));
   
-  $("#auto-inc-plchldrs-start-val").val(prefs.autoIncrPlchldrStartVal).click(aEvent => {
+  $("#auto-inc-plchldrs-start-val").val(prefs.autoIncrPlchldrStartVal).on("click", aEvent => {
     aePrefs.setPrefs({ autoIncrPlchldrStartVal: aEvent.target.valueAsNumber });
   });
 
-  $("#check-spelling").attr("checked", prefs.checkSpelling).click(aEvent => {
+  $("#check-spelling").attr("checked", prefs.checkSpelling).on("click", aEvent => {
     aePrefs.setPrefs({ checkSpelling: aEvent.target.checked });
   });
 
-  $("#backup-filename-with-date").attr("checked", prefs.backupFilenameWithDate).click(aEvent => {
+  $("#backup-filename-with-date").attr("checked", prefs.backupFilenameWithDate).on("click", aEvent => {
     aePrefs.setPrefs({ backupFilenameWithDate: aEvent.target.checked });
   });
 
@@ -210,7 +210,7 @@ $(async () => {
     messenger.runtime.sendMessage({msgID: "set-backup-notifcn-intv"});
   });
 
-  $("#skip-backup-if-no-chg").prop("checked", prefs.skipBackupRemIfUnchg).click(aEvent => {
+  $("#skip-backup-if-no-chg").prop("checked", prefs.skipBackupRemIfUnchg).on("click", aEvent => {
     aePrefs.setPrefs({skipBackupRemIfUnchg: aEvent.target.checked});
   });
 
@@ -282,11 +282,11 @@ $(async () => {
     }
   });
   
-  $("#show-sync-help").click(aEvent => {
+  $("#show-sync-help").on("click", aEvent => {
     gDialogs.syncClippingsHelp.showModal();
   });
 
-  $(".hyperlink").click(aEvent => {
+  $(".hyperlink").on("click", aEvent => {
     aEvent.preventDefault();
     gotoURL(aEvent.target.href, ("openInTbWnd" in aEvent.target.dataset));
   });

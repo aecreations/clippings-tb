@@ -50,7 +50,7 @@ class aeDialog
   {
     let dlgAcceptElt = $(`${this._dlgEltStor} > .dlg-btns > .dlg-accept`);
     if (dlgAcceptElt.length > 0) {
-      dlgAcceptElt.click(aEvent => {
+      dlgAcceptElt.on("click", aEvent => {
         if (aEvent.target.disabled) {
           return;
         }
@@ -61,7 +61,7 @@ class aeDialog
 
     let dlgCancelElt = $(`${this._dlgEltStor} > .dlg-btns > .dlg-cancel`);
     if (dlgCancelElt.length > 0) {
-      dlgCancelElt.click(aEvent => {
+      dlgCancelElt.on("click", aEvent => {
         if (aEvent.target.disabled) {
           return;
         }

@@ -53,7 +53,7 @@ $(async () => {
     expandOptions(true);
   }
 
-  $("#btn-expand-options").data("isExpanded", gPrefs.showNewClippingOpts).click(aEvent => {
+  $("#btn-expand-options").data("isExpanded", gPrefs.showNewClippingOpts).on("click", aEvent => {
     let isExpanded = $(aEvent.target).data("isExpanded");
     expandOptions(! isExpanded);
   });
@@ -97,11 +97,11 @@ $(async () => {
 
   let newFolderBtn = $("#new-folder-btn");
   newFolderBtn.attr("title", messenger.i18n.getMessage("btnNewFolder"));
-  newFolderBtn.click(aEvent => { gNewFolderDlg.showModal() });
+  newFolderBtn.on("click", aEvent => { gNewFolderDlg.showModal() });
   
-  $("#show-preview").click(aEvent => { gPreviewDlg.showModal() });
-  $("#btn-accept").click(aEvent => { accept(aEvent) });
-  $("#btn-cancel").click(aEvent => { cancel(aEvent) });
+  $("#show-preview").on("click", aEvent => { gPreviewDlg.showModal() });
+  $("#btn-accept").on("click", aEvent => { accept(aEvent) });
+  $("#btn-cancel").on("click", aEvent => { cancel(aEvent) });
 
   aeVisual.init(gEnvInfo.os);
   aeVisual.preloadMsgBoxIcons();
@@ -351,7 +351,7 @@ function initDialogs()
   {
     let fldrPickerPopup = $("#new-folder-dlg-fldr-tree-popup");
 
-    $("#new-folder-dlg-fldr-picker-mnubtn").click(aEvent => {
+    $("#new-folder-dlg-fldr-picker-mnubtn").on("click", aEvent => {
       if (fldrPickerPopup.css("visibility") == "visible") {
         this.closeFolderPicker();
       }
@@ -548,13 +548,13 @@ function initFolderPicker()
   
   // Initialize the transparent background that user can click on to dismiss an
   // open folder picker popup.
-  $(".popup-bkgrd").click(aEvent => {
+  $(".popup-bkgrd").on("click", aEvent => {
     $(".folder-tree-popup").css({ visibility: "hidden" });
     $(".popup-bkgrd").hide();
   });
 
   // Initialize the folder picker in the main New Clipping dialog.
-  $("#new-clipping-fldr-picker-menubtn").click(aEvent => {
+  $("#new-clipping-fldr-picker-menubtn").on("click", aEvent => {
     let popup = $("#new-clipping-fldr-tree-popup");
 
     if (popup.css("visibility") == "hidden") {

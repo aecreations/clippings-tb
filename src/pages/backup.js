@@ -21,11 +21,12 @@ $(async () => {
   document.body.dataset.locale = lang;
   moment.locale(lang);
 
-  $("#btn-accept").click(aEvent => { backup() });
-  $("#btn-close").click(aEvent => { closeDlg() });
+  $("#btn-accept").on("click", aEvent => { backup() });
+  $("#btn-close").on("click", aEvent => { closeDlg() });
 
   let backupRemFrequency = await aePrefs.getPref("backupRemFrequency");
-  $("#backup-reminder").prop("checked", (backupRemFrequency != aeConst.BACKUP_REMIND_NEVER)).click(aEvent => {
+  $("#backup-reminder").prop("checked", (backupRemFrequency != aeConst.BACKUP_REMIND_NEVER))
+    .on("click", aEvent => {
     let setPrefs;
     
     if (aEvent.target.checked) {
