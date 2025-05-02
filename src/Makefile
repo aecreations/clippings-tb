@@ -2,7 +2,7 @@
 
 EXT_VER=`./getver.py`
 DIST_FILE=clippings-tb-$(EXT_VER).xpi
-EXCLUDE = \*~ \*.psp \*.bak *\.pl Makefile
+EXCLUDE = \*~ \*.psp \*.bak *\.py Makefile
 
 
 $(DIST_FILE):
