@@ -352,6 +352,11 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
       await aePrefs.setEmbarcaderoPrefs(gPrefs);
     }
 
+    if (! aePrefs.hasNorthBeachPrefs(gPrefs)) {
+      log("Initializing 7.1 user preferences.");
+      await aePrefs.setNorthBeachPrefs(gPrefs);
+    }
+
     await init();
   }
 
@@ -489,13 +494,12 @@ async function init()
     log("Clippings/mx: Display order on root folder items have been set.");
   }
 
-  let compScriptOpts = {
+  messenger.composeScripts.register({
     js: [
       {file: "lib/purify.min.js"},
-      {file: "compose.js"}
+      {file: "compose.js"},
     ],
-  };  
-  messenger.composeScripts.register(compScriptOpts);
+  });
 
   initToolsMenuItem();
 
@@ -1978,6 +1982,10 @@ async function pasteProcessedClipping(aClippingContent, aComposeTabID, aPasteAsQ
     autoLineBreak: gPrefs.autoLineBreak,
     pasteAsQuoted: aPasteAsQuoted,
   });
+
+  if (gPrefs.setDirtyFlag) {
+    messenger.compose.setComposeDetails(aComposeTabID, {isModified: true});
+  }
 }
 
 

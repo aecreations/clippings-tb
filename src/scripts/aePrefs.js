@@ -48,6 +48,7 @@ let aePrefs = function () {
     defDlgBtnFollowsFocus: false,
     showToolsCmd: true,
     logSyncDataSize: false,
+    setDirtyFlag: true,
 
     // Deprecated prefs - these will be removed during extension upgrade.
     clippingsMgrMinzWhenInactv: null,
@@ -198,6 +199,21 @@ let aePrefs = function () {
         delete aPrefs.wxPastePrefixKey;
         await this._removePrefs("keyboardPaste", "wxPastePrefixKey");
       }
+    },
+
+    hasNorthBeachPrefs(aPrefs)
+    {
+      // Version 7.1
+      return ("setDirtyFlag" in aPrefs);
+    },
+
+    async setNorthBeachPrefs(aPrefs)
+    {
+      let newPrefs = {
+        setDirtyFlag: true,
+      };
+      
+      await this._addPrefs(aPrefs, newPrefs);
     },
 
     
