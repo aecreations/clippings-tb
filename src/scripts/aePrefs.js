@@ -201,13 +201,13 @@ let aePrefs = function () {
       }
     },
 
-    hasNorthBeachPrefs(aPrefs)
+    hasAlamoSquarePrefs(aPrefs)
     {
       // Version 7.1
       return ("setDirtyFlag" in aPrefs);
     },
 
-    async setNorthBeachPrefs(aPrefs)
+    async setAlamoSquarePrefs(aPrefs)
     {
       let newPrefs = {
         setDirtyFlag: true,

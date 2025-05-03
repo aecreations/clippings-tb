@@ -352,9 +352,9 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
       await aePrefs.setEmbarcaderoPrefs(gPrefs);
     }
 
-    if (! aePrefs.hasNorthBeachPrefs(gPrefs)) {
+    if (! aePrefs.hasAlamoSquarePrefs(gPrefs)) {
       log("Initializing 7.1 user preferences.");
-      await aePrefs.setNorthBeachPrefs(gPrefs);
+      await aePrefs.setAlamoSquarePrefs(gPrefs);
     }
 
     await init();
