@@ -239,27 +239,71 @@ aeClippingSubst.processStdPlaceholders = async function (aClippingInfo, aCompose
 
   // Process compose details and substitute values for email-related
   // placeholders.
-  let subj, to, from, cc;
+  let subj = '', to = '', toN = '', toE = '',
+      from = '', fromN = '', fromE = '',
+      cc = '', ccN = '', ccE = '';
   subj = aComposeDetails.subject;
   from = aComposeDetails.from;
+  let fromParsed = this._parseEmailAddress(from);
+  fromN = fromParsed.name;
+  fromE = fromParsed.email;
+
   if (aComposeDetails.to instanceof Array) {
     to = aComposeDetails.to.join(", ");
+    let toParsed = aComposeDetails.to.map(aTo => this._parseEmailAddress(aTo));
+    toN = toParsed.map(aTo => aTo.name).filter(aTo => aTo != '').join(", ");
+    toE = toParsed.map(aTo => aTo.email).join(", ");
   }
   else {
     to = aComposeDetails.to;
+    let toParsed = this._parseEmailAddress(to);
+    toN = toParsed.name;
+    toE = toParsed.email;
   }
-  if (typeof aComposeDetails.cc instanceof Array) {
+  if (aComposeDetails.cc instanceof Array) {
     cc = aComposeDetails.cc.join(", ");
+    let ccParsed = aComposeDetails.cc.map(aCc => this._parseEmailAddress(aCc));
+    ccN = ccParsed.map(aCc => aCc.name).filter(aCc => aCc != '').join(", ");
+    ccE = ccParsed.map(aCc => aCc.email).join(", ");
   }
   else {
     cc = aComposeDetails.cc;
+    let ccParsed = this._parseEmailAddress(cc);
+    ccN = ccParsed.name;
+    ccE = ccParsed.email;
   }
 
   rv = rv.replace(/\$\[SUBJECT\]/gm, subj);
   rv = rv.replace(/\$\[FROM\]/gm, from);
+  rv = rv.replace(/\$\[FROM_NAME\]/gm, fromN);
+  rv = rv.replace(/\$\[FROM_EMAIL\]/gm, fromE);
   rv = rv.replace(/\$\[TO\]/gm, to);
+  rv = rv.replace(/\$\[TO_NAME\]/gm, toN);
+  rv = rv.replace(/\$\[TO_EMAIL\]/gm, toE);
   rv = rv.replace(/\$\[CC\]/gm, cc);
+  rv = rv.replace(/\$\[CC_NAME\]/gm, ccN);
+  rv = rv.replace(/\$\[CC_EMAIL\]/gm, ccE);
 
+  return rv;
+};
+
+
+aeClippingSubst._parseEmailAddress = function (aNameAndEmailAddrStr)
+{
+  let rv = {name: '', email: ''};
+  // Examples: "Display Name <email@example.com>", "no-name@example.com"
+  let parsed = aNameAndEmailAddrStr.split(" <");
+  if (parsed.length == 1) {
+    // No display name, just email address only.
+    rv.email = parsed[0];
+  }
+  else {
+    rv.name = parsed[0];
+    rv.email = parsed[1];
+    // Get rid of trailing ">"
+    rv.email = rv.email.substring(0, rv.email.length - 1);
+  }
+  
   return rv;
 };
 
