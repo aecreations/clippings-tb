@@ -1885,7 +1885,8 @@ async function pasteClipping(aClippingInfo, aComposeTabID)
     processedCtnt = aClippingInfo.text;
   }
   else {
-    processedCtnt = await aeClippingSubst.processStdPlaceholders(aClippingInfo);
+    let compInfo = await messenger.compose.getComposeDetails(aComposeTabID);
+    processedCtnt = await aeClippingSubst.processStdPlaceholders(aClippingInfo, compInfo);
     let failedPlchldrs = aeClippingSubst.getFailedPlaceholders();
     if (failedPlchldrs.length > 0) {
       // TO DO: Show dialog giving the user the option to edit the clipping in

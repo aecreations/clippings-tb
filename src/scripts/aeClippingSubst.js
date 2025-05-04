@@ -154,7 +154,7 @@ aeClippingSubst.getAutoIncrPlaceholders = function (aClippingText)
 };
 
 
-aeClippingSubst.processStdPlaceholders = async function (aClippingInfo)
+aeClippingSubst.processStdPlaceholders = async function (aClippingInfo, aComposeDetails)
 {
   let rv = "";
   let processedTxt = "";  // Contains expanded clipping in clipping placeholders.
@@ -236,6 +236,29 @@ aeClippingSubst.processStdPlaceholders = async function (aClippingInfo)
       rv = rv.replace(dtPlchldr, dtReplaced[i]);
     }
   }
+
+  // Process compose details and substitute values for email-related
+  // placeholders.
+  let subj, to, from, cc;
+  subj = aComposeDetails.subject;
+  from = aComposeDetails.from;
+  if (aComposeDetails.to instanceof Array) {
+    to = aComposeDetails.to.join(", ");
+  }
+  else {
+    to = aComposeDetails.to;
+  }
+  if (typeof aComposeDetails.cc instanceof Array) {
+    cc = aComposeDetails.cc.join(", ");
+  }
+  else {
+    cc = aComposeDetails.cc;
+  }
+
+  rv = rv.replace(/\$\[SUBJECT\]/gm, subj);
+  rv = rv.replace(/\$\[FROM\]/gm, from);
+  rv = rv.replace(/\$\[TO\]/gm, to);
+  rv = rv.replace(/\$\[CC\]/gm, cc);
 
   return rv;
 };
