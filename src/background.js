@@ -395,6 +395,9 @@ async function loadComposeScripts()
       file: messenger.runtime.getURL("lib/purify.min.js"),
     });
     messenger.tabs.executeScript(tab.id, {
+      file: messenger.runtime.getURL("lib/jquery.js"),
+    });
+    messenger.tabs.executeScript(tab.id, {
       file: messenger.runtime.getURL("compose.js"),
     });
   }
@@ -497,6 +500,7 @@ async function init()
   messenger.composeScripts.register({
     js: [
       {file: "lib/purify.min.js"},
+      {file: "lib/jquery.js"},
       {file: "compose.js"},
     ],
   });
