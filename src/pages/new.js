@@ -17,7 +17,7 @@ let gParentFolderID = 0;
 let gSrcURL = "";
 let gCreateInFldrMenu;
 let gFolderPickerPopup;
-let gNewFolderDlg, gPreviewDlg;
+let gNewFolderDlg, gPreviewDlg, gSyncErrMsgBox;
 let gPrefs;
 let gSyncedFldrIDs = new Set();
 
@@ -534,6 +534,8 @@ function initDialogs()
     $("#clipping-preview").val("");
     this.close();
   };
+
+  gSyncErrMsgBox = new aeDialog("#sync-fldr-full-error-msgbox");
 }
 
 
@@ -877,18 +879,27 @@ function accept(aEvent)
 
 async function finishAcceptDlg(aNewClippingID, aNewClipping)
 {
-  await messenger.runtime.sendMessage({
-    msgID: "new-clipping-created",
-    newClippingID: aNewClippingID,
-    newClipping: aNewClipping,
-    origin: aeConst.ORIGIN_HOSTAPP,
-  });
-  await unsetClippingsUnchangedFlag();
-
   if (gPrefs.syncClippings) {
     aeImportExport.setDatabase(gClippingsDB);
         
     let syncData = await aeImportExport.exportToJSON(true, true, gPrefs.syncFolderID, false, true, true);
+
+    let isSyncDataSizeUnderMax = await messenger.runtime.sendMessage({
+      msgID: "check-sync-data-size",
+      syncData,
+    });
+    log("Clippings::new.js: finishAcceptDlg(): Response from message 'check-sync-data-size': " + isSyncDataSizeUnderMax);
+
+    if (!isSyncDataSizeUnderMax) {
+      gSyncErrMsgBox.showModal();
+      setTimeout(async () => {
+        await gClippingsDB.clippings.delete(aNewClippingID);
+      }, 100);
+ 
+      setDlgButtonEnabledStates(true);
+      return;
+    }
+    
     let natMsg = {
       msgID: "set-synced-clippings",
       syncData: syncData.userClippingsRoot,
@@ -897,13 +908,21 @@ async function finishAcceptDlg(aNewClippingID, aNewClipping)
     log("Clippings/mx::new.js: accept(): Sending message 'set-synced-clippings' to the Sync Clippings helper app.  Message data:");
     log(natMsg);
         
-    let resp = await messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg);
-    if (resp) {
+    let natResp = await messenger.runtime.sendNativeMessage(aeConst.SYNC_CLIPPINGS_APP_NAME, natMsg);
+    if (natResp) {
       log("Clippings/mx::new.js: accept(): Response from the Sync Clippings helper app:");
-      log(resp);
+      log(natResp);
     }
   }
   
+  await messenger.runtime.sendMessage({
+    msgID: "new-clipping-created",
+    newClippingID: aNewClippingID,
+    newClipping: aNewClipping,
+    origin: aeConst.ORIGIN_HOSTAPP,
+  });
+  await unsetClippingsUnchangedFlag();
+
   if (gPrefs.clippingsMgrAutoShowDetailsPane && isClippingOptionsSet()) {
     await aePrefs.setPrefs({
       clippingsMgrAutoShowDetailsPane: false,
