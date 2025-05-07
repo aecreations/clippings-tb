@@ -183,7 +183,11 @@ let gSyncClippingsListener = {
 
     if (isStaticIDsAdded) {
       log("Clippings/mx: gSyncClippingsListener.onReloadFinish(): Static IDs added to synced items.  Saving sync file.");
-      await pushSyncFolderUpdates();
+      let result = await pushSyncFolderUpdates();
+      if ("error" in result && result.error.name == "RangeError") {
+        // Sync file is too big.
+        showSyncDataSizeTooBigNotification();
+      }
     }
   },
 };
@@ -755,12 +759,32 @@ async function pushSyncFolderUpdates()
     throw new Error("Sync Clippings is not turned on!");
   }
   
+  let rv = {status: "ok"};
   let perms = await messenger.permissions.getAll();
   if (! perms.permissions.includes("nativeMessaging")) {
-    return;
+    rv = {
+      status: "error",
+      error: {
+        name: "AccessDeniedError",
+        message: "Extension permission required: nativeMessaging",
+      }
+    }
+    return rv;
   }
 
   let syncData = await aeImportExport.exportToJSON(true, true, gSyncFldrID, false, true, true);
+  let isSyncDataSizeUnderMax = await isRecvNativeMessageSizeUnderMax(syncData);
+  if (!isSyncDataSizeUnderMax) {
+    rv = {
+      status: "error",
+      error: {
+        name: "RangeError",
+        message: "Maximum sync data size exceeded",
+      }
+    }
+    return rv;
+  }
+
   let natMsg = {
     msgID: "set-synced-clippings",
     syncData: syncData.userClippingsRoot,
@@ -789,7 +813,16 @@ async function pushSyncFolderUpdates()
       gIsSyncPushFailed = true;
     }
 
+    rv = {
+      status: "error",
+      error: {
+        name: "TypeError",
+        message: "Sync file is read only",
+      }
+    }
   }
+
+  return rv;
 }
 
 
@@ -1509,6 +1542,17 @@ async function showSyncHelperUpdateNotification()
       await aePrefs.setPrefs({lastSyncHelperUpdChkDate: new Date().toString()});
     }
   }
+}
+
+
+function showSyncDataSizeTooBigNotification()
+{
+  messenger.notifications.create("sync-data-size-too-big", {
+    type: "basic",
+    title: messenger.i18n.getMessage("syncClippings"),
+    message: messenger.i18n.getMessage("syncFldrFull"),
+    iconUrl: aeVisual.getErrorIconPath(),
+  });
 }
 
 
@@ -2404,7 +2448,7 @@ messenger.runtime.onMessage.addListener(aRequest => {
     break;
 
   case "push-sync-fldr-updates":
-    return pushSyncFolderUpdates();
+    return Promise.resolve(pushSyncFolderUpdates());
 
   case "check-sync-data-size":
     return Promise.resolve(isRecvNativeMessageSizeUnderMax(aRequest.syncData));

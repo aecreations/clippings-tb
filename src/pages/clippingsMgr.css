@@ -941,6 +941,7 @@ body[data-os="win"] .lightbox .msgbox-info-icon {
 #move-sync-fldr-msgbox,
 #delete-sync-fldr-msgbox,
 #show-only-synced-items-reminder,
+#sync-fldr-full-error-msgbox,
 #generic-msg-box {
     top: 64px;
 }
@@ -1252,7 +1253,8 @@ body[data-locale="de"] #export-dlg #export-format-list-label {
 #import-confirm-msgbox > .msgbox-icon,
 #export-confirm-msgbox > .msgbox-icon,
 #backup-confirm-msgbox > .msgbox-icon,
-#reload-sync-fldr-msgbox > .msgbox-icon {
+#reload-sync-fldr-msgbox > .msgbox-icon,
+#sync-fldr-full-error-msgbox > .msgbox-icon {
     margin-top: 8px;
 }
 

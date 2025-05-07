@@ -1313,6 +1313,7 @@ let gCmd = {
         gSyncedItemsIDs.add(aNewClippingID + "C");
         gSyncedItemsIDMap.set(newClipping.sid, aNewClippingID + "C");
         messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"})
+          .then(handlePushSyncUpdatesResponse)
           .catch(handlePushSyncItemsError);
       }
     });
@@ -1376,6 +1377,7 @@ let gCmd = {
         gSyncedItemsIDs.add(aNewClippingID + "C");
         gSyncedItemsIDMap.set(newClipping.sid, aNewClippingID + "C");
         messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"})
+          .then(handlePushSyncUpdatesResponse)
           .catch(handlePushSyncItemsError);
       }
     });
@@ -1493,6 +1495,7 @@ let gCmd = {
         gSyncedItemsIDs.add(aNewFolderID + "F");
         gSyncedItemsIDMap.set(newFolder.sid, aNewFolderID + "F");
         messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"})
+          .then(handlePushSyncUpdatesResponse)
           .catch(handlePushSyncItemsError);
       }
     });
@@ -1802,8 +1805,10 @@ let gCmd = {
     if (gSyncedItemsIDs.has(parentFolderID + "F")) {
       gSyncedItemsIDs.add(newSeparatorID + "C");
       gSyncedItemsIDMap.set(newSeparator.sid, newSeparatorID + "C");
+      let resp;
       try {
-        await messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"});
+        resp = await messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"});
+        handlePushSyncUpdatesResponse(resp);
       }
       catch (e) {
         handlePushSyncItemsError(e);
@@ -1909,7 +1914,7 @@ let gCmd = {
 
         if (gSyncedItemsIDs.has(aNewParentFldrID + "F")
             || gSyncedItemsIDs.has(oldParentFldrID + "F")) {
-          messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
+          messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(aResp => {
             // Remove clipping from synced items set if it was moved out of a
             // synced folder.
             if (gSyncedItemsIDs.has(aClippingID + "C")
@@ -1924,6 +1929,7 @@ let gCmd = {
               gSyncedItemsIDMap.set(sid, aClippingID + "C");
             }
             this._pushToUndoStack(aDestUndoStack, state);
+            handlePushSyncUpdatesResponse(aResp);
             aFnResolve();
           }).catch(handlePushSyncItemsError);
         }
@@ -2016,9 +2022,10 @@ let gCmd = {
       }
 
       if (gSyncedItemsIDs.has(aDestFldrID + "F")) {
-        messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
+        messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(aResp => {
           gSyncedItemsIDs.add(aNewClippingID + "C");
           gSyncedItemsIDMap.set(sid, aNewClippingID + "C");
+          handlePushSyncUpdatesResponse(aResp);
         }).catch(handlePushSyncItemsError);
       }
     }).catch(aErr => {
@@ -2110,7 +2117,7 @@ let gCmd = {
 
         if (gSyncedItemsIDs.has(aNewParentFldrID + "F")
             || gSyncedItemsIDs.has(oldParentFldrID + "F")) {
-          messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
+          messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(aResp => {
             if (gSyncedItemsIDs.has(aFolderID + "F")
                 && !gSyncedItemsIDs.has(aNewParentFldrID + "F")) {
               gSyncedItemsIDs.delete(aFolderID + "F");
@@ -2122,6 +2129,7 @@ let gCmd = {
               gSyncedItemsIDMap.set(sid, aFolderID + "F");
             }
             this._pushToUndoStack(aDestUndoStack, state);
+            handlePushSyncUpdatesResponse(aResp);
             aFnResolve();
           }).catch(handlePushSyncItemsError);
         }
@@ -2225,9 +2233,10 @@ let gCmd = {
       }
 
       if (gSyncedItemsIDs.has(aDestFldrID + "F")) {
-        messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
+        messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(aResp => {
           gSyncedItemsIDs.add(newFldrID + "F");
           gSyncedItemsIDMap.set(sid, newFldrID + "F");
+          handlePushSyncUpdatesResponse(aResp);
         }).catch(handlePushSyncItemsError);
       }
 
@@ -2287,7 +2296,8 @@ let gCmd = {
         }
 
         if (gSyncedItemsIDs.has(aFolderID + "F")) {
-          messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
+          messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(aResp => {
+            handlePushSyncUpdatesResponse(aResp);
             aFnResolve();
           }).catch(aErr => {
             handlePushSyncItemsError(aErr);
@@ -2347,7 +2357,8 @@ let gCmd = {
         }
 
         if (gSyncedItemsIDs.has(aClippingID + "C")) {
-          messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
+          messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(aResp => {
+            handlePushSyncUpdatesResponse(aResp);
             aFnResolve();
           }).catch(aErr => {
             handlePushSyncItemsError(aErr);
@@ -2407,7 +2418,8 @@ let gCmd = {
         }
 
         if (gSyncedItemsIDs.has(aClippingID + "C")) {
-          messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
+          messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(aResp => {
+            handlePushSyncUpdatesResponse(aResp);
             aFnResolve();
           }).catch(aErr => {
             handlePushSyncItemsError(aErr);
@@ -3193,6 +3205,15 @@ let gCmd = {
     }
   },
 };
+
+
+function handlePushSyncUpdatesResponse(aResponse)
+{
+  if ("error" in aResponse && aResponse.error.name == "RangeError") {
+    // Max sync file size exceeded.
+    gDialogs.syncFldrFull.showModal();
+  }
+}
 
 
 // Initializing Clippings Manager window
@@ -4925,6 +4946,7 @@ function initDialogs()
     }, 100);
   };
 
+  gDialogs.syncFldrFull = new aeDialog("#sync-fldr-full-error-msgbox");
   gDialogs.syncFldrReadOnly = new aeDialog("#sync-file-readonly-msgbar");
 
   gDialogs.miniHelp = new aeDialog("#mini-help-dlg");
@@ -6078,7 +6100,10 @@ function getErrStr(aErr)
 
 function handlePushSyncItemsError(aError)
 {
-  if (! gErrorPushSyncItems) {
+  if (!gErrorPushSyncItems) {
+    // Show sync errors only once during the Clippings Manager session.
+    // Pushing sync changes can happen numerous times, and repeated error
+    // messages will annoy the user.
     let errorMsgBox = new aeDialog("#sync-error-msgbox");
     errorMsgBox.onInit = function () {
       this.find(".dlg-content > .msgbox-error-msg").text(messenger.i18n.getMessage("syncPushFailed"));
