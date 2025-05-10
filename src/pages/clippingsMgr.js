@@ -4838,7 +4838,7 @@ function initDialogs()
     // Only allow copying a clipping or folder out of Synced Clippings folder
     // if sync file is read-only.
     if (gPrefs.syncClippings && gPrefs.isSyncReadOnly && isSyncedItem) {
-      $("#copy-instead-of-move").click().prop("disabled", true);
+      $("#copy-instead-of-move").trigger("click").prop("disabled", true);
     }
   };
 

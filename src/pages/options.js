@@ -98,7 +98,7 @@ $(async () => {
     aePrefs.setPrefs({htmlPaste: aEvent.target.value});
   });
   
-  $("#toggle-sync").click(async (aEvent) => {
+  $("#toggle-sync").on("click", async (aEvent) => {
     let syncClippings = await aePrefs.getPref("syncClippings");
     if (syncClippings) {
       gDialogs.turnOffSync.showModal();
@@ -179,7 +179,7 @@ $(async () => {
     aePrefs.setPrefs({ backupFilenameWithDate: aEvent.target.checked });
   });
 
-  $("#backup-reminder").attr("checked", (prefs.backupRemFrequency != aeConst.BACKUP_REMIND_NEVER)).click(async (aEvent) => {
+  $("#backup-reminder").attr("checked", (prefs.backupRemFrequency != aeConst.BACKUP_REMIND_NEVER)).on("click", async (aEvent) => {
     if (aEvent.target.checked) {
       $("#backup-reminder-freq").prop("disabled", false);
       $("#skip-backup-if-no-chg").prop("disabled", false);
@@ -226,7 +226,7 @@ $(async () => {
     aePrefs.setPrefs({skipBackupRemIfUnchg: aEvent.target.checked});
   });
 
-  $("#show-shct-key-in-menu").prop("checked", prefs.showShctKey).click(async (aEvent) => {
+  $("#show-shct-key-in-menu").prop("checked", prefs.showShctKey).on("click", async (aEvent) => {
     await aePrefs.setPrefs({showShctKey: aEvent.target.checked});
     $("#shct-key-in-menu-opt").prop("disabled", !aEvent.target.checked);
     if (aEvent.target.checked) {
@@ -267,7 +267,7 @@ $(async () => {
     $("#toggle-sync").text(messenger.i18n.getMessage("syncTurnOn"));
   }
 
-  $("#sync-settings").click(async (aEvent) => {
+  $("#sync-settings").on("click", async (aEvent) => {
     let perms = await messenger.permissions.getAll();
     if (! perms.permissions.includes("nativeMessaging")) {
       // The "nativeMessaging" extension permission was revoked while
@@ -278,7 +278,7 @@ $(async () => {
     gDialogs.syncClippings.showModal();
   });
 
-  $("#browse-sync-fldr").click(async (aEvent) => {
+  $("#browse-sync-fldr").on("click", async (aEvent) => {
     let natMsg = {msgID:"sync-dir-folder-picker"};
     let resp;
     try {
@@ -672,7 +672,7 @@ function initDialogs()
   
   gDialogs.turnOffSync = new aeDialog("#turn-off-sync-clippings-dlg");
   gDialogs.turnOffSync.onFirstInit = async function () {
-    this.find(".dlg-btns > .dlg-btn-yes").click(async (aEvent) => {
+    this.find(".dlg-btns > .dlg-btn-yes").on("click", async (aEvent) => {
       this.close();
 
       let oldSyncFolderID = await messenger.runtime.sendMessage({
