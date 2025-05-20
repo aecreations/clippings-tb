@@ -478,6 +478,21 @@
     "description": "Copy Clipping Text dialog in Clippings Manager and Clippings sidebar - user selection of data format of clipping to be copied"
   },
 
+  "pasteAsHTML": {
+    "message": "Paste as Formatted Text",
+    "description": "Paste As dialog - user selection of data format of clipping to be pasted"
+  },
+
+  "pasteAsPlain": {
+    "message": "Paste as Plain Text",
+    "description": "Paste As dialog - user selection of data format of clipping to be pasted"
+  },
+
+  "pasteAsPlainHTML": {
+    "message": "Paste as Plain Text with HTML tags",
+    "description": "Paste As dialog - user selection of data format of clipping to be pasted"
+  },
+
   "clippingsMgrWndTitle": {
     "message": "Clippings Manager",
     "description": "Clippings Manager window title"
@@ -1111,15 +1126,28 @@
   },
 
   "pasteOptFormatted": {
-    "message": "Paste as formatted text"
+    "message": "Paste as formatted text",
+    "description": "Paste option radio button label in extension preferences page"
+  },
+
+  "pasteOptPlain": {
+    "message": "Paste as plain text",
+    "description": "Paste option radio button label in extension preferences page"
   },
 
   "pasteOptRawHTML": {
-    "message": "Paste as plain text, preserving HTML tags"
+    "message": "Paste as plain text, preserving HTML tags",
+    "description": "Paste option radio button label in extension preferences page"
+  },
+
+  "pasteFmtAsk": {
+    "message": "Ask me what to do",
+    "description": "Paste option radio button label in extension preferences page"
   },
 
   "cbAutoLineBreak": {
-    "message": "Automatically break lines unless <p> or <br> tags exist"
+    "message": "Automatically break lines unless <p> or <br> tags exist",
+    "description": "Checkbox option for copying and pasting an HTML-formatted clipping"
   },
 
   "htmlPasteDesc": {
@@ -1502,11 +1530,6 @@
 
   "errNoDetails": {
     "message": "Sorry, no further information on this error is available."
-  },
-
-  "syncReloadAck": {
-    "message": "Updating the Synced Clippings folder. Click Reload to continue.",
-    "description": "Message box in Clippings Manager"
   },
 
   "syncFldrRdOnly": {
