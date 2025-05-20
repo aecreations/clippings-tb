@@ -293,7 +293,7 @@ class aeDialog
 
     if (openDlgElts.length > 0) {
       // Normally there should just be 1 dialog open at a time.
-      $(".lightbox.lightbox-show .dlg-accept:not(:disabled)").click();
+      $(".lightbox.lightbox-show .dlg-accept:not(:disabled)").trigger("click");
     }
 
     this.hidePopups();
@@ -307,7 +307,7 @@ class aeDialog
       // Normally there should just be 1 dialog open at a time.
       let cancelBtnElt = $(".lightbox.lightbox-show .dlg-cancel:not(:disabled)");
       if (cancelBtnElt.length > 0) {
-        cancelBtnElt.click();
+        cancelBtnElt.trigger("click");
       }
       else {
         // Dialog only has an OK, Close or Done button.
