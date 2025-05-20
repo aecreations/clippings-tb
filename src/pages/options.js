@@ -823,7 +823,7 @@ function initDialogs()
 
 
 // Handling keyboard events in open modal dialogs.
-$(window).keydown(aEvent => {
+$(window).on("keydown", aEvent => {
   function isAccelKeyPressed()
   {
     let rv;

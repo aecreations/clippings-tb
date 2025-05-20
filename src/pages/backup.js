@@ -165,7 +165,7 @@ function log(aMessage)
 // Event handlers
 //
 
-$(window).keydown(aEvent => {
+$(window).on("keydown", aEvent => {
   if (aEvent.key == "Enter") {
     if (aEvent.target.tagName == "BUTTON" && aEvent.target.id != "btn-accept"
         && !aEvent.target.classList.contains("dlg-accept")) {

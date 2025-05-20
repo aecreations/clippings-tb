@@ -360,7 +360,7 @@ $(async () => {
 });
 
 
-$(window).keydown(async (aEvent) => {
+$(window).on("keydown", async (aEvent) => {
   if (aEvent.key == "Escape") {
     if (gPasteMode == aeConst.PASTEACTION_SEARCH_CLIPPING) {
       if (gAutocompleteMenu.isPopupShowing()) {
