@@ -2485,7 +2485,9 @@ let gCmd = {
       }
 
       if (gSyncedItemsIDs.has(aClippingID + "C")) {
-        return messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"});
+        messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(aResp => {
+          handlePushSyncUpdatesResponse(aResp);
+        }).catch(handlePushSyncItemsError);
       }
     }).catch(aErr => {
       handlePushSyncItemsError(aErr);
