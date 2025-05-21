@@ -1190,7 +1190,7 @@ async function initToolsMenuItem()
       title: messenger.i18n.getMessage("cxtMenuOpenClippingsMgr"),
       contexts: ["tools_menu"],
     }, () => {
-      if (browser.runtime.lastError) {
+      if (messenger.runtime.lastError) {
         // Ignore error that occurs when rebuilding all menus.
       }
     });
