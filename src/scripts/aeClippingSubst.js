@@ -242,14 +242,26 @@ aeClippingSubst.processStdPlaceholders = async function (aClippingInfo, aCompose
   let subj = '', to = '', toN = '', toE = '',
       from = '', fromN = '', fromE = '',
       cc = '', ccN = '', ccE = '';
+
   subj = aComposeDetails.subject;
+  if (!aComposeDetails.isPlainText) {  // HTML format
+    subj = this._escapeHTML(subj);
+  }
+
   from = aComposeDetails.from;
   let fromParsed = this._parseEmailAddress(from);
   fromN = fromParsed.name;
   fromE = fromParsed.email;
+  if (!aComposeDetails.isPlainText) {
+    from = this._escapeHTML(from);
+  }
 
   if (aComposeDetails.to instanceof Array) {
     to = aComposeDetails.to.join(", ");
+    if (!aComposeDetails.isPlainText) {
+      to = this._escapeHTML(to);
+    }
+
     let toParsed = aComposeDetails.to.map(aTo => this._parseEmailAddress(aTo));
     toN = toParsed.map(aTo => aTo.name).filter(aTo => aTo != '').join(", ");
     toE = toParsed.map(aTo => aTo.email).join(", ");
@@ -259,9 +271,16 @@ aeClippingSubst.processStdPlaceholders = async function (aClippingInfo, aCompose
     let toParsed = this._parseEmailAddress(to);
     toN = toParsed.name;
     toE = toParsed.email;
+    if (!aComposeDetails.isPlainText) {
+      to = this._escapeHTML(to);
+    }
   }
   if (aComposeDetails.cc instanceof Array) {
     cc = aComposeDetails.cc.join(", ");
+    if (!aComposeDetails.isPlainText) {
+      cc = this._escapeHTML(cc);
+    }
+
     let ccParsed = aComposeDetails.cc.map(aCc => this._parseEmailAddress(aCc));
     ccN = ccParsed.map(aCc => aCc.name).filter(aCc => aCc != '').join(", ");
     ccE = ccParsed.map(aCc => aCc.email).join(", ");
@@ -271,6 +290,9 @@ aeClippingSubst.processStdPlaceholders = async function (aClippingInfo, aCompose
     let ccParsed = this._parseEmailAddress(cc);
     ccN = ccParsed.name;
     ccE = ccParsed.email;
+    if (!aComposeDetails.isPlainText) {
+      cc = this._escapeHTML(cc);
+    }
   }
 
   rv = rv.replace(/\$\[SUBJECT\]/gm, subj);
@@ -306,6 +328,15 @@ aeClippingSubst._parseEmailAddress = function (aNameAndEmailAddrStr)
   
   return rv;
 };
+
+
+aeClippingSubst._escapeHTML = function (aHTMLString)
+{
+  let rv = aHTMLString.replace(/</g, "&lt;");
+  rv = rv.replace(/>/g, "&gt;");
+
+  return rv;
+}
 
 
 aeClippingSubst._processDateTimePlaceholders = function (aPlaceholders, aReplaced)
