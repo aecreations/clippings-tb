@@ -719,6 +719,41 @@
     "description": "Clippings Manager - preset (built-in) placeholder menu"
   },
 
+  "mnuPlchldrTo": {
+    "message": "To",
+    "description": "Clippings Manager - preset (built-in) placeholder menu (Thunderbird only)"
+  },
+
+  "mnuPlchldrCc": {
+    "message": "Cc",
+    "description": "Clippings Manager - preset (built-in) placeholder menu (Thunderbird only)"
+  },
+
+  "mnuPlchldrFrom": {
+    "message": "From",
+    "description": "Clippings Manager - preset (built-in) placeholder menu (Thunderbird only)"
+  },
+
+  "mnuPlchldrNameEmail": {
+    "message": "Name and Email",
+    "description": "Clippings Manager - preset (built-in) placeholder menu (Thunderbird only)"
+  },
+
+  "mnuPlchldrName": {
+    "message": "Name",
+    "description": "Clippings Manager - preset (built-in) placeholder menu (Thunderbird only)"
+  },
+
+  "mnuPlchldrEmail": {
+    "message": "Email",
+    "description": "Clippings Manager - preset (built-in) placeholder menu (Thunderbird only)"
+  },
+
+  "mnuPlchldrSubj": {
+    "message": "Subject",
+    "description": "Clippings Manager - preset (built-in) placeholder menu (Thunderbird only)"
+  },
+
   "mnuPlchldrClipClip": {
     "message": "Clipping In Clipping",
     "description": "Clippings Manager - preset (built-in) placeholder menu"

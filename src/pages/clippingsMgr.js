@@ -3644,6 +3644,46 @@ function initToolbar()
         gCmd.insertClippingInClippingPlaceholder();
         break;
 
+      case "insSubject":
+        insertPlaceholder("$[SUBJECT]");
+        break;
+
+      case "insToNameEmail":
+        insertPlaceholder("$[TO]");
+        break;
+        
+      case "insToName":
+        insertPlaceholder("$[TO_NAME]");
+        break;
+
+      case "insToEmail":
+        insertPlaceholder("$[TO_EMAIL]");
+        break;
+
+      case "insCcNameEmail":
+        insertPlaceholder("$[CC]");
+        break;
+
+      case "insCcName":
+        insertPlaceholder("$[CC_NAME]");
+        break;
+
+      case "insCcEmail":
+        insertPlaceholder("$[CC_EMAIL]");
+        break;
+
+      case "insFromNameEmail":
+        insertPlaceholder("$[FROM]");
+        break;
+
+      case "insFromName":
+        insertPlaceholder("$[FROM_NAME]");
+        break;
+
+      case "insFromEmail":
+        insertPlaceholder("$[FROM_EMAIL]");
+        break;
+
       default:
         window.alert("The selected action is not available right now.");
         break;
@@ -3682,6 +3722,62 @@ function initToolbar()
       },
       insClippingInClipping: {
         name: messenger.i18n.getMessage("mnuPlchldrClipClip"),
+        className: "ae-menuitem"
+      },
+      separator2: "--------",
+      toSubmenu: {
+        name: messenger.i18n.getMessage("mnuPlchldrTo"),
+        items: {
+          insToNameEmail: {
+            name: messenger.i18n.getMessage("mnuPlchldrNameEmail"),
+            className: "ae-menuitem"
+          },
+          insToName: {
+            name: messenger.i18n.getMessage("mnuPlchldrName"),
+            className: "ae-menuitem"
+          },
+          insToEmail: {
+            name: messenger.i18n.getMessage("mnuPlchldrEmail"),
+            className: "ae-menuitem"
+          },
+        },
+      },
+      ccSubmenu: {
+        name: messenger.i18n.getMessage("mnuPlchldrCc"),
+        items: {
+          insCcNameEmail: {
+            name: messenger.i18n.getMessage("mnuPlchldrNameEmail"),
+            className: "ae-menuitem"
+          },
+          insCcName: {
+            name: messenger.i18n.getMessage("mnuPlchldrName"),
+            className: "ae-menuitem"
+          },
+          insCcEmail: {
+            name: messenger.i18n.getMessage("mnuPlchldrEmail"),
+            className: "ae-menuitem"
+          },
+        },
+      },
+      fromSubmenu: {
+        name: messenger.i18n.getMessage("mnuPlchldrFrom"),
+        items: {
+          insFromNameEmail: {
+            name: messenger.i18n.getMessage("mnuPlchldrNameEmail"),
+            className: "ae-menuitem"
+          },
+          insFromName: {
+            name: messenger.i18n.getMessage("mnuPlchldrName"),
+            className: "ae-menuitem"
+          },
+          insFromEmail: {
+            name: messenger.i18n.getMessage("mnuPlchldrEmail"),
+            className: "ae-menuitem"
+          },
+        },
+      },
+      insSubject: {
+        name: messenger.i18n.getMessage("mnuPlchldrSubj"),
         className: "ae-menuitem"
       },
     }
