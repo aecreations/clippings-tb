@@ -82,13 +82,11 @@ $(async () => {
 
   $("#paste-opt-formatted").on("click", aEvent => {
     $("#html-auto-line-break").prop("disabled", false);
-    $("#html-paste-note").removeClass("disabled");
     aePrefs.setPrefs({htmlPaste: aEvent.target.value});
   });
 
   $("#paste-opt-plaintext, #paste-opt-raw-html, #paste-opt-ask").on("click", aEvent => {
     $("#html-auto-line-break").prop("disabled", true);
-    $("#html-paste-note").addClass("disabled");
     aePrefs.setPrefs({htmlPaste: aEvent.target.value});
   });
 
@@ -129,25 +127,21 @@ $(async () => {
     $("#paste-opt-formatted").prop("checked", true);
     $("#paste-opt-plaintext, #paste-opt-raw-html, #paste-opt-ask").prop("checked", false);
     $("#html-auto-line-break").prop("disabled", false);
-    $("#html-paste-note").removeClass("disabled");
   }
   else if (prefs.htmlPaste == aeConst.HTMLPASTE_AS_PLAIN) {
     $("#paste-opt-plaintext").prop("checked", true);
     $("#paste-opt-formatted, #paste-opt-raw-html, #paste-opt-ask").prop("checked", false);
     $("#html-auto-line-break").prop("disabled", true);
-    $("#html-paste-note").addClass("disabled");
   }
   else if (prefs.htmlPaste == aeConst.HTMLPASTE_AS_IS) {
     $("#paste-opt-raw-html").prop("checked", true);
     $("#paste-opt-formatted, #paste-opt-plaintext, #paste-opt-ask").prop("checked", false);
     $("#html-auto-line-break").prop("disabled", true);
-    $("#html-paste-note").addClass("disabled");
   }
   else if (prefs.htmlPaste == aeConst.HTMLPASTE_ASK_THE_USER) {
     $("#paste-opt-ask").prop("checked", true);
     $("#paste-opt-formatted, #paste-opt-plaintext, #paste-opt-raw-html").prop("checked", false);
     $("#html-auto-line-break").prop("disabled", true);
-    $("#html-paste-note").addClass("disabled");
   }
   
   $("#html-auto-line-break").attr("checked", prefs.autoLineBreak).on("click", aEvent => {
