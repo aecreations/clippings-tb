@@ -15,6 +15,7 @@ let gOS;
 let gPlaceholders = null;
 let gPlaceholdersWithDefaultVals = null;
 let gSamePlchldrs = {};
+let gClippingName = null;
 let gClippingContent = null;
 let gComposeTabID = null;
 
@@ -39,7 +40,7 @@ $(async () => {
     msgID: "init-placeholder-prmt-dlg"
   });
 
-  let clippingName = sanitizeHTML(resp.clippingName);
+  gClippingName = sanitizeHTML(resp.clippingName);
   gPlaceholders = resp.placeholders;
   gPlaceholdersWithDefaultVals = resp.placeholdersWithDefaultVals;
   gClippingContent = resp.content;
@@ -62,7 +63,7 @@ $(async () => {
   }
 
   if (gPlaceholders.length == 1) {
-    $("#plchldr-single-content > .clipping-name").text(clippingName);
+    $("#plchldr-single-content > .clipping-name").text(gClippingName);
     let plchldr = gPlaceholders[0];
     $("#plchldr-single").show();
     $("#single-prmt-label").text(messenger.i18n.getMessage("plchldrPromptSingleDesc", plchldr));
@@ -87,7 +88,7 @@ $(async () => {
   }
   else {
     $("#plchldr-multi").show();
-    $("#plchldr-multi-content > .clipping-name").text(clippingName);
+    $("#plchldr-multi-content > .clipping-name").text(gClippingName);
 
     let plchldrSet = new Set(gPlaceholders);
     let height;
@@ -264,6 +265,7 @@ function accept(aEvent)
 
   messenger.runtime.sendMessage({
     msgID: "paste-clipping-with-plchldrs",
+    clippingName: gClippingName,
     processedContent: content,
     composeTabID: gComposeTabID,
   });

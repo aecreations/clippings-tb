@@ -238,6 +238,39 @@ let gPastePrompt = {
   }
 };
 
+let gPasteAs = {
+  _clippingName: null,
+  _clpCtnt: null,
+
+  set(aClippingName, aClippingText)
+  {
+    this._clippingName = aClippingName;
+    this._clpCtnt = aClippingText;
+  },
+
+  get()
+  {
+    let rv = this.copy();
+    this.reset();
+
+    return rv;    
+  },
+
+  copy()
+  {
+    let rv = {
+      clippingName: this._clippingName,
+      content: this._clpCtnt,
+    };
+    return rv;
+  },
+
+  reset()
+  {
+    this._clippingName = '';
+  },
+};
+
 let gPlaceholders = {
   _clippingName: null,
   _plchldrs: null,
@@ -280,6 +313,8 @@ let gWndIDs = {
   newClipping: null,
   clippingsMgr: null,
   pasteClippingOpts: null,
+  placeholderPrmt: null,
+  pasteAs: null,
 };
 
 let gPrefs = null;
@@ -1711,6 +1746,20 @@ function openPlaceholderPromptDlg(aComposeTabID)
 }
 
 
+function openPasteAsDlg(aComposeTabID)
+{
+  let url = messenger.runtime.getURL(`pages/pasteAs.html?compTabID=${aComposeTabID}`);
+  let wndPpty = {
+    type: "popup",
+    width: 440,
+    height: 300,
+    topOffset: 256,
+  };
+
+  openDlgWnd(url, "pasteAs", wndPpty, aComposeTabID);
+}
+
+
 async function openBackupDlg()
 {
   let url = messenger.runtime.getURL("pages/backup.html");
@@ -1980,7 +2029,7 @@ async function pasteClipping(aClippingInfo, aComposeTabID)
     return;
   }
   
-  pasteProcessedClipping(processedCtnt, aComposeTabID);
+  processHTMLFormattedClipping(aClippingInfo.name, processedCtnt, aComposeTabID);
 }
 
 
@@ -2025,7 +2074,26 @@ async function showPasteOptionsDlg(aComposeTabID, aClippingContent)
 }
 
 
-async function pasteProcessedClipping(aClippingContent, aComposeTabID, aPasteAsQuoted=false)
+async function processHTMLFormattedClipping(aClippingName, aClippingContent, aComposeTabID)
+{
+  let isHTMLFormatted = aeClippings.hasHTMLTags(aClippingContent);
+
+  if (isHTMLFormatted) {
+    if (gPrefs.htmlPaste == aeConst.HTMLPASTE_ASK_THE_USER) {
+      gPasteAs.set(aClippingName, aClippingContent);
+      openPasteAsDlg(aComposeTabID);
+    }
+    else {
+      await pasteProcessedClipping(aClippingContent, aComposeTabID);
+    }    
+  }
+  else {
+    await pasteProcessedClipping(aClippingContent, aComposeTabID);
+  }
+}
+
+
+async function pasteProcessedClipping(aClippingContent, aComposeTabID, aPasteAsQuoted=false, aOverridePasteFormat=null)
 {
   // Perform a final check to confirm that the composer represented by
   // aComposeTabID is still open.
@@ -2038,12 +2106,13 @@ async function pasteProcessedClipping(aClippingContent, aComposeTabID, aPasteAsQ
   }
 
   let comp = await messenger.compose.getComposeDetails(aComposeTabID);
-
+  let htmlPaste = aOverridePasteFormat === null ? gPrefs.htmlPaste : aOverridePasteFormat;
+  
   await messenger.tabs.sendMessage(aComposeTabID, {
     id: "paste-clipping",
     content: aClippingContent,
     isPlainText: comp.isPlainText,
-    htmlPaste: gPrefs.htmlPaste,
+    htmlPaste,
     autoLineBreak: gPrefs.autoLineBreak,
     pasteAsQuoted: aPasteAsQuoted,
   });
@@ -2336,6 +2405,9 @@ messenger.runtime.onMessage.addListener(aRequest => {
   case "init-placeholder-prmt-dlg":
     return Promise.resolve(gPlaceholders.get());
 
+  case "init-paste-as-dlg":
+    return Promise.resolve(gPasteAs.get());
+
   case "close-new-clipping-dlg":
     gWndIDs.newClipping = null;
     break;
@@ -2389,17 +2461,30 @@ messenger.runtime.onMessage.addListener(aRequest => {
       // If the Paste Options dialog was shown, control returns to function
       // pasteProcessedClipping() after user clicks OK in the dialog.
       if (aIsDlgShown === false) {
-        pasteProcessedClipping(aRequest.processedContent, aRequest.composeTabID);
+        processHTMLFormattedClipping(
+          aRequest.clippingName, aRequest.processedContent, aRequest.composeTabID
+        );
       }
     }).catch(aErr => {
       warn("Clippings/mx: Can't find compose tab " + aRequest.composeTabID);
     });
     break;
 
+  case "paste-clipping-usr-fmt":
+    return Promise.resolve(
+      pasteProcessedClipping(
+        aRequest.processedContent, aRequest.composeTabID, false, aRequest.pasteFormat
+      )
+    );
+
   case "close-placeholder-prmt-dlg":
     gWndIDs.placeholderPrmt = null;
     break;
 
+  case "close-paste-as-dlg":
+    gWndIDs.pasteAs = null;
+    break;
+    
   case "get-shct-key-prefix-ui-str":
     return Promise.resolve(getShortcutKeyPrefixStr());
 
