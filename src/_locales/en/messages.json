@@ -1175,7 +1175,7 @@
     "description": "Paste option radio button label in extension preferences page"
   },
 
-  "pasteFmtAsk": {
+  "pasteOptAskUsr": {
     "message": "Ask me what to do",
     "description": "Paste option radio button label in extension preferences page"
   },
