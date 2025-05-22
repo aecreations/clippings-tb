@@ -2077,8 +2077,9 @@ async function showPasteOptionsDlg(aComposeTabID, aClippingContent)
 async function processHTMLFormattedClipping(aClippingName, aClippingContent, aComposeTabID)
 {
   let isHTMLFormatted = aeClippings.hasHTMLTags(aClippingContent);
+  let compInfo = await messenger.compose.getComposeDetails(aComposeTabID);
 
-  if (isHTMLFormatted) {
+  if (isHTMLFormatted && !compInfo.isPlainText) {
     if (gPrefs.htmlPaste == aeConst.HTMLPASTE_ASK_THE_USER) {
       gPasteAs.set(aClippingName, aClippingContent);
       openPasteAsDlg(aComposeTabID);
