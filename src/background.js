@@ -1203,8 +1203,8 @@ async function buildContextMenu()
     contexts: ["compose_action"],
   });
   messenger.menus.create({
-    id: "ae-clippings-show-paste-opts",
-    title: messenger.i18n.getMessage("cxtMenuShowPasteOpts"),
+    id: "ae-clippings-paste-as-quoted",
+    title: messenger.i18n.getMessage("cxtMnuPasteQuoted"),
     type: "checkbox",
     checked: false,
     contexts: ["compose_action"],
@@ -1880,15 +1880,15 @@ async function getWndGeometryFromComposeTab()
 }
 
 
-async function toggleShowPastePrompt(aComposeTabID)
+async function togglePasteAsQuoted(aComposeTabID)
 {
-  let showPastePrompt = await messenger.tabs.sendMessage(aComposeTabID, {
-    id: "get-paste-prompt-pref",
+  let pasteAsQuoted = await messenger.tabs.sendMessage(aComposeTabID, {
+    id: "get-paste-as-quoted-pref",
   });
 
   messenger.tabs.sendMessage(aComposeTabID, {
-    id: "set-paste-prompt-pref",
-    showPastePrompt: !showPastePrompt,
+    id: "set-paste-as-quoted-pref",
+    pasteAsQuoted: !pasteAsQuoted,
   });
 }
 
@@ -2020,57 +2020,7 @@ async function pasteClipping(aClippingInfo, aComposeTabID)
     }
   }
 
-  // Check if user wants to be prompted to format the clipping as normal or
-  // quoted text.
-  let isPasteOptsDlgShown = await showPasteOptionsDlg(aComposeTabID, processedCtnt);
-  if (isPasteOptsDlgShown) {
-    // Control returns to function pasteProcessedClipping() when user clicks OK
-    // in the paste options dialog.
-    return;
-  }
-  
   processHTMLFormattedClipping(aClippingInfo.name, processedCtnt, aComposeTabID);
-}
-
-
-async function showPasteOptionsDlg(aComposeTabID, aClippingContent)
-{
-  let rv = false;
-
-  let showPastePrompt = await messenger.tabs.sendMessage(aComposeTabID, {
-    id: "get-paste-prompt-pref",
-  });
-
-  if (showPastePrompt) {
-    if (gWndIDs.pasteClippingOpts) {
-      // If the paste clipping options dialog is open, it's likely that the
-      // user has forgotten or abandoned their previous clipping, so close it.
-      // Note that the window ID may be invalid because the user closed the
-      // dialog by clicking the 'X' button on the title bar instead of
-      // clicking Cancel.
-      let wnd;
-      try {
-        wnd = await messenger.windows.get(gWndIDs.pasteClippingOpts);
-      }
-      catch {}
-      if (wnd) {
-        messenger.windows.remove(wnd.id);
-      }
-      gWndIDs.pasteClippingOpts = null;
-    }
-
-    gPastePrompt.add(aComposeTabID, aClippingContent);
-    let url = messenger.runtime.getURL("pages/pasteOptions.html?compTabID=" + aComposeTabID);
-    let height = 210;
-    if (gOS == "mac") {
-      height = 200;
-    }
-
-    await openDlgWnd(url, "pasteClippingOpts", {type: "popup", width: 256, height});
-    rv = true;
-  }
-
-  return rv;
 }
 
 
@@ -2094,7 +2044,7 @@ async function processHTMLFormattedClipping(aClippingName, aClippingContent, aCo
 }
 
 
-async function pasteProcessedClipping(aClippingContent, aComposeTabID, aPasteAsQuoted=false, aOverridePasteFormat=null)
+async function pasteProcessedClipping(aClippingContent, aComposeTabID, aOverridePasteFormat=null)
 {
   // Perform a final check to confirm that the composer represented by
   // aComposeTabID is still open.
@@ -2108,14 +2058,17 @@ async function pasteProcessedClipping(aClippingContent, aComposeTabID, aPasteAsQ
 
   let comp = await messenger.compose.getComposeDetails(aComposeTabID);
   let htmlPaste = aOverridePasteFormat === null ? gPrefs.htmlPaste : aOverridePasteFormat;
-  
+  let pasteAsQuoted = await messenger.tabs.sendMessage(aComposeTabID, {
+    id: "get-paste-as-quoted-pref",
+  });  
+
   await messenger.tabs.sendMessage(aComposeTabID, {
     id: "paste-clipping",
     content: aClippingContent,
     isPlainText: comp.isPlainText,
     htmlPaste,
     autoLineBreak: gPrefs.autoLineBreak,
-    pasteAsQuoted: aPasteAsQuoted,
+    pasteAsQuoted,
   });
 
   if (gPrefs.setDirtyFlag) {
@@ -2279,14 +2232,14 @@ messenger.menus.onShown.addListener(async (aInfo, aTab) => {
   let menuInstID = gNextMenuInstID++;
   gLastMenuInstID = menuInstID;
 
-  let showPastePrmpt = await messenger.tabs.sendMessage(aTab.id, {id: "get-paste-prompt-pref"});
+  let showPastePrmpt = await messenger.tabs.sendMessage(aTab.id, {id: "get-paste-as-quoted-pref"});
 
   // Check if the menu is still shown when the above async call finished.
   if (menuInstID != gLastMenuInstID) {
     return;
   }
 
-  messenger.menus.update("ae-clippings-show-paste-opts", {
+  messenger.menus.update("ae-clippings-paste-as-quoted", {
     checked: showPastePrmpt,
   });
   messenger.menus.refresh();
@@ -2309,8 +2262,8 @@ messenger.menus.onClicked.addListener((aInfo, aTab) => {
     openClippingsManager();
     break;
     
-  case "ae-clippings-show-paste-opts":
-    toggleShowPastePrompt(aTab.id);
+  case "ae-clippings-paste-as-quoted":
+    togglePasteAsQuoted(aTab.id);
     break;
 
   case "ae-clippings-prefs":
@@ -2417,18 +2370,6 @@ messenger.runtime.onMessage.addListener(aRequest => {
     gWndIDs.keyboardPaste = null;
     break;
 
-  case "close-paste-options-dlg":
-    if (! aRequest.userCancel) {
-      pasteProcessedClipping(
-        gPastePrompt.get(aRequest.composeTabID),
-        aRequest.composeTabID,
-        aRequest.pasteAsQuoted
-      );
-    }
-    gPastePrompt.delete(aRequest.composeTabID);
-    gWndIDs.pasteClippingOpts = null;
-    break;
-
   case "paste-shortcut-key":
     if (! aRequest.shortcutKey) {
       return;
@@ -2455,17 +2396,12 @@ messenger.runtime.onMessage.addListener(aRequest => {
   case "paste-clipping-with-plchldrs":
     messenger.tabs.get(aRequest.composeTabID).then(aTab => {
       if (aTab.type != "messageCompose") {
-        return null;
+        return;
       }
-      return showPasteOptionsDlg(aTab.id, aRequest.processedContent);
-    }).then(aIsDlgShown => {
-      // If the Paste Options dialog was shown, control returns to function
-      // pasteProcessedClipping() after user clicks OK in the dialog.
-      if (aIsDlgShown === false) {
-        processHTMLFormattedClipping(
-          aRequest.clippingName, aRequest.processedContent, aRequest.composeTabID
-        );
-      }
+
+      processHTMLFormattedClipping(
+        aRequest.clippingName, aRequest.processedContent, aRequest.composeTabID
+      );
     }).catch(aErr => {
       warn("Clippings/mx: Can't find compose tab " + aRequest.composeTabID);
     });
@@ -2474,7 +2410,7 @@ messenger.runtime.onMessage.addListener(aRequest => {
   case "paste-clipping-usr-fmt":
     return Promise.resolve(
       pasteProcessedClipping(
-        aRequest.processedContent, aRequest.composeTabID, false, aRequest.pasteFormat
+        aRequest.processedContent, aRequest.composeTabID, aRequest.pasteFormat
       )
     );
 

@@ -177,8 +177,8 @@
     "description": "Clippings context menu in Thunderbird message composer"
   },
 
-  "cxtMenuShowPasteOpts": {
-    "message": "Show Quote Options When Pasting",
+  "cxtMnuPasteQuoted": {
+    "message": "Paste As Quoted Text",
     "description": "Clippings context menu in Thunderbird message composer"
   },
 

@@ -9,7 +9,7 @@ const HTMLPASTE_AS_FORMATTED = 1;
 const HTMLPASTE_AS_IS = 2;
 const HTMLPASTE_AS_PLAIN = 3;
 
-let gShowPastePrompt = false;
+let gPasteAsQuoted = false;
 
 
 //
@@ -61,12 +61,12 @@ browser.runtime.onMessage.addListener(aMessage => {
     insertClipping(aMessage.content, aMessage.isPlainText, aMessage.htmlPaste, aMessage.autoLineBreak, aMessage.pasteAsQuoted);
     break;
 
-  case "set-paste-prompt-pref":
-    gShowPastePrompt = aMessage.showPastePrompt;
+  case "set-paste-as-quoted-pref":
+    gPasteAsQuoted = aMessage.pasteAsQuoted;
     break;
 
-  case "get-paste-prompt-pref":
-    resp = gShowPastePrompt;
+  case "get-paste-as-quoted-pref":
+    resp = gPasteAsQuoted;
     break;
     
   default:
