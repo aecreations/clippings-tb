@@ -1580,14 +1580,7 @@ async function openClippingsManager(aBackupMode)
       return;
     }
 
-    await messenger.runtime.sendMessage({msgID: "focus-clippings-mgr-wnd"});
-
-    if (aBackupMode) {
-      try {
-        messenger.runtime.sendMessage({msgID: "clippings-mgr-save-backup"});
-      }
-      catch {}
-    }
+    await messenger.runtime.sendMessage({ msgID: "focus-clippings-mgr-wnd" });
   }
   else {
     openClippingsMgrHelper();
