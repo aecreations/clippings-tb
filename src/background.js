@@ -497,7 +497,7 @@ async function init()
   };  
   messenger.composeScripts.register(compScriptOpts);
 
-  initToolsMenuItem();
+  await initToolsMenuItem();
 
   gIsInitialized = true;
   log("Clippings/mx: MailExtension initialization complete.");    
@@ -1177,23 +1177,27 @@ async function rebuildContextMenu()
 
   gClippingMenuItemIDMap = {};
   gFolderMenuItemIDMap = {};
-  initToolsMenuItem();
+  await initToolsMenuItem();
   await buildContextMenu();
 }
 
 
-function initToolsMenuItem()
+async function initToolsMenuItem()
 {
   if (gPrefs.showToolsCmd) {
     messenger.menus.create({
       id: "ae-tools-clippings-mgr",
       title: messenger.i18n.getMessage("cxtMenuOpenClippingsMgr"),
       contexts: ["tools_menu"],
+    }, () => {
+      if (messenger.runtime.lastError) {
+        // Ignore error that occurs when rebuilding all menus.
+      }
     });
   }
   else {
     try {
-      messenger.menus.remove("ae-tools-clippings-mgr");
+      await messenger.menus.remove("ae-tools-clippings-mgr");
     }
     catch {}
   }
