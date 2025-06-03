@@ -467,9 +467,10 @@ function initDialogs()
 
   gDialogs.syncClippings.onFirstInit = function ()
   {
-    $("#sync-conxn-error-detail").html(sanitizeHTML(messenger.i18n.getMessage("errSyncConxnDetail")));
+    $("#no-sync-app-cta").html(sanitizeHTML(messenger.i18n.getMessage("noSyncAppCTA")));
     $("#sync-fldr-curr-location").on("focus", aEvent => { aEvent.target.select() });
   };
+
   gDialogs.syncClippings.onInit = async function ()
   {
     this.isCanceled = false;
