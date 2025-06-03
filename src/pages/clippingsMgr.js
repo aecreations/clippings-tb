@@ -3402,6 +3402,9 @@ $(document).on("keydown", async (aEvent) => {
     }
     aeDialog.cancelDlgs();
   }
+  else if (aEvent.key == "Clear" && gSearchBox.isActivated()) {
+    gSearchBox.reset();
+  }
   else if (aEvent.key == "Delete") {
     if (aEvent.target.tagName == "UL" && aEvent.target.classList.contains("ui-fancytree")) {
       gCmd.deleteClippingOrFolder(gCmd.UNDO_STACK);
