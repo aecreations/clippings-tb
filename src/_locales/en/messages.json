@@ -1130,6 +1130,11 @@
     "description": "Tab label for extension preferences page"
   },
 
+  "prefTabCopy": {
+    "message": "Copy",
+    "description": "Tab label for extension preferences page (Firefox only)"
+  },
+
   "prefTabPaste": {
     "message": "Paste",
     "description": "Tab label for extension preferences page"
@@ -1148,6 +1153,11 @@
   "prefsHdgPasteOptions": {
     "message": "Paste Options",
     "description": "Groupbox caption in extension preferences page"
+  },
+
+  "labelCopyOpts": {
+    "message": "When copying a clipping containing HTML tags as formatted text:",
+    "description": "Extension preferences page"
   },
 
   "labelPasteOpts": {
@@ -1183,6 +1193,11 @@
   "cbAutoLineBreak": {
     "message": "Automatically break lines unless <p> or <br> tags exist",
     "description": "Checkbox option for copying and pasting an HTML-formatted clipping"
+  },
+
+  "htmlCopyDesc": {
+    "message": "To copy a clipping, select it in Clippings Manager or Clippings Sidebar, then right-click and select \u201cCopy Clipping Text\u201d from the context menu.",
+    "description": "Extension preferences page"
   },
 
   "htmlPasteDesc": {
@@ -1254,8 +1269,13 @@
     "description": "Checkbox option in extension preferences page"
   },
 
+  "prefsHdgBackup": {
+    "message": "Backup Options",
+    "description": "Groupbox caption in extension preferences page"
+  },
+
   "backupRemind": {
-    "message": "Show backup reminder every",
+    "message": "Show backup reminder every:",
     "description": "Label for checkbox option for setting backup notification, appears after checkbox and before the reminder frequency drop-down menu"
   },
 
@@ -1547,12 +1567,14 @@
     "description": "Notification that appears when attempting to refresh sync data after user turned off the 'nativeMessaging' permission"
   },
 
-  "errSyncConxn": {
-    "message": "Unable to connect to the Sync Clippings helper app. Make sure that the app is installed."
+  "noSyncAppCTA": {
+    "message": "To get started with Sync Clippings, download and install the Sync Clippings Helper app.  Available from the <a href=\"https://aecreations.io/clippings/sync.php\" class=\"hyperlink\">AE\u00a0Creations website</a>.",
+    "description": "Message in Sync Clippings dialog when Sync Clippings Helper app is not installed"
   },
 
-  "errSyncConxnDetail": {
-    "message": "The Sync Clippings helper app is needed to sync your clippings. You can download it from the <a href=\"https://aecreations.io/clippings/sync.php\" class=\"hyperlink\">AE Creations website</a>."
+  "noSyncAppInstr": {
+    "message": "Once it\u2019s installed, come back here to finish setting up Sync Clippings.",
+    "description": "Message in Sync Clippings dialog when Sync Clippings Helper app is not installed"
   },
 
   "errSyncOptsInit": {
@@ -1690,17 +1712,9 @@
     "description": "About dialog text for encouraging users to donate or help with translation"
   },
 
-  "aboutDonate": {
-    "message": "Make a donation"
-  },
-
-  "aboutContribConj": {
-    "message": "or",
-    "description": "Conjunction connecting the CTA hyperlinks for donating or supplying a translation"
-  },
-
-  "aboutL10n": {
-    "message": "add a translation."
+  "aboutContrib": {
+    "message": "<a href=\"$1\" class=\"hyperlink\">Make a donation</a> or <a href=\"$2\" class=\"hyperlink\">add a translation</a>.",
+    "description": "Links for making a donation or contributing a translation for Clippings"
   },
 
   "aboutSyncVerLabel": {
