@@ -23,13 +23,6 @@ let gErrorPushSyncItems = false;
 let gReorderedTreeNodeNextSibling = null;
 
 
-// DOM utility
-function sanitizeHTML(aHTMLStr)
-{
-  return DOMPurify.sanitize(aHTMLStr, {SAFE_FOR_JQUERY: true});
-}
-
-
 // Wrappers to database create/update/delete operations. These also call the
 // Clippings listeners upon completion of the database operations.
 let gClippingsSvc = {
@@ -907,6 +900,51 @@ let gReloadSyncFldrBtn = {
     return $("#clippings-tree > ul.ui-fancytree > li > span.ae-synced-clippings-fldr");
   },
 };
+
+
+// Instant editing for clipping name and text - ensures that undo and redo
+// works correctly when invoked via keyboard shortcut.
+let gClippingNameEditor, gClippingContentEditor;
+
+class InstantEditor
+{
+  EDIT_INTERVAL = 3000;
+  
+  _stor = null;
+  _intvID = null;
+  _prevVal = '';
+
+  constructor(aStor)
+  {
+    this._stor = aStor;
+    
+    $(this._stor).on("focus", aEvent => {
+      this._intvID = setInterval(() => {
+        if ($(this._stor).val() == this._prevVal) {
+          return;
+        }
+
+        let tree = aeClippingsTree.getTree();
+        let selectedNode = tree.activeNode;
+        let clippingID = parseInt(selectedNode.key);
+
+        if (this._stor == "#clipping-text") {
+          gCmd.editClippingContentIntrl(clippingID, $(this._stor).val(), gCmd.UNDO_STACK);
+        }
+        else if (this._stor == "#clipping-name") {
+          gCmd.editClippingNameIntrl(clippingID, $(this._stor).val(), gCmd.UNDO_STACK);
+        }
+
+        this._prevVal = $(this._stor).val();
+      }, this.EDIT_INTERVAL);
+
+    }).on("blur", aEvent => {
+      clearInterval(this._intvID);
+      this._intvID = null;
+      this._prevVal = '';
+    });
+  }
+}
 
 
 // Clippings Manager commands
@@ -3363,6 +3401,7 @@ $(document).on("keydown", async (aEvent) => {
     gCmd.showMiniHelp();
   }
   else if (aEvent.key == "F2") {
+    aEvent.preventDefault();
     gCmd.redo();
   }
   else if (aEvent.key == "Enter") {
@@ -3444,8 +3483,14 @@ $(document).on("keydown", async (aEvent) => {
   else if (aEvent.key.toUpperCase() == "W" && isAccelKeyPressed()) {
     closeWnd();
   }
-  else if (aEvent.key.toUpperCase() == "Z" && isAccelKeyPressed()) {
+  else if (aEvent.key.toUpperCase() == "Z" && isAccelKeyPressed() && !aEvent.shiftKey) {
+    aEvent.preventDefault();
     gCmd.undo();
+  }
+  else if ((aEvent.key.toUpperCase() == "Z" && isAccelKeyPressed() && aEvent.shiftKey)
+           || (aEvent.key.toUpperCase() == "Y" && isAccelKeyPressed())) {
+    aEvent.preventDefault();
+    gCmd.redo();
   }
   else {
     // Ignore standard browser shortcut keys.
@@ -4053,11 +4098,15 @@ function initInstantEditing()
 
       contentAutoSave.stop();
     });
+
+  gClippingNameEditor = new InstantEditor("#clipping-name");
+  gClippingContentEditor = new InstantEditor("#clipping-text");
 }
 
 
 function initIntroBannerAndHelpDlg()
 {
+  const isWin = gEnvInfo.os == "win";
   const isMacOS = gEnvInfo.os == "mac";
   const isLinux = gEnvInfo.os == "linux";
 
@@ -4067,10 +4116,17 @@ function initIntroBannerAndHelpDlg()
     if (isMacOS) {
       shctKeys = [
         "\u2326", "esc", "\u2318D", "\u2318F", "\u2318W", "\u2318Z", "F1",
-        "F2", "\u2318F10"
+        "F2 / \u21e7\u2318Z", "\u2318F10"
       ];
     }
     else {
+      let altRedo;
+      if (isWin) {
+        altRedo = `${messenger.i18n.getMessage("keyCtrl")}+Y`;
+      }
+      else {
+        altRedo = `${messenger.i18n.getMessage("keyCtrl")}+${messenger.i18n.getMessage("keyShift")}+Z`;
+      }
       shctKeys = [
         messenger.i18n.getMessage("keyDel"),
         messenger.i18n.getMessage("keyEsc"),
@@ -4084,13 +4140,18 @@ function initIntroBannerAndHelpDlg()
       ];
     }
 
-    function buildKeyMapTableRow(aShctKey, aCmdL10nStrIdx)
+    function buildKeyMapTableRow(aShctKey, aCmdL10nStrIdx, aIsCompactKey=false)
     {
       let tr = document.createElement("tr");
       let tdKey = document.createElement("td");
       let tdCmd = document.createElement("td");
       tdKey.appendChild(document.createTextNode(aShctKey));
       tdCmd.appendChild(document.createTextNode(messenger.i18n.getMessage(aCmdL10nStrIdx)));
+
+      if (aIsCompactKey) {
+        tdKey.className = "condensed";
+      }
+
       tr.appendChild(tdKey);
       tr.appendChild(tdCmd);
 
@@ -4104,7 +4165,7 @@ function initIntroBannerAndHelpDlg()
     aTableDOMElt.appendChild(buildKeyMapTableRow(shctKeys[4], "clipMgrIntroCmdClose"));
     aTableDOMElt.appendChild(buildKeyMapTableRow(shctKeys[5], "clipMgrIntroCmdUndo"));
     aTableDOMElt.appendChild(buildKeyMapTableRow(shctKeys[6], "clipMgrIntroCmdShowIntro"));
-    aTableDOMElt.appendChild(buildKeyMapTableRow(shctKeys[7], "clipMgrIntroCmdRedo"));
+    aTableDOMElt.appendChild(buildKeyMapTableRow(shctKeys[7], "clipMgrIntroCmdRedo", isLinux));
 
     if (! isLinux) {
       aTableDOMElt.appendChild(buildKeyMapTableRow(shctKeys[8], "clipMgrIntroCmdMaximize"));
@@ -6153,6 +6214,16 @@ function showBanner(aMessage)
   bannerMsgElt.children().remove();
   bannerMsgElt.text(aMessage);
   bannerElt.css("display", "block");
+}
+
+
+//
+// DOM Utility
+//
+
+function sanitizeHTML(aHTMLStr)
+{
+  return DOMPurify.sanitize(aHTMLStr, {SAFE_FOR_JQUERY: true});
 }
 
 
