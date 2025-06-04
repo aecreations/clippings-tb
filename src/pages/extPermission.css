@@ -13,6 +13,7 @@
     --color-main-bkgd: #fff;
     --color-ext-pg-body: #fefefe;
     --color-ext-pg-border: #ededf0;
+    --url-icon-help: url("../img/help.svg");
 }
 
 @media (prefers-color-scheme: dark) {
@@ -23,6 +24,7 @@
 	--color-main-bkgd: #242426;
 	--color-ext-pg-body: #2a2a2e;
 	--color-ext-pg-border: #4a4a4f;
+	--url-icon-help: url("../img/help-dk.svg");
     }
 }
 
@@ -38,7 +40,7 @@ main {
     justify-content: flex-start;
     align-items: flex-start;
 
-    width: 640px;
+    width: 700px;
     margin: 24px auto 0 auto;
     cursor: inherit;
     border: 1px solid var(--color-main-border);
@@ -50,7 +52,7 @@ main {
 #ext-logo {
     order: 1;
     flex: 0 1 auto;
-    min-width: 180px;
+    width: 270px;
     margin-top: 36px;
     text-align: center;
 }
@@ -89,6 +91,12 @@ h2 {
 #perm-hlp {
     margin-top: 32px;
     margin-bottom: 64px;
+    padding: 2px 0 2px 28px;
+
+    background-image: var(--url-icon-help);
+    background-size: 24px 24px;
+    background-position: left;
+    background-repeat: no-repeat;
 }
 
 #dlg-btns {
