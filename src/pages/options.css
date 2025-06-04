@@ -332,7 +332,7 @@ description {
 }
 
 #html-paste-note {
-    margin: 0 18px 4px 4px;
+    margin: 12px 18px 4px 10px;
     font-size: 13px;
 }
 
@@ -341,12 +341,12 @@ description {
     opacity: 0.4;
 }
 
-#paste-opt-raw-html-row {
-    margin-top: 8px;
-}
-
 #paste-options {
     margin-top: 20px;
+}
+
+#backup-options {
+    margin-top: 12px;
 }
 
 #enable-shortcut-key-ctr {
@@ -431,7 +431,7 @@ body[data-locale="de"] #skip-backup-label {
 }
 
 #wnds-dlgs-settings {
-    margin-top: 14px;
+    margin-top: 12px;
 }
 
 body[data-locale="fr"] #html-auto-line-break-label {
