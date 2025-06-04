@@ -7,7 +7,7 @@ let gExtPermStrKeys = {
   clipboardRead: "extPrmClipbdR",
 };
 
-let gOpenerWndID, gExtPerm;
+let gOpenerWndID, gExtPerm, gExecActionID;
 
 
 // Page initialization
@@ -21,10 +21,13 @@ $(async () => {
 
   let params = new URLSearchParams(window.location.search);
   gOpenerWndID = params.get("openerWndID");
-  gExtPerm = await messenger.runtime.sendMessage({
+
+  let resp = await messenger.runtime.sendMessage({
     msgID: "get-perm-req-key",
     opener: gOpenerWndID,
   });
+  gExtPerm = resp.extPerm;
+  gExecActionID = resp.execActionID;
 
   let strKey = gExtPermStrKeys[gExtPerm];
   $("#ext-perm").text(messenger.i18n.getMessage(strKey));
@@ -42,15 +45,15 @@ $(async () => {
 });
 
 
-async function focusOpenerWnd(aExecActionMsgID)
+async function focusOpenerWnd(aExecActionID)
 {
   let msg = {
     msgID: "focus-ext-window",
     wndID: gOpenerWndID,
   };
 
-  if (aExecActionMsgID) {
-    msg.execActionMsgID = aExecActionMsgID;
+  if (aExecActionID) {
+    msg.execActionMsgID = aExecActionID;
   }
   
   try {
@@ -80,7 +83,7 @@ $("#dlg-accept").on("click", async (aEvent) => {
   });
 
   if (permGranted) {
-    await focusOpenerWnd("new-from-clipbd");
+    await focusOpenerWnd(gExecActionID);
     closePage();
   }
   else {

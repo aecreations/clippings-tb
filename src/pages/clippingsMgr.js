@@ -24,21 +24,28 @@ let gReorderedTreeNodeNextSibling = null;
 let gWndID;
 
 let gPermissionReq = {
-  _permKey: null,
+  _extPerm: null,
+  _execActionID: null,
 
-  set(aPermKey)
+  set(aExtPermission, aExecActionID)
   {
-    this._permKey = aPermKey;
+    this._extPerm = aExtPermission;
+    this._execActionID = aExecActionID;
   },
 
   get()
   {
-    return this._permKey;
+    let rv = {
+      extPerm: this._extPerm,
+      execActionID: this._execActionID,
+    };
+    return rv;
   },
 
   clear()
   {
-    this._permKey = null;
+    this._extPerm = null;
+    this._execActionID = null;
   },
 };
 
@@ -1446,7 +1453,7 @@ let gCmd = {
     let perms = await messenger.permissions.getAll();
     if (! perms.permissions.includes("clipboardRead")) {
       if (gPrefs.newExtPermRequestFlow) {
-        gPermissionReq.set("clipboardRead");
+        gPermissionReq.set("clipboardRead", "new-from-clipbd");
         messenger.tabs.create({
           url: "extPermission.html?openerWndID=" + gWndID,
           active: true,
