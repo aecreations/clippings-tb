@@ -1454,10 +1454,7 @@ let gCmd = {
     if (! perms.permissions.includes("clipboardRead")) {
       if (gPrefs.newExtPermRequestFlow) {
         gPermissionReq.set("clipboardRead", "new-from-clipbd");
-        messenger.tabs.create({
-          url: "extPermission.html?openerWndID=" + gWndID,
-          active: true,
-        });
+        await this._openExtPermissionPg();
       }
       else {
         gDialogs.requestExtPerm.setPermission("clipboardRead");
@@ -3290,6 +3287,25 @@ let gCmd = {
     }
     else if (aDestUndoStack == this.REDO_STACK) {
       this.redoStack.push(aState);
+    }
+  },
+
+  async _openExtPermissionPg()
+  {
+    let resp;
+    try {
+      resp = await messenger.runtime.sendMessage({msgID: "ping-perms-req-pg"});
+    }
+    catch {}
+
+    if (resp) {
+      messenger.runtime.sendMessage({msgID: "reload-perms-req-pg"});
+    }
+    else {
+      messenger.tabs.create({
+        url: "extPermission.html?openerWndID=" + gWndID,
+        active: true,
+      });
     }
   },
 };

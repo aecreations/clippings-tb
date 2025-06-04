@@ -7,7 +7,7 @@ let gExtPermStrKeys = {
   clipboardRead: "extPrmClipbdR",
 };
 
-let gOpenerWndID, gExtPerm, gExecActionID;
+let gWndID, gTabID, gOpenerWndID, gExtPerm, gExecActionID;
 
 
 // Page initialization
@@ -22,6 +22,25 @@ $(async () => {
   let params = new URLSearchParams(window.location.search);
   gOpenerWndID = params.get("openerWndID");
 
+  await populateRequestedPermission();
+
+  let wnd = await messenger.windows.getCurrent();
+  messenger.windows.update(wnd.id, {focused: true});
+  gWndID = wnd.id;
+
+  let tab = await messenger.tabs.getCurrent();
+  gTabID = tab.id;
+
+  $(".hyperlink").on("click", aEvent => {
+    aEvent.preventDefault();
+    messenger.tabs.create({url: aEvent.target.href});
+  });
+
+});
+
+
+async function populateRequestedPermission()
+{
   let resp = await messenger.runtime.sendMessage({
     msgID: "get-perm-req-key",
     opener: gOpenerWndID,
@@ -33,23 +52,14 @@ $(async () => {
   $("#ext-perm").text(messenger.i18n.getMessage(strKey));
 
   $("#perm-hlp-link").attr("href", aeConst.PERM_HLP_URL);
-
-  let wnd = await messenger.windows.getCurrent();
-  messenger.windows.update(wnd.id, {focused: true});
-
-  $(".hyperlink").on("click", aEvent => {
-    aEvent.preventDefault();
-    messenger.tabs.create({url: aEvent.target.href});
-  });
-
-});
+}
 
 
 async function focusOpenerWnd(aExecActionID)
 {
   let msg = {
     msgID: "focus-ext-window",
-    wndID: gOpenerWndID,
+    wndID: gOpenerWndID
   };
 
   if (aExecActionID) {
@@ -65,10 +75,9 @@ async function focusOpenerWnd(aExecActionID)
 }
 
 
-async function closePage()
+function closePage()
 {
-  let tab = await messenger.tabs.getCurrent();
-  messenger.tabs.remove(tab.id);
+  messenger.tabs.remove(gTabID);
 }
 
 
@@ -103,6 +112,26 @@ $(window).on("contextmenu", aEvent => {
 });
 
 
+messenger.runtime.onMessage.addListener(aRequest => {
+  let resp;
+  
+  if (aRequest.msgID == "ping-perms-req-pg") {
+    resp = {
+      isOpen: true,
+      wndID: gWndID,
+      tabID: gTabID,
+    };
+  }
+  else if (aRequest.msgID == "reload-perms-req-pg") {
+    populateRequestedPermission();
+    messenger.windows.update(gWndID, {focused: true});
+    messenger.tabs.update(gTabID, {active: true});
+  }
+
+  if (resp) {
+    return Promise.resolve(resp);
+  }
+});
 
 
 //
