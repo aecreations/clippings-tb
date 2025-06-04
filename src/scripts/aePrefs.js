@@ -49,6 +49,7 @@ let aePrefs = function () {
     showToolsCmd: true,
     logSyncDataSize: false,
     setDirtyFlag: true,
+    newExtPermRequestFlow: true,
 
     // Deprecated prefs - these will be removed during extension upgrade.
     clippingsMgrMinzWhenInactv: null,
@@ -211,6 +212,7 @@ let aePrefs = function () {
     {
       let newPrefs = {
         setDirtyFlag: true,
+        newExtPermRequestFlow: true,
       };
       
       await this._addPrefs(aPrefs, newPrefs);

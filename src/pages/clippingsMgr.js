@@ -21,6 +21,26 @@ let gSyncedItemsIDMap = new Map();
 let gIsBackupMode = false;
 let gErrorPushSyncItems = false;
 let gReorderedTreeNodeNextSibling = null;
+let gWndID;
+
+let gPermissionReq = {
+  _permKey: null,
+
+  set(aPermKey)
+  {
+    this._permKey = aPermKey;
+  },
+
+  get()
+  {
+    return this._permKey;
+  },
+
+  clear()
+  {
+    this._permKey = null;
+  },
+};
 
 
 // Wrappers to database create/update/delete operations. These also call the
@@ -1425,8 +1445,17 @@ let gCmd = {
   {
     let perms = await messenger.permissions.getAll();
     if (! perms.permissions.includes("clipboardRead")) {
-      gDialogs.requestExtPerm.setPermission("clipboardRead");
-      gDialogs.requestExtPerm.showModal();
+      if (gPrefs.newExtPermRequestFlow) {
+        gPermissionReq.set("clipboardRead");
+        messenger.tabs.create({
+          url: "extPermission.html?openerWndID=" + gWndID,
+          active: true,
+        });
+      }
+      else {
+        gDialogs.requestExtPerm.setPermission("clipboardRead");
+        gDialogs.requestExtPerm.showModal();
+      }
       return;
     }
 
@@ -3346,6 +3375,8 @@ $(async () => {
     width: wnd.width + 1,
     focused: true,
   });
+
+  gWndID = wnd.id;
 });
 
 
@@ -3561,6 +3592,15 @@ messenger.runtime.onMessage.addListener(aRequest => {
     focusWnd();
     break;
 
+  case "focus-ext-window":
+    if (aRequest.wndID == gWndID) {
+      focusWnd();
+    }
+    if (aRequest.execActionMsgID == "new-from-clipbd") {
+      gCmd.newClippingFromClipboard();
+    }
+    break;
+
   case "sync-activated":
     gSyncClippingsListener.onActivate(aRequest.syncFolderID);
     break;
@@ -3579,6 +3619,13 @@ messenger.runtime.onMessage.addListener(aRequest => {
 
   case "new-folder-created":
     gClippingsListener.newFolderCreated(aRequest.newFolderID, aRequest.newFolder, aRequest.origin);
+    break;
+
+  case "get-perm-req-key":
+    if (aRequest.opener == gWndID) {
+      resp = gPermissionReq.get();
+      gPermissionReq.clear();
+    }      
     break;
 
   default:
