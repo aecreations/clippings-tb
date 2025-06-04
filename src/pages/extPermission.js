@@ -23,6 +23,7 @@ $(async () => {
   gOpenerWndID = params.get("openerWndID");
 
   await populateRequestedPermission();
+  $("#perm-hlp-link").attr("href", aeConst.PERM_HLP_URL);
 
   let wnd = await messenger.windows.getCurrent();
   messenger.windows.update(wnd.id, {focused: true});
@@ -50,8 +51,6 @@ async function populateRequestedPermission()
 
   let strKey = gExtPermStrKeys[gExtPerm];
   $("#ext-perm").text(messenger.i18n.getMessage(strKey));
-
-  $("#perm-hlp-link").attr("href", aeConst.PERM_HLP_URL);
 }
 
 
