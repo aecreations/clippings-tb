@@ -216,6 +216,9 @@ let aePrefs = function () {
       };
       
       await this._addPrefs(aPrefs, newPrefs);
+
+      delete aPrefs.clippingsMgrAutoShowStatusBar;
+      await this._removePrefs("clippingsMgrAutoShowStatusBar");
     },
 
     

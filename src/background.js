@@ -363,11 +363,6 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
       log("Initializing 7.0 user preferences.");
       await aePrefs.setSanFranciscoPrefs(gPrefs);
 
-      let platform = await messenger.runtime.getPlatformInfo();
-      if (platform.os == "linux") {
-        aePrefs.setPrefs({clippingsMgrAutoShowStatusBar: true});
-      }
-
       // Starting in Clippings 7.0, window positioning prefs are turned on
       // by default for macOS.
       // They were previously turned off due to a bug occurring on systems with
