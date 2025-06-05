@@ -31,9 +31,9 @@ $(async () => {
   let params = new URLSearchParams(window.location.search);
   gComposeTabID = Number(params.get("compTabID"));
 
-  let [brws, platform] = await Promise.all([
-    browser.runtime.getBrowserInfo(),
-    browser.runtime.getPlatformInfo(),
+  let [msgClient, platform] = await Promise.all([
+    messenger.runtime.getBrowserInfo(),
+    messenger.runtime.getPlatformInfo(),
   ]);
   document.body.dataset.os = platform.os;
   aeInterxn.init(platform.os);
@@ -112,7 +112,7 @@ $(async () => {
     if (platform.os == "win") {
       height += DLG_HEIGHT_ADJ_WINDOWS;
     }
-    else if (platform.os == "linux" && aeVersionCmp(gHostAppVer, "137.0") >= 0) {
+    else if (platform.os == "linux" && aeVersionCmp(msgClient.version, "137.0") >= 0) {
       height += DLG_HEIGHT_ADJ_LINUX;
     }
     
