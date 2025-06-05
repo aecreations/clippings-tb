@@ -8,6 +8,7 @@ const WNDH_NORMAL = 410;
 const WNDH_NORMAL_WINDOWS = 434;
 const WNDH_OPTIONS_EXPANDED = 500;
 const DLG_HEIGHT_ADJ_WINDOWS = 24;
+const DLG_HEIGHT_ADJ_LINUX = 60;
 const DLG_HEIGHT_ADJ_LOCALE = 20;
 const DLG_HEIGHT_ADJ_LOCALE_DE = 10;
 
@@ -49,9 +50,7 @@ $(async () => {
     initSyncItemsIDLookupList();
   }
 
-  if (gPrefs.showNewClippingOpts) {
-    expandOptions(true);
-  }
+  expandOptions(gPrefs.showNewClippingOpts);
 
   $("#btn-expand-options").data("isExpanded", gPrefs.showNewClippingOpts).click(aEvent => {
     let isExpanded = $(aEvent.target).data("isExpanded");
@@ -139,6 +138,11 @@ async function expandOptions(aIsOptionsExpanded)
     if (document.body.dataset.os == "win") {
       height += DLG_HEIGHT_ADJ_WINDOWS;
     } 
+    else if (document.body.dataset.os == "linux"
+             && aeVersionCmp(gEnvInfo.hostAppVer, "137.0") >= 0) {
+      height += DLG_HEIGHT_ADJ_LINUX;
+    }
+
     if (lang == "uk" || lang.startsWith("pt") || lang.startsWith("es")) {
       height += DLG_HEIGHT_ADJ_LOCALE;
     }
@@ -152,7 +156,11 @@ async function expandOptions(aIsOptionsExpanded)
     let height = WNDH_NORMAL;
     if (document.body.dataset.os == "win") {
       height = WNDH_NORMAL_WINDOWS;
-    } 
+    }
+    else if (document.body.dataset.os == "linux"
+             && aeVersionCmp(gEnvInfo.hostAppVer, "137.0") >= 0) {
+      height = WNDH_NORMAL + DLG_HEIGHT_ADJ_LINUX;
+    }
 
     $("#clipping-options").hide();
     $("#new-clipping-fldr-tree-popup").removeClass("new-clipping-fldr-tree-popup-fixpos");
