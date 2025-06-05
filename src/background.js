@@ -378,12 +378,6 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
           clippingsMgrSaveWndGeom: true,
         });
       }
-
-      // Enable post-update notifications which users can click on to open the
-      // What's New page.
-      await aePrefs.setPrefs({
-        upgradeNotifCount: aeConst.MAX_NUM_POST_UPGRADE_NOTIFICNS
-      });
     }
 
     if (! aePrefs.hasEmbarcaderoPrefs(gPrefs)) {
@@ -394,6 +388,12 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
     if (! aePrefs.hasAlamoSquarePrefs(gPrefs)) {
       log("Initializing 7.1 user preferences.");
       await aePrefs.setAlamoSquarePrefs(gPrefs);
+
+      // Enable post-update notifications which users can click on to open the
+      // What's New page.
+      await aePrefs.setPrefs({
+        upgradeNotifCount: aeConst.MAX_NUM_POST_UPGRADE_NOTIFICNS
+      });
     }
 
     await init();
