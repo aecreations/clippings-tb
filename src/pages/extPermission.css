@@ -91,12 +91,14 @@ h2 {
 #perm-hlp {
     margin-top: 32px;
     margin-bottom: 64px;
-    padding: 2px 0 2px 28px;
+    padding: 2px 0 2px 20px;
 
     background-image: var(--url-icon-help);
-    background-size: 24px 24px;
+    background-size: 16px 16px;
     background-position: left;
     background-repeat: no-repeat;
+
+    font-size: 13px;
 }
 
 #dlg-btns {
