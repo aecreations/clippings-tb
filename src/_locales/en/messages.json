@@ -1709,6 +1709,11 @@
     "message": "Visit website"
   },
 
+  "aboutCreditsLink": {
+    "message": "Credits",
+    "description": "Link to acknowledgements page"
+  },
+
   "aboutLicLink": {
     "message": "License information"
   },
