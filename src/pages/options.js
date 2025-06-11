@@ -459,6 +459,11 @@ function initDialogs()
     this.initKeyboardNavigation(focusableElts);
   };
 
+  gDialogs.syncClippings.isSyncConnectionError = function ()
+  {
+    return (this.find("#sync-cxn-error").css("display") == "block");
+  };
+
   gDialogs.syncClippings.onFirstInit = function ()
   {
     $("#no-sync-app-cta").html(sanitizeHTML(messenger.i18n.getMessage("noSyncAppCTA")));
@@ -810,7 +815,10 @@ function initDialogs()
 }
 
 
-// Handling keyboard events in open modal dialogs.
+//
+// Event handlers
+//
+
 $(window).on("keydown", aEvent => {
   function isAccelKeyPressed()
   {
@@ -880,6 +888,15 @@ $(window).on("contextmenu", aEvent => {
 });
 
 
+$(window).on("focus", aEvent => {
+  if (gDialogs?.syncClippings?.isOpen() && gDialogs.syncClippings.isSyncConnectionError()) {
+    // Retry connecting to the Sync Clippings Helper app.
+    gDialogs.syncClippings.close();
+    gDialogs.syncClippings.showModal();
+  }
+});
+
+
 messenger.runtime.onMessage.addListener(aRequest => {
   if (aRequest.msgID == "focus-ext-prefs-pg") {
     messenger.windows.update(messenger.windows.WINDOW_ID_CURRENT, {focused: true}).then(aWnd => {
@@ -894,6 +911,10 @@ messenger.runtime.onMessage.addListener(aRequest => {
   }
 });
 
+
+//
+// Utilities
+//
 
 function gotoURL(aURL, aOpenInTbWnd)
 {
