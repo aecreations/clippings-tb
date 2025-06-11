@@ -2839,6 +2839,17 @@ let gCmd = {
     });
   },
   
+  backupExtern()
+  {
+    if (aeDialog.isOpen()) {
+      // Don't interrupt any dialogs that may be open when the user clicked the
+      // backup reminder notification.
+      return;
+    }
+
+    this.backup();
+  },
+
   async restoreFromBackup()
   {
     // Disallow if New Clipping dialog is open to prevent errors due to saving
@@ -3642,6 +3653,10 @@ messenger.runtime.onMessage.addListener(aRequest => {
 
   case "new-folder-created":
     gClippingsListener.newFolderCreated(aRequest.newFolderID, aRequest.newFolder, aRequest.origin);
+    break;
+
+  case "clippings-mgr-save-backup":
+    gCmd.backupExtern();
     break;
 
   case "get-perm-req-key":
