@@ -8,6 +8,7 @@ const WNDH_SEARCH_CLIPPING = 250;
 const WNDH_SHORTCUT_LIST = 278;
 const WNDW_SHORTCUT_LIST = 436;
 const DLG_HEIGHT_ADJ_WINDOWS = 8;
+const DLG_HEIGHT_ADJ_LINUX = 60;
 const TOOLBAR_HEIGHT = 52;
 const SHORTCUT_LIST_HEIGHT_ADJ_MAC = 2;
 
@@ -303,8 +304,11 @@ $(async () => {
     $(".deck > #paste-by-shortcut-key").hide();
 
     let updWndInfo = {
-      height: WNDH_SEARCH_CLIPPING
+      height: WNDH_SEARCH_CLIPPING,
     };
+    if (gOS == "linux") {
+      updWndInfo.height += DLG_HEIGHT_ADJ_LINUX;
+    }
     await messenger.windows.update(messenger.windows.WINDOW_ID_CURRENT, updWndInfo);
 
     $(".deck > #search-by-name").show();
@@ -379,8 +383,12 @@ $(window).on("keydown", async (aEvent) => {
       $(".deck > #paste-by-shortcut-key").hide();
 
       let updWndInfo = {
-        height: WNDH_SEARCH_CLIPPING
+        height: WNDH_SEARCH_CLIPPING,
       };
+      if (gOS == "linux") {
+        updWndInfo.height += DLG_HEIGHT_ADJ_LINUX;
+      }
+
       await messenger.windows.update(messenger.windows.WINDOW_ID_CURRENT, updWndInfo);
       
       $(".deck > #search-by-name").fadeIn("fast");
@@ -392,8 +400,12 @@ $(window).on("keydown", async (aEvent) => {
       $(".deck > #search-by-name").hide();
 
       let updWndInfo = {
-        height: WNDH_SHORTCUT_KEY
+        height: WNDH_SHORTCUT_KEY,
       };
+      if (gOS == "linux") {
+        updWndInfo.height += DLG_HEIGHT_ADJ_LINUX;
+      }
+
       await messenger.windows.update(messenger.windows.WINDOW_ID_CURRENT, updWndInfo);
 
       $(".deck > #paste-by-shortcut-key").fadeIn("fast");
@@ -499,6 +511,9 @@ async function initShortcutList()
   };
   if (gOS == "win") {
     updWndInfo.height += DLG_HEIGHT_ADJ_WINDOWS;
+  }
+  else if (gOS == "linux") {
+    updWndInfo.height += DLG_HEIGHT_ADJ_LINUX;
   }
   
   await messenger.windows.update(messenger.windows.WINDOW_ID_CURRENT, updWndInfo);

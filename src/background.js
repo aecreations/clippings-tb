@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const ROOT_FOLDER_NAME = "clippings-root";
+const WND_SIZE_ADJ_LINUX = 60;
 
 let gOS;
 let gHostAppName;
@@ -1616,6 +1617,11 @@ async function openClippingsManager(aBackupMode)
     let left, top;
     let wndGeom = gPrefs.clippingsMgrWndGeom;
 
+    if (gOS == "linux") {
+      width += WND_SIZE_ADJ_LINUX;
+      height += WND_SIZE_ADJ_LINUX;
+    }
+
     if (gPrefs.clippingsMgrSaveWndGeom && wndGeom) {
       width  = wndGeom.w - 1;  // Compensate for workaround to popup window bug.
       height = wndGeom.h;
@@ -1717,20 +1723,32 @@ function openNewClippingDlg(aNewClippingContent)
   
   let url = messenger.runtime.getURL("pages/new.html");
   let height = 410;
+  let width = 432;
   if (gOS == "win") {
     height = 434;
   }
-  openDlgWnd(url, "newClipping", {type: "popup", width: 432, height});
+  else if (gOS == "linux") {
+    width += WND_SIZE_ADJ_LINUX;
+    height += WND_SIZE_ADJ_LINUX;
+  }
+
+  openDlgWnd(url, "newClipping", {type: "popup", width, height});
 }
 
 
 function openKeyboardPasteDlg(aComposeTabID)
 {
   let url = messenger.runtime.getURL("pages/keyboardPaste.html?compTabID=" + aComposeTabID);
+  let width = 500;
+  let height = 164;
+  if (gOS == "linux") {
+    width += WND_SIZE_ADJ_LINUX;
+    height += WND_SIZE_ADJ_LINUX;
+  }
+  
   openDlgWnd(url, "keyboardPaste", {
     type: "popup",
-    width: 500,
-    height: 164,
+    width, height,
     topOffset: 256,
   });
 }
@@ -1739,10 +1757,16 @@ function openKeyboardPasteDlg(aComposeTabID)
 function openPlaceholderPromptDlg(aComposeTabID)
 {
   let url = messenger.runtime.getURL("pages/placeholderPrompt.html?compTabID=" + aComposeTabID);
+  let width = 536;
+  let height = 228;
+  if (gOS == "linux") {
+    width += WND_SIZE_ADJ_LINUX;
+    height += WND_SIZE_ADJ_LINUX;
+  }
+  
   openDlgWnd(url, "placeholderPrmt", {
     type: "popup",
-    width: 536,
-    height: 228,
+    width, height,
     topOffset: 256,
   });
 }
@@ -1751,10 +1775,16 @@ function openPlaceholderPromptDlg(aComposeTabID)
 function openPasteAsDlg(aComposeTabID)
 {
   let url = messenger.runtime.getURL(`pages/pasteAs.html?compTabID=${aComposeTabID}`);
+  let width = 440;
+  let height = 300;
+  if (gOS == "linux") {
+    width += WND_SIZE_ADJ_LINUX;
+    height += WND_SIZE_ADJ_LINUX;
+  }
+
   let wndPpty = {
     type: "popup",
-    width: 440,
-    height: 300,
+    width, height,
     topOffset: 256,
   };
 
@@ -1771,6 +1801,9 @@ async function openBackupDlg()
   
   if (["fr", "uk"].includes(lang)) {
     height = 450;
+  }
+  if (gOS == "linux") {
+    height += WND_SIZE_ADJ_LINUX;
   }
 
   let wndPpty = {
@@ -1796,6 +1829,10 @@ function openShortcutListWnd()
   let height = 272;
   if (gOS == "win") {
     height = 286;
+  }
+  else if (gOS == "linux") {
+    width += WND_SIZE_ADJ_LINUX;
+    height += WND_SIZE_ADJ_LINUX;
   }
   
   openDlgWnd(url, "shctList", {type: "popup", width, height, topOffset: 256});
@@ -2156,6 +2193,10 @@ async function alertEx(aMessageName, aUsePopupWnd=false)
   let wndGeom = null;
   let width = 520;
   let height = 170;
+  if (gOS == "linux") {
+    width += WND_SIZE_ADJ_LINUX;
+    height += WND_SIZE_ADJ_LINUX;
+  }
 
   // Default popup window coords.  Unless replaced by window geometry calcs,
   // these coords will be ignored - popup window will always be centered
