@@ -1135,11 +1135,6 @@
     "description": "Tab label for extension preferences page"
   },
 
-  "prefsHdgIntegrn": {
-    "message": "Integration",
-    "description": "Groupbox caption in extension preferences page"
-  },
-
   "cbToolsMnu": {
     "message": "Show \u201cOrganize Clippings\u201d menu item in the Tools menu",
     "description": "Checkbox option in extension preferences page"
