@@ -4220,7 +4220,7 @@ function initIntroBannerAndHelpDlg()
         `${messenger.i18n.getMessage("keyCtrl")}+W`,
         `${messenger.i18n.getMessage("keyCtrl")}+Z`,
         "F1",
-        "F2",
+        `F2 / ${altRedo}`,
         `${messenger.i18n.getMessage("keyCtrl")}+F10`,
       ];
     }
