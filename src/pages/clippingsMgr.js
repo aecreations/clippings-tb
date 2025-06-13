@@ -3314,7 +3314,7 @@ let gCmd = {
     }
     else {
       messenger.tabs.create({
-        url: "extPermission.html?openerWndID=" + gWndID,
+        url: "permission.html?openerWndID=" + gWndID,
         active: true,
       });
     }
