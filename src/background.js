@@ -2144,7 +2144,7 @@ function showSyncPushReadOnlyNotification()
     type: "basic",
     title: messenger.i18n.getMessage("syncStartupFailedHdg"),
     message: messenger.i18n.getMessage("syncFldrRdOnly"),
-    iconUrl: aeVisual.getErrorIconPath(),
+    iconUrl: "img/clippings-tb-alert.svg",
   });
 }
 
@@ -2155,7 +2155,7 @@ function showNoNativeMsgPermNotification()
     type: "basic",
     title: messenger.i18n.getMessage("syncStartupFailedHdg"),
     message: messenger.i18n.getMessage("syncPermNotif"),
-    iconUrl: aeVisual.getErrorIconPath(),
+    iconUrl: "img/clippings-tb-alert.svg",
   });
 }
 
