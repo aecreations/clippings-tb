@@ -13,8 +13,7 @@ let gWndID, gTabID, gOpenerWndID, gExtPerm, gExecActionID;
 // Page initialization
 $(async () => {
   let platform = await messenger.runtime.getPlatformInfo();
-  document.body.dataset.os = gOS = platform.os;
-  aeInterxn.init(gOS);
+  document.body.dataset.os = platform.os;
 
   let lang = messenger.i18n.getUILanguage();
   document.body.dataset.locale = lang;
