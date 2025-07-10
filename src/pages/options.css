@@ -371,10 +371,6 @@ description {
     font-size: 15px;
 }
 
-#backup-reminder-row {
-    margin-top: -2px;
-}
-
 #backup-reminder-freq,
 #shct-key-in-menu-opt {
     font-size: 15px;
