@@ -48,6 +48,8 @@ let aePrefs = function () {
     defDlgBtnFollowsFocus: false,
     showToolsCmd: true,
     logSyncDataSize: false,
+    setDirtyFlag: true,
+    newExtPermRequestFlow: true,
 
     // Deprecated prefs - these will be removed during extension upgrade.
     clippingsMgrMinzWhenInactv: null,
@@ -198,6 +200,25 @@ let aePrefs = function () {
         delete aPrefs.wxPastePrefixKey;
         await this._removePrefs("keyboardPaste", "wxPastePrefixKey");
       }
+    },
+
+    hasAlamoSquarePrefs(aPrefs)
+    {
+      // Version 7.1
+      return ("setDirtyFlag" in aPrefs);
+    },
+
+    async setAlamoSquarePrefs(aPrefs)
+    {
+      let newPrefs = {
+        setDirtyFlag: true,
+        newExtPermRequestFlow: true,
+      };
+      
+      await this._addPrefs(aPrefs, newPrefs);
+
+      delete aPrefs.clippingsMgrAutoShowStatusBar;
+      await this._removePrefs("clippingsMgrAutoShowStatusBar");
     },
 
     

@@ -6,7 +6,7 @@
 
 const aeConst = Object.freeze({
   DEBUG: false,
-  CURR_MAJOR_VER: "7.0",
+  CURR_MAJOR_VER: "7.1",
   
   // Maximum number of chars of clipping names.
   MAX_NAME_LENGTH: 64,
@@ -18,6 +18,7 @@ const aeConst = Object.freeze({
   HTMLPASTE_ASK_THE_USER: 0,
   HTMLPASTE_AS_FORMATTED: 1,
   HTMLPASTE_AS_IS:        2,
+  HTMLPASTE_AS_PLAIN:     3,
 
   // Keyboard pasting mode
   PASTEACTION_SHORTCUT_KEY:   1,
@@ -30,11 +31,6 @@ const aeConst = Object.freeze({
   // Special folder IDs
   ROOT_FOLDER_ID: 0,
   DELETED_ITEMS_FLDR_ID: -1,
-
-  // IndexedDB database change types
-  DB_CREATED: 1,
-  DB_UPDATED: 2,
-  DB_DELETED: 3,
 
   // Origin of clipping/folder creation for Clippings listener
   ORIGIN_HOSTAPP: 1,
@@ -88,4 +84,5 @@ const aeConst = Object.freeze({
   HELP_URL: "https://aecreations.io/clippings/help.php",
   SYNC_CLIPPINGS_HELP_URL: "https://aecreations.io/clippings/sync.php",
   SYNC_CLIPPINGS_DWNLD_URL: "https://aecreations.io/clippings/sync-clippings-helper.php",
+  PERM_HLP_URL: "https://aecreations.io/clippings/permissions.php",
 });

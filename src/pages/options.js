@@ -76,23 +76,19 @@ $(async () => {
   initDialogs();
 
   let prefs = await aePrefs.getAllPrefs();
-  $("#show-tools-cmd").prop("checked", prefs.showToolsCmd).click(aEvent => {
+  $("#show-tools-cmd").prop("checked", prefs.showToolsCmd).on("click", aEvent => {
     aePrefs.setPrefs({showToolsCmd: aEvent.target.checked});
   });
 
-  $("#paste-opt-formatted").click(aEvent => {
-    $("#html-auto-line-break").prop("disabled", false);
-    $("#html-paste-note").removeClass("disabled");
+  $("#paste-opt-formatted").on("click", aEvent => {
     aePrefs.setPrefs({htmlPaste: aEvent.target.value});
   });
 
-  $("#paste-opt-raw-html").click(aEvent => {
-    $("#html-auto-line-break").prop("disabled", true);
-    $("#html-paste-note").addClass("disabled");
+  $("#paste-opt-plaintext, #paste-opt-raw-html, #paste-opt-ask").on("click", aEvent => {
     aePrefs.setPrefs({htmlPaste: aEvent.target.value});
   });
-  
-  $("#toggle-sync").click(async (aEvent) => {
+
+  $("#toggle-sync").on("click", async (aEvent) => {
     let syncClippings = await aePrefs.getPref("syncClippings");
     if (syncClippings) {
       gDialogs.turnOffSync.showModal();
@@ -111,40 +107,43 @@ $(async () => {
     }
   });
 
-  $("#about-btn").click(aEvent => {
+  $("#about-btn").on("click", aEvent => {
     gDialogs.about.showModal();
   });
 
   // About dialog.
   let usrContribCTA = $("#usr-contrib-cta");
   usrContribCTA.append(sanitizeHTML(`<label id="usr-contrib-cta-hdg">${messenger.i18n.getMessage("aboutContribHdg")}</label>&nbsp;`));
-  usrContribCTA.append(sanitizeHTML(`<a href="${aeConst.DONATE_URL}" class="hyperlink">${messenger.i18n.getMessage("aboutDonate")}</a>&nbsp;`));
-  usrContribCTA.append(sanitizeHTML(`<label id="usr-contrib-cta-conj">${messenger.i18n.getMessage("aboutContribConj")}</label>`));
-  usrContribCTA.append(sanitizeHTML(`<a href="${aeConst.L10N_URL}" class="hyperlink">${messenger.i18n.getMessage("aboutL10n")}</a>`));
-  
+  let contribLinks = sanitizeHTML(`${messenger.i18n.getMessage("aboutContrib", [aeConst.DONATE_URL, aeConst.L10N_URL])}`);
+  usrContribCTA.append(contribLinks);
+
   // Sync Clippings help dialog content.
   $("#sync-clippings-help-dlg > .dlg-content").html(sanitizeHTML(messenger.i18n.getMessage("syncHelpTB", aeConst.SYNC_CLIPPINGS_HELP_URL)));
 
   if (prefs.htmlPaste == aeConst.HTMLPASTE_AS_FORMATTED) {
     $("#paste-opt-formatted").prop("checked", true);
-    $("#paste-opt-raw-html").prop("checked", false);
-    $("#html-auto-line-break").prop("disabled", false);
-    $("#html-paste-note").removeClass("disabled");
+    $("#paste-opt-plaintext, #paste-opt-raw-html, #paste-opt-ask").prop("checked", false);
+  }
+  else if (prefs.htmlPaste == aeConst.HTMLPASTE_AS_PLAIN) {
+    $("#paste-opt-plaintext").prop("checked", true);
+    $("#paste-opt-formatted, #paste-opt-raw-html, #paste-opt-ask").prop("checked", false);
   }
   else if (prefs.htmlPaste == aeConst.HTMLPASTE_AS_IS) {
-    $("#paste-opt-formatted").prop("checked", false);
     $("#paste-opt-raw-html").prop("checked", true);
-    $("#html-auto-line-break").prop("disabled", true);
-    $("#html-paste-note").addClass("disabled");
+    $("#paste-opt-formatted, #paste-opt-plaintext, #paste-opt-ask").prop("checked", false);
+  }
+  else if (prefs.htmlPaste == aeConst.HTMLPASTE_ASK_THE_USER) {
+    $("#paste-opt-ask").prop("checked", true);
+    $("#paste-opt-formatted, #paste-opt-plaintext, #paste-opt-raw-html").prop("checked", false);
   }
   
-  $("#html-auto-line-break").attr("checked", prefs.autoLineBreak).click(aEvent => {
+  $("#html-auto-line-break").attr("checked", prefs.autoLineBreak).on("click", aEvent => {
     aePrefs.setPrefs({ autoLineBreak: aEvent.target.checked });
   });
 
   let keybPasteKeys = await messenger.runtime.sendMessage({msgID: "get-shct-key-prefix-ui-str"});
   if (keybPasteKeys) {
-    $("#shortcut-key").prop("checked", prefs.keybdPaste).click(aEvent => {
+    $("#shortcut-key").prop("checked", prefs.keybdPaste).on("click", aEvent => {
       aePrefs.setPrefs({keybdPaste: aEvent.target.checked});
     });
   }
@@ -155,19 +154,19 @@ $(async () => {
   }
   $("#shct-label").text(messenger.i18n.getMessage("prefsShctMode", keybPasteKeys));
   
-  $("#auto-inc-plchldrs-start-val").val(prefs.autoIncrPlchldrStartVal).click(aEvent => {
+  $("#auto-inc-plchldrs-start-val").val(prefs.autoIncrPlchldrStartVal).on("click", aEvent => {
     aePrefs.setPrefs({ autoIncrPlchldrStartVal: aEvent.target.valueAsNumber });
   });
 
-  $("#check-spelling").attr("checked", prefs.checkSpelling).click(aEvent => {
+  $("#check-spelling").attr("checked", prefs.checkSpelling).on("click", aEvent => {
     aePrefs.setPrefs({ checkSpelling: aEvent.target.checked });
   });
 
-  $("#backup-filename-with-date").attr("checked", prefs.backupFilenameWithDate).click(aEvent => {
+  $("#backup-filename-with-date").attr("checked", prefs.backupFilenameWithDate).on("click", aEvent => {
     aePrefs.setPrefs({ backupFilenameWithDate: aEvent.target.checked });
   });
 
-  $("#backup-reminder").attr("checked", (prefs.backupRemFrequency != aeConst.BACKUP_REMIND_NEVER)).click(async (aEvent) => {
+  $("#backup-reminder").attr("checked", (prefs.backupRemFrequency != aeConst.BACKUP_REMIND_NEVER)).on("click", async (aEvent) => {
     if (aEvent.target.checked) {
       $("#backup-reminder-freq").prop("disabled", false);
       $("#skip-backup-if-no-chg").prop("disabled", false);
@@ -210,11 +209,11 @@ $(async () => {
     messenger.runtime.sendMessage({msgID: "set-backup-notifcn-intv"});
   });
 
-  $("#skip-backup-if-no-chg").prop("checked", prefs.skipBackupRemIfUnchg).click(aEvent => {
+  $("#skip-backup-if-no-chg").prop("checked", prefs.skipBackupRemIfUnchg).on("click", aEvent => {
     aePrefs.setPrefs({skipBackupRemIfUnchg: aEvent.target.checked});
   });
 
-  $("#show-shct-key-in-menu").prop("checked", prefs.showShctKey).click(async (aEvent) => {
+  $("#show-shct-key-in-menu").prop("checked", prefs.showShctKey).on("click", async (aEvent) => {
     await aePrefs.setPrefs({showShctKey: aEvent.target.checked});
     $("#shct-key-in-menu-opt").prop("disabled", !aEvent.target.checked);
     if (aEvent.target.checked) {
@@ -255,7 +254,7 @@ $(async () => {
     $("#toggle-sync").text(messenger.i18n.getMessage("syncTurnOn"));
   }
 
-  $("#sync-settings").click(async (aEvent) => {
+  $("#sync-settings").on("click", async (aEvent) => {
     let perms = await messenger.permissions.getAll();
     if (! perms.permissions.includes("nativeMessaging")) {
       // The "nativeMessaging" extension permission was revoked while
@@ -266,7 +265,7 @@ $(async () => {
     gDialogs.syncClippings.showModal();
   });
 
-  $("#browse-sync-fldr").click(async (aEvent) => {
+  $("#browse-sync-fldr").on("click", async (aEvent) => {
     let natMsg = {msgID:"sync-dir-folder-picker"};
     let resp;
     try {
@@ -282,11 +281,11 @@ $(async () => {
     }
   });
   
-  $("#show-sync-help").click(aEvent => {
+  $("#show-sync-help").on("click", aEvent => {
     gDialogs.syncClippingsHelp.showModal();
   });
 
-  $(".hyperlink").click(aEvent => {
+  $(".hyperlink").on("click", aEvent => {
     aEvent.preventDefault();
     gotoURL(aEvent.target.href, ("openInTbWnd" in aEvent.target.dataset));
   });
@@ -460,11 +459,17 @@ function initDialogs()
     this.initKeyboardNavigation(focusableElts);
   };
 
+  gDialogs.syncClippings.isSyncConnectionError = function ()
+  {
+    return (this.find("#sync-cxn-error").css("display") == "block");
+  };
+
   gDialogs.syncClippings.onFirstInit = function ()
   {
-    $("#sync-conxn-error-detail").html(sanitizeHTML(messenger.i18n.getMessage("errSyncConxnDetail")));
+    $("#no-sync-app-cta").html(sanitizeHTML(messenger.i18n.getMessage("noSyncAppCTA", aeConst.SYNC_CLIPPINGS_DWNLD_URL)));
     $("#sync-fldr-curr-location").on("focus", aEvent => { aEvent.target.select() });
   };
+
   gDialogs.syncClippings.onInit = async function ()
   {
     this.isCanceled = false;
@@ -660,7 +665,7 @@ function initDialogs()
   
   gDialogs.turnOffSync = new aeDialog("#turn-off-sync-clippings-dlg");
   gDialogs.turnOffSync.onFirstInit = async function () {
-    this.find(".dlg-btns > .dlg-btn-yes").click(async (aEvent) => {
+    this.find(".dlg-btns > .dlg-btn-yes").on("click", async (aEvent) => {
       this.close();
 
       let oldSyncFolderID = await messenger.runtime.sendMessage({
@@ -810,8 +815,11 @@ function initDialogs()
 }
 
 
-// Handling keyboard events in open modal dialogs.
-$(window).keydown(aEvent => {
+//
+// Event handlers
+//
+
+$(window).on("keydown", aEvent => {
   function isAccelKeyPressed()
   {
     let rv;
@@ -880,6 +888,15 @@ $(window).on("contextmenu", aEvent => {
 });
 
 
+$(window).on("focus", aEvent => {
+  if (gDialogs?.syncClippings?.isOpen() && gDialogs.syncClippings.isSyncConnectionError()) {
+    // Retry connecting to the Sync Clippings Helper app.
+    gDialogs.syncClippings.close();
+    gDialogs.syncClippings.showModal();
+  }
+});
+
+
 messenger.runtime.onMessage.addListener(aRequest => {
   if (aRequest.msgID == "focus-ext-prefs-pg") {
     messenger.windows.update(messenger.windows.WINDOW_ID_CURRENT, {focused: true}).then(aWnd => {
@@ -894,6 +911,10 @@ messenger.runtime.onMessage.addListener(aRequest => {
   }
 });
 
+
+//
+// Utilities
+//
 
 function gotoURL(aURL, aOpenInTbWnd)
 {

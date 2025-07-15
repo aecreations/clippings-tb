@@ -332,7 +332,7 @@ description {
 }
 
 #html-paste-note {
-    margin: 0 18px 4px 4px;
+    margin: 12px 18px 4px 10px;
     font-size: 13px;
 }
 
@@ -341,12 +341,12 @@ description {
     opacity: 0.4;
 }
 
-#paste-opt-raw-html-row {
-    margin-top: 8px;
-}
-
 #paste-options {
     margin-top: 20px;
+}
+
+#backup-options {
+    margin-top: 12px;
 }
 
 #enable-shortcut-key-ctr {
@@ -369,10 +369,6 @@ description {
 #auto-inc-plchldrs-start-val {
     width: 64px;
     font-size: 15px;
-}
-
-#backup-reminder-row {
-    margin-top: -2px;
 }
 
 #backup-reminder-freq,
@@ -431,7 +427,7 @@ body[data-locale="de"] #skip-backup-label {
 }
 
 #wnds-dlgs-settings {
-    margin-top: 14px;
+    margin-top: 12px;
 }
 
 body[data-locale="fr"] #html-auto-line-break-label {
@@ -633,6 +629,7 @@ body[data-locale="nl"] #wnds-dlgs-opts-dlg #clpmgr-save-wnd-pos-label {
 #wnds-dlgs-opts-dlg #reset-clpmgr-wnd-pos {
     min-width: 72px;
     margin-top: 4px;
+    margin-left: 28px;
 }
 
 #wnds-dlgs-opts-dlg #reset-clpmgr-wnd-pos-ack {
@@ -710,18 +707,15 @@ body[data-locale|="pt"] #sync-clippings-dlg {
     background-size: contain;
 }
 
-#request-native-app-conxn-perm-dlg .msgbox-icon,
-#sync-clippings-dlg #sync-cxn-error .msgbox-icon {
+#request-native-app-conxn-perm-dlg .msgbox-icon {
     background-image: url("../img/warning-64.png");
 }
 
-#request-native-app-conxn-perm-dlg .msgbox-icon[os="win"],
-#sync-clippings-dlg #sync-cxn-error .msgbox-icon[os="win"] {
+#request-native-app-conxn-perm-dlg .msgbox-icon[os="win"] {
     background-image: url("../img/alert-win.png");
 }
 
-#request-native-app-conxn-perm-dlg .msgbox-icon[os="mac"],
-#sync-clippings-dlg #sync-cxn-error .msgbox-icon[os="mac"] {
+#request-native-app-conxn-perm-dlg .msgbox-icon[os="mac"] {
     background-image: url("../img/warning-64-mac.png");
 }
 
@@ -733,13 +727,20 @@ body[data-os="win"] #sync-clippings-dlg #generic-error .msgbox-icon {
     background-image: url("../img/error-win.png");
 }
 
-#sync-clippings-dlg #sync-cxn-error .error-msg,
 #sync-clippings-dlg #generic-error .error-msg {
     margin-top: 12px;
     margin-left: 64px;
     padding: 12px;
     border-radius: 4px;
     font-weight: bold;
+}
+
+#sync-clippings-dlg #sync-cxn-error .msgbox-icon {
+    background-image: url("../img/syncClippingsApp.svg");
+}
+
+#sync-clippings-dlg #sync-cxn-error .dlg-content {
+    margin-left: 64px;
 }
 
 #request-native-app-conxn-perm-dlg p:first-of-type {
@@ -915,12 +916,12 @@ body[data-os="mac"] #about-dlg {
     --width: 414px;
 }
 
-body[data-locale="de"] #about-dlg {
-    height: 326px;
-}
-
 #about-dlg[data-expanded="true"] {
     height: 320px;
+}
+
+body[data-locale="de"] #about-dlg[data-expanded="true"] {
+    height: 326px;
 }
 
 #about-dlg #ext-icon {

@@ -184,7 +184,11 @@ let gSyncClippingsListener = {
 
     if (isStaticIDsAdded) {
       log("Clippings/mx: gSyncClippingsListener.onReloadFinish(): Static IDs added to synced items.  Saving sync file.");
-      await pushSyncFolderUpdates();
+      let result = await pushSyncFolderUpdates();
+      if ("error" in result && result.error.name == "RangeError") {
+        // Sync file is too big.
+        showSyncDataSizeTooBigNotification();
+      }
     }
   },
 };
@@ -235,6 +239,39 @@ let gPastePrompt = {
   }
 };
 
+let gPasteAs = {
+  _clippingName: null,
+  _clpCtnt: null,
+
+  set(aClippingName, aClippingText)
+  {
+    this._clippingName = aClippingName;
+    this._clpCtnt = aClippingText;
+  },
+
+  get()
+  {
+    let rv = this.copy();
+    this.reset();
+
+    return rv;    
+  },
+
+  copy()
+  {
+    let rv = {
+      clippingName: this._clippingName,
+      content: this._clpCtnt,
+    };
+    return rv;
+  },
+
+  reset()
+  {
+    this._clippingName = '';
+  },
+};
+
 let gPlaceholders = {
   _clippingName: null,
   _plchldrs: null,
@@ -277,6 +314,8 @@ let gWndIDs = {
   newClipping: null,
   clippingsMgr: null,
   pasteClippingOpts: null,
+  placeholderPrmt: null,
+  pasteAs: null,
 };
 
 let gPrefs = null;
@@ -325,11 +364,6 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
       log("Initializing 7.0 user preferences.");
       await aePrefs.setSanFranciscoPrefs(gPrefs);
 
-      let platform = await messenger.runtime.getPlatformInfo();
-      if (platform.os == "linux") {
-        aePrefs.setPrefs({clippingsMgrAutoShowStatusBar: true});
-      }
-
       // Starting in Clippings 7.0, window positioning prefs are turned on
       // by default for macOS.
       // They were previously turned off due to a bug occurring on systems with
@@ -340,17 +374,22 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
           clippingsMgrSaveWndGeom: true,
         });
       }
+    }
+
+    if (! aePrefs.hasEmbarcaderoPrefs(gPrefs)) {
+      log("Initializing 7.0.2 user preferences.");
+      await aePrefs.setEmbarcaderoPrefs(gPrefs);
+    }
+
+    if (! aePrefs.hasAlamoSquarePrefs(gPrefs)) {
+      log("Initializing 7.1 user preferences.");
+      await aePrefs.setAlamoSquarePrefs(gPrefs);
 
       // Enable post-update notifications which users can click on to open the
       // What's New page.
       await aePrefs.setPrefs({
         upgradeNotifCount: aeConst.MAX_NUM_POST_UPGRADE_NOTIFICNS
       });
-    }
-
-    if (! aePrefs.hasEmbarcaderoPrefs(gPrefs)) {
-      log("Initializing 7.0.2 user preferences.");
-      await aePrefs.setEmbarcaderoPrefs(gPrefs);
     }
 
     await init();
@@ -389,6 +428,9 @@ async function loadComposeScripts()
   for (let tab of compTabs) {
     messenger.tabs.executeScript(tab.id, {
       file: messenger.runtime.getURL("lib/purify.min.js"),
+    });
+    messenger.tabs.executeScript(tab.id, {
+      file: messenger.runtime.getURL("lib/jquery.js"),
     });
     messenger.tabs.executeScript(tab.id, {
       file: messenger.runtime.getURL("compose.js"),
@@ -490,13 +532,13 @@ async function init()
     log("Clippings/mx: Display order on root folder items have been set.");
   }
 
-  let compScriptOpts = {
+  messenger.composeScripts.register({
     js: [
       {file: "lib/purify.min.js"},
-      {file: "compose.js"}
+      {file: "lib/jquery.js"},
+      {file: "compose.js"},
     ],
-  };  
-  messenger.composeScripts.register(compScriptOpts);
+  });
 
   await initToolsMenuItem();
 
@@ -748,12 +790,32 @@ async function pushSyncFolderUpdates()
     throw new Error("Sync Clippings is not turned on!");
   }
   
+  let rv = {status: "ok"};
   let perms = await messenger.permissions.getAll();
   if (! perms.permissions.includes("nativeMessaging")) {
-    return;
+    rv = {
+      status: "error",
+      error: {
+        name: "AccessDeniedError",
+        message: "Extension permission required: nativeMessaging",
+      }
+    }
+    return rv;
   }
 
   let syncData = await aeImportExport.exportToJSON(true, true, gSyncFldrID, false, true, true);
+  let isSyncDataSizeUnderMax = await isRecvNativeMessageSizeUnderMax(syncData);
+  if (!isSyncDataSizeUnderMax) {
+    rv = {
+      status: "error",
+      error: {
+        name: "RangeError",
+        message: "Maximum sync data size exceeded",
+      }
+    }
+    return rv;
+  }
+
   let natMsg = {
     msgID: "set-synced-clippings",
     syncData: syncData.userClippingsRoot,
@@ -782,7 +844,55 @@ async function pushSyncFolderUpdates()
       gIsSyncPushFailed = true;
     }
 
+    rv = {
+      status: "error",
+      error: {
+        name: "TypeError",
+        message: "Sync file is read only",
+      }
+    }
   }
+
+  return rv;
+}
+
+
+async function isRecvNativeMessageSizeUnderMax(aSyncClippingsData)
+{
+  let rv = false;
+  let encoder = new TextEncoder();
+  let compressSyncData = await aePrefs.getPref("compressSyncData");
+  let syncDataStr = JSON.stringify(aSyncClippingsData);
+  let dataSizeB, dataSizeKB;
+
+  if (compressSyncData) {
+    let cmprsData = await aeCompress.compress(syncDataStr);
+    let recvMsgBody = {
+      status: "ok",
+      format: "gzip",
+      data: cmprsData.toBase64(),
+    };
+
+    let recvMsgBodyStr;
+    try {
+      recvMsgBodyStr = JSON.stringify(recvMsgBody);
+    }
+    catch (e) {
+      console.error("Clippings: isRecvNativeMessageSizeUnderMax(): Failed to serialize native message body: " + e);
+      throw e;
+    }
+    
+    dataSizeB = encoder.encode(recvMsgBodyStr).length;
+  }
+  else {
+    dataSizeB = encoder.encode(syncDataStr).length;
+  }
+
+  dataSizeKB = dataSizeB / 1024;
+  rv = dataSizeKB < 1024;
+  log(`Clippings: isRecvNativeMessageSizeUnderMax(): Sync data size: ${dataSizeKB.toFixed(2)} KB\nIt is ${rv} that the sync data size is below the 1 MB limit.`);
+  
+  return rv;
 }
 
 
@@ -1089,8 +1199,8 @@ async function buildContextMenu()
     contexts: ["compose_action"],
   });
   messenger.menus.create({
-    id: "ae-clippings-show-paste-opts",
-    title: messenger.i18n.getMessage("cxtMenuShowPasteOpts"),
+    id: "ae-clippings-paste-as-quoted",
+    title: messenger.i18n.getMessage("cxtMnuPasteQuoted"),
     type: "checkbox",
     checked: false,
     contexts: ["compose_action"],
@@ -1470,26 +1580,14 @@ async function showSyncHelperUpdateNotification()
 }
 
 
-function createClippingNameFromText(aText)
+function showSyncDataSizeTooBigNotification()
 {
-  let rv = "";
-  let clipName = "";
-
-  aText = aText.trim();
-
-  if (aText.length > aeConst.MAX_NAME_LENGTH) {
-    // Leave room for the three-character elipsis.
-    clipName = aText.substr(0, aeConst.MAX_NAME_LENGTH - 3) + "...";
-  } 
-  else {
-    clipName = aText;
-  }
-
-  // Truncate clipping names at newlines if they exist.
-  let newlineIdx = clipName.indexOf("\n");
-  rv = (newlineIdx == -1) ? clipName : clipName.substring(0, newlineIdx);
-
-  return rv;
+  messenger.notifications.create("sync-data-size-too-big", {
+    type: "basic",
+    title: messenger.i18n.getMessage("syncClippings"),
+    message: messenger.i18n.getMessage("syncFldrFull"),
+    iconUrl: aeVisual.getErrorIconPath(),
+  });
 }
 
 
@@ -1523,8 +1621,7 @@ async function openClippingsManager(aBackupMode)
     let left, top;
     let wndGeom = gPrefs.clippingsMgrWndGeom;
 
-    // Workaround bug where window dimensions are shrunken on Linux.
-    if (gOS == "linux" && aeVersionCmp(gHostAppVer, "137.0") >= 0) {
+    if (gOS == "linux") {
       width += WND_SIZE_ADJ_LINUX;
       height += WND_SIZE_ADJ_LINUX;
     }
@@ -1587,7 +1684,14 @@ async function openClippingsManager(aBackupMode)
       return;
     }
 
-    await messenger.runtime.sendMessage({ msgID: "focus-clippings-mgr-wnd" });
+    await messenger.runtime.sendMessage({msgID: "focus-clippings-mgr-wnd"});
+
+    if (aBackupMode) {
+      try {
+        messenger.runtime.sendMessage({msgID: "clippings-mgr-save-backup"});
+      }
+      catch {}
+    }
   }
   else {
     openClippingsMgrHelper();
@@ -1617,7 +1721,7 @@ function newClipping(aComposeTab)
 function openNewClippingDlg(aNewClippingContent)
 {
   if (aNewClippingContent) {
-    let name = createClippingNameFromText(aNewClippingContent);
+    let name = aeClippings.createClippingNameFromText(aNewClippingContent);
     gNewClipping.set({name, content: aNewClippingContent});
   }
   
@@ -1627,10 +1731,11 @@ function openNewClippingDlg(aNewClippingContent)
   if (gOS == "win") {
     height = 434;
   }
-  if (gOS == "linux" && aeVersionCmp(gHostAppVer, "137.0") >= 0) {
+  else if (gOS == "linux") {
     width += WND_SIZE_ADJ_LINUX;
     height += WND_SIZE_ADJ_LINUX;
   }
+
   openDlgWnd(url, "newClipping", {type: "popup", width, height});
 }
 
@@ -1640,7 +1745,7 @@ function openKeyboardPasteDlg(aComposeTabID)
   let url = messenger.runtime.getURL("pages/keyboardPaste.html?compTabID=" + aComposeTabID);
   let width = 500;
   let height = 164;
-  if (gOS == "linux" && aeVersionCmp(gHostAppVer, "137.0") >= 0) {
+  if (gOS == "linux") {
     width += WND_SIZE_ADJ_LINUX;
     height += WND_SIZE_ADJ_LINUX;
   }
@@ -1658,7 +1763,7 @@ function openPlaceholderPromptDlg(aComposeTabID)
   let url = messenger.runtime.getURL("pages/placeholderPrompt.html?compTabID=" + aComposeTabID);
   let width = 536;
   let height = 228;
-  if (gOS == "linux" && aeVersionCmp(gHostAppVer, "137.0") >= 0) {
+  if (gOS == "linux") {
     width += WND_SIZE_ADJ_LINUX;
     height += WND_SIZE_ADJ_LINUX;
   }
@@ -1668,6 +1773,26 @@ function openPlaceholderPromptDlg(aComposeTabID)
     width, height,
     topOffset: 256,
   });
+}
+
+
+function openPasteAsDlg(aComposeTabID)
+{
+  let url = messenger.runtime.getURL(`pages/pasteAs.html?compTabID=${aComposeTabID}`);
+  let width = 440;
+  let height = 300;
+  if (gOS == "linux") {
+    width += WND_SIZE_ADJ_LINUX;
+    height += WND_SIZE_ADJ_LINUX;
+  }
+
+  let wndPpty = {
+    type: "popup",
+    width, height,
+    topOffset: 256,
+  };
+
+  openDlgWnd(url, "pasteAs", wndPpty, aComposeTabID);
 }
 
 
@@ -1681,9 +1806,9 @@ async function openBackupDlg()
   if (["fr", "uk"].includes(lang)) {
     height = 450;
   }
-  if (gOS == "linux" && aeVersionCmp(gHostAppVer, "137.0") >= 0) {
+  if (gOS == "linux") {
     height += WND_SIZE_ADJ_LINUX;
-  }  
+  }
 
   let wndPpty = {
     url,
@@ -1709,11 +1834,11 @@ function openShortcutListWnd()
   if (gOS == "win") {
     height = 286;
   }
-  else if (gOS == "linux" && aeVersionCmp(gHostAppVer, "137.0") >= 0) {
+  else if (gOS == "linux") {
     width += WND_SIZE_ADJ_LINUX;
     height += WND_SIZE_ADJ_LINUX;
   }
-
+  
   openDlgWnd(url, "shctList", {type: "popup", width, height, topOffset: 256});
 }
 
@@ -1798,15 +1923,15 @@ async function getWndGeometryFromComposeTab()
 }
 
 
-async function toggleShowPastePrompt(aComposeTabID)
+async function togglePasteAsQuoted(aComposeTabID)
 {
-  let showPastePrompt = await messenger.tabs.sendMessage(aComposeTabID, {
-    id: "get-paste-prompt-pref",
+  let pasteAsQuoted = await messenger.tabs.sendMessage(aComposeTabID, {
+    id: "get-paste-as-quoted-pref",
   });
 
   messenger.tabs.sendMessage(aComposeTabID, {
-    id: "set-paste-prompt-pref",
-    showPastePrompt: !showPastePrompt,
+    id: "set-paste-as-quoted-pref",
+    pasteAsQuoted: !pasteAsQuoted,
   });
 }
 
@@ -1912,7 +2037,8 @@ async function pasteClipping(aClippingInfo, aComposeTabID)
     processedCtnt = aClippingInfo.text;
   }
   else {
-    processedCtnt = await aeClippingSubst.processStdPlaceholders(aClippingInfo);
+    let compInfo = await messenger.compose.getComposeDetails(aComposeTabID);
+    processedCtnt = await aeClippingSubst.processStdPlaceholders(aClippingInfo, compInfo);
     let failedPlchldrs = aeClippingSubst.getFailedPlaceholders();
     if (failedPlchldrs.length > 0) {
       // TO DO: Show dialog giving the user the option to edit the clipping in
@@ -1937,66 +2063,31 @@ async function pasteClipping(aClippingInfo, aComposeTabID)
     }
   }
 
-  // Check if user wants to be prompted to format the clipping as normal or
-  // quoted text.
-  let isPasteOptsDlgShown = await showPasteOptionsDlg(aComposeTabID, processedCtnt);
-  if (isPasteOptsDlgShown) {
-    // Control returns to function pasteProcessedClipping() when user clicks OK
-    // in the paste options dialog.
-    return;
-  }
-  
-  pasteProcessedClipping(processedCtnt, aComposeTabID);
+  processHTMLFormattedClipping(aClippingInfo.name, processedCtnt, aComposeTabID);
 }
 
 
-async function showPasteOptionsDlg(aComposeTabID, aClippingContent)
+async function processHTMLFormattedClipping(aClippingName, aClippingContent, aComposeTabID)
 {
-  let rv = false;
+  let isHTMLFormatted = aeClippings.hasHTMLTags(aClippingContent);
+  let compInfo = await messenger.compose.getComposeDetails(aComposeTabID);
 
-  let showPastePrompt = await messenger.tabs.sendMessage(aComposeTabID, {
-    id: "get-paste-prompt-pref",
-  });
-
-  if (showPastePrompt) {
-    if (gWndIDs.pasteClippingOpts) {
-      // If the paste clipping options dialog is open, it's likely that the
-      // user has forgotten or abandoned their previous clipping, so close it.
-      // Note that the window ID may be invalid because the user closed the
-      // dialog by clicking the 'X' button on the title bar instead of
-      // clicking Cancel.
-      let wnd;
-      try {
-        wnd = await messenger.windows.get(gWndIDs.pasteClippingOpts);
-      }
-      catch {}
-      if (wnd) {
-        messenger.windows.remove(wnd.id);
-      }
-      gWndIDs.pasteClippingOpts = null;
+  if (isHTMLFormatted && !compInfo.isPlainText) {
+    if (gPrefs.htmlPaste == aeConst.HTMLPASTE_ASK_THE_USER) {
+      gPasteAs.set(aClippingName, aClippingContent);
+      openPasteAsDlg(aComposeTabID);
     }
-
-    gPastePrompt.add(aComposeTabID, aClippingContent);
-    let url = messenger.runtime.getURL("pages/pasteOptions.html?compTabID=" + aComposeTabID);
-    let width = 256;
-    let height = 210;
-    if (gOS == "mac") {
-      height = 200;
-    }
-    else if (gOS == "linux" && aeVersionCmp(gHostAppVer, "137.0") >= 0) {
-      width += WND_SIZE_ADJ_LINUX;
-      height += WND_SIZE_ADJ_LINUX;
-    }
-
-    await openDlgWnd(url, "pasteClippingOpts", {type: "popup", width, height});
-    rv = true;
+    else {
+      await pasteProcessedClipping(aClippingContent, aComposeTabID);
+    }    
   }
-
-  return rv;
+  else {
+    await pasteProcessedClipping(aClippingContent, aComposeTabID);
+  }
 }
 
 
-async function pasteProcessedClipping(aClippingContent, aComposeTabID, aPasteAsQuoted=false)
+async function pasteProcessedClipping(aClippingContent, aComposeTabID, aOverridePasteFormat=null)
 {
   // Perform a final check to confirm that the composer represented by
   // aComposeTabID is still open.
@@ -2009,15 +2100,23 @@ async function pasteProcessedClipping(aClippingContent, aComposeTabID, aPasteAsQ
   }
 
   let comp = await messenger.compose.getComposeDetails(aComposeTabID);
+  let htmlPaste = aOverridePasteFormat === null ? gPrefs.htmlPaste : aOverridePasteFormat;
+  let pasteAsQuoted = await messenger.tabs.sendMessage(aComposeTabID, {
+    id: "get-paste-as-quoted-pref",
+  });  
 
   await messenger.tabs.sendMessage(aComposeTabID, {
     id: "paste-clipping",
     content: aClippingContent,
     isPlainText: comp.isPlainText,
-    htmlPaste: gPrefs.htmlPaste,
+    htmlPaste,
     autoLineBreak: gPrefs.autoLineBreak,
-    pasteAsQuoted: aPasteAsQuoted,
+    pasteAsQuoted,
   });
+
+  if (gPrefs.setDirtyFlag) {
+    messenger.compose.setComposeDetails(aComposeTabID, {isModified: true});
+  }
 }
 
 
@@ -2049,7 +2148,7 @@ function showSyncPushReadOnlyNotification()
     type: "basic",
     title: messenger.i18n.getMessage("syncStartupFailedHdg"),
     message: messenger.i18n.getMessage("syncFldrRdOnly"),
-    iconUrl: aeVisual.getErrorIconPath(),
+    iconUrl: "img/clippings-tb-alert.svg",
   });
 }
 
@@ -2060,7 +2159,7 @@ function showNoNativeMsgPermNotification()
     type: "basic",
     title: messenger.i18n.getMessage("syncStartupFailedHdg"),
     message: messenger.i18n.getMessage("syncPermNotif"),
-    iconUrl: aeVisual.getErrorIconPath(),
+    iconUrl: "img/clippings-tb-alert.svg",
   });
 }
 
@@ -2098,7 +2197,7 @@ async function alertEx(aMessageName, aUsePopupWnd=false)
   let wndGeom = null;
   let width = 520;
   let height = 170;
-  if (gOS == "linux" && aeVersionCmp(gHostAppVer, "137.0") >= 0) {
+  if (gOS == "linux") {
     width += WND_SIZE_ADJ_LINUX;
     height += WND_SIZE_ADJ_LINUX;
   }
@@ -2180,14 +2279,14 @@ messenger.menus.onShown.addListener(async (aInfo, aTab) => {
   let menuInstID = gNextMenuInstID++;
   gLastMenuInstID = menuInstID;
 
-  let showPastePrmpt = await messenger.tabs.sendMessage(aTab.id, {id: "get-paste-prompt-pref"});
+  let showPastePrmpt = await messenger.tabs.sendMessage(aTab.id, {id: "get-paste-as-quoted-pref"});
 
   // Check if the menu is still shown when the above async call finished.
   if (menuInstID != gLastMenuInstID) {
     return;
   }
 
-  messenger.menus.update("ae-clippings-show-paste-opts", {
+  messenger.menus.update("ae-clippings-paste-as-quoted", {
     checked: showPastePrmpt,
   });
   messenger.menus.refresh();
@@ -2210,8 +2309,8 @@ messenger.menus.onClicked.addListener((aInfo, aTab) => {
     openClippingsManager();
     break;
     
-  case "ae-clippings-show-paste-opts":
-    toggleShowPastePrompt(aTab.id);
+  case "ae-clippings-paste-as-quoted":
+    togglePasteAsQuoted(aTab.id);
     break;
 
   case "ae-clippings-prefs":
@@ -2307,24 +2406,15 @@ messenger.runtime.onMessage.addListener(aRequest => {
   case "init-placeholder-prmt-dlg":
     return Promise.resolve(gPlaceholders.get());
 
+  case "init-paste-as-dlg":
+    return Promise.resolve(gPasteAs.get());
+
   case "close-new-clipping-dlg":
     gWndIDs.newClipping = null;
     break;
 
   case "close-keybd-paste-dlg":
     gWndIDs.keyboardPaste = null;
-    break;
-
-  case "close-paste-options-dlg":
-    if (! aRequest.userCancel) {
-      pasteProcessedClipping(
-        gPastePrompt.get(aRequest.composeTabID),
-        aRequest.composeTabID,
-        aRequest.pasteAsQuoted
-      );
-    }
-    gPastePrompt.delete(aRequest.composeTabID);
-    gWndIDs.pasteClippingOpts = null;
     break;
 
   case "paste-shortcut-key":
@@ -2353,24 +2443,32 @@ messenger.runtime.onMessage.addListener(aRequest => {
   case "paste-clipping-with-plchldrs":
     messenger.tabs.get(aRequest.composeTabID).then(aTab => {
       if (aTab.type != "messageCompose") {
-        return null;
+        return;
       }
-      return showPasteOptionsDlg(aTab.id, aRequest.processedContent);
-    }).then(aIsDlgShown => {
-      // If the Paste Options dialog was shown, control returns to function
-      // pasteProcessedClipping() after user clicks OK in the dialog.
-      if (aIsDlgShown === false) {
-        pasteProcessedClipping(aRequest.processedContent, aRequest.composeTabID);
-      }
+
+      processHTMLFormattedClipping(
+        aRequest.clippingName, aRequest.processedContent, aRequest.composeTabID
+      );
     }).catch(aErr => {
       warn("Clippings/mx: Can't find compose tab " + aRequest.composeTabID);
     });
     break;
 
+  case "paste-clipping-usr-fmt":
+    return Promise.resolve(
+      pasteProcessedClipping(
+        aRequest.processedContent, aRequest.composeTabID, aRequest.pasteFormat
+      )
+    );
+
   case "close-placeholder-prmt-dlg":
     gWndIDs.placeholderPrmt = null;
     break;
 
+  case "close-paste-as-dlg":
+    gWndIDs.pasteAs = null;
+    break;
+    
   case "get-shct-key-prefix-ui-str":
     return Promise.resolve(getShortcutKeyPrefixStr());
 
@@ -2396,7 +2494,10 @@ messenger.runtime.onMessage.addListener(aRequest => {
     break;
 
   case "push-sync-fldr-updates":
-    return pushSyncFolderUpdates();
+    return Promise.resolve(pushSyncFolderUpdates());
+
+  case "check-sync-data-size":
+    return Promise.resolve(isRecvNativeMessageSizeUnderMax(aRequest.syncData));
     
   case "purge-fldr-items":
     return purgeFolderItems(aRequest.folderID);

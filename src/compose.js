@@ -7,8 +7,9 @@
 const DEBUG = false;
 const HTMLPASTE_AS_FORMATTED = 1;
 const HTMLPASTE_AS_IS = 2;
+const HTMLPASTE_AS_PLAIN = 3;
 
-let gShowPastePrompt = false;
+let gPasteAsQuoted = false;
 
 
 //
@@ -60,12 +61,12 @@ browser.runtime.onMessage.addListener(aMessage => {
     insertClipping(aMessage.content, aMessage.isPlainText, aMessage.htmlPaste, aMessage.autoLineBreak, aMessage.pasteAsQuoted);
     break;
 
-  case "set-paste-prompt-pref":
-    gShowPastePrompt = aMessage.showPastePrompt;
+  case "set-paste-as-quoted-pref":
+    gPasteAsQuoted = aMessage.pasteAsQuoted;
     break;
 
-  case "get-paste-prompt-pref":
-    resp = gShowPastePrompt;
+  case "get-paste-as-quoted-pref":
+    resp = gPasteAsQuoted;
     break;
     
   default:
@@ -84,10 +85,9 @@ browser.runtime.onMessage.addListener(aMessage => {
 
 function insertTextIntoPlainTextEditor(aClippingText, aIsQuoted)
 {
-  let hasHTMLTags = aClippingText.search(/<[a-z1-6]+( [a-z]+(\="?.*"?)?)*>/i) != -1;
   let clippingText = aClippingText;
 
-  if (hasHTMLTags) {
+  if (hasHTMLTags(aClippingText)) {
     clippingText = clippingText.replace(/&/g, "&amp;");
     clippingText = clippingText.replace(/</g, "&lt;");
     clippingText = clippingText.replace(/>/g, "&gt;");
@@ -125,11 +125,11 @@ function insertTextIntoRichTextEditor(aClippingText, aAutoLineBreak, aPasteMode,
 {
   log("Clippings/mx::compose.js: >> insertTextIntoRichTextEditor()");
 
-  let hasHTMLTags = aClippingText.search(/<[a-z1-6]+( [a-z]+(\="?.*"?)?)*>/i) != -1;
+  let isHTMLFormatted = hasHTMLTags(aClippingText);
   let hasRestrictedHTMLTags = aClippingText.search(/<\?|<%|<!DOCTYPE|(<\b(html|head|body|meta|script|applet|embed|object|i?frame|frameset)\b)/i) != -1;
   let clippingText = aClippingText;
 
-  if (hasHTMLTags) {
+  if (isHTMLFormatted) {
     if (hasRestrictedHTMLTags || aPasteMode == HTMLPASTE_AS_IS) {
       clippingText = clippingText.replace(/&/g, "&amp;");
       clippingText = clippingText.replace(/</g, "&lt;");
@@ -150,8 +150,46 @@ function insertTextIntoRichTextEditor(aClippingText, aAutoLineBreak, aPasteMode,
     }
   }
 
-  let hasLineBreakTags = clippingText.search(/<br|<p/i) != -1;
-  if (aAutoLineBreak && !hasLineBreakTags) {
+  if (aPasteMode == HTMLPASTE_AS_FORMATTED) {
+    let hasLineBreakTags = clippingText.search(/<br|<p/i) != -1;
+    if (aAutoLineBreak && !hasLineBreakTags) {
+      clippingText = clippingText.replace(/\n/g, "<br>");
+    }
+  }
+
+  log("Clippings/mx::compose.js: insertTextIntoRichTextEditor(): Clipping content #1:");
+  log(clippingText);
+
+  if (aPasteMode == HTMLPASTE_AS_PLAIN && isHTMLFormatted) {
+    let isConvFailed = false;
+    try {
+      clippingText = jQuery(clippingText).text();
+
+      log("Clippings/mx::compose.js: insertTextIntoRichTextEditor(): Clipping content #2:");
+      log(clippingText);
+    }
+    catch (e) {
+      // Clipping text may contain partial HTML. Try again by enclosing the
+      // content in HTML tags.
+      isConvFailed = true;
+    }
+
+    if (isConvFailed) {
+      let content = "<div>" + clippingText + "</div>";
+      try {
+        clippingText = jQuery(content).text();
+
+        log("Clippings/mx::compose.js: insertTextIntoRichTextEditor(): Clipping content #3:");
+        log(clippingText);
+      }
+      catch (e) {
+        // Clipping text contains unrecognized markup, e.g. PHP or ASP.net tags.
+        // In this case, keep the clipping content intact.
+        console.warn("Clippings/mx::compose.js: insertTextIntoRichTextEditor(): Unable to strip HTML tags from clipping content!\n" + e);
+      }
+    }
+
+    // Preserve line breaks.
     clippingText = clippingText.replace(/\n/g, "<br>");
   }
 
@@ -168,6 +206,13 @@ function insertTextIntoRichTextEditor(aClippingText, aAutoLineBreak, aPasteMode,
   range.collapse();
 
   return true;
+}
+
+
+function hasHTMLTags(aClippingText)
+{
+  let rv = aClippingText.search(/<[a-z1-6]+( [a-z\-]+(\="?.*"?)?)*>/i) != -1;
+  return rv;
 }
 
 

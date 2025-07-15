@@ -21,13 +21,33 @@ let gSyncedItemsIDMap = new Map();
 let gIsBackupMode = false;
 let gErrorPushSyncItems = false;
 let gReorderedTreeNodeNextSibling = null;
+let gWndID;
 
+let gPermissionReq = {
+  _extPerm: null,
+  _execActionID: null,
 
-// DOM utility
-function sanitizeHTML(aHTMLStr)
-{
-  return DOMPurify.sanitize(aHTMLStr, {SAFE_FOR_JQUERY: true});
-}
+  set(aExtPermission, aExecActionID)
+  {
+    this._extPerm = aExtPermission;
+    this._execActionID = aExecActionID;
+  },
+
+  get()
+  {
+    let rv = {
+      extPerm: this._extPerm,
+      execActionID: this._execActionID,
+    };
+    return rv;
+  },
+
+  clear()
+  {
+    this._extPerm = null;
+    this._execActionID = null;
+  },
+};
 
 
 // Wrappers to database create/update/delete operations. These also call the
@@ -606,7 +626,7 @@ let gSyncClippingsListener = {
   {
     log("Clippings/mx::clippingsMgr.js::gSyncClippingsListener.onActivate()");
     aeDialog.cancelDlgs();
-    gDialogs.reloadSyncFolder.showModal();
+    gCmd.reloadSyncFolderIntrl();
   },
   
   onDeactivate(aOldSyncFolderID)
@@ -672,7 +692,7 @@ let gSearchBox = {
       });
     });
 
-    $("#clear-search").click(aEvent => { this.reset() });
+    $("#clear-search").on("click", aEvent => { this.reset() });
 
     this._isInitialized = true;
   },
@@ -907,6 +927,51 @@ let gReloadSyncFldrBtn = {
     return $("#clippings-tree > ul.ui-fancytree > li > span.ae-synced-clippings-fldr");
   },
 };
+
+
+// Instant editing for clipping name and text - ensures that undo and redo
+// works correctly when invoked via keyboard shortcut.
+let gClippingNameEditor, gClippingContentEditor;
+
+class InstantEditor
+{
+  EDIT_INTERVAL = 3000;
+  
+  _stor = null;
+  _intvID = null;
+  _prevVal = '';
+
+  constructor(aStor)
+  {
+    this._stor = aStor;
+    
+    $(this._stor).on("focus", aEvent => {
+      this._intvID = setInterval(() => {
+        if ($(this._stor).val() == this._prevVal) {
+          return;
+        }
+
+        let tree = aeClippingsTree.getTree();
+        let selectedNode = tree.activeNode;
+        let clippingID = parseInt(selectedNode.key);
+
+        if (this._stor == "#clipping-text") {
+          gCmd.editClippingContentIntrl(clippingID, $(this._stor).val(), gCmd.UNDO_STACK);
+        }
+        else if (this._stor == "#clipping-name") {
+          gCmd.editClippingNameIntrl(clippingID, $(this._stor).val(), gCmd.UNDO_STACK);
+        }
+
+        this._prevVal = $(this._stor).val();
+      }, this.EDIT_INTERVAL);
+
+    }).on("blur", aEvent => {
+      clearInterval(this._intvID);
+      this._intvID = null;
+      this._prevVal = '';
+    });
+  }
+}
 
 
 // Clippings Manager commands
@@ -1313,6 +1378,7 @@ let gCmd = {
         gSyncedItemsIDs.add(aNewClippingID + "C");
         gSyncedItemsIDMap.set(newClipping.sid, aNewClippingID + "C");
         messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"})
+          .then(handlePushSyncUpdatesResponse)
           .catch(handlePushSyncItemsError);
       }
     });
@@ -1376,6 +1442,7 @@ let gCmd = {
         gSyncedItemsIDs.add(aNewClippingID + "C");
         gSyncedItemsIDMap.set(newClipping.sid, aNewClippingID + "C");
         messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"})
+          .then(handlePushSyncUpdatesResponse)
           .catch(handlePushSyncItemsError);
       }
     });
@@ -1385,8 +1452,14 @@ let gCmd = {
   {
     let perms = await messenger.permissions.getAll();
     if (! perms.permissions.includes("clipboardRead")) {
-      gDialogs.requestExtPerm.setPermission("clipboardRead");
-      gDialogs.requestExtPerm.showModal();
+      if (gPrefs.newExtPermRequestFlow) {
+        gPermissionReq.set("clipboardRead", "new-from-clipbd");
+        await this._openExtPermissionPg();
+      }
+      else {
+        gDialogs.requestExtPerm.setPermission("clipboardRead");
+        gDialogs.requestExtPerm.showModal();
+      }
       return;
     }
 
@@ -1493,6 +1566,7 @@ let gCmd = {
         gSyncedItemsIDs.add(aNewFolderID + "F");
         gSyncedItemsIDMap.set(newFolder.sid, aNewFolderID + "F");
         messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"})
+          .then(handlePushSyncUpdatesResponse)
           .catch(handlePushSyncItemsError);
       }
     });
@@ -1802,8 +1876,10 @@ let gCmd = {
     if (gSyncedItemsIDs.has(parentFolderID + "F")) {
       gSyncedItemsIDs.add(newSeparatorID + "C");
       gSyncedItemsIDMap.set(newSeparator.sid, newSeparatorID + "C");
+      let resp;
       try {
-        await messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"});
+        resp = await messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"});
+        handlePushSyncUpdatesResponse(resp);
       }
       catch (e) {
         handlePushSyncItemsError(e);
@@ -1909,7 +1985,7 @@ let gCmd = {
 
         if (gSyncedItemsIDs.has(aNewParentFldrID + "F")
             || gSyncedItemsIDs.has(oldParentFldrID + "F")) {
-          messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
+          messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(aResp => {
             // Remove clipping from synced items set if it was moved out of a
             // synced folder.
             if (gSyncedItemsIDs.has(aClippingID + "C")
@@ -1924,6 +2000,7 @@ let gCmd = {
               gSyncedItemsIDMap.set(sid, aClippingID + "C");
             }
             this._pushToUndoStack(aDestUndoStack, state);
+            handlePushSyncUpdatesResponse(aResp);
             aFnResolve();
           }).catch(handlePushSyncItemsError);
         }
@@ -2016,9 +2093,10 @@ let gCmd = {
       }
 
       if (gSyncedItemsIDs.has(aDestFldrID + "F")) {
-        messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
+        messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(aResp => {
           gSyncedItemsIDs.add(aNewClippingID + "C");
           gSyncedItemsIDMap.set(sid, aNewClippingID + "C");
+          handlePushSyncUpdatesResponse(aResp);
         }).catch(handlePushSyncItemsError);
       }
     }).catch(aErr => {
@@ -2110,7 +2188,7 @@ let gCmd = {
 
         if (gSyncedItemsIDs.has(aNewParentFldrID + "F")
             || gSyncedItemsIDs.has(oldParentFldrID + "F")) {
-          messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
+          messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(aResp => {
             if (gSyncedItemsIDs.has(aFolderID + "F")
                 && !gSyncedItemsIDs.has(aNewParentFldrID + "F")) {
               gSyncedItemsIDs.delete(aFolderID + "F");
@@ -2122,6 +2200,7 @@ let gCmd = {
               gSyncedItemsIDMap.set(sid, aFolderID + "F");
             }
             this._pushToUndoStack(aDestUndoStack, state);
+            handlePushSyncUpdatesResponse(aResp);
             aFnResolve();
           }).catch(handlePushSyncItemsError);
         }
@@ -2225,9 +2304,10 @@ let gCmd = {
       }
 
       if (gSyncedItemsIDs.has(aDestFldrID + "F")) {
-        messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
+        messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(aResp => {
           gSyncedItemsIDs.add(newFldrID + "F");
           gSyncedItemsIDMap.set(sid, newFldrID + "F");
+          handlePushSyncUpdatesResponse(aResp);
         }).catch(handlePushSyncItemsError);
       }
 
@@ -2287,7 +2367,8 @@ let gCmd = {
         }
 
         if (gSyncedItemsIDs.has(aFolderID + "F")) {
-          messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
+          messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(aResp => {
+            handlePushSyncUpdatesResponse(aResp);
             aFnResolve();
           }).catch(aErr => {
             handlePushSyncItemsError(aErr);
@@ -2347,7 +2428,8 @@ let gCmd = {
         }
 
         if (gSyncedItemsIDs.has(aClippingID + "C")) {
-          messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
+          messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(aResp => {
+            handlePushSyncUpdatesResponse(aResp);
             aFnResolve();
           }).catch(aErr => {
             handlePushSyncItemsError(aErr);
@@ -2407,7 +2489,8 @@ let gCmd = {
         }
 
         if (gSyncedItemsIDs.has(aClippingID + "C")) {
-          messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
+          messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(aResp => {
+            handlePushSyncUpdatesResponse(aResp);
             aFnResolve();
           }).catch(aErr => {
             handlePushSyncItemsError(aErr);
@@ -2473,7 +2556,9 @@ let gCmd = {
       }
 
       if (gSyncedItemsIDs.has(aClippingID + "C")) {
-        return messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"});
+        messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(aResp => {
+          handlePushSyncUpdatesResponse(aResp);
+        }).catch(handlePushSyncItemsError);
       }
     }).catch(aErr => {
       handlePushSyncItemsError(aErr);
@@ -2754,6 +2839,17 @@ let gCmd = {
     });
   },
   
+  backupExtern()
+  {
+    if (aeDialog.isOpen()) {
+      // Don't interrupt any dialogs that may be open when the user clicked the
+      // backup reminder notification.
+      return;
+    }
+
+    this.backup();
+  },
+
   async restoreFromBackup()
   {
     // Disallow if New Clipping dialog is open to prevent errors due to saving
@@ -2801,9 +2897,21 @@ let gCmd = {
       msgID: "refresh-synced-clippings",
       rebuildClippingsMenu: false,
     });
-    
+
     aeDialog.cancelDlgs();
-    gDialogs.reloadSyncFolder.showModal();
+    await this.reloadSyncFolderIntrl();
+  },
+
+  async reloadSyncFolderIntrl()
+  {
+    let afterSyncFldrReloadDelay = await aePrefs.getPref("afterSyncFldrReloadDelay");
+    
+    gDialogs.syncProgress.showModal(false);
+
+    setTimeout(async () => {
+      await rebuildClippingsTree();
+      gDialogs.syncProgress.close();
+    }, afterSyncFldrReloadDelay);
   },
   
   showMiniHelp: function ()
@@ -3192,7 +3300,35 @@ let gCmd = {
       this.redoStack.push(aState);
     }
   },
+
+  async _openExtPermissionPg()
+  {
+    let resp;
+    try {
+      resp = await messenger.runtime.sendMessage({msgID: "ping-perms-req-pg"});
+    }
+    catch {}
+
+    if (resp) {
+      messenger.runtime.sendMessage({msgID: "reload-perms-req-pg"});
+    }
+    else {
+      messenger.tabs.create({
+        url: "permission.html?openerWndID=" + gWndID,
+        active: true,
+      });
+    }
+  },
 };
+
+
+function handlePushSyncUpdatesResponse(aResponse)
+{
+  if ("error" in aResponse && aResponse.error.name == "RangeError") {
+    // Max sync file size exceeded.
+    gDialogs.syncFldrFull.showModal();
+  }
+}
 
 
 // Initializing Clippings Manager window
@@ -3273,6 +3409,8 @@ $(async () => {
     width: wnd.width + 1,
     focused: true,
   });
+
+  gWndID = wnd.id;
 });
 
 
@@ -3300,7 +3438,7 @@ $(window).on("unload", aEvent => {
 
 
 // Keyboard event handler
-$(document).keydown(async (aEvent) => {
+$(document).on("keydown", async (aEvent) => {
   const isMacOS = gEnvInfo.os == "mac";
 
   function isAccelKeyPressed()
@@ -3328,6 +3466,7 @@ $(document).keydown(async (aEvent) => {
     gCmd.showMiniHelp();
   }
   else if (aEvent.key == "F2") {
+    aEvent.preventDefault();
     gCmd.redo();
   }
   else if (aEvent.key == "Enter") {
@@ -3366,6 +3505,9 @@ $(document).keydown(async (aEvent) => {
       gSearchBox.reset();
     }
     aeDialog.cancelDlgs();
+  }
+  else if (aEvent.key == "Clear" && gSearchBox.isActivated()) {
+    gSearchBox.reset();
   }
   else if (aEvent.key == "Delete") {
     if (aEvent.target.tagName == "UL" && aEvent.target.classList.contains("ui-fancytree")) {
@@ -3406,8 +3548,14 @@ $(document).keydown(async (aEvent) => {
   else if (aEvent.key.toUpperCase() == "W" && isAccelKeyPressed()) {
     closeWnd();
   }
-  else if (aEvent.key.toUpperCase() == "Z" && isAccelKeyPressed()) {
+  else if (aEvent.key.toUpperCase() == "Z" && isAccelKeyPressed() && !aEvent.shiftKey) {
+    aEvent.preventDefault();
     gCmd.undo();
+  }
+  else if ((aEvent.key.toUpperCase() == "Z" && isAccelKeyPressed() && aEvent.shiftKey)
+           || (aEvent.key.toUpperCase() == "Y" && isAccelKeyPressed())) {
+    aEvent.preventDefault();
+    gCmd.redo();
   }
   else {
     // Ignore standard browser shortcut keys.
@@ -3478,6 +3626,15 @@ messenger.runtime.onMessage.addListener(aRequest => {
     focusWnd();
     break;
 
+  case "focus-ext-window":
+    if (aRequest.wndID == gWndID) {
+      focusWnd();
+    }
+    if (aRequest.execActionMsgID == "new-from-clipbd") {
+      gCmd.newClippingFromClipboard();
+    }
+    break;
+
   case "sync-activated":
     gSyncClippingsListener.onActivate(aRequest.syncFolderID);
     break;
@@ -3496,6 +3653,17 @@ messenger.runtime.onMessage.addListener(aRequest => {
 
   case "new-folder-created":
     gClippingsListener.newFolderCreated(aRequest.newFolderID, aRequest.newFolder, aRequest.origin);
+    break;
+
+  case "clippings-mgr-save-backup":
+    gCmd.backupExtern();
+    break;
+
+  case "get-perm-req-key":
+    if (aRequest.opener == gWndID) {
+      resp = gPermissionReq.get();
+      gPermissionReq.clear();
+    }      
     break;
 
   default:
@@ -3526,18 +3694,18 @@ function initToolbar()
     recalcContentAreaHeight($("#status-bar").css("display") != "none");
   }
 
-  $("#new-clipping").click(aEvent => { gCmd.newClipping(gCmd.UNDO_STACK) });
-  $("#new-folder").click(aEvent => { gCmd.newFolder(gCmd.UNDO_STACK) });
-  $("#move").attr("title", messenger.i18n.getMessage("tbMoveOrCopy")).click(aEvent => {
+  $("#new-clipping").on("click", aEvent => { gCmd.newClipping(gCmd.UNDO_STACK) });
+  $("#new-folder").on("click", aEvent => { gCmd.newFolder(gCmd.UNDO_STACK) });
+  $("#move").attr("title", messenger.i18n.getMessage("tbMoveOrCopy")).on("click", aEvent => {
     gCmd.moveClippingOrFolder();
   });
-  $("#delete").attr("title", messenger.i18n.getMessage("tbDelete")).click(aEvent => {
+  $("#delete").attr("title", messenger.i18n.getMessage("tbDelete")).on("click", aEvent => {
     gCmd.deleteClippingOrFolder(gCmd.UNDO_STACK);
   });
-  $("#undo").attr("title", messenger.i18n.getMessage("tbUndo")).click(aEvent => {
+  $("#undo").attr("title", messenger.i18n.getMessage("tbUndo")).on("click", aEvent => {
     gCmd.undo();
   });
-  $("#help").attr("title", messenger.i18n.getMessage("tbHelp")).click(aEvent => {
+  $("#help").attr("title", messenger.i18n.getMessage("tbHelp")).on("click", aEvent => {
     gCmd.showMiniHelp();
   });
 
@@ -3609,6 +3777,46 @@ function initToolbar()
         gCmd.insertClippingInClippingPlaceholder();
         break;
 
+      case "insSubject":
+        insertPlaceholder("$[SUBJECT]");
+        break;
+
+      case "insToNameEmail":
+        insertPlaceholder("$[TO]");
+        break;
+        
+      case "insToName":
+        insertPlaceholder("$[TO_NAME]");
+        break;
+
+      case "insToEmail":
+        insertPlaceholder("$[TO_EMAIL]");
+        break;
+
+      case "insCcNameEmail":
+        insertPlaceholder("$[CC]");
+        break;
+
+      case "insCcName":
+        insertPlaceholder("$[CC_NAME]");
+        break;
+
+      case "insCcEmail":
+        insertPlaceholder("$[CC_EMAIL]");
+        break;
+
+      case "insFromNameEmail":
+        insertPlaceholder("$[FROM]");
+        break;
+
+      case "insFromName":
+        insertPlaceholder("$[FROM_NAME]");
+        break;
+
+      case "insFromEmail":
+        insertPlaceholder("$[FROM_EMAIL]");
+        break;
+
       default:
         window.alert("The selected action is not available right now.");
         break;
@@ -3647,6 +3855,62 @@ function initToolbar()
       },
       insClippingInClipping: {
         name: messenger.i18n.getMessage("mnuPlchldrClipClip"),
+        className: "ae-menuitem"
+      },
+      separator2: "--------",
+      toSubmenu: {
+        name: messenger.i18n.getMessage("mnuPlchldrTo"),
+        items: {
+          insToNameEmail: {
+            name: messenger.i18n.getMessage("mnuPlchldrNameEmail"),
+            className: "ae-menuitem"
+          },
+          insToName: {
+            name: messenger.i18n.getMessage("mnuPlchldrName"),
+            className: "ae-menuitem"
+          },
+          insToEmail: {
+            name: messenger.i18n.getMessage("mnuPlchldrEmail"),
+            className: "ae-menuitem"
+          },
+        },
+      },
+      ccSubmenu: {
+        name: messenger.i18n.getMessage("mnuPlchldrCc"),
+        items: {
+          insCcNameEmail: {
+            name: messenger.i18n.getMessage("mnuPlchldrNameEmail"),
+            className: "ae-menuitem"
+          },
+          insCcName: {
+            name: messenger.i18n.getMessage("mnuPlchldrName"),
+            className: "ae-menuitem"
+          },
+          insCcEmail: {
+            name: messenger.i18n.getMessage("mnuPlchldrEmail"),
+            className: "ae-menuitem"
+          },
+        },
+      },
+      fromSubmenu: {
+        name: messenger.i18n.getMessage("mnuPlchldrFrom"),
+        items: {
+          insFromNameEmail: {
+            name: messenger.i18n.getMessage("mnuPlchldrNameEmail"),
+            className: "ae-menuitem"
+          },
+          insFromName: {
+            name: messenger.i18n.getMessage("mnuPlchldrName"),
+            className: "ae-menuitem"
+          },
+          insFromEmail: {
+            name: messenger.i18n.getMessage("mnuPlchldrEmail"),
+            className: "ae-menuitem"
+          },
+        },
+      },
+      insSubject: {
+        name: messenger.i18n.getMessage("mnuPlchldrSubj"),
         className: "ae-menuitem"
       },
     }
@@ -3824,9 +4088,9 @@ function initToolbar()
   aeInterxn.initContextMenuAriaRoles(".placeholder-menu");
   aeInterxn.initContextMenuAriaRoles(".tools-menu");
   
-  $("#custom-plchldr").click(aEvent => { gCmd.insertCustomPlaceholder() });
-  $("#auto-incr-plchldr").click(aEvent => { gCmd.insertNumericPlaceholder() });
-  $("#show-shortcut-list").click(aEvent => { gCmd.showShortcutList() });
+  $("#custom-plchldr").on("click", aEvent => { gCmd.insertCustomPlaceholder() });
+  $("#auto-incr-plchldr").on("click", aEvent => { gCmd.insertNumericPlaceholder() });
+  $("#show-shortcut-list").on("click", aEvent => { gCmd.showShortcutList() });
 
   gSearchBox.init();
 
@@ -3919,11 +4183,15 @@ function initInstantEditing()
 
       contentAutoSave.stop();
     });
+
+  gClippingNameEditor = new InstantEditor("#clipping-name");
+  gClippingContentEditor = new InstantEditor("#clipping-text");
 }
 
 
 function initIntroBannerAndHelpDlg()
 {
+  const isWin = gEnvInfo.os == "win";
   const isMacOS = gEnvInfo.os == "mac";
   const isLinux = gEnvInfo.os == "linux";
 
@@ -3933,10 +4201,17 @@ function initIntroBannerAndHelpDlg()
     if (isMacOS) {
       shctKeys = [
         "\u2326", "esc", "\u2318D", "\u2318F", "\u2318W", "\u2318Z", "F1",
-        "F2", "\u2318F10"
+        "F2 / \u21e7\u2318Z", "\u2318F10"
       ];
     }
     else {
+      let altRedo;
+      if (isWin) {
+        altRedo = `${messenger.i18n.getMessage("keyCtrl")}+Y`;
+      }
+      else {
+        altRedo = `${messenger.i18n.getMessage("keyCtrl")}+${messenger.i18n.getMessage("keyShift")}+Z`;
+      }
       shctKeys = [
         messenger.i18n.getMessage("keyDel"),
         messenger.i18n.getMessage("keyEsc"),
@@ -3945,18 +4220,23 @@ function initIntroBannerAndHelpDlg()
         `${messenger.i18n.getMessage("keyCtrl")}+W`,
         `${messenger.i18n.getMessage("keyCtrl")}+Z`,
         "F1",
-        "F2",
+        `F2 / ${altRedo}`,
         `${messenger.i18n.getMessage("keyCtrl")}+F10`,
       ];
     }
 
-    function buildKeyMapTableRow(aShctKey, aCmdL10nStrIdx)
+    function buildKeyMapTableRow(aShctKey, aCmdL10nStrIdx, aIsCompactKey=false)
     {
       let tr = document.createElement("tr");
       let tdKey = document.createElement("td");
       let tdCmd = document.createElement("td");
       tdKey.appendChild(document.createTextNode(aShctKey));
       tdCmd.appendChild(document.createTextNode(messenger.i18n.getMessage(aCmdL10nStrIdx)));
+
+      if (aIsCompactKey) {
+        tdKey.className = "condensed";
+      }
+
       tr.appendChild(tdKey);
       tr.appendChild(tdCmd);
 
@@ -3970,7 +4250,7 @@ function initIntroBannerAndHelpDlg()
     aTableDOMElt.appendChild(buildKeyMapTableRow(shctKeys[4], "clipMgrIntroCmdClose"));
     aTableDOMElt.appendChild(buildKeyMapTableRow(shctKeys[5], "clipMgrIntroCmdUndo"));
     aTableDOMElt.appendChild(buildKeyMapTableRow(shctKeys[6], "clipMgrIntroCmdShowIntro"));
-    aTableDOMElt.appendChild(buildKeyMapTableRow(shctKeys[7], "clipMgrIntroCmdRedo"));
+    aTableDOMElt.appendChild(buildKeyMapTableRow(shctKeys[7], "clipMgrIntroCmdRedo", isLinux));
 
     if (! isLinux) {
       aTableDOMElt.appendChild(buildKeyMapTableRow(shctKeys[8], "clipMgrIntroCmdMaximize"));
@@ -4064,7 +4344,7 @@ function initDialogs()
       clippingNameColHdr: messenger.i18n.getMessage("expHTMLClipNameCol"),
     });
 
-    $("#export-shct-list").click(aEvent => {
+    $("#export-shct-list").on("click", aEvent => {
       aeImportExport.getShortcutKeyListHTML(true).then(aHTMLData => {
         let blobData = new Blob([aHTMLData], { type: "text/html;charset=utf-8"});
         let downldOpts = {
@@ -4555,7 +4835,7 @@ function initDialogs()
       }
     });
 
-    $("#export-incl-separators").click(aEvent => {
+    $("#export-incl-separators").on("click", aEvent => {
       this.inclSeparators = aEvent.target.checked;
     });
   };
@@ -4704,25 +4984,6 @@ function initDialogs()
     }
   };
   
-  gDialogs.reloadSyncFolder = new aeDialog("#reload-sync-fldr-msgbox");
-  gDialogs.reloadSyncFolder.onFirstInit = function ()
-  {
-    this.focusedSelector = ".dlg-btns > .dlg-accept";
-  };
-  gDialogs.reloadSyncFolder.onAfterAccept = function ()
-  {
-    rebuildClippingsTree();
-  };
-  gDialogs.reloadSyncFolder.onUnload = function ()
-  {
-    if (gDialogs.showOnlySyncedItemsReminder.isDelayedOpen) {
-      gDialogs.showOnlySyncedItemsReminder.isDelayedOpen = false;
-      setTimeout(() => {
-        gDialogs.showOnlySyncedItemsReminder.showModal();
-      }, 800);
-    }
-  };
-
   gDialogs.moveTo = new aeDialog("#move-dlg");
   gDialogs.moveTo.setProps({
     fldrTree: null,
@@ -4749,7 +5010,7 @@ function initDialogs()
 
   gDialogs.moveTo.onFirstInit = function ()
   {
-    $("#copy-instead-of-move").click(aEvent => {
+    $("#copy-instead-of-move").on("click", aEvent => {
       if (aEvent.target.checked) {
         if (getClippingsTree().activeNode.folder) {
           $("#move-to-label").text(messenger.i18n.getMessage("labelCopyFolder"));
@@ -4824,7 +5085,7 @@ function initDialogs()
     // Only allow copying a clipping or folder out of Synced Clippings folder
     // if sync file is read-only.
     if (gPrefs.syncClippings && gPrefs.isSyncReadOnly && isSyncedItem) {
-      $("#copy-instead-of-move").click().prop("disabled", true);
+      $("#copy-instead-of-move").trigger("click").prop("disabled", true);
     }
   };
 
@@ -4925,6 +5186,8 @@ function initDialogs()
     }, 100);
   };
 
+  gDialogs.syncProgress = new aeDialog("#sync-progress");
+  gDialogs.syncFldrFull = new aeDialog("#sync-fldr-full-error-msgbox");
   gDialogs.syncFldrReadOnly = new aeDialog("#sync-file-readonly-msgbar");
 
   gDialogs.miniHelp = new aeDialog("#mini-help-dlg");
@@ -6040,6 +6303,16 @@ function showBanner(aMessage)
 
 
 //
+// DOM Utility
+//
+
+function sanitizeHTML(aHTMLStr)
+{
+  return DOMPurify.sanitize(aHTMLStr, {SAFE_FOR_JQUERY: true});
+}
+
+
+//
 // Error reporting and debugging output
 //
 
@@ -6078,7 +6351,10 @@ function getErrStr(aErr)
 
 function handlePushSyncItemsError(aError)
 {
-  if (! gErrorPushSyncItems) {
+  if (!gErrorPushSyncItems) {
+    // Show sync errors only once during the Clippings Manager session.
+    // Pushing sync changes can happen numerous times, and repeated error
+    // messages will annoy the user.
     let errorMsgBox = new aeDialog("#sync-error-msgbox");
     errorMsgBox.onInit = function () {
       this.find(".dlg-content > .msgbox-error-msg").text(messenger.i18n.getMessage("syncPushFailed"));

@@ -48,9 +48,18 @@ class aeDialog
 
   _init()
   {
+    // Insert dialog backdrop overlay <div> element.
+    let backdrop = $("#lightbox-bkgrd-ovl");
+    if (backdrop.length == 0) {
+      let backdropElt = document.createElement("div");
+      backdropElt.id = "lightbox-bkgrd-ovl";
+      backdropElt.className = "lightbox-bkgrd";
+      $(".lightbox").last().after($(backdropElt));
+    }
+    
     let dlgAcceptElt = $(`${this._dlgEltStor} > .dlg-btns > .dlg-accept`);
     if (dlgAcceptElt.length > 0) {
-      dlgAcceptElt.click(aEvent => {
+      dlgAcceptElt.on("click", aEvent => {
         if (aEvent.target.disabled) {
           return;
         }
@@ -61,7 +70,7 @@ class aeDialog
 
     let dlgCancelElt = $(`${this._dlgEltStor} > .dlg-btns > .dlg-cancel`);
     if (dlgCancelElt.length > 0) {
-      dlgCancelElt.click(aEvent => {
+      dlgCancelElt.on("click", aEvent => {
         if (aEvent.target.disabled) {
           return;
         }
@@ -267,6 +276,11 @@ class aeDialog
     
     return (dlgCancelElt.length == 0 && dlgAcceptElt.length > 0);
   }
+
+  isOpen()
+  {
+    return this._dlgElt.hasClass("lightbox-show");    
+  }
   
   static isOpen()
   {
@@ -279,7 +293,7 @@ class aeDialog
 
     if (openDlgElts.length > 0) {
       // Normally there should just be 1 dialog open at a time.
-      $(".lightbox.lightbox-show .dlg-accept:not(:disabled)").click();
+      $(".lightbox.lightbox-show .dlg-accept:not(:disabled)").trigger("click");
     }
 
     this.hidePopups();
@@ -293,7 +307,7 @@ class aeDialog
       // Normally there should just be 1 dialog open at a time.
       let cancelBtnElt = $(".lightbox.lightbox-show .dlg-cancel:not(:disabled)");
       if (cancelBtnElt.length > 0) {
-        cancelBtnElt.click();
+        cancelBtnElt.trigger("click");
       }
       else {
         // Dialog only has an OK, Close or Done button.
