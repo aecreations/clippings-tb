@@ -2072,17 +2072,37 @@ async function processHTMLFormattedClipping(aClippingName, aClippingContent, aCo
   let isHTMLFormatted = aeClippings.hasHTMLTags(aClippingContent);
   let compInfo = await messenger.compose.getComposeDetails(aComposeTabID);
 
-  if (isHTMLFormatted && !compInfo.isPlainText) {
+  if (isHTMLFormatted) {
     if (gPrefs.htmlPaste == aeConst.HTMLPASTE_ASK_THE_USER) {
-      gPasteAs.set(aClippingName, aClippingContent);
-      openPasteAsDlg(aComposeTabID);
+      if (compInfo.isPlainText) {
+        await pasteProcessedClipping(aClippingContent, aComposeTabID, aeConst.HTMLPASTE_AS_IS);
+      }
+      else {
+        // Show Paste As HTML format dialog.
+        gPasteAs.set(aClippingName, aClippingContent);
+        openPasteAsDlg(aComposeTabID);
+      }
     }
     else {
       await pasteProcessedClipping(aClippingContent, aComposeTabID);
     }    
   }
   else {
-    await pasteProcessedClipping(aClippingContent, aComposeTabID);
+    // Plain-text clipping.
+    if (gPrefs.htmlPaste == aeConst.HTMLPASTE_ASK_THE_USER) {
+      let pasteFmtOverride;
+      if (compInfo.isPlainText) {
+        pasteFmtOverride = aeConst.HTMLPASTE_AS_IS;
+      }
+      else {
+        // Paste as if it were formatted as HTML to handle line breaks.
+        pasteFmtOverride = aeConst.HTMLPASTE_AS_FORMATTED;
+      }
+      await pasteProcessedClipping(aClippingContent, aComposeTabID, pasteFmtOverride);
+    }
+    else {
+      await pasteProcessedClipping(aClippingContent, aComposeTabID);
+    }
   }
 }
 
