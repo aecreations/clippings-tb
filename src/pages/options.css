@@ -579,16 +579,20 @@ body[data-locale="fr"] #html-auto-line-break-label {
     --height: 234px;
 }
 
+body[data-os="linux"] #wnds-dlgs-opts-dlg {
+    --height: 308px;
+}
+
+body[data-os="linux"][data-locale="de"] #wnds-dlgs-opts-dlg {
+    --height: 324px;
+}
+
 body[data-locale="fr"] #wnds-dlgs-opts-dlg {
     --width: 592px;
 }
 
 body[data-locale="de"] #wnds-dlgs-opts-dlg {
     --width: 540px;
-}
-
-body[data-locale="de"][data-os="linux"] #wnds-dlgs-opts-dlg {
-    --height: 324px;
 }
 
 body[data-locale|="es"] #wnds-dlgs-opts-dlg,
@@ -626,7 +630,7 @@ body[data-os="mac"] #wnds-dlgs-opts-dlg #wnds-dlgs-opts-exp-warn .warning-icon {
     border-radius: 4px;
 }
 
-body[data-locale="de"][data-os="linux"] #wnds-dlgs-opts-dlg #wnds-dlgs-opts-exp-warn-msg {
+body[data-os="linux"][data-locale="de"] #wnds-dlgs-opts-dlg #wnds-dlgs-opts-exp-warn-msg {
     height: 80px;
 }
 
