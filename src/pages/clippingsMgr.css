@@ -1033,10 +1033,6 @@ body[data-os="win"] .lightbox .msgbox-info-icon {
     top: 18px;
 }
 
-body[data-os="mac"] #shortcut-list-dlg {
-    --height: 320px;
-}
-
 body[data-locale="nl"] #shortcut-list-dlg #shortcut-instrxns {
     letter-spacing: -0.38px;
 }
@@ -1343,14 +1339,29 @@ body[data-locale="de"] #export-dlg #export-format-list-label {
     top: 8px;
 }
 
+body[data-os="win"][data-locale="de"] #mini-help-dlg {
+    --height: 368px;
+    top: 2px;
+}
+
 body[data-os="mac"] #mini-help-dlg {
-    height: 340px;
+    --height: 340px;
     top: 18px;
 }
 
-body[data-locale="de"] #mini-help-dlg {
-    height: 368px;
-    top: 2px;
+Body[data-os="mac"][data-locale="de"] #mini-help-dlg {
+    --height: 356px;
+    top: 8px;
+}
+
+body[data-os="linux"] #mini-help-dlg {
+    --height: 320px;
+    top: 18px;
+}
+
+body[data-os="linux"][data-locale="de"] #mini-help-dlg {
+    --height: 352px;
+    top: 8px;
 }
 
 #shortcut-list-dlg .hlp-hdr,

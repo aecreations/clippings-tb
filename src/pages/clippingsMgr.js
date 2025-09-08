@@ -5191,24 +5191,6 @@ function initDialogs()
   gDialogs.syncFldrReadOnly = new aeDialog("#sync-file-readonly-msgbar");
 
   gDialogs.miniHelp = new aeDialog("#mini-help-dlg");
-  gDialogs.miniHelp.onFirstInit = function ()
-  {
-    const isWindows = osName == "win";
-    let dlgHeight = null;
-
-    if (isWindows) {
-      dlgHeight = "352px";
-    }
-    // Accommodate extra line of text in German locale.
-    if (messenger.i18n.getUILanguage() == "de") {
-      dlgHeight = "368px";
-    }
-
-    if (dlgHeight) {
-      $("#mini-help-dlg").css({ height: dlgHeight });
-    }
-  };
-
   gDialogs.genericMsgBox = new aeDialog("#generic-msg-box");
 }
 
