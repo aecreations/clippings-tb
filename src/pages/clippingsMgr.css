@@ -1045,6 +1045,9 @@ body[data-locale="de"] #shortcut-list-dlg #shortcut-instrxns {
     letter-spacing: -0.32px;
 }
 
+body[data-os="linux"][data-locale="de"] #shortcut-list-dlg #shortcut-instrxns {
+    letter-spacing: -0.4px;
+}
 
 #shortcut-list-dlg > .dlg-btns {
     width: 100%;
