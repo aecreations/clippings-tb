@@ -57,6 +57,10 @@ main {
     text-align: center;
 }
 
+body[data-locale="de"] #ext-logo {
+    width: 310px;
+}
+
 #ext-pg-body {
     order: 2;
     flex: 1 1 auto;

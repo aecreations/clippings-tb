@@ -787,18 +787,34 @@ body[data-os="mac"] .shortcut-key-tbl > tr > td:first-of-type {
 #options-bar > #shortcut-key-select {
     order: 1;
     flex: 0 1 auto;
-    margin-top: 3px;
+
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    align-content: center;
+    align-items: center;
+}
+
+#options-bar > #shortcut-key-select #clipping-key-lbl {
+    order: 1;
+    flex: 0 1 auto;
+    margin-right: 8px;
 }
 
 #options-bar > #shortcut-key-select > #clipping-key {
+    order: 2;
+    flex: 0 1 auto;
     margin-bottom: 0;
     font-size: 12px;
 }
 
 #options-bar > #shortcut-key-select > #show-shortcut-list {
+    order: 3;
+    flex: 0 1 auto;
     width: 28px;
     height: 24px;
-    vertical-align: 5px;
+    margin-left: 4px;
+
     background-image: var(--url-toolbar-btn-img-shct-keys);
     background-position: center;
     background-repeat: no-repeat;
@@ -1017,10 +1033,6 @@ body[data-os="win"] .lightbox .msgbox-info-icon {
     top: 18px;
 }
 
-body[data-os="mac"] #shortcut-list-dlg {
-    --height: 320px;
-}
-
 body[data-locale="nl"] #shortcut-list-dlg #shortcut-instrxns {
     letter-spacing: -0.38px;
 }
@@ -1033,6 +1045,9 @@ body[data-locale="de"] #shortcut-list-dlg #shortcut-instrxns {
     letter-spacing: -0.32px;
 }
 
+body[data-os="linux"][data-locale="de"] #shortcut-list-dlg #shortcut-instrxns {
+    letter-spacing: -0.4px;
+}
 
 #shortcut-list-dlg > .dlg-btns {
     width: 100%;
@@ -1327,14 +1342,29 @@ body[data-locale="de"] #export-dlg #export-format-list-label {
     top: 8px;
 }
 
+body[data-os="win"][data-locale="de"] #mini-help-dlg {
+    --height: 368px;
+    top: 2px;
+}
+
 body[data-os="mac"] #mini-help-dlg {
-    height: 340px;
+    --height: 340px;
     top: 18px;
 }
 
-body[data-locale="de"] #mini-help-dlg {
-    height: 368px;
-    top: 2px;
+Body[data-os="mac"][data-locale="de"] #mini-help-dlg {
+    --height: 356px;
+    top: 8px;
+}
+
+body[data-os="linux"] #mini-help-dlg {
+    --height: 320px;
+    top: 18px;
+}
+
+body[data-os="linux"][data-locale="de"] #mini-help-dlg {
+    --height: 352px;
+    top: 8px;
 }
 
 #shortcut-list-dlg .hlp-hdr,

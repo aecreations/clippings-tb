@@ -579,6 +579,14 @@ body[data-locale="fr"] #html-auto-line-break-label {
     --height: 234px;
 }
 
+body[data-os="linux"] #wnds-dlgs-opts-dlg {
+    --height: 308px;
+}
+
+body[data-os="linux"][data-locale="de"] #wnds-dlgs-opts-dlg {
+    --height: 324px;
+}
+
 body[data-locale="fr"] #wnds-dlgs-opts-dlg {
     --width: 592px;
 }
@@ -622,6 +630,10 @@ body[data-os="mac"] #wnds-dlgs-opts-dlg #wnds-dlgs-opts-exp-warn .warning-icon {
     border-radius: 4px;
 }
 
+body[data-os="linux"][data-locale="de"] #wnds-dlgs-opts-dlg #wnds-dlgs-opts-exp-warn-msg {
+    height: 80px;
+}
+
 body[data-locale="nl"] #wnds-dlgs-opts-dlg #clpmgr-save-wnd-pos-label {
     letter-spacing: -0.18px;
 }
@@ -644,6 +656,10 @@ body[data-locale="nl"] #wnds-dlgs-opts-dlg #clpmgr-save-wnd-pos-label {
     top: 128px;
     --width: 510px;
     --height: 270px;
+}
+
+body[data-locale="de"] #request-native-app-conxn-perm-dlg {
+    --height: 284px;
 }
 
 #sync-clippings-dlg {
