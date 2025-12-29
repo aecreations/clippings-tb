@@ -3313,10 +3313,21 @@ let gCmd = {
       messenger.runtime.sendMessage({msgID: "reload-perms-req-pg"});
     }
     else {
-      messenger.tabs.create({
-        url: "permission.html?openerWndID=" + gWndID,
-        active: true,
-      });
+      try {
+        await messenger.tabs.create({
+          url: "permission.html?openerWndID=" + gWndID,
+          active: true,
+        });
+      }
+      catch (e) {
+        // Exception thrown if the main Thunderbird window isn't open.
+        let wnd = await messenger.windows.create();
+        await messenger.tabs.create({
+          url: "permission.html?openerWndID=" + gWndID,
+          active: true,
+          windowId: wnd.id,
+        });
+      }
     }
   },
 };
