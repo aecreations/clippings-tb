@@ -234,8 +234,8 @@ let gClippingsListener = {
 
     newNode.makeVisible().done(() => {     
       newNode.setActive();
-      $("#clipping-name").val(newClipping.name);
-      $("#clipping-text").val("");
+      $("#clipping-name").val(newClipping.name).focus().select();
+      $("#clipping-text").val('');
 
       // Clipping created outside Clippings Manager. Add to undo stack.
       if (aOrigin == aeConst.ORIGIN_HOSTAPP) {
@@ -317,8 +317,8 @@ let gClippingsListener = {
 
     newNode.makeVisible().done(() => {
       newNode.setActive();
-      $("#clipping-name").val(newFolder.name);
-      $("#clipping-text").val("");
+      $("#clipping-name").val(newFolder.name).focus().select();
+      $("#clipping-text").val('');
 
       // Folder created outside Clippings Manager. Add to undo stack.
       if (aOrigin == aeConst.ORIGIN_HOSTAPP) {
@@ -929,9 +929,9 @@ let gReloadSyncFldrBtn = {
 };
 
 
-// Instant editing for clipping name and text - ensures that undo and redo
-// works correctly when invoked via keyboard shortcut.
-let gClippingNameEditor, gClippingContentEditor;
+// Instant editing for clipping/folder name and clipping text. Ensures that
+// undo and redo works correctly when invoked via keyboard shortcut.
+let gItemNameEditor, gClippingContentEditor;
 
 class InstantEditor
 {
@@ -951,18 +951,26 @@ class InstantEditor
           return;
         }
 
-        let tree = aeClippingsTree.getTree();
+        let tree = getClippingsTree();
         let selectedNode = tree.activeNode;
-        let clippingID = parseInt(selectedNode.key);
 
-        if (this._stor == "#clipping-text") {
-          gCmd.editClippingContentIntrl(clippingID, $(this._stor).val(), gCmd.UNDO_STACK);
+        if (selectedNode.isFolder()) {
+          let fldrID = parseInt(selectedNode.key);
+          if (this._stor == "#clipping-name") {
+            gCmd.editFolderNameIntrl(fldrID, $(this._stor).val(), gCmd.UNDO_STACK);
+          }
         }
-        else if (this._stor == "#clipping-name") {
-          gCmd.editClippingNameIntrl(clippingID, $(this._stor).val(), gCmd.UNDO_STACK);
+        else {
+          let clpgID = parseInt(selectedNode.key);
+          if (this._stor == "#clipping-text") {
+            gCmd.editClippingContentIntrl(clpgID, $(this._stor).val(), gCmd.UNDO_STACK);
+          }
+          else if (this._stor == "#clipping-name") {
+            gCmd.editClippingNameIntrl(clpgID, $(this._stor).val(), gCmd.UNDO_STACK);
+          }
         }
-
         this._prevVal = $(this._stor).val();
+
       }, this.EDIT_INTERVAL);
 
     }).on("blur", aEvent => {
@@ -3313,10 +3321,21 @@ let gCmd = {
       messenger.runtime.sendMessage({msgID: "reload-perms-req-pg"});
     }
     else {
-      messenger.tabs.create({
-        url: "permission.html?openerWndID=" + gWndID,
-        active: true,
-      });
+      try {
+        await messenger.tabs.create({
+          url: "permission.html?openerWndID=" + gWndID,
+          active: true,
+        });
+      }
+      catch (e) {
+        // Exception thrown if the main Thunderbird window isn't open.
+        let wnd = await messenger.windows.create();
+        await messenger.tabs.create({
+          url: "permission.html?openerWndID=" + gWndID,
+          active: true,
+          windowId: wnd.id,
+        });
+      }
     }
   },
 };
@@ -4184,7 +4203,7 @@ function initInstantEditing()
       contentAutoSave.stop();
     });
 
-  gClippingNameEditor = new InstantEditor("#clipping-name");
+  gItemNameEditor = new InstantEditor("#clipping-name");
   gClippingContentEditor = new InstantEditor("#clipping-text");
 }
 
