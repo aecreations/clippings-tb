@@ -27,6 +27,11 @@ let gClippingsListener = {
   _isClippingsMgrDnDInProgress: false,
   origin: null,
 
+  get isRebuildCxtMenuSuppressed()
+  {
+    return this._isClippingsMgrDnDInProgress;
+  },
+
   newClippingCreated: function (aID, aData, aOrigin)
   {
     if (this._isCopying) {
@@ -1283,6 +1288,10 @@ function buildContextMenuHelper(aMenuData)
 
 async function rebuildContextMenu()
 {
+  if (gClippingsListener.isRebuildCxtMenuSuppressed) {
+    return;
+  }
+
   log("Clippings/mx: rebuildContextMenu(): Removing all Clippings context menu items and rebuilding the menu...");
   await messenger.menus.removeAll();
 

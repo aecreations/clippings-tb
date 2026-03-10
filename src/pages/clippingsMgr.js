@@ -5305,7 +5305,7 @@ async function buildClippingsTree()
         return true;
       },
 
-      dragDrop(aNode, aData)
+      async dragDrop(aNode, aData)
       {
         if (gIsClippingsTreeEmpty) {
           return;
@@ -5366,7 +5366,7 @@ async function buildClippingsTree()
             return;
           }
 
-          messenger.runtime.sendMessage({msgID: "dnd-move-started"});
+          await messenger.runtime.sendMessage({msgID: "dnd-move-started"});
 
           aData.otherNode.moveTo(aNode, aData.hitMode);
           
@@ -5379,11 +5379,14 @@ async function buildClippingsTree()
             isReordering = true;
           }
           else {
+            // The following `gCmd` method calls will trigger rebuild of the
+            // Clippings context menu, which will be suppressed by the
+            // background script.
             if (aData.otherNode.isFolder()) {
-              gCmd.moveFolderIntrl(id, newParentID, gCmd.UNDO_STACK);
+              await gCmd.moveFolderIntrl(id, newParentID, gCmd.UNDO_STACK);
             }
             else {
-              gCmd.moveClippingIntrl(id, newParentID, gCmd.UNDO_STACK);
+              await gCmd.moveClippingIntrl(id, newParentID, gCmd.UNDO_STACK);
             }
           }
 
@@ -5423,19 +5426,17 @@ async function buildClippingsTree()
             log(undoInfo);
           }
           
-          gCmd.updateDisplayOrder(oldParentID, destUndoStack, undoInfo, !isReordering).then(() => {
-            if (isReordering) {
-              messenger.runtime.sendMessage({msgID: "dnd-move-finished"});
-              return;
-            }
-            return gCmd.updateDisplayOrder(newParentID, null, null, false);
-          }).then(() => {
-	    if (newParentID != oldParentID) {
-              aNode.setExpanded();
-            }
+          await messenger.runtime.sendMessage({msgID: "dnd-move-finished"});
 
-            messenger.runtime.sendMessage({msgID: "dnd-move-finished"});
-	  });
+          // Rebuild Clippings context menu only once.
+          await gCmd.updateDisplayOrder(oldParentID, destUndoStack, undoInfo, !isReordering);
+          if (!isReordering) {
+            await gCmd.updateDisplayOrder(newParentID, null, null, false);
+          }
+
+          if (newParentID != oldParentID) {
+            aNode.setExpanded();
+          }
         }
         else {
           // Dropping a non-node.
