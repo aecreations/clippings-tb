@@ -1813,7 +1813,7 @@ async function openBackupDlg()
   let wndKey = "backupFirstRun";
   let height = 412;
   
-  if (["fr", "uk"].includes(lang)) {
+  if (lang == "uk" || (lang == "fr" && gOS == "win")) {
     height = 450;
   }
   if (gOS == "linux") {
