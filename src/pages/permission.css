@@ -58,7 +58,11 @@ main {
 }
 
 body[data-locale="de"] #ext-logo {
-    width: 310px;
+    width: 320px;
+}
+
+body[data-locale="fr"] #ext-logo {
+    width: 360px;
 }
 
 #ext-pg-body {
@@ -81,6 +85,11 @@ body[data-locale="de"] #ext-logo {
     font-size: 17px;
     font-weight: 600;
     text-align: center;
+}
+
+body[data-locale="fr"][data-os="mac"] #hdr-ext-name,
+body[data-locale="de"][data-os="mac"] #hdr-ext-name {
+    letter-spacing: -0.25px;
 }
 
 h2 {
