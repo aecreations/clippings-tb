@@ -1037,10 +1037,6 @@ body[data-locale="nl"] #shortcut-list-dlg #shortcut-instrxns {
     letter-spacing: -0.38px;
 }
 
-body[data-locale="fr"] #shortcut-list-dlg #shortcut-instrxns {
-    letter-spacing: -0.16px;
-}
-
 body[data-locale="de"] #shortcut-list-dlg #shortcut-instrxns {
     letter-spacing: -0.32px;
 }
@@ -1116,6 +1112,10 @@ body[data-os="linux"][data-locale="de"] #shortcut-list-dlg #shortcut-instrxns {
     overflow-x: hidden;
     overflow-y: scroll;
     border-bottom: 1px solid var(--color-th-border);
+}
+
+body[data-locale="fr"] #shortcut-list-content table > tbody {
+    height: 145px;
 }
 
 #shortcut-list-content table > tbody > tr {
