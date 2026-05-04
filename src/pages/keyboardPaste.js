@@ -285,8 +285,8 @@ $(async () => {
   aeImportExport.setL10nStrings({
     shctTitle: messenger.i18n.getMessage("expHTMLTitle"),
     hostAppInfo: messenger.i18n.getMessage("expHTMLHostAppInfo", [extVer, envInfo.hostAppName]),
-    shctKeyInstrxns: messenger.i18n.getMessage("expHTMLShctKeyInstrxn"),
-    shctKeyCustNote: messenger.i18n.getMessage("expHTMLShctKeyCustNote"),
+    shctKeyInstrxns: messenger.i18n.getMessage("expHTMLShctKeyInstrxnTB"),
+    shctKeyCustNote: messenger.i18n.getMessage("expHTMLShctKeyCustNoteTB"),
     shctKeyColHdr: messenger.i18n.getMessage("expHTMLShctKeyCol"),
     clippingNameColHdr: messenger.i18n.getMessage("expHTMLClipNameCol"),
   });
