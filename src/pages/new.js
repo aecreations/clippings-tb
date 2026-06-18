@@ -14,7 +14,7 @@ const DLG_HEIGHT_ADJ_LOCALE_DE = 10;
 
 let gEnvInfo;
 let gClippingsDB = null;
-let gParentFolderID = 0;
+let gParentFolderID = aeConst.ROOT_FOLDER_ID;
 let gSrcURL = "";
 let gCreateInFldrMenu;
 let gFolderPickerPopup;
@@ -385,15 +385,8 @@ function initDialogs()
     let rootFldrName = messenger.i18n.getMessage("rootFldrName");
     let rootFldrCls = aeFolderPicker.ROOT_FOLDER_CLS;
     
-    if (gPrefs.syncClippings) {
-      if (gPrefs.newClippingSyncFldrsOnly) {
-        rootFldrID = gPrefs.syncFolderID;
-        rootFldrName = messenger.i18n.getMessage("syncFldrName");
-        rootFldrCls = aeFolderPicker.SYNCED_ROOT_FOLDER_CLS;
-      }
-      else if (gPrefs.cxtMenuSyncItemsOnly) {
-        $("#new-folder-dlg-fldr-tree").addClass("show-sync-items-only");
-      }
+    if (gPrefs.syncClippings && gPrefs.cxtMenuSyncItemsOnly) {
+      $("#new-folder-dlg-fldr-tree").addClass("show-sync-items-only");
     }
 
     let hideSyncFldr = gPrefs.isSyncReadOnly && !gPrefs.cxtMenuSyncItemsOnly;
@@ -590,16 +583,11 @@ function initFolderPicker()
   let selectedFldrID = aeConst.ROOT_FOLDER_ID;
 
   if (gPrefs.syncClippings) {
-    if (gPrefs.newClippingSyncFldrsOnly) {
-      selectSyncedClippingsFldr();
-      rootFldrID = gPrefs.syncFolderID;
-      rootFldrName = messenger.i18n.getMessage("syncFldrName");
-      rootFldrCls = aeFolderPicker.SYNCED_ROOT_FOLDER_CLS;
-    }
-    else if (gPrefs.cxtMenuSyncItemsOnly) {
+    if (gPrefs.cxtMenuSyncItemsOnly) {
       selectSyncedClippingsFldr();
       $("#new-clipping-fldr-tree").addClass("show-sync-items-only");
       selectedFldrID = gPrefs.syncFolderID;
+      gParentFolderID = selectedFldrID;
 
       // Handle read-only sync folder.
       if (gPrefs.isSyncReadOnly) {
