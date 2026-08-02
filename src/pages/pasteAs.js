@@ -35,9 +35,13 @@ $(async () => {
   let pasteAsHTML = messenger.i18n.getMessage("pasteAsHTML");
   let pasteAsPlain = messenger.i18n.getMessage("pasteAsPlain");
   let pasteAsPlainHTML = messenger.i18n.getMessage("pasteAsPlainHTML");
-  pasteAsHTML = aeVisual.formatAccessKey(pasteAsHTML, "F");
-  pasteAsPlain = aeVisual.formatAccessKey(pasteAsPlain, "P");
-  pasteAsPlainHTML = aeVisual.formatAccessKey(pasteAsPlainHTML, "H");
+  let pasteAsHTML_accesskey = messenger.i18n.getMessage("pasteAsHTML_accesskey");
+  let pasteAsPlain_accesskey = messenger.i18n.getMessage("pasteAsPlain_accesskey");
+  let pasteAsPlainHTML_accesskey = messenger.i18n.getMessage("pasteAsPlainHTML_accesskey");
+
+  pasteAsHTML = aeVisual.formatAccessKey(pasteAsHTML, pasteAsHTML_accesskey);
+  pasteAsPlain = aeVisual.formatAccessKey(pasteAsPlain, pasteAsPlain_accesskey);
+  pasteAsPlainHTML = aeVisual.formatAccessKey(pasteAsPlainHTML, pasteAsPlainHTML_accesskey);
   $("#paste-cliptxt-html").html(sanitizeHTML(pasteAsHTML));
   $("#paste-cliptxt-plain").html(sanitizeHTML(pasteAsPlain));
   $("#paste-cliptxt-plain-html").html(sanitizeHTML(pasteAsPlainHTML));
