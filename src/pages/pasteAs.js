@@ -30,7 +30,7 @@ $(async () => {
   });
   $("#btn-cancel").on("click", aEvent => { cancel() });
 
-  $("#paste-cliptxt-html").focus();
+  $("#paste-cliptxt-html").trigger("focus");
 
   let pasteAsHTML = messenger.i18n.getMessage("pasteAsHTML");
   let pasteAsPlain = messenger.i18n.getMessage("pasteAsPlain");

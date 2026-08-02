@@ -191,11 +191,11 @@ $(window).on("keydown", aEvent => {
       if (aeDialog.isOpen()) {
         // New Folder modal lightbox.
         gNewFolderDlg.selectAndCloseFolderPicker();
-        $("#new-folder-dlg-fldr-picker-mnubtn").focus();
+        $("#new-folder-dlg-fldr-picker-mnubtn").trigger("focus");
       }
       else {
         selectAndCloseFolderPicker();
-        $("#new-clipping-fldr-picker-menubtn").focus();
+        $("#new-clipping-fldr-picker-menubtn").trigger("focus");
       }
 
       return;
@@ -219,11 +219,11 @@ $(window).on("keydown", aEvent => {
       if (aeDialog.isOpen()) {
         // New Folder modal lightbox.
         gNewFolderDlg.closeFolderPicker();
-        $("#new-folder-dlg-fldr-picker-mnubtn").focus();
+        $("#new-folder-dlg-fldr-picker-mnubtn").trigger("focus");
       }
       else {
         closeFolderPicker();
-        $("#new-clipping-fldr-picker-menubtn").focus();
+        $("#new-clipping-fldr-picker-menubtn").trigger("focus");
       }
 
       return;
@@ -417,7 +417,7 @@ function initDialogs()
 
   gNewFolderDlg.onShow = function ()
   {
-    $("#new-fldr-name").select().focus();
+    $("#new-fldr-name").trigger("select").trigger("focus");
   };
   
   gNewFolderDlg.onAccept = function (aEvent)

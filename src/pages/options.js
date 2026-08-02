@@ -563,7 +563,7 @@ function initDialogs()
     syncFldrPath = syncFldrPath.replace(/\"/g, "");
     
     if (! syncFldrPath) {
-      $("#sync-fldr-curr-location").focus();
+      $("#sync-fldr-curr-location").trigger("focus");
       return;
     }
 

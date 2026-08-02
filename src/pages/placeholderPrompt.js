@@ -70,7 +70,7 @@ $(async () => {
     let plchldr = gPlaceholders[0];
     $("#plchldr-single").show();
     $("#single-prmt-label").text(messenger.i18n.getMessage("plchldrPromptSingleDesc", plchldr));
-    $("#single-prmt-input").focus();
+    $("#single-prmt-input").trigger("focus");
 
     if (plchldr in gPlaceholdersWithDefaultVals) {
       let defaultVal = gPlaceholdersWithDefaultVals[plchldr];
@@ -85,7 +85,7 @@ $(async () => {
           optionElts += sanitizeHTML(`<option value="${val}">${val}</option>`);
         }
         $("#single-prmt-input").replaceWith(sanitizeHTML(`<select id="single-prmt-input" class="browser-style">${optionElts}</select>`));
-        $("#single-prmt-input").focus();
+        $("#single-prmt-input").trigger("focus");
       }
     }
   }
