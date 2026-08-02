@@ -1618,7 +1618,7 @@ function getClippingsBackupData()
 
 async function openClippingsManager(aBackupMode)
 {
-  let clippingsMgrURL = messenger.runtime.getURL("pages/clippingsMgr.html");
+  let clippingsMgrURL = messenger.runtime.getURL("pages/clippingsMgr/page.html");
 
   let msgrWnd = await messenger.windows.getCurrent();
   clippingsMgrURL += "?openerWndID=" + msgrWnd.id;
