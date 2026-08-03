@@ -344,7 +344,7 @@ function clippingsMgrCmds()
         parentFolderID = this._getParentFldrIDOfTreeNode(selectedNode);
         let parentFldrChildNodes = selectedNode.getParent().getChildren();
         if (parentFldrChildNodes === undefined) {
-          warn("Clippings: clippingsMgr/pg.js: gCmd.newClipping(): Can't get child nodes of the parent node, because Fancytree lazy loading is in effect!");
+          warn("Clippings: clippingsMgr/cmds.js: gCmd.newClipping(): Can't get child nodes of the parent node, because Fancytree lazy loading is in effect!");
         }
         else {
           displayOrder = parentFldrChildNodes.length;
@@ -510,7 +510,7 @@ function clippingsMgrCmds()
         parentFolderID = this._getParentFldrIDOfTreeNode(selectedNode);
         let parentFldrChildNodes = selectedNode.getParent().getChildren();
         if (parentFldrChildNodes === undefined) {
-          warn("Clippings: clippingsMgr/pg.js: gCmd.newClippingFromClipboard(): Can't get child nodes of the parent node, because Fancytree lazy loading is in effect!");
+          warn("Clippings: clippingsMgr/cmds.js: gCmd.newClippingFromClipboard(): Can't get child nodes of the parent node, because Fancytree lazy loading is in effect!");
         }
       }
 
@@ -539,7 +539,7 @@ function clippingsMgrCmds()
         parentFolderID = this._getParentFldrIDOfTreeNode(selectedNode);
         let parentFldrChildNodes = selectedNode.getParent().getChildren();
         if (parentFldrChildNodes === undefined) {
-          warn("Clippings: clippingsMgr/pg.js: gCmd.newFolder(): Can't get child nodes of the parent node, because Fancytree lazy loading is in effect!");
+          warn("Clippings: clippingsMgr/cmds.js: gCmd.newFolder(): Can't get child nodes of the parent node, because Fancytree lazy loading is in effect!");
         }
         else {
           displayOrder = parentFldrChildNodes.length;
@@ -731,7 +731,7 @@ function clippingsMgrCmds()
             }).catch(handlePushSyncItemsError);
           }
         }).catch(aErr => {
-          console.error("Clippings: clippingsMgr/pg.js: gCmd.deleteClippingOrFolder(): " + aErr);
+          console.error("Clippings: clippingsMgr/cmds.js: gCmd.deleteClippingOrFolder(): " + aErr);
         });
       }
       else {
@@ -797,7 +797,7 @@ function clippingsMgrCmds()
             }).catch(handlePushSyncItemsError);
           }
         }).catch(aErr => {
-          console.error("Clippings: clippingsMgr/pg.js: gCmd.deleteClippingOrFolder(): " + aErr);
+          console.error("Clippings: clippingsMgr/cmds.js: gCmd.deleteClippingOrFolder(): " + aErr);
         });
       }
     },
@@ -818,7 +818,7 @@ function clippingsMgrCmds()
         parentFolderID = this._getParentFldrIDOfTreeNode(selectedNode);
         let parentFldrChildNodes = selectedNode.getParent().getChildren();
         if (parentFldrChildNodes === undefined) {
-          warn("Clippings: clippingsMgr/pg.js: gCmd.insertSeparator(): Can't get child nodes of the parent node, because Fancytree lazy loading is in effect!");
+          warn("Clippings: clippingsMgr/cmds.js: gCmd.insertSeparator(): Can't get child nodes of the parent node, because Fancytree lazy loading is in effect!");
         }
       }
 
@@ -863,7 +863,7 @@ function clippingsMgrCmds()
           displayOrder = clipping.displayOrder - 1;
         }
       }
-      log("Clippings: clippingsMgr/pg.js: gCmd.insertSeparator(): At position: " + displayOrder);
+      log("Clippings: clippingsMgr/cmds.js: gCmd.insertSeparator(): At position: " + displayOrder);
 
       this.recentAction = this.ACTION_INSERT_SEPARATOR;
 
@@ -1039,7 +1039,7 @@ function clippingsMgrCmds()
             aFnResolve();
           }
         }).catch(aErr => {
-          console.error("Clippings: clippingsMgr/pg.js: gCmd.moveClippingIntrl(): " + aErr);
+          console.error("Clippings: clippingsMgr/cmds.js: gCmd.moveClippingIntrl(): " + aErr);
           aFnReject(aErr);
         });
       });
@@ -1130,7 +1130,7 @@ function clippingsMgrCmds()
           }).catch(handlePushSyncItemsError);
         }
       }).catch(aErr => {
-        console.error("Clippings: clippingsMgr/pg.js: gCmd.copyClippingIntrl(): " + aErr);
+        console.error("Clippings: clippingsMgr/cmds.js: gCmd.copyClippingIntrl(): " + aErr);
       });
     },
 
@@ -1239,7 +1239,7 @@ function clippingsMgrCmds()
             aFnResolve();
           }
         }).catch(aErr => {
-          console.error("Clippings: clippingsMgr/pg.js: gCmd.moveFolderIntrl(): " + aErr);
+          console.error("Clippings: clippingsMgr/cmds.js: gCmd.moveFolderIntrl(): " + aErr);
           aFnReject(aErr);
         });
       });
@@ -1348,7 +1348,7 @@ function clippingsMgrCmds()
         });
 
       }).catch(aErr => {
-        console.error("Clippings: clippingsMgr/pg.js: gCmd.copyFolderIntrl(): " + aErr);
+        console.error("Clippings: clippingsMgr/cmds.js: gCmd.copyFolderIntrl(): " + aErr);
       });
     },
 
@@ -1408,7 +1408,7 @@ function clippingsMgrCmds()
             aFnResolve();
           }
         }).catch(aErr => {
-          console.error("Clippings: clippingsMgr/pg.js: gCmd.editFolderNameIntrl(): " + aErr);
+          console.error("Clippings: clippingsMgr/cmds.js: gCmd.editFolderNameIntrl(): " + aErr);
           aFnReject(aErr);
         });
       });
@@ -1469,7 +1469,7 @@ function clippingsMgrCmds()
             aFnResolve();
           }
         }).catch(aErr => {
-          console.error("Clippings: clippingsMgr/pg.js: gCmd.editClippingNameIntrl(): " + aErr);
+          console.error("Clippings: clippingsMgr/cmds.js: gCmd.editClippingNameIntrl(): " + aErr);
           aFnReject(aErr);
         });
       });
@@ -1530,7 +1530,7 @@ function clippingsMgrCmds()
             aFnResolve();
           }
         }).catch(aErr => {
-          console.error("Clippings: clippingsMgr/pg.js: gCmd.editClippingContentIntrl(): " + aErr);
+          console.error("Clippings: clippingsMgr/cmds.js: gCmd.editClippingContentIntrl(): " + aErr);
           aFnReject(aErr);
         });
       });
@@ -1592,7 +1592,7 @@ function clippingsMgrCmds()
         }
       }).catch(aErr => {
         handlePushSyncItemsError(aErr);
-        console.error("Clippings: clippingsMgr/pg.js: gCmd.setLabel(): " + aErr);
+        console.error("Clippings: clippingsMgr/cmds.js: gCmd.setLabel(): " + aErr);
       });
     },
 
@@ -1636,7 +1636,7 @@ function clippingsMgrCmds()
           }
 
           Promise.all(seqUpdates).then(aNumUpd => {
-            log(`Clippings: clippingsMgr/pg.js: gCmd.updateDisplayOrder(): Display order updates for each folder item is completed (folder ID = ${aFolderID})`);
+            log(`Clippings: clippingsMgr/cmds.js: gCmd.updateDisplayOrder(): Display order updates for each folder item is completed (folder ID = ${aFolderID})`);
 
             this._unsetClippingsUnchangedFlag();
             if (aDestUndoStack == this.UNDO_STACK) {
@@ -1649,14 +1649,14 @@ function clippingsMgrCmds()
 
             if (aFolderID == gPrefs.syncFolderID || gSyncedItemsIDs.has(aFolderID + "F")) {
               messenger.runtime.sendMessage({msgID: "push-sync-fldr-updates"}).then(() => {
-                log("Clippings: clippingsMgr/pg.js::gCmd.updateDisplayOrder(): Saved the display order for synced items.");
+                log("Clippings: clippingsMgr/cmds.js::gCmd.updateDisplayOrder(): Saved the display order for synced items.");
               });
             }
 
             aFnResolve();
           });
         }).catch(aErr => {
-          console.error("Clippings: clippingsMgr/pg.js::gCmd.updateDisplayOrder(): %s", aErr.message);
+          console.error("Clippings: clippingsMgr/cmds.js::gCmd.updateDisplayOrder(): %s", aErr.message);
           aFnReject(aErr);
         });
       });
@@ -1678,7 +1678,7 @@ function clippingsMgrCmds()
         });
       }
       catch (e) {
-        warn("Clippings: clippingsMgr/pg.js: gCmd.gotoURL(): " + e);
+        warn("Clippings: clippingsMgr/cmds.js: gCmd.gotoURL(): " + e);
 
         messenger.windows.create({
           url: aURL,
@@ -1693,7 +1693,7 @@ function clippingsMgrCmds()
     async pasteClipping(aClippingID)
     {
       if (ENABLE_PASTE_CLIPPING) {
-        log(`Clippings: clippingsMgr/pg.js: gCmd.pasteClipping(): clipping ID = ${aClippingID}`);
+        log(`Clippings: clippingsMgr/cmds.js: gCmd.pasteClipping(): clipping ID = ${aClippingID}`);
 
         let resp = await messenger.runtime.sendMessage({
           msgID: "paste-clipping-by-name",
@@ -1705,7 +1705,7 @@ function clippingsMgrCmds()
         closeWnd();
       }
       else {
-        warn("Clippings: clippingsMgr/pg.js: gCmd.pasteClipping(): Action disabled");
+        warn("Clippings: clippingsMgr/cmds.js: gCmd.pasteClipping(): Action disabled");
       }
     },
 
@@ -2048,19 +2048,19 @@ function clippingsMgrCmds()
 
         if (undo.nextSiblingNodeKey) {
           let nextSiblingNode = tree.getNodeByKey(undo.nextSiblingNodeKey);
-          log(`Clippings: clippingsMgr/pg.js: gCmd.undo(): Reordering the tree node (key=${itemNode.key}), placing it before sibling node (key=${undo.nextSiblingNodeKey})`);
+          log(`Clippings: clippingsMgr/cmds.js: gCmd.undo(): Reordering the tree node (key=${itemNode.key}), placing it before sibling node (key=${undo.nextSiblingNodeKey})`);
           log(`Current next sibling node key: ${(redoNextSiblingNode ? redoNextSiblingNode.key : null)} (this will be saved to the Redo stack)`)
           itemNode.moveTo(nextSiblingNode, "before");
         }
         else {
           if (parentFldrID == aeConst.ROOT_FOLDER_ID) {
             let rootFldrNode = tree.rootNode;
-            log(`Clippings: clippingsMgr/pg.js: gCmd.undo(): Moving the tree node (key=${itemNode.key}) back to be the last node of the root folder.`);
+            log(`Clippings: clippingsMgr/cmds.js: gCmd.undo(): Moving the tree node (key=${itemNode.key}) back to be the last node of the root folder.`);
             itemNode.moveTo(rootFldrNode, "child");
           }
           else {
             let parentFldrNodeKey = parentFldrID + "F";
-            log(`Clippings: clippingsMgr/pg.js: gCmd.undo(): Moving the tree node (key=${itemNode.key}) back to be the last node of its parent (key=${parentFldrNodeKey}).`);
+            log(`Clippings: clippingsMgr/cmds.js: gCmd.undo(): Moving the tree node (key=${itemNode.key}) back to be the last node of its parent (key=${parentFldrNodeKey}).`);
             let parentFldrNode = tree.getNodeByKey(parentFldrID + "F");
             itemNode.moveTo(parentFldrNode, "child");
           }
@@ -2200,18 +2200,18 @@ function clippingsMgrCmds()
 
         if (redo.nextSiblingNodeKey) {
           let nextSiblingNode = tree.getNodeByKey(redo.nextSiblingNodeKey);
-          log(`Clippings: clippingsMgr/pg.js: gCmd.redo(): Reordering the tree node (key=${itemNode.key}), placing it before sibling node (key=${redo.nextSiblingNodeKey})`);
+          log(`Clippings: clippingsMgr/cmds.js: gCmd.redo(): Reordering the tree node (key=${itemNode.key}), placing it before sibling node (key=${redo.nextSiblingNodeKey})`);
           itemNode.moveTo(nextSiblingNode, "before");
         }
         else {
           if (parentFldrID == aeConst.ROOT_FOLDER_ID) {
             let rootFldrNode = tree.rootNode;
-            log(`Clippings: clippingsMgr/pg.js: gCmd.redo(): Moving the tree node (key=${itemNode.key}) back to be the last node of the root folder.`);
+            log(`Clippings: clippingsMgr/cmds.js: gCmd.redo(): Moving the tree node (key=${itemNode.key}) back to be the last node of the root folder.`);
             itemNode.moveTo(rootFldrNode, "child");
           }
           else {
             let parentFldrNodeKey = parentFldrID + "F";
-            log(`Clippings: clippingsMgr/pg.js: gCmd.redo(): Moving the tree node (key=${itemNode.key}) back to be the last node of its parent (key=${parentFldrNodeKey}).`);
+            log(`Clippings: clippingsMgr/cmds.js: gCmd.redo(): Moving the tree node (key=${itemNode.key}) back to be the last node of its parent (key=${parentFldrNodeKey}).`);
             let parentFldrNode = tree.getNodeByKey(parentFldrID + "F");
             itemNode.moveTo(parentFldrNode, "child");
           }
@@ -2308,7 +2308,7 @@ function clippingsMgrCmds()
             aFnResolve();
           });
         }).catch(aErr => {
-          console.error("Clippings: clippingsMgr/pg.js: gCmd._copyFolderHelper(): " + aErr);
+          console.error("Clippings: clippingsMgr/cmds.js: gCmd._copyFolderHelper(): " + aErr);
           aFnReject(aErr);
         });
       });
