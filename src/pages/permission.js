@@ -3,6 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
+
 let gExtPermStrKeys = {
   clipboardRead: "extPrmClipbdR",
 };
@@ -49,7 +52,9 @@ async function populateRequestedPermission()
   gExecActionID = resp.execActionID;
 
   let strKey = gExtPermStrKeys[gExtPerm];
+  let strKeyDesc = `${strKey}Desc`;
   $("#ext-perm").text(messenger.i18n.getMessage(strKey));
+  $("#ext-perm-desc").text(messenger.i18n.getMessage(strKeyDesc));
 }
 
 
