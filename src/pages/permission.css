@@ -40,7 +40,7 @@ main {
     justify-content: flex-start;
     align-items: flex-start;
 
-    width: 700px;
+    width: 720px;
     margin: 24px auto 0 auto;
     cursor: inherit;
     border: 1px solid var(--color-main-border);
@@ -52,7 +52,7 @@ main {
 #ext-logo {
     order: 1;
     flex: 0 1 auto;
-    width: 270px;
+    width: 290px;
     margin-top: 36px;
     text-align: center;
 }
