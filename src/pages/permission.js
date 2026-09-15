@@ -58,6 +58,22 @@ async function populateRequestedPermission()
 }
 
 
+async function requestPermission() {
+  $("#dlg-btns > button").prop("disabled", true);
+  let permGranted = await messenger.permissions.request({
+    permissions: [gExtPerm],
+  });
+
+  if (permGranted) {
+    await focusOpenerWnd(gExecActionID);
+    closePage();
+  }
+  else {
+    $("#dlg-btns > button").prop("disabled", false);
+  }
+}
+
+
 async function focusOpenerWnd(aExecActionID)
 {
   let msg = {
@@ -86,21 +102,12 @@ function closePage()
 
 //
 // Event handlers
+// No keyboard event handlers due to keyboard focus sometimes being ignored in
+// a MailExtension page.
 //
 
 $("#dlg-accept").on("click", async (aEvent) => {
-  $("#dlg-btns > button").prop("disabled", true);
-  let permGranted = await messenger.permissions.request({
-    permissions: [gExtPerm],
-  });
-
-  if (permGranted) {
-    await focusOpenerWnd(gExecActionID);
-    closePage();
-  }
-  else {
-    $("#dlg-btns > button").prop("disabled", false);
-  }
+  await requestPermission();
 });
 
 $("#dlg-cancel").on("click", async (aEvent) => {
