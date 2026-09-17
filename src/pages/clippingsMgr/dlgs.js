@@ -3,6 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
+
 function clippingsMgrDlgs()
 {
   let shctKeyConflict = new aeDialog("#shortcut-key-conflict-msgbox");
@@ -496,7 +499,7 @@ function clippingsMgrDlgs()
 
       }).then(() => {
         gClippingsDB.transaction("rw", gClippingsDB.clippings, gClippingsDB.folders, () => {
-          log("Clippings: clippingsMgr/dlgs.js: gDialogs.importFromFile.onAccept(): Starting restore from backup file.\nDeleting all clippings and folders (except the 'Synced Clippings' folder, if Sync Clippings turned on).");
+          log("Clippings: clippingsMgr/dlgs.js: gDlg.importFromFile.onAccept(): Starting restore from backup file.\nDeleting all clippings and folders (except the 'Synced Clippings' folder, if Sync Clippings turned on).");
 
           gCmd.recentAction = gCmd.ACTION_RESTORE_BACKUP;
 
@@ -525,7 +528,7 @@ function clippingsMgrDlgs()
             importFile(false);
           });
         }).catch(aErr => {
-          console.error("Clippings: clippingsMgr/dlgs.js: gDialogs.importFromFile.onAccept(): " + aErr);
+          console.error("Clippings: clippingsMgr/dlgs.js: gDlg.importFromFile.onAccept(): " + aErr);
         });
       });
     }
@@ -784,7 +787,7 @@ function clippingsMgrDlgs()
 
       // Attach event handler every time the folder tree is regenerated.
       this.find("#move-to-fldr-tree").on("click", aEvent => {
-        log("Clippings::clippingsMgr/dlgs.js: gDialogs.moveTo: Detected 'click' event in the folder tree");
+        log("Clippings::clippingsMgr/dlgs.js: gDlg.moveTo: Detected 'click' event in the folder tree");
         $("#move-error").text('');
       });
     }

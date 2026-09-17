@@ -3,6 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
+
 function clippingsMgrCmds()
 {
   return {
@@ -352,7 +355,7 @@ function clippingsMgrCmds()
       }
 
       if (gSyncedItemsIDs.has(parentFolderID + "F") && gPrefs.isSyncReadOnly) {
-        setTimeout(() => { gDialogs.syncFldrReadOnly.openPopup() }, 100);
+        setTimeout(() => { gDlg.syncFldrReadOnly.openPopup() }, 100);
         return;
       }
 
@@ -487,15 +490,15 @@ function clippingsMgrCmds()
           await this._openExtPermissionPg();
         }
         else {
-          gDialogs.requestExtPerm.setPermission("clipboardRead");
-          gDialogs.requestExtPerm.showModal();
+          gDlg.requestExtPerm.setPermission("clipboardRead");
+          gDlg.requestExtPerm.showModal();
         }
         return;
       }
 
       let content = await navigator.clipboard.readText();
       if (content == "") {
-        setTimeout(() => {gDialogs.clipboardEmpty.openPopup()}, 100);
+        setTimeout(() => {gDlg.clipboardEmpty.openPopup()}, 100);
         return;
       }
 
@@ -547,7 +550,7 @@ function clippingsMgrCmds()
       }
 
       if (gSyncedItemsIDs.has(parentFolderID + "F") && gPrefs.isSyncReadOnly) {
-        setTimeout(() => { gDialogs.syncFldrReadOnly.openPopup() }, 100);
+        setTimeout(() => { gDlg.syncFldrReadOnly.openPopup() }, 100);
         return;
       }
 
@@ -620,7 +623,7 @@ function clippingsMgrCmds()
           }
           catch {}
           if (pingResp) {
-            gDialogs.actionUnavailable.openPopup();
+            gDlg.actionUnavailable.openPopup();
             return;
           }
 
@@ -638,7 +641,7 @@ function clippingsMgrCmds()
         }
       }
 
-      gDialogs.moveTo.showModal();
+      gDlg.moveTo.showModal();
     },
 
     async deleteClippingOrFolder(aDestUndoStack)
@@ -657,7 +660,7 @@ function clippingsMgrCmds()
       let parentFolderID = this._getParentFldrIDOfTreeNode(selectedNode);
 
       if (gSyncedItemsIDs.has(parentFolderID + "F") && gPrefs.isSyncReadOnly) {
-        setTimeout(() => { gDialogs.syncFldrReadOnly.openPopup() }, 100);
+        setTimeout(() => { gDlg.syncFldrReadOnly.openPopup() }, 100);
         return;
       }
 
@@ -672,7 +675,7 @@ function clippingsMgrCmds()
         }
         catch {}
         if (pingResp) {
-          gDialogs.actionUnavailable.openPopup();
+          gDlg.actionUnavailable.openPopup();
           return;
         }
 
@@ -823,7 +826,7 @@ function clippingsMgrCmds()
       }
 
       if (gSyncedItemsIDs.has(parentFolderID + "F") && gPrefs.isSyncReadOnly) {
-        setTimeout(() => { gDialogs.syncFldrReadOnly.openPopup() }, 100);
+        setTimeout(() => { gDlg.syncFldrReadOnly.openPopup() }, 100);
         return;
       }
 
@@ -1711,22 +1714,22 @@ function clippingsMgrCmds()
 
     showShortcutList: function ()
     {
-      gDialogs.shortcutList.showModal(false);
+      gDlg.shortcutList.showModal(false);
     },
 
     insertCustomPlaceholder: function ()
     {
-      gDialogs.insCustomPlchldr.showModal();
+      gDlg.insCustomPlchldr.showModal();
     },
 
     insertNumericPlaceholder: function ()
     {
-      gDialogs.insAutoIncrPlchldr.showModal();
+      gDlg.insAutoIncrPlchldr.showModal();
     },
 
     insertFormattedDateTimePlaceholder: function ()
     {
-      gDialogs.insDateTimePlchldr.showModal();
+      gDlg.insDateTimePlchldr.showModal();
     },
 
     insertClippingInClippingPlaceholder()
@@ -1845,8 +1848,8 @@ function clippingsMgrCmds()
         }).then(aDownldItems => {
           if (aDownldItems && aDownldItems.length > 0) {
             let backupFilePath = aDownldItems[0].filename;
-            gDialogs.backupConfirmMsgBox.setMessage(messenger.i18n.getMessage("clipMgrBackupConfirm", backupFilePath));
-            gDialogs.backupConfirmMsgBox.showModal();
+            gDlg.backupConfirmMsgBox.setMessage(messenger.i18n.getMessage("clipMgrBackupConfirm", backupFilePath));
+            gDlg.backupConfirmMsgBox.showModal();
           }
 
         }).catch(aErr => {
@@ -1890,23 +1893,23 @@ function clippingsMgrCmds()
       }
       catch {}
       if (pingResp) {
-        gDialogs.actionUnavailable.openPopup();
+        gDlg.actionUnavailable.openPopup();
         return;
       }
 
-      gDialogs.importFromFile.mode = gDialogs.importFromFile.IMP_REPLACE;
-      gDialogs.importFromFile.showModal();
+      gDlg.importFromFile.mode = gDlg.importFromFile.IMP_REPLACE;
+      gDlg.importFromFile.showModal();
     },
 
     importFromFile: function ()
     {
-      gDialogs.importFromFile.mode = gDialogs.importFromFile.IMP_APPEND;
-      gDialogs.importFromFile.showModal();
+      gDlg.importFromFile.mode = gDlg.importFromFile.IMP_APPEND;
+      gDlg.importFromFile.showModal();
     },
 
     exportToFile: function ()
     {
-      gDialogs.exportToFile.showModal();
+      gDlg.exportToFile.showModal();
     },
 
     async reloadSyncFolder()
@@ -1918,7 +1921,7 @@ function clippingsMgrCmds()
       catch {}
 
       if (pingResp) {
-        gDialogs.actionUnavailable.openPopup();
+        gDlg.actionUnavailable.openPopup();
         return;
       }
 
@@ -1936,21 +1939,21 @@ function clippingsMgrCmds()
     {
       let afterSyncFldrReloadDelay = await aePrefs.getPref("afterSyncFldrReloadDelay");
 
-      gDialogs.syncProgress.showModal(false);
+      gDlg.syncProgress.showModal(false);
 
       setTimeout(async () => {
         await rebuildClippingsTree();
-        gDialogs.syncProgress.close();
+        gDlg.syncProgress.close();
       }, afterSyncFldrReloadDelay);
     },
 
     showMiniHelp: function ()
     {
       if ($("#intro-content").css("display") == "none") {
-        gDialogs.miniHelp.showModal();
+        gDlg.miniHelp.showModal();
       }
       else {
-        gDialogs.genericMsgBox.showModal();
+        gDlg.genericMsgBox.showModal();
       }
     },
 
@@ -1963,12 +1966,12 @@ function clippingsMgrCmds()
       catch {}
 
       if (pingResp) {
-        gDialogs.actionUnavailable.openPopup();
+        gDlg.actionUnavailable.openPopup();
         return;
       }
 
       if (this.undoStack.length == 0) {
-        setTimeout(() => { gDialogs.noUndoNotify.openPopup() }, 100);
+        setTimeout(() => { gDlg.noUndoNotify.openPopup() }, 100);
         return;
       }
 
@@ -2097,7 +2100,7 @@ function clippingsMgrCmds()
 
         Promise.all(numUpdates).then(aResults => {
           this.redoStack.push(undo);
-          gDialogs.restoreSrcURLs.openPopup();
+          gDlg.restoreSrcURLs.openPopup();
         });
       }
     },
@@ -2111,12 +2114,12 @@ function clippingsMgrCmds()
       catch {}
 
       if (pingResp) {
-        gDialogs.actionUnavailable.openPopup();
+        gDlg.actionUnavailable.openPopup();
         return;
       }
 
       if (this.redoStack.length == 0) {
-        setTimeout(() => { gDialogs.noRedoNotify.openPopup() }, 100);
+        setTimeout(() => { gDlg.noRedoNotify.openPopup() }, 100);
         return;
       }
 
@@ -2246,7 +2249,7 @@ function clippingsMgrCmds()
 
         Promise.all(numUpdates).then(aResults => {
           this.undoStack.push(redo);
-          gDialogs.removeAllSrcURLsConfirm.openPopup();
+          gDlg.removeAllSrcURLsConfirm.openPopup();
         });
       }
     },

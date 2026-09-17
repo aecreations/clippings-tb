@@ -3,6 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
+
 const DEBUG_TREE = false;
 const DEBUG_WND_ACTIONS = false;
 const REBUILD_BRWS_CXT_MENU_DELAY = 3000;
@@ -12,7 +15,7 @@ let gEnvInfo;
 let gClippingsDB;
 let gPrefs;
 let gIsClippingsTreeEmpty;
-let gDialogs = {};
+let gDlg = {};
 let gOpenerWndID;
 let gIsMaximized;
 let gSuppressAutoMinzWnd;
@@ -817,7 +820,7 @@ let gShortcutKey = {
       assignedKeysLookup[aItem.shortcutKey] = 1;
     }).then(() => {
       if (assignedKeysLookup[shortcutKey]) {
-        gDialogs.shctKeyConflict.showModal();
+        gDlg.shctKeyConflict.showModal();
         return;
       }
 
@@ -989,7 +992,7 @@ function handlePushSyncUpdatesResponse(aResponse)
 {
   if ("error" in aResponse && aResponse.error.name == "RangeError") {
     // Max sync file size exceeded.
-    gDialogs.syncFldrFull.showModal();
+    gDlg.syncFldrFull.showModal();
   }
 }
 
@@ -1053,7 +1056,7 @@ $(async () => {
   else {
     if (gPrefs.syncClippings && gPrefs.cxtMenuSyncItemsOnly
         && gPrefs.clippingsMgrShowSyncItemsOnlyRem) {
-      gDialogs.showOnlySyncedItemsReminder.showModal();
+      gDlg.showOnlySyncedItemsReminder.showModal();
     }
   }
 
@@ -1936,7 +1939,7 @@ function initDialogs()
 
   initIntroBannerAndHelpDlg();
 
-  gDialogs = clippingsMgrDlgs();
+  gDlg = clippingsMgrDlgs();
 
 }
 
@@ -2089,7 +2092,7 @@ async function buildClippingsTree()
           // is read-only.
           if (gPrefs.syncClippings && gPrefs.isSyncReadOnly
               && gSyncedItemsIDs.has(newParentID + "F")) {
-            setTimeout(() => { gDialogs.syncFldrReadOnly.openPopup() }, 100);
+            setTimeout(() => { gDlg.syncFldrReadOnly.openPopup() }, 100);
             return;
           }
 
@@ -2562,10 +2565,10 @@ async function rebuildClippingsTree()
       if (gPrefs.cxtMenuSyncItemsOnly) {
         if (gPrefs.clippingsMgrShowSyncItemsOnlyRem) {
           if (aeDialog.isOpen()) {
-            gDialogs.showOnlySyncedItemsReminder.isDelayedOpen = true;
+            gDlg.showOnlySyncedItemsReminder.isDelayedOpen = true;
           }
           else {
-            gDialogs.showOnlySyncedItemsReminder.showModal();
+            gDlg.showOnlySyncedItemsReminder.showModal();
           }
         }
       }
@@ -2754,7 +2757,7 @@ function initShortcutKeyMenu()
       assignedKeysLookup[aItem.shortcutKey] = 1;
     }).then(() => {
       if (assignedKeysLookup[shortcutKey]) {
-        gDialogs.shctKeyConflict.showModal();
+        gDlg.shctKeyConflict.showModal();
         return;
       }
 
