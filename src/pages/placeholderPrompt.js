@@ -3,6 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 
 const WNDH_PLCHLDR_MULTI = 318;
 const WNDH_PLCHLDR_MULTI_SHORT = 272;
@@ -113,7 +115,7 @@ $(async () => {
     if (platform.os == "win") {
       height += DLG_HEIGHT_ADJ_WINDOWS;
     }
-    else if (gOS == "linux") {
+    else if (platform.os == "linux") {
       height += DLG_HEIGHT_ADJ_LINUX;
     }
     
