@@ -1295,9 +1295,9 @@ messenger.runtime.onMessage.addListener(aRequest => {
   case "focus-ext-window":
     if (aRequest.wndID == gWndID) {
       focusWnd();
-    }
-    if (aRequest.execActionMsgID == "new-from-clipbd") {
-      gCmd.newClippingFromClipboard();
+      if (aRequest.execActionMsgID == "new-from-clipbd") {
+        gCmd.newClippingFromClipboard();
+      }
     }
     break;
 
