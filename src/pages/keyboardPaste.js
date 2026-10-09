@@ -14,6 +14,7 @@ const DLG_HEIGHT_ADJ_WINDOWS = 8;
 const DLG_HEIGHT_ADJ_LINUX = 60;
 const TOOLBAR_HEIGHT = 52;
 const SHORTCUT_LIST_HEIGHT_ADJ_MAC = 2;
+const COMP_FIELD_SUBJECT = "composeSubject";
 
 let gClippingsDB, gPasteMode, gOS, gHostAppVer;
 let gComposeTabID = null;
@@ -339,6 +340,10 @@ $(async () => {
 
 
 $(window).on("keydown", async (aEvent) => {
+  if (aEvent.key == "Control") {
+    return;
+  }
+
   if (aEvent.key == "Escape") {
     if (gPasteMode == aeConst.PASTEACTION_SEARCH_CLIPPING) {
       if (gAutocompleteMenu.isPopupShowing()) {
@@ -418,9 +423,14 @@ $(window).on("keydown", async (aEvent) => {
     if (isShortcutListDisplayed()) {
       return;
     }
+
+    let destCompFieldID = null;
+    if (aEvent.ctrlKey) {
+      destCompFieldID = COMP_FIELD_SUBJECT;
+    }
     
     if (gPasteMode == aeConst.PASTEACTION_SHORTCUT_KEY) {
-      execShortcut(aEvent.key);
+      execShortcut(aEvent.key.toLowerCase(), destCompFieldID);
     }
     else {
       aeInterxn.suppressBrowserShortcuts(aEvent, aeConst.DEBUG);
@@ -576,12 +586,13 @@ function exportShortcutList()
   });
 }
 
-function execShortcut(aShortcutKey)
+function execShortcut(aShortcutKey, aDestComposeFieldID=null)
 {
   messenger.runtime.sendMessage({
     msgID: "paste-shortcut-key",
     shortcutKey: aShortcutKey,
     composeTabID: gComposeTabID,
+    composeFieldID: aDestComposeFieldID,
   });
 
   closeDlg();
