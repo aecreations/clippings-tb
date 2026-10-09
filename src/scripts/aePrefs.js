@@ -50,6 +50,7 @@ let aePrefs = function () {
     logSyncDataSize: false,
     setDirtyFlag: true,
     newExtPermRequestFlow: true,
+    autoSyncOnNewOrManage: false,
 
     // Deprecated prefs - these will be removed during extension upgrade.
     clippingsMgrMinzWhenInactv: null,
@@ -219,6 +220,21 @@ let aePrefs = function () {
 
       delete aPrefs.clippingsMgrAutoShowStatusBar;
       await this._removePrefs("clippingsMgrAutoShowStatusBar");
+    },
+
+    hasFortPointPrefs(aPrefs)
+    {
+      // Version 7.2
+      return ("autoSyncOnNewOrManage" in aPrefs);
+    },
+
+    async setFortPointPrefs(aPrefs)
+    {
+      let newPrefs = {
+        autoSyncOnNewOrManage: false,
+      };
+
+      await this._addPrefs(aPrefs, newPrefs);
     },
 
     

@@ -17,10 +17,9 @@ const DLG_HEIGHT_ADJ_LOCALE_DE = 10;
 let gEnvInfo;
 let gClippingsDB = null;
 let gParentFolderID = aeConst.ROOT_FOLDER_ID;
-let gSrcURL = "";
 let gCreateInFldrMenu;
 let gFolderPickerPopup;
-let gNewFolderDlg, gPreviewDlg, gSyncErrMsgBox;
+let gNewFolderDlg, gPreviewDlg, gSyncErrMsgBox, gSyncProgressBar;
 let gPrefs;
 let gSyncedFldrIDs = new Set();
 
@@ -61,24 +60,15 @@ $(async () => {
   
   $("#clipping-text").attr("placeholder", messenger.i18n.getMessage("clipMgrContentHint"));
   
-  messenger.runtime.sendMessage({
-    msgID: "init-new-clipping-dlg"
-  }).then(aResp => {
-    if (! aResp) {
-      console.warn("Clippings/mx::new.js: No response was received from the background script!");
-      return;
-    }
-
-    let clippingName = $("#clipping-name")[0];
-    clippingName.value = aResp.name;
-    clippingName.focus();
+  let newClipping = await messenger.runtime.sendMessage({msgID: "init-new-clipping-dlg"});
+  let clippingName = $("#clipping-name")[0];
+  clippingName.value = newClipping.name;
+  clippingName.focus();
     
-    $("#clipping-text").val(aResp.content).attr("spellcheck", aResp.checkSpelling)
-      .focus(aEvent => {
-        aEvent.target.select();
-      });
-    gSrcURL = aResp.url || "";
-  });
+  $("#clipping-text").val(newClipping.content).attr("spellcheck", newClipping.checkSpelling)
+    .focus(aEvent => {
+      aEvent.target.select();
+    });
 
   $("#clipping-name").focus(aEvent => {
     aEvent.target.select();
@@ -92,7 +82,42 @@ $(async () => {
   });
 
   initDialogs();
-  initFolderPicker();
+
+  if (gPrefs.syncClippings) {
+    if (gPrefs.autoSyncOnNewOrManage) {
+      let pingResp;
+      try {
+        pingResp = await browser.runtime.sendMessage({msgID: "ping-clippings-mgr"});
+      }
+      catch {}
+      if (pingResp) {
+        // Skip automatic sync if Clippings Manager is open in order to prevent
+        // potential conflicts.
+        initFolderPicker();
+        await initSyncItemsIDLookupList();
+      }
+      else {
+        await browser.runtime.sendMessage({msgID: "refresh-synced-clippings"});
+
+        let afterSyncFldrReloadDelay = gPrefs.afterSyncFldrReloadDelay;
+        gSyncProgressBar.showModal(false);
+
+        setTimeout(async () => {
+          gSyncProgressBar.close();
+          await initSyncItemsIDLookupList();
+          initFolderPicker();
+        }, afterSyncFldrReloadDelay);
+      }
+    }
+    else {
+      await initSyncItemsIDLookupList();
+      initFolderPicker();
+    }
+  }
+  else {
+    initFolderPicker();
+  }
+
   initLabelPicker();
   initShortcutKeyMenu();
 
@@ -538,6 +563,7 @@ function initDialogs()
   };
 
   gSyncErrMsgBox = new aeDialog("#sync-fldr-full-error-msgbox");
+  gSyncProgressBar = new aeDialog("#sync-progress");
 }
 
 

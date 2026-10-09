@@ -661,8 +661,8 @@ body[data-locale="de"] #request-native-app-conxn-perm-dlg {
 
 #sync-clippings-dlg {
     top: 128px;
-    --width: 530px;
-    --height: 312px;
+    --width: 550px;
+    --height: 336px;
 }
 
 body[data-locale="nl"] #sync-clippings-dlg,
@@ -686,8 +686,9 @@ body[data-locale|="pt"] #sync-clippings-dlg {
     --width: 552px;
 }
 
+/* Style rule used when showing Sync Clippings minimum required version. */
 #sync-clippings-dlg.expanded {
-    height: 334px;
+    height: 358px;
 }
 
 #sync-clippings-dlg fieldset {

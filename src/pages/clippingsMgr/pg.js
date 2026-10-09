@@ -1039,8 +1039,7 @@ $(async () => {
   initDialogs();
   buildClippingsTree();
   initTreeSplitter();
-  initSyncItemsIDLookupList();
-  
+
   if (gPrefs.clippingsMgrSaveWndGeom) {
     setSaveWndGeometryInterval(true);
   }
@@ -1054,9 +1053,37 @@ $(async () => {
     gCmd.backup();
   }
   else {
-    if (gPrefs.syncClippings && gPrefs.cxtMenuSyncItemsOnly
-        && gPrefs.clippingsMgrShowSyncItemsOnlyRem) {
-      gDlg.showOnlySyncedItemsReminder.showModal();
+    if (gPrefs.syncClippings) {
+      let hideSyncProgress = false;
+      if (gPrefs.cxtMenuSyncItemsOnly && gPrefs.clippingsMgrShowSyncItemsOnlyRem) {
+        hideSyncProgress = true;
+        gDlg.showOnlySyncedItemsReminder.showModal();
+      }
+
+      if (gPrefs.autoSyncOnNewOrManage) {
+        let pingResp;
+        try {
+          pingResp = await browser.runtime.sendMessage({msgID: "ping-new-clipping-dlg"});
+        }
+        catch {}
+        if (pingResp) {
+          // Skip automatic sync if New Clipping dialog is open in order to
+          // prevent potential conflicts.
+          initSyncItemsIDLookupList();
+        }
+        else {
+          await browser.runtime.sendMessage({
+            msgID: "refresh-synced-clippings",
+          });
+          await gCmd.reloadSyncFolderIntrl(hideSyncProgress, () => {
+            // Called after the Synced Clippings folder refresh is completed.
+            initSyncItemsIDLookupList();
+          });
+        }
+      }
+      else {
+        initSyncItemsIDLookupList();
+      }
     }
   }
 

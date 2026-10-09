@@ -1935,15 +1935,20 @@ function clippingsMgrCmds()
       await this.reloadSyncFolderIntrl();
     },
 
-    async reloadSyncFolderIntrl()
+    async reloadSyncFolderIntrl(aHideSyncProgress=false, aFnAfterSync=null)
     {
       let afterSyncFldrReloadDelay = await aePrefs.getPref("afterSyncFldrReloadDelay");
 
-      gDlg.syncProgress.showModal(false);
+      if (!aHideSyncProgress) {
+        gDlg.syncProgress.showModal(false);
+      }
 
       setTimeout(async () => {
         await rebuildClippingsTree();
-        gDlg.syncProgress.close();
+        if (!aHideSyncProgress) {
+          gDlg.syncProgress.close();
+          typeof aFnAfterSync == "function" && aFnAfterSync();
+        }
       }, afterSyncFldrReloadDelay);
     },
 
