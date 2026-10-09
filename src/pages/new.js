@@ -351,7 +351,7 @@ function initDialogs()
   gNewFolderDlg.selectAndCloseFolderPicker = function ()
   {
     let fldrPickerTree = gNewFolderDlg.fldrTree.getTree();
-    selectedFldrNodeKey = fldrPickerTree.activeNode.key;
+    let selectedFldrNodeKey = fldrPickerTree.activeNode.key;
     let fldrData = {
       node: {
         key: selectedFldrNodeKey,
@@ -681,7 +681,7 @@ function selectFolder(aFolderData)
 function selectAndCloseFolderPicker()
 {
   let fldrPickerTree = gFolderPickerPopup.getTree();
-  selectedFldrNodeKey = fldrPickerTree.activeNode.key;
+  let selectedFldrNodeKey = fldrPickerTree.activeNode.key;
   let fldrData = {
     node: {
       key: selectedFldrNodeKey,
