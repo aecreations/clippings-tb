@@ -23,6 +23,7 @@ let gSyncClippingsHelperDwnldPgURL;
 let gForceShowFirstTimeBkupNotif = false;
 let gClippingsMgrCleanUpIntvID = null;
 let gIsSyncPushFailed = false;
+let gHiddenCxtMenuItemIDs = new Set();
 
 let gClippingsListener = {
   _isImporting: false,
@@ -1218,12 +1219,12 @@ async function buildContextMenu()
   messenger.menus.create({
     id: "ae-clippings-new",
     title: messenger.i18n.getMessage("cxtMenuNew"),
-    contexts: ["compose_body"],
+    contexts: ["compose_body", "editable"],
   });
   messenger.menus.create({
     id: "ae-clippings-manager",
     title: messenger.i18n.getMessage("cxtMenuOpenClippingsMgr"),
-    contexts: ["compose_body"],
+    contexts: ["compose_body", "editable"],
   });
 
   let rootFldrID = aeConst.ROOT_FOLDER_ID;
@@ -1247,7 +1248,7 @@ async function buildContextMenu()
   if (menuData.length > 0) {
     messenger.menus.create({
       type: "separator",
-      contexts: ["compose_body"],
+      contexts: ["compose_body", "editable"],
     });
 
     buildContextMenuHelper(menuData);
@@ -1264,7 +1265,7 @@ function buildContextMenuHelper(aMenuData)
     if (menuData.separator) {
       menuItem = {
         type: "separator",
-        contexts: ["compose_body"],
+        contexts: ["compose_body", "editable"],
       };
     }
     else {
@@ -1272,7 +1273,7 @@ function buildContextMenuHelper(aMenuData)
         id: menuData.id,
         title: menuData.title,
         icons: menuData.icons,
-        contexts: ["compose_body"],
+        contexts: ["compose_body", "editable"],
       };
     }
 
@@ -1775,9 +1776,13 @@ function openKeyboardPasteDlg(aComposeTabID)
 }
 
 
-function openPlaceholderPromptDlg(aComposeTabID)
+function openPlaceholderPromptDlg(aComposeTabID, aComposeFieldID=null)
 {
   let url = messenger.runtime.getURL("pages/placeholderPrompt.html?compTabID=" + aComposeTabID);
+  if (aComposeFieldID !== null) {
+    url += `&field=${aComposeFieldID}`;
+  }
+
   let width = 536;
   let height = 228;
   if (gOS == "linux") {
@@ -1953,7 +1958,7 @@ async function togglePasteAsQuoted(aComposeTabID)
 }
 
 
-function pasteClippingByID(aClippingID, aComposeTabID)
+function pasteClippingByID(aClippingID, aComposeTabID, aComposeFieldID=null)
 {
   let clippingsDB = aeClippings.getDB();
   
@@ -1988,7 +1993,7 @@ function pasteClippingByID(aClippingID, aComposeTabID)
         parentFolderName: parentFldrName
       };
 
-      pasteClipping(clippingInfo, aComposeTabID);
+      pasteClipping(clippingInfo, aComposeTabID, aComposeFieldID);
     });
   }).catch(aErr => {
     console.error("Clippings/wx: pasteClippingByID(): " + aErr);
@@ -1996,7 +2001,7 @@ function pasteClippingByID(aClippingID, aComposeTabID)
 }
 
 
-function pasteClippingByShortcutKey(aShortcutKey, aComposeTabID)
+function pasteClippingByShortcutKey(aShortcutKey, aComposeTabID, aComposeFieldID)
 {
   let clippingsDB = aeClippings.getDB();
 
@@ -2038,7 +2043,7 @@ function pasteClippingByShortcutKey(aShortcutKey, aComposeTabID)
         parentFolderName: parentFldrName
       };
 
-      pasteClipping(clippingInfo, aComposeTabID);
+      pasteClipping(clippingInfo, aComposeTabID, aComposeFieldID);
     });
   }).catch(aErr => {
     console.error("Clippings/mx: pasteClippingByShortcutKey(): " + aErr);
@@ -2046,7 +2051,7 @@ function pasteClippingByShortcutKey(aShortcutKey, aComposeTabID)
 }
 
 
-async function pasteClipping(aClippingInfo, aComposeTabID)
+async function pasteClipping(aClippingInfo, aComposeTabID, aComposeFieldID=null)
 {
   let processedCtnt = "";
 
@@ -2075,24 +2080,24 @@ async function pasteClipping(aClippingInfo, aComposeTabID)
       let plchldrsWithDefaultVals = aeClippingSubst.getCustomPlaceholderDefaultVals(processedCtnt, aClippingInfo);
       gPlaceholders.set(aClippingInfo.name, plchldrs, plchldrsWithDefaultVals, processedCtnt);
 
-      openPlaceholderPromptDlg(aComposeTabID);
+      openPlaceholderPromptDlg(aComposeTabID, aComposeFieldID);
       return;
     }
   }
 
-  processHTMLFormattedClipping(aClippingInfo.name, processedCtnt, aComposeTabID);
+  processHTMLFormattedClipping(aClippingInfo.name, processedCtnt, aComposeTabID, aComposeFieldID);
 }
 
 
-async function processHTMLFormattedClipping(aClippingName, aClippingContent, aComposeTabID)
+async function processHTMLFormattedClipping(aClippingName, aClippingContent, aComposeTabID, aComposeFieldID=null)
 {
   let isHTMLFormatted = aeClippings.hasHTMLTags(aClippingContent);
   let compInfo = await messenger.compose.getComposeDetails(aComposeTabID);
 
-  if (isHTMLFormatted) {
+  if (isHTMLFormatted && !aComposeFieldID) {
     if (gPrefs.htmlPaste == aeConst.HTMLPASTE_ASK_THE_USER) {
       if (compInfo.isPlainText) {
-        await pasteProcessedClipping(aClippingContent, aComposeTabID, aeConst.HTMLPASTE_AS_IS);
+        await pasteProcessedClipping(aClippingContent, aComposeTabID, aComposeFieldID, aeConst.HTMLPASTE_AS_IS);
       }
       else {
         // Show Paste As HTML format dialog.
@@ -2101,12 +2106,12 @@ async function processHTMLFormattedClipping(aClippingName, aClippingContent, aCo
       }
     }
     else {
-      await pasteProcessedClipping(aClippingContent, aComposeTabID);
+      await pasteProcessedClipping(aClippingContent, aComposeTabID, aComposeFieldID);
     }    
   }
   else {
     // Plain-text clipping.
-    if (gPrefs.htmlPaste == aeConst.HTMLPASTE_ASK_THE_USER) {
+    if (gPrefs.htmlPaste == aeConst.HTMLPASTE_ASK_THE_USER && !aComposeFieldID) {
       let pasteFmtOverride;
       if (compInfo.isPlainText) {
         pasteFmtOverride = aeConst.HTMLPASTE_AS_IS;
@@ -2115,16 +2120,16 @@ async function processHTMLFormattedClipping(aClippingName, aClippingContent, aCo
         // Paste as if it were formatted as HTML to handle line breaks.
         pasteFmtOverride = aeConst.HTMLPASTE_AS_FORMATTED;
       }
-      await pasteProcessedClipping(aClippingContent, aComposeTabID, pasteFmtOverride);
+      await pasteProcessedClipping(aClippingContent, aComposeTabID, aComposeFieldID, pasteFmtOverride);
     }
     else {
-      await pasteProcessedClipping(aClippingContent, aComposeTabID);
+      await pasteProcessedClipping(aClippingContent, aComposeTabID, aComposeFieldID);
     }
   }
 }
 
 
-async function pasteProcessedClipping(aClippingContent, aComposeTabID, aOverridePasteFormat=null)
+async function pasteProcessedClipping(aClippingContent, aComposeTabID, aComposeFieldID=null, aOverridePasteFormat=null)
 {
   // Perform a final check to confirm that the composer represented by
   // aComposeTabID is still open.
@@ -2137,19 +2142,28 @@ async function pasteProcessedClipping(aClippingContent, aComposeTabID, aOverride
   }
 
   let comp = await messenger.compose.getComposeDetails(aComposeTabID);
-  let htmlPaste = aOverridePasteFormat === null ? gPrefs.htmlPaste : aOverridePasteFormat;
-  let pasteAsQuoted = await messenger.tabs.sendMessage(aComposeTabID, {
-    id: "get-paste-as-quoted-pref",
-  });  
 
-  await messenger.tabs.sendMessage(aComposeTabID, {
-    id: "paste-clipping",
-    content: aClippingContent,
-    isPlainText: comp.isPlainText,
-    htmlPaste,
-    autoLineBreak: gPrefs.autoLineBreak,
-    pasteAsQuoted,
-  });
+  if (aComposeFieldID == "composeSubject") {
+    // Add clipping to the subject line.
+    let subject = comp.subject;
+    subject += aClippingContent;
+    await messenger.compose.setComposeDetails(aComposeTabID, {subject});
+  }
+  else {
+    let htmlPaste = aOverridePasteFormat === null ? gPrefs.htmlPaste : aOverridePasteFormat;
+    let pasteAsQuoted = await messenger.tabs.sendMessage(aComposeTabID, {
+      id: "get-paste-as-quoted-pref",
+    });
+
+    await messenger.tabs.sendMessage(aComposeTabID, {
+      id: "paste-clipping",
+      content: aClippingContent,
+      isPlainText: comp.isPlainText,
+      htmlPaste,
+      autoLineBreak: gPrefs.autoLineBreak,
+      pasteAsQuoted,
+    });
+  }
 
   if (gPrefs.setDirtyFlag) {
     messenger.compose.setComposeDetails(aComposeTabID, {isModified: true});
@@ -2309,23 +2323,62 @@ messenger.commands.onCommand.addListener(async (aCmdName, aTab) => {
 
 
 messenger.menus.onShown.addListener(async (aInfo, aTab) => {
-  if (aTab.type != "messageCompose" || !aInfo.contexts.includes("compose_action")) {
-    return;
+  async function hideClippingsMenu()
+  {
+    let updates = [];
+    for (let id of aInfo.menuIds) {
+      gHiddenCxtMenuItemIDs.add(id);
+      let menuUpd = await messenger.menus.update(id, {visible: false});
+      updates.push(menuUpd);
+    }
+    await Promise.all(updates);
   }
 
-  let menuInstID = gNextMenuInstID++;
-  gLastMenuInstID = menuInstID;
-
-  let showPastePrmpt = await messenger.tabs.sendMessage(aTab.id, {id: "get-paste-as-quoted-pref"});
-
-  // Check if the menu is still shown when the above async call finished.
-  if (menuInstID != gLastMenuInstID) {
-    return;
+  async function showClippingsMenu()
+  {
+    for (let menuID of gHiddenCxtMenuItemIDs) {
+      await messenger.menus.update(menuID, {visible: true});
+    }
+    gHiddenCxtMenuItemIDs.clear();
   }
 
-  messenger.menus.update("ae-clippings-paste-as-quoted", {
-    checked: showPastePrmpt,
-  });
+  if (aTab.type == "messageCompose") {
+    if (aInfo.contexts.includes("compose_action")) {
+      let menuInstID = gNextMenuInstID++;
+      gLastMenuInstID = menuInstID;
+
+      let showPastePrmpt = await messenger.tabs.sendMessage(aTab.id, {id: "get-paste-as-quoted-pref"});
+
+      // Check if the menu is still shown when the above async call finished.
+      if (menuInstID != gLastMenuInstID) {
+        return;
+      }
+
+      messenger.menus.update("ae-clippings-paste-as-quoted", {
+        checked: showPastePrmpt,
+      });
+    }
+    else if (aInfo.contexts.includes("compose_body")) {
+      if (gHiddenCxtMenuItemIDs.size > 0) {
+        await showClippingsMenu();
+      }
+    }
+    else if (aInfo.contexts.includes("editable")) {
+      // Show Clippings submenu in the subject line.
+      if (aInfo.fieldId == "composeSubject") {
+        if (gHiddenCxtMenuItemIDs.size > 0) {
+          await showClippingsMenu();
+        }
+      }
+      await hideClippingsMenu();
+    }
+  }
+  else {
+    // Handle appearance of Clippings context menu in other textboxes, such as
+    // those in Clippings Manager and New Clipping dialog.
+    await hideClippingsMenu();
+  }
+
   messenger.menus.refresh();
 });
 
@@ -2357,7 +2410,7 @@ messenger.menus.onClicked.addListener((aInfo, aTab) => {
   default:
     if (aInfo.menuItemId.startsWith("ae-clippings-clipping-")) {
       let id = Number(aInfo.menuItemId.substring(aInfo.menuItemId.lastIndexOf("-") + 1, aInfo.menuItemId.indexOf("_")));
-      pasteClippingByID(id, aTab.id);
+      pasteClippingByID(id, aTab.id, aInfo.fieldId);
     }
     else if (aInfo.menuItemId.startsWith("ae-clippings-reset-autoincr-")) {
       let plchldr = aInfo.menuItemId.substr(28);
@@ -2460,7 +2513,7 @@ messenger.runtime.onMessage.addListener(aRequest => {
     }
     messenger.tabs.get(aRequest.composeTabID).then(aTab => {
       if (aTab.type == "messageCompose") {
-        pasteClippingByShortcutKey(aRequest.shortcutKey, aTab.id);
+        pasteClippingByShortcutKey(aRequest.shortcutKey, aTab.id, aRequest.composeFieldID);
       }
     }).catch(aErr => {
       warn("Clippings/mx: Can't find compose tab " + aRequest.composeTabID);
@@ -2484,7 +2537,7 @@ messenger.runtime.onMessage.addListener(aRequest => {
       }
 
       processHTMLFormattedClipping(
-        aRequest.clippingName, aRequest.processedContent, aRequest.composeTabID
+        aRequest.clippingName, aRequest.processedContent, aRequest.composeTabID, aRequest.composeFieldID
       );
     }).catch(aErr => {
       warn("Clippings/mx: Can't find compose tab " + aRequest.composeTabID);

@@ -20,6 +20,7 @@ let gSamePlchldrs = {};
 let gClippingName = null;
 let gClippingContent = null;
 let gComposeTabID = null;
+let gComposeFieldID = null;
 
 
 // DOM utility
@@ -33,6 +34,7 @@ function sanitizeHTML(aHTMLStr)
 $(async () => {
   let params = new URLSearchParams(window.location.search);
   gComposeTabID = Number(params.get("compTabID"));
+  gComposeFieldID = params.get("field");
 
   let [msgClient, platform] = await Promise.all([
     messenger.runtime.getBrowserInfo(),
@@ -276,6 +278,7 @@ function accept(aEvent)
     clippingName: gClippingName,
     processedContent: content,
     composeTabID: gComposeTabID,
+    composeFieldID: gComposeFieldID,
   });
   
   closeDlg();
