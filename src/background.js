@@ -2338,19 +2338,15 @@ messenger.menus.onShown.addListener(async (aInfo, aTab) => {
   {
     let updates = [];
     for (let id of aInfo.menuIds) {
+      if (id == "ae-tools-clippings-mgr") {
+        continue;  // Skip the Tools menu item.
+      }
+
       gHiddenCxtMenuItemIDs.add(id);
       let menuUpd = await messenger.menus.update(id, {visible: false});
       updates.push(menuUpd);
     }
     await Promise.all(updates);
-  }
-
-  async function showClippingsMenu()
-  {
-    for (let menuID of gHiddenCxtMenuItemIDs) {
-      await messenger.menus.update(menuID, {visible: true});
-    }
-    gHiddenCxtMenuItemIDs.clear();
   }
 
   if (aTab.type == "messageCompose") {
@@ -2370,16 +2366,12 @@ messenger.menus.onShown.addListener(async (aInfo, aTab) => {
       });
     }
     else if (aInfo.contexts.includes("compose_body")) {
-      if (gHiddenCxtMenuItemIDs.size > 0) {
-        await showClippingsMenu();
-      }
+      return;
     }
     else if (aInfo.contexts.includes("editable")) {
       // Show Clippings submenu in the subject line.
       if (aInfo.fieldId == "composeSubject") {
-        if (gHiddenCxtMenuItemIDs.size > 0) {
-          await showClippingsMenu();
-        }
+        return;
       }
       await hideClippingsMenu();
     }
@@ -2394,8 +2386,13 @@ messenger.menus.onShown.addListener(async (aInfo, aTab) => {
 });
 
 
-messenger.menus.onHidden.addListener(() => {
+messenger.menus.onHidden.addListener(async () => {
   gLastMenuInstID = 0;
+
+  for (let menuID of gHiddenCxtMenuItemIDs) {
+    await messenger.menus.update(menuID, {visible: true});
+  }
+  gHiddenCxtMenuItemIDs.clear();
 });
 
 
