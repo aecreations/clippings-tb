@@ -1913,7 +1913,7 @@ async function openDlgWnd(aURL, aWndKey, aWndPpty, aWndType)
     catch (e) {
       gWndIDs[aWndKey] = null;
       openDlgWndHelper();
-    };
+    }
   }
   else {
     openDlgWndHelper();
