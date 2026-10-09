@@ -3,6 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
+
 const WNDH_SHORTCUT_KEY = 164;
 const WNDH_SEARCH_CLIPPING = 250;
 const WNDH_SHORTCUT_LIST = 278;
@@ -268,7 +271,7 @@ $(async () => {
     messenger.runtime.getBrowserInfo(),
     messenger.runtime.getPlatformInfo(),
   ]);
-  envInfo = {
+  let envInfo = {
     os: platform.os,
     hostAppName: brws.name,
     hostAppVer:  brws.version,
