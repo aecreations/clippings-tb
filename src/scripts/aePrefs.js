@@ -51,6 +51,7 @@ let aePrefs = function () {
     setDirtyFlag: true,
     newExtPermRequestFlow: true,
     autoSyncOnNewOrManage: false,
+    keybdAddToSubject: true,
 
     // Deprecated prefs - these will be removed during extension upgrade.
     clippingsMgrMinzWhenInactv: null,
@@ -232,6 +233,7 @@ let aePrefs = function () {
     {
       let newPrefs = {
         autoSyncOnNewOrManage: false,
+        keybdAddToSubject: true,
       };
 
       await this._addPrefs(aPrefs, newPrefs);

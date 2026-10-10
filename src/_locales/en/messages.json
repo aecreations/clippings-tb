@@ -24,6 +24,11 @@
     "description": "Keyboard shortcut description in Manage Extension Shortcuts"
   },
 
+  "cmdSubjDesc": {
+    "message": "Add clipping to message subject by key",
+    "description": "Keyboard shortcut description in Manage Extension Shortcuts"
+  },
+
   "hostAppFx": {
     "message": "Firefox"
   },
@@ -71,6 +76,11 @@
 
   "pasteTitle": {
     "message": "Paste Clipping",
+    "description": "Title bar text of keyboard paste dialog"
+  },
+
+  "addSubjTitle": {
+    "message": "Add Clipping to Subject",
     "description": "Title bar text of keyboard paste dialog"
   },
 

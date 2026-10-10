@@ -71,6 +71,13 @@
         "mac": "Alt+Command+V"
       },
       "description": "__MSG_cmdDesc__"
+    },
+    "ae-clippings-add-clipping-to-subject": {
+      "suggested_key": {
+        "default": "Alt+Ctrl+Y",
+        "mac": "MacCtrl+Alt+V"
+      },
+      "description": "__MSG_cmdSubjDesc__"
     }
   },
 

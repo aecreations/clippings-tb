@@ -1769,9 +1769,11 @@ function openNewClippingDlg(aNewClippingContent)
 }
 
 
-function openKeyboardPasteDlg(aComposeTabID)
+function openKeyboardPasteDlg(aComposeTabID, aAddToSubject)
 {
   let url = messenger.runtime.getURL("pages/keyboardPaste.html?compTabID=" + aComposeTabID);
+  url += `&subj=${aAddToSubject ? 1 : 0}`;
+
   let width = 500;
   let height = 164;
   if (gOS == "linux") {
@@ -2328,7 +2330,10 @@ messenger.commands.onCommand.addListener(async (aCmdName, aTab) => {
   }
 
   if (aCmdName == "ae-clippings-paste-clipping") {
-    gPrefs.keybdPaste && openKeyboardPasteDlg(aTab.id);
+    gPrefs.keybdPaste && openKeyboardPasteDlg(aTab.id, false);
+  }
+  else if (aCmdName == "ae-clippings-add-clipping-to-subject") {
+    gPrefs.keybdAddToSubject && openKeyboardPasteDlg(aTab.id, true);
   }
 });
 
@@ -2531,7 +2536,7 @@ messenger.runtime.onMessage.addListener(aRequest => {
   case "paste-clipping-by-name":
     messenger.tabs.get(aRequest.composeTabID).then(aTab => {
       if (aTab.type == "messageCompose") {
-        pasteClippingByID(aRequest.clippingID, aRequest.composeTabID);
+        pasteClippingByID(aRequest.clippingID, aRequest.composeTabID, aRequest.composeFieldID);
       }
     }).catch(aErr => {
       warn("Clippings/mx: Can't find compose tab " + aRequest.composeTabID);

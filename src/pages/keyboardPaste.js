@@ -16,8 +16,9 @@ const TOOLBAR_HEIGHT = 52;
 const SHORTCUT_LIST_HEIGHT_ADJ_MAC = 2;
 const COMP_FIELD_SUBJECT = "composeSubject";
 
-let gClippingsDB, gPasteMode, gOS, gHostAppVer;
+let gClippingsDB, gPasteMode, gOS;
 let gComposeTabID = null;
+let gComposeFieldID = null;
 
 let gAutocompleteMenu = {
   _SCRL_LENGTH: 34,
@@ -236,6 +237,7 @@ let gAutocompleteMenu = {
       clippingID: aClippingID,
       composeTabID: gComposeTabID,
       fromClippingsMgr: false,
+      composeFieldID: gComposeFieldID,
     });
 
     closeDlg();
@@ -267,6 +269,11 @@ let gAutocompleteMenu = {
 $(async () => {
   let params = new URLSearchParams(window.location.search);
   gComposeTabID = Number(params.get("compTabID"));
+  let addToMsgSubject = (Number(params.get("subj")) == 1);
+  if (addToMsgSubject) {
+    gComposeFieldID = COMP_FIELD_SUBJECT;
+    document.title = messenger.i18n.getMessage("addSubjTitle");
+  }
   
   let [brws, platform] = await Promise.all([
     messenger.runtime.getBrowserInfo(),
@@ -340,10 +347,6 @@ $(async () => {
 
 
 $(window).on("keydown", async (aEvent) => {
-  if (aEvent.key == "Control") {
-    return;
-  }
-
   if (aEvent.key == "Escape") {
     if (gPasteMode == aeConst.PASTEACTION_SEARCH_CLIPPING) {
       if (gAutocompleteMenu.isPopupShowing()) {
@@ -424,13 +427,8 @@ $(window).on("keydown", async (aEvent) => {
       return;
     }
 
-    let destCompFieldID = null;
-    if (aEvent.ctrlKey) {
-      destCompFieldID = COMP_FIELD_SUBJECT;
-    }
-    
     if (gPasteMode == aeConst.PASTEACTION_SHORTCUT_KEY) {
-      execShortcut(aEvent.key.toLowerCase(), destCompFieldID);
+      execShortcut(aEvent.key.toLowerCase(), gComposeFieldID);
     }
     else {
       aeInterxn.suppressBrowserShortcuts(aEvent, aeConst.DEBUG);
