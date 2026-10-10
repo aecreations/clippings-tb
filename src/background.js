@@ -401,9 +401,9 @@ messenger.runtime.onInstalled.addListener(async (aInstall) => {
       });
     }
 
-    if (! aePrefs.hasFortPointPrefs(prefs)) {
+    if (! aePrefs.hasFortPointPrefs(gPrefs)) {
       log("Initializing 7.2 user preferences.");
-      await aePrefs.setFortPointPrefs(prefs);
+      await aePrefs.setFortPointPrefs(gPrefs);
 
       // Enable post-update notifications which users can click on to open the
       // What's New page.
