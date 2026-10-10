@@ -1209,13 +1209,9 @@ async function buildContextMenu()
     contexts: ["compose_action"],
   });
 
-  let prefsMnuStrKey = "mnuPrefs";
-  if (gOS == "win") {
-    prefsMnuStrKey = "mnuPrefsWin";
-  }
   messenger.menus.create({
     id: "ae-clippings-prefs",
-    title: messenger.i18n.getMessage(prefsMnuStrKey),
+    title: messenger.i18n.getMessage("mnuPrefsWin"),
     contexts: ["compose_action"],
   });
   messenger.menus.create({

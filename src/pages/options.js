@@ -47,12 +47,6 @@ $(async () => {
   document.body.dataset.os = gOS = platform.os;
   aeInterxn.init(gOS);
 
-  if (gOS == "win") {
-    let prefPgTitleWin = messenger.i18n.getMessage("prefsTitleWin");
-    document.title = prefPgTitleWin;
-    $("#pref-pg-hdr-text").text(prefPgTitleWin);
-  }
-
   let tabGeneral = $("#preftab-general-btn");
   tabGeneral.on("click", switchPrefsPanel);
   tabGeneral.ariaSelected = true;
