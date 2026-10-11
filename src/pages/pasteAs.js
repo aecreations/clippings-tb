@@ -3,13 +3,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 let gComposeTabID, gClippingContent;
 
 
 // Dialog initialization
 $(async () => {
   let platform = await messenger.runtime.getPlatformInfo();
-  document.body.dataset.os = gOS = platform.os;
+  document.body.dataset.os = platform.os;
   aeInterxn.init(platform.os);
 
   let lang = messenger.i18n.getUILanguage();
@@ -51,6 +53,9 @@ $(async () => {
     "paste-clipping-txt-hover.svg",
     "paste-clipping-txt-html-hover.svg"
   );
+
+  let useAccentColor = params.get("accent") == 1;
+  aeVisual.enableAccentColor(useAccentColor);
 
   // Fix for Fx57 bug where bundled page loaded using
   // browser.windows.create won't show contents unless resized.

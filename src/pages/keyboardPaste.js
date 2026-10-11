@@ -333,7 +333,8 @@ $(async () => {
     "export_hover.svg",
     "export-active-dk.svg"
   );
-
+  let useAccentColor = await aePrefs.getPref("useAccentColor");
+  aeVisual.enableAccentColor(useAccentColor);
   
   // Fix for Fx57 bug where bundled page loaded using
   // browser.windows.create won't show contents unless resized.

@@ -137,6 +137,7 @@ $(async () => {
     "tree-fldr-open-dk.svg",
     "tree-fldr-close-dk.svg"
   );
+  aeVisual.enableAccentColor(gPrefs.useAccentColor);
 
   aeInterxn.init(gEnvInfo.os);
   if (gPrefs.defDlgBtnFollowsFocus) {

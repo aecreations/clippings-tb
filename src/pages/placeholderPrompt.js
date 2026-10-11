@@ -171,6 +171,9 @@ $(async () => {
   $("#btn-accept").on("click", aEvent => { accept(aEvent) });
   $("#btn-cancel").on("click", aEvent => { cancel(aEvent) });
 
+  let useAccentColor = await aePrefs.getPref("useAccentColor");
+  aeVisual.enableAccentColor(useAccentColor);
+
   // Fix for Fx57 bug where bundled page loaded using
   // browser.windows.create won't show contents unless resized.
   // See <https://bugzilla.mozilla.org/show_bug.cgi?id=1402110>

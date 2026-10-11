@@ -6,6 +6,8 @@
 "use strict";
 
 
+const CHG_ACCENT_COLOR_DELAY_MS = 500;
+
 let gOS;
 let gDlg = {};
 let gIsActivatingSyncClippings = false;
@@ -236,6 +238,16 @@ $(async () => {
     messenger.runtime.sendMessage({msgID: "rebuild-cxt-menu"});
   });
 
+  $("#use-sys-colors").prop("checked", prefs.useAccentColor).on("click", aEvent => {
+    let useAccentColor = aEvent.target.checked;
+    aePrefs.setPrefs({useAccentColor});
+    setTimeout(() => {
+      aeVisual.enableAccentColor(useAccentColor);
+    }, CHG_ACCENT_COLOR_DELAY_MS);
+
+    // TO DO: Update accent colors on all opened windows and dialogs.
+  });
+
   $("#wnds-dlgs-settings").on("click", aEvent => {
     gDlg.wndsDlgsOpts.showModal();
   });
@@ -301,6 +313,7 @@ $(async () => {
     "pref-sync-clippings-checked-dk.svg"
   );
   aeVisual.preloadMsgBoxIcons(true);
+  aeVisual.enableAccentColor(prefs.useAccentColor);
 });
 
 

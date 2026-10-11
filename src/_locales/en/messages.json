@@ -1293,6 +1293,11 @@
     "description": "Checkbox option in extension preferences page"
   },
 
+  "cbUseAcnt": {
+    "message": "Use system accent color",
+    "description": "Checkbox option in extension preferences page"
+  },
+
   "cbUseNovaAcnt": {
     "message": "Use Firefox accent color",
     "description": "Checkbox option in extension preferences page"

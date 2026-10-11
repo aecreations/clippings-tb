@@ -3,8 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let gBackupConfirmMsgBox;
+"use strict";
 
+
+let gBackupConfirmMsgBox;
 
 // Dialog initialization
 $(async () => {
@@ -40,7 +42,7 @@ $(async () => {
     else {
       $("#backup-reminder-freq").prop("disabled", true);
       setPrefs = aePrefs.setPrefs({
-	backupRemFrequency: aeConst.BACKUP_REMIND_NEVER,
+        backupRemFrequency: aeConst.BACKUP_REMIND_NEVER,
       });
     }
 
@@ -48,7 +50,7 @@ $(async () => {
       return messenger.runtime.sendMessage({msgID: "clear-backup-notifcn-intv"});
     }).then(() => {
       if (aEvent.target.checked) {
-	messenger.runtime.sendMessage({msgID: "set-backup-notifcn-intv"});
+        messenger.runtime.sendMessage({msgID: "set-backup-notifcn-intv"});
       }
     });
   });
@@ -73,6 +75,9 @@ $(async () => {
 
   initDialogs();
   window.focus();
+
+  let useAccentColor = await aePrefs.getPref("useAccentColor");
+  aeVisual.enableAccentColor(useAccentColor);
 
   let defDlgBtnFollowsFocus = await aePrefs.getPref("defDlgBtnFollowsFocus");
   if (defDlgBtnFollowsFocus) {

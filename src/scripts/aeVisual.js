@@ -86,4 +86,26 @@ let aeVisual = {
 
     return rv;
   },
+
+  enableAccentColor(aIsEnabled, aFromExtSubdir=false)
+  {
+    let linkElt;
+
+    if (aIsEnabled) {
+      let href = "../style/accent.css";
+      if (aFromExtSubdir) {
+        href = "../" + href;
+      }
+
+      linkElt = document.createElement("link");
+      linkElt.id = "ae-accent-color";
+      linkElt.rel = "stylesheet";
+      linkElt.href = href;
+      document.head.appendChild(linkElt);
+    }
+    else {
+      linkElt = document.getElementById("ae-accent-color");
+      !!linkElt && linkElt.remove();
+    }
+  },
 };

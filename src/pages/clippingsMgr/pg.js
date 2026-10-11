@@ -1088,9 +1088,11 @@ $(async () => {
   }
 
   aeInterxn.init(gEnvInfo.os);
+  aeVisual.init(gEnvInfo.os);
   if (gPrefs.defDlgBtnFollowsFocus) {
     aeInterxn.initDialogButtonFocusHandlers();
   }
+  aeVisual.enableAccentColor(gPrefs.useAccentColor, true);
 
   focusWnd();
   

@@ -1809,7 +1809,8 @@ function openPlaceholderPromptDlg(aComposeTabID, aComposeFieldID=null)
 
 function openPasteAsDlg(aComposeTabID)
 {
-  let url = messenger.runtime.getURL(`pages/pasteAs.html?compTabID=${aComposeTabID}`);
+  let accent = gPrefs.useAccentColor ? 1 : 0;
+  let url = messenger.runtime.getURL(`pages/pasteAs.html?compTabID=${aComposeTabID}&accent=${accent}`);
   let width = 440;
   let height = 300;
   if (gOS == "linux") {
@@ -2250,7 +2251,8 @@ async function alertEx(aMessageName, aUsePopupWnd=false)
   let message = messenger.i18n.getMessage(aMessageName);
   info("Clippings/mx: " + message);
 
-  let url = "pages/msgbox.html?msgid=" + aMessageName;
+  let accent = gPrefs.useAccentColor ? 1 : 0;
+  let url = `pages/msgbox.html?msgid=${aMessageName}&accent=${accent}`;
 
   // Center the common message box popup within originating composer window,
   // both horizontally and vertically.
