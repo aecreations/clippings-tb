@@ -2684,16 +2684,16 @@ function initTreeSplitter()
 {
   // Adapted from https://codepen.io/lingtalfi/pen/zoNeJp
   // Requires Simple Drag library: https://github.com/lingtalfi/simpledrag
-  var leftPane = document.getElementById("clippings-tree");
-  var rightPane = document.getElementById("item-properties");
-  var paneSep = document.getElementById("tree-splitter");
+  let leftPane = document.getElementById("clippings-tree");
+  let rightPane = document.getElementById("item-properties");
+  let paneSep = document.getElementById("tree-splitter");
 
   // The script below constrains the target to move horizontally between a left and a right
   // virtual boundaries.
   // - the left limit is positioned at 10% of the screen width
   // - the right limit is positioned at 60% of the screen width
-  var leftLimit = 10;
-  var rightLimit = 60;
+  let leftLimit = 10;
+  let rightLimit = 60;
 
   paneSep.sdrag(function (el, pageX, startX, pageY, startY, fix) {
 
@@ -2708,7 +2708,7 @@ function initTreeSplitter()
       fix.pageX = pageX;
     }
 
-    var cur = pageX / window.innerWidth * 100;
+    let cur = pageX / window.innerWidth * 100;
     if (cur < 0) {
       cur = 0;
     }
@@ -2717,7 +2717,7 @@ function initTreeSplitter()
     }
 
 
-    var right = (100-cur-2);
+    let right = (100-cur-2);
     leftPane.style.width = cur + '%';
     rightPane.style.width = right + '%';
 
@@ -2945,14 +2945,14 @@ function insertTextIntoTextbox(aTextboxElt, aInsertedText)
   text = textbox.value;
 
   if (textbox.selectionStart == textbox.selectionEnd) {
-    var point = textbox.selectionStart;
+    let point = textbox.selectionStart;
     pre = text.substring(0, point);
     post = text.substring(point, text.length);
     pos = point + aInsertedText.length;
   }
   else {
-    var p1 = textbox.selectionStart;
-    var p2 = textbox.selectionEnd;
+    let p1 = textbox.selectionStart;
+    let p2 = textbox.selectionEnd;
     pre = text.substring(0, p1);
     post = text.substring(p2, text.length);
     pos = p1 + aInsertedText.length;

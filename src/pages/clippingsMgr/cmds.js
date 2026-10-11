@@ -130,7 +130,7 @@ function clippingsMgrCmds()
       },
 
       pop() {
-        var rv = this._stack.pop();
+        let rv = this._stack.pop();
         this.length--;
         return rv;
       },
@@ -252,7 +252,7 @@ function clippingsMgrCmds()
 
       pop()
       {
-        var rv = {};
+        let rv = {};
         for (let ppty in this._lastUndo) {
           rv[ppty] = this._lastUndo[ppty];
         }

@@ -35,7 +35,7 @@ $(async () => {
   catch (e) {
     showInitError();
     return;
-  };
+  }
 
   gEnvInfo = await messenger.runtime.sendMessage({msgID: "get-env-info"});
 
