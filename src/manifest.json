@@ -74,7 +74,7 @@
     },
     "ae-clippings-add-clipping-to-subject": {
       "suggested_key": {
-        "default": "Alt+Ctrl+Y",
+        "default": "Alt+Shift+S",
         "mac": "MacCtrl+Alt+V"
       },
       "description": "__MSG_cmdSubjDesc__"
