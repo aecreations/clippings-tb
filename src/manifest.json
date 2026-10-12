@@ -30,7 +30,6 @@
   ],
 
   "optional_permissions": [
-    "addressBooks",
     "clipboardRead",
     "nativeMessaging"
   ],
