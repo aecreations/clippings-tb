@@ -409,8 +409,8 @@ aeClippingSubst.processAutoIncrPlaceholders = function (aClippingText)
 
 aeClippingSubst.getAutoIncrementVarNames = function ()
 {
-  var rv = [];
-  for (var name in this._autoIncrementVars) {
+  let rv = [];
+  for (let name in this._autoIncrementVars) {
     rv.push(name);
   }
   return rv;
