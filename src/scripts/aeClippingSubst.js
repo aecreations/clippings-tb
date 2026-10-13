@@ -3,6 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 
 /*
  * Module aeClippingSubst
@@ -239,9 +241,9 @@ aeClippingSubst.processStdPlaceholders = async function (aClippingInfo, aCompose
 
   // Process compose details and substitute values for email-related
   // placeholders.
-  let subj = '', to = '', toN = '', toE = '',
+  let subj = '', to = '', toN = '', toFN = '', toE = '',
       from = '', fromN = '', fromE = '',
-      cc = '', ccN = '', ccE = '';
+      cc = '', ccN = '', ccFN = '', ccE = '';
 
   subj = aComposeDetails.subject;
   if (!aComposeDetails.isPlainText) {  // HTML format
@@ -257,6 +259,12 @@ aeClippingSubst.processStdPlaceholders = async function (aClippingInfo, aCompose
   }
 
   if (aComposeDetails.to instanceof Array) {
+    let firstNames = [];
+    for (let to of aComposeDetails.to) {
+      let {email} = this._parseEmailAddress(to);
+      firstNames.push(await this._getContactFirstName(email));
+    }
+
     to = aComposeDetails.to.join(", ");
     if (!aComposeDetails.isPlainText) {
       to = this._escapeHTML(to);
@@ -264,6 +272,7 @@ aeClippingSubst.processStdPlaceholders = async function (aClippingInfo, aCompose
 
     let toParsed = aComposeDetails.to.map(aTo => this._parseEmailAddress(aTo));
     toN = toParsed.map(aTo => aTo.name).filter(aTo => aTo != '').join(", ");
+    toFN = firstNames.join(", ");
     toE = toParsed.map(aTo => aTo.email).join(", ");
   }
   else {
@@ -271,11 +280,17 @@ aeClippingSubst.processStdPlaceholders = async function (aClippingInfo, aCompose
     let toParsed = this._parseEmailAddress(to);
     toN = toParsed.name;
     toE = toParsed.email;
+    toFN = await this._getContactFirstName(toParsed.email);
     if (!aComposeDetails.isPlainText) {
       to = this._escapeHTML(to);
     }
   }
   if (aComposeDetails.cc instanceof Array) {
+    let firstNames = [];
+    for (let cc of aComposeDetails.cc) {
+      let {email} = this._parseEmailAddress(cc);
+      firstNames.push(await this._getContactFirstName(email));
+    }
     cc = aComposeDetails.cc.join(", ");
     if (!aComposeDetails.isPlainText) {
       cc = this._escapeHTML(cc);
@@ -283,6 +298,7 @@ aeClippingSubst.processStdPlaceholders = async function (aClippingInfo, aCompose
 
     let ccParsed = aComposeDetails.cc.map(aCc => this._parseEmailAddress(aCc));
     ccN = ccParsed.map(aCc => aCc.name).filter(aCc => aCc != '').join(", ");
+    ccFN = firstNames.join((", "));
     ccE = ccParsed.map(aCc => aCc.email).join(", ");
   }
   else {
@@ -290,6 +306,7 @@ aeClippingSubst.processStdPlaceholders = async function (aClippingInfo, aCompose
     let ccParsed = this._parseEmailAddress(cc);
     ccN = ccParsed.name;
     ccE = ccParsed.email;
+    ccFN = await this._getContactFirstName(ccParsed.email);
     if (!aComposeDetails.isPlainText) {
       cc = this._escapeHTML(cc);
     }
@@ -301,9 +318,11 @@ aeClippingSubst.processStdPlaceholders = async function (aClippingInfo, aCompose
   rv = rv.replace(/\$\[FROM_EMAIL\]/gm, fromE);
   rv = rv.replace(/\$\[TO\]/gm, to);
   rv = rv.replace(/\$\[TO_NAME\]/gm, toN);
+  rv = rv.replace(/\$\[TO_FIRST_NAME\]/gm, toFN);
   rv = rv.replace(/\$\[TO_EMAIL\]/gm, toE);
   rv = rv.replace(/\$\[CC\]/gm, cc);
   rv = rv.replace(/\$\[CC_NAME\]/gm, ccN);
+  rv = rv.replace(/\$\[CC_FIRST_NAME\]/gm, ccFN);
   rv = rv.replace(/\$\[CC_EMAIL\]/gm, ccE);
 
   return rv;
@@ -326,6 +345,21 @@ aeClippingSubst._parseEmailAddress = function (aNameAndEmailAddrStr)
     rv.email = rv.email.substring(0, rv.email.length - 1);
   }
   
+  return rv;
+};
+
+
+aeClippingSubst._getContactFirstName = async function (aEmailAddress)
+{
+  let rv = '';
+
+  // If the optional "addressBooks" permission wasn't granted, this API call
+  // will fail silently.
+  let srchResults = await messenger.contacts.quickSearch(aEmailAddress);
+  if (srchResults.length > 0) {
+    rv = srchResults[0].properties.FirstName || '';
+  }
+
   return rv;
 };
 
