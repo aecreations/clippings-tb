@@ -56,6 +56,14 @@ class aeDialog
       backdropElt.className = "lightbox-bkgrd";
       $(".lightbox").last().after($(backdropElt));
     }
+
+    let panelBackdrop = $("#panel-bkgrd-ovl");
+    if (panelBackdrop.length == 0) {
+      let panelBackdropElt = document.createElement("div");
+      panelBackdropElt.id = "panel-bkgrd-ovl";
+      panelBackdropElt.className = "panel-bkgrd";
+      $(".panel").last().after($(panelBackdropElt));
+    }
     
     let dlgAcceptElt = $(`${this._dlgEltStor} > .dlg-btns > .dlg-accept`);
     if (dlgAcceptElt.length > 0) {
@@ -134,6 +142,12 @@ class aeDialog
   isPopup()
   {
     let rv = this._dlgElt.hasClass("panel");
+    return rv;
+  }
+
+  isPopupOpen()
+  {
+    let rv = this.isPopup() && this._dlgElt.hasClass("panel-show");
     return rv;
   }
 
@@ -253,6 +267,14 @@ class aeDialog
     this._popupTimerID = window.setTimeout(() => {
       this.hidePopup();
     }, this.HIDE_POPUP_DELAY_MS);
+  }
+
+  openPersistentPopup()
+  {
+    this._fnInit();
+    let popupElt = $(`${this._dlgEltStor}`);
+    $("#panel-bkgrd-ovl").addClass("panel-show");
+    popupElt.addClass("panel-show");
   }
 
   hidePopup()

@@ -108,14 +108,18 @@
 
 @keyframes fadeout {
     0% {
-	opacity: 1.0;
+    opacity: 1.0;
     }
     75% {
-	opacity: 0.0;
+    opacity: 0.0;
     }
     100% {
-	opacity: 0.0;
+    opacity: 0.0;
     }
+}
+
+.msgbar-persistent {
+    animation-name: none;
 }
 
 .msgbar-icon, .msgbar-warn-icon, .msgbar-content, .msgbar-dismiss {
