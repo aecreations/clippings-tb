@@ -356,7 +356,7 @@ aeClippingSubst._getContactFirstName = async function (aEmailAddress)
   // If the optional "addressBooks" permission wasn't granted, this API call
   // will fail silently.
   let srchResults = await messenger.contacts.quickSearch(aEmailAddress);
-  if (srchResults.length > 0) {
+  if (srchResults?.length > 0) {
     rv = srchResults[0].properties.FirstName || '';
   }
 

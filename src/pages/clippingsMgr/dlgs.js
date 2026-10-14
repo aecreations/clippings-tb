@@ -22,11 +22,18 @@ function clippingsMgrDlgs()
   let clipboardEmpty = new aeDialog("#clipboard-empty-msgbar");
   let actionUnavailable = new aeDialog("#action-not-available");
 
+  let addrBksPermNeeded = new aeDialog("#addressbooks-perm-msgbar");
+  addrBksPermNeeded.isDetailsBtnClicked = function (aEventTargetEltID)
+  {
+    return aEventTargetEltID == "addressbooks-perm-details";
+  };
+
   let requestExtPerm = new aeDialog("#request-ext-perm-dlg");
   requestExtPerm.setProps({
     extPerm: null,
     extPermStrKeys: {
       clipboardRead: "extPrmClipbdR",
+      addressBooks: "extPrmAddrBk",
     },
   });
 
@@ -931,6 +938,7 @@ function clippingsMgrDlgs()
     noUndoNotify,
     noRedoNotify,
     clipboardEmpty,
+    addrBksPermNeeded,
     actionUnavailable,
     requestExtPerm,
     shortcutList,

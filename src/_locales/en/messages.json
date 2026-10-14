@@ -240,7 +240,12 @@
 
   "permReqTitle": {
     "message": "To complete the selected action, Clippings needs additional permission:",
-    "description": "Header for modal dialog that appears when trying to complete an action that requires an optional extension permission to be turned on"
+    "description": "Intro text in permissions page when trying to complete an action that requires an optional extension permission to be turned on"
+  },
+
+  "permReq": {
+    "message": "Clippings needs additional permission:",
+    "description": "Intro text in permissions page when a feature requires an optional extension permission to be turned on"
   },
 
   "extPrmClipbdR": {
@@ -255,12 +260,22 @@
 
   "extPrmClipbdW": {
     "message": "Input data to the clipboard",
-    "description": "User-facing label for of the 'clipboardWrite' extension permission"
+    "description": "User-facing label for the 'clipboardWrite' extension permission"
   },
 
   "extPrmClipbdWDesc": {
     "message": "This permission allows clipping text to be copied from Clippings Manager or Clippings Sidebar.",
     "description": "Description of the 'clipboardWrite' extension permission"
+  },
+
+  "extPrmAddrBk": {
+    "message": "Read and modify your address books and contacts",
+    "description": "User-facing label for the 'addressBooks' extension permission"
+  },
+
+  "extPrmAddrBkDesc": {
+    "message": "This permission is needed to fill in placeholders for the message recipient's first name using information saved in your contacts.",
+    "description": "Description of the 'addressBooks' extension permission"
   },
 
   "extPermInstr": {
@@ -787,6 +802,10 @@
     "message": "Name",
     "description": "Clippings Manager - preset (built-in) placeholder menu (Thunderbird only)"
   },
+  "mnuPlchldrFName": {
+    "message": "First Name",
+    "description": "Clippings Manager - preset (built-in) placeholder menu (Thunderbird only)"
+  },
 
   "mnuPlchldrEmail": {
     "message": "Email",
@@ -921,6 +940,16 @@
 
   "clipMgrNoSrcURL": {
     "message": "The selected clipping doesn't have a source web page address."
+  },
+
+  "addrBkPermPanel": {
+    "message": "Additional permission needed to fill in this placeholder when pasting.",
+    "description": "Clippings Manager message bar in Thunderbird"
+  },
+
+  "detailsMsgBar": {
+    "message": "Details",
+    "description": "Label for a button in the Clippings Manager message bar in Thunderbird"
   },
 
   "clipMgrImportConfirm": {

@@ -52,7 +52,7 @@ main {
 #ext-logo {
     order: 1;
     flex: 0 1 auto;
-    width: 290px;
+    min-width: 226px;
     margin-top: 36px;
     text-align: center;
 }

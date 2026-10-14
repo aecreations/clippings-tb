@@ -127,7 +127,6 @@
   </div>
 
   <!-- Popup panels -->
-  <div id="panel-bkgrd-ovl" class="panel-bkgrd"></div>
   <div id="no-undo-msgbar" class="msgbar panel">
     <div class="msgbar-icon"></div>
     <div class="msgbar-content" data-i18n="clipMgrNoUndo" role="alert"></div>
@@ -150,6 +149,15 @@
     <div class="msgbar-warn-icon"></div>
     <div class="msgbar-content" data-i18n="msgClipbdEmpty" role="alert"></div>
     <div class="msgbar-dismiss dlg-accept"></div>
+  </div>
+
+  <div id="addressbooks-perm-msgbar" class="msgbar msgbar-persistent panel">
+    <div class="msgbar-icon"></div>
+    <div class="msgbar-content">
+      <span data-i18n="addrBkPermPanel"></span>
+      <button id="addressbooks-perm-details" data-i18n="detailsMsgBar"></button>
+    </div>
+    <div id="addressbooks-perm-msgbar-dismiss" class="msgbar-dismiss dlg-accept"></div>
   </div>
 
   <div id="action-not-available" class="msgbar msgbar-warn panel">

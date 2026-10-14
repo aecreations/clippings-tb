@@ -8,6 +8,7 @@
 
 let gExtPermStrKeys = {
   clipboardRead: "extPrmClipbdR",
+  addressBooks: "extPrmAddrBk",
 };
 
 let gWndID, gTabID, gOpenerWndID, gExtPerm, gExecActionID;
@@ -23,6 +24,11 @@ $(async () => {
 
   let params = new URLSearchParams(window.location.search);
   gOpenerWndID = params.get("openerWndID");
+
+  let noAction = params.get("noAction") == 1;
+  if (noAction) {
+    $("#ext-perm-req").text(messenger.i18n.getMessage("permReq"));
+  }
 
   await populateRequestedPermission();
   $("#perm-hlp-link").attr("href", aeConst.PERM_HLP_URL);

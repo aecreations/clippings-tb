@@ -1270,10 +1270,21 @@ $(window).on("contextmenu", aEvent => {
 });
 
 
-$(window).on("click", aEvent => {
-  // HACK!!
-  if ($("#shortcut-list-popup").hasClass("panel-show")) {
-    return;
+$(window).on("click", async (aEvent) => {
+  if (gDlg.addrBksPermNeeded.isPopupOpen()) {
+    if (gDlg.addrBksPermNeeded.isDetailsBtnClicked(aEvent.target.id)) {
+      gDlg.addrBksPermNeeded.hidePopup();
+
+      if (gPrefs.newExtPermRequestFlow) {
+        gPermissionReq.set("addressBooks", null);
+        await gCmd.openExtensionPermissionPg(true);
+      }
+      else {
+        gDlg.requestExtPerm.setPermission("addressBooks");
+        gDlg.requestExtPerm.showModal();
+      }
+      return;
+    }
   }
   
   aeDialog.hidePopups();
@@ -1432,13 +1443,6 @@ function initToolbar()
     },
 
     callback: function (aItemKey, aOpt, aRootMenu, aOriginalEvent) {
-      let contentTextArea = $("#clipping-text");
-      contentTextArea.trigger("focus");
-
-      function insertPlaceholder(aPlaceholder) {
-        insertTextIntoTextbox(contentTextArea, aPlaceholder);
-      }
-      
       switch (aItemKey) {
       case "insDate":
         insertPlaceholder("$[DATE]");
@@ -1484,6 +1488,10 @@ function initToolbar()
         insertPlaceholder("$[TO_NAME]");
         break;
 
+      case "insToFName":
+        insertPlaceholder("$[TO_FIRST_NAME]");
+        break;
+
       case "insToEmail":
         insertPlaceholder("$[TO_EMAIL]");
         break;
@@ -1494,6 +1502,10 @@ function initToolbar()
 
       case "insCcName":
         insertPlaceholder("$[CC_NAME]");
+        break;
+
+      case "insCcFName":
+        insertPlaceholder("$[CC_FIRST_NAME]");
         break;
 
       case "insCcEmail":
@@ -1564,6 +1576,10 @@ function initToolbar()
             name: messenger.i18n.getMessage("mnuPlchldrName"),
             className: "ae-menuitem"
           },
+          insToFName: {
+            name: messenger.i18n.getMessage("mnuPlchldrFName"),
+            className: "ae-menuitem"
+          },
           insToEmail: {
             name: messenger.i18n.getMessage("mnuPlchldrEmail"),
             className: "ae-menuitem"
@@ -1579,6 +1595,10 @@ function initToolbar()
           },
           insCcName: {
             name: messenger.i18n.getMessage("mnuPlchldrName"),
+            className: "ae-menuitem"
+          },
+          insCcFName: {
+            name: messenger.i18n.getMessage("mnuPlchldrFName"),
             className: "ae-menuitem"
           },
           insCcEmail: {
@@ -1956,6 +1976,26 @@ function initIntroBannerAndHelpDlg()
 
   for (let tbl of shctKeyTbls) {
     buildKeyMapTable(tbl);
+  }
+}
+
+
+async function insertPlaceholder(aPlaceholder) {
+  let contentTextArea = $("#clipping-text");
+  contentTextArea.trigger("focus");
+  insertTextIntoTextbox(contentTextArea, aPlaceholder);
+
+  if (["$[TO_FIRST_NAME]", "$[CC_FIRST_NAME]"].includes(aPlaceholder)) {
+    await checkAddressBookPermission();
+  }
+}
+
+
+async function checkAddressBookPermission()
+{
+  let perms = await messenger.permissions.getAll();
+  if (!perms.permissions.includes("addressBooks")) {
+    gDlg.addrBksPermNeeded.openPersistentPopup();
   }
 }
 

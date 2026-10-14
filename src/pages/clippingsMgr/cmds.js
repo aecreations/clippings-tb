@@ -2259,6 +2259,11 @@ function clippingsMgrCmds()
       }
     },
 
+    async openExtensionPermissionPg(aNoAction=false)
+    {
+      await this._openExtPermissionPg(aNoAction);
+    },
+
 
     //
     // Helper methods
@@ -2339,8 +2344,13 @@ function clippingsMgrCmds()
       }
     },
 
-    async _openExtPermissionPg()
+    async _openExtPermissionPg(aNoAction=false)
     {
+      let url = messenger.runtime.getURL("pages/permission.html?openerWndID=" + gWndID)
+      if (aNoAction) {
+        url += "&noAction=1";
+      }
+
       let resp;
       try {
         resp = await messenger.runtime.sendMessage({msgID: "ping-perms-req-pg"});
@@ -2353,7 +2363,7 @@ function clippingsMgrCmds()
       else {
         try {
           await messenger.tabs.create({
-            url: messenger.runtime.getURL("pages/permission.html?openerWndID=" + gWndID),
+            url,
             active: true,
           });
         }
@@ -2361,7 +2371,7 @@ function clippingsMgrCmds()
           // Exception thrown if the main Thunderbird window isn't open.
           let wnd = await messenger.windows.create();
           await messenger.tabs.create({
-            url: messenger.runtime.getURL("pages/permission.html?openerWndID=" + gWndID),
+            url,
             active: true,
             windowId: wnd.id,
           });
