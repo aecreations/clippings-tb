@@ -1483,11 +1483,11 @@ function clippingsMgrCmds()
       let that = this;
 
       return new Promise((aFnResolve, aFnReject) => {
-        let oldContent = "";
-        let sid;
+        let oldContent = '';
+        let clipping, sid;
 
         gClippingsDB.clippings.get(aClippingID).then(aClipping => {
-          if (! aClipping) {
+          if (!aClipping) {
             throw new Error("Clipping not found for ID " + aClippingID);
           }
 
@@ -1500,8 +1500,15 @@ function clippingsMgrCmds()
             return 0;
           }
 
+          clipping = aClipping;
+          if (aContent.includes("$[TO_FIRST_NAME]") || aContent.includes("$[CC_FIRST_NAME]")) {
+            return checkAddressBookPermission();
+          }
+          return null;
+
+        }).then(() => {
           that.recentAction = that.ACTION_EDITCONTENT;
-          return gClippingsSvc.updateClipping(aClippingID, { content: aContent }, aClipping);
+          return gClippingsSvc.updateClipping(aClippingID, {content: aContent}, clipping);
 
         }).then(aNumUpd => {
           this._unsetClippingsUnchangedFlag();

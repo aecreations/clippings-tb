@@ -25,6 +25,7 @@ let gIsBackupMode = false;
 let gErrorPushSyncItems = false;
 let gReorderedTreeNodeNextSibling = null;
 let gWndID;
+let gShowAddrBkPermPopup = true;
 
 let gPermissionReq = {
   _extPerm: null,
@@ -1993,9 +1994,12 @@ async function insertPlaceholder(aPlaceholder) {
 
 async function checkAddressBookPermission()
 {
-  let perms = await messenger.permissions.getAll();
-  if (!perms.permissions.includes("addressBooks")) {
-    gDlg.addrBksPermNeeded.openPersistentPopup();
+  if (gShowAddrBkPermPopup) {
+    let perms = await messenger.permissions.getAll();
+    if (!perms.permissions.includes("addressBooks")) {
+      gDlg.addrBksPermNeeded.openPersistentPopup();
+    }
+    gShowAddrBkPermPopup = false;
   }
 }
 
