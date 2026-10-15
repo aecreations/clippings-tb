@@ -25,7 +25,7 @@
   },
 
   "cmdSubjDesc": {
-    "message": "Add clipping to message subject by key",
+    "message": "Add clipping to message subject",
     "description": "Keyboard shortcut description in Manage Extension Shortcuts"
   },
 
@@ -1269,32 +1269,44 @@
   },
 
   "htmlPasteDesc": {
-    "message": "An HTML-formatted clipping will always be pasted as plain text if pasting into a plain textbox, or if the clipping contains restricted tags such as <script>, <applet>, <object>, <iframe>, etc."
+    "message": "An HTML-formatted clipping will always be pasted as plain text if pasting into a plain textbox, or if the clipping contains restricted tags such as <script>, <applet>, <object>, <iframe>, etc.",
+    "description": "Extension preferences page"
   },
 
   "htmlPasteDescTB": {
-    "message": "An HTML-formatted clipping will always be pasted as plain text if pasting into a plain-text message, or if the clipping contains restricted tags such as <script>, <applet>, <object>, <iframe>, etc."
+    "message": "An HTML-formatted clipping will always be pasted as plain text if pasting into a plain-text message, or if the clipping contains restricted tags such as <script>, <applet>, <object>, <iframe>, etc.",
+    "description": "Extension preferences page (Thunderbird only)"
   },
 
 
   "prefsShortcutMode": {
-    "message": "Activate shortcut key mode by pressing these keys:"
+    "message": "Activate shortcut key mode by pressing these keys:",
+    "description": "Extension preferences page"
   },
 
   "prefsShctMode": {
-    "message": "Activate shortcut key mode by pressing $1"
+    "message": "Activate shortcut key mode by pressing $1",
+    "description": "Extension preferences page (Thunderbird only)"
+  },
+
+  "prefsSubjShctMode": {
+    "message": "Activate shortcut key mode for message subject by pressing $1",
+    "description": "Extension preferences page (Thunderbird only)"
   },
 
   "prefsShortcutKeyNote": {
-    "message": "Some of the available keyboard shortcuts may already be assigned to <a href=\"https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly\" class=\"hyperlink\">Firefox commands</a> or other add\u2011ons."
+    "message": "Some of the available keyboard shortcuts may already be assigned to <a href=\"https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly\" class=\"hyperlink\">Firefox commands</a> or other add\u2011ons.",
+    "description": "Extension preferences page"
   },
 
   "prefsOutsideShct": {
-    "message": "To change the keyboard shortcut, go to Manage Extension Shortcuts in Add-ons Manager."
+    "message": "To change the keyboard shortcut, go to Manage Extension Shortcuts in Add-ons Manager.",
+    "description": "Extension preferences page"
   },
   
   "prefsDefaultNumPlchldrStart": {
-    "message": "Default starting value for numeric placeholders:"
+    "message": "Default starting value for numeric placeholders:",
+    "description": "Extension preferences page"
   },
 
   "prefsHdgGeneralOptions": {
