@@ -487,7 +487,7 @@ function clippingsMgrCmds()
       if (! perms.permissions.includes("clipboardRead")) {
         if (gPrefs.newExtPermRequestFlow) {
           gPermissionReq.set("clipboardRead", "new-from-clipbd");
-          await this._openExtPermissionPg();
+          await aeClippings.openPermissionPg(gWndID);
         }
         else {
           gDlg.requestExtPerm.setPermission("clipboardRead");
@@ -1501,7 +1501,7 @@ function clippingsMgrCmds()
           }
 
           clipping = aClipping;
-          if (aContent.includes("$[TO_FIRST_NAME]") || aContent.includes("$[CC_FIRST_NAME]")) {
+          if (aeClippings.hasContactFirstNamePlaceholder(aClipping.content)) {
             return checkAddressBookPermission();
           }
           return null;
@@ -2266,11 +2266,6 @@ function clippingsMgrCmds()
       }
     },
 
-    async openExtensionPermissionPg(aNoAction=false)
-    {
-      await this._openExtPermissionPg(aNoAction);
-    },
-
 
     //
     // Helper methods
@@ -2348,41 +2343,6 @@ function clippingsMgrCmds()
       }
       else if (aDestUndoStack == this.REDO_STACK) {
         this.redoStack.push(aState);
-      }
-    },
-
-    async _openExtPermissionPg(aNoAction=false)
-    {
-      let url = messenger.runtime.getURL("pages/permission.html?openerWndID=" + gWndID)
-      if (aNoAction) {
-        url += "&noAction=1";
-      }
-
-      let resp;
-      try {
-        resp = await messenger.runtime.sendMessage({msgID: "ping-perms-req-pg"});
-      }
-      catch {}
-
-      if (resp) {
-        messenger.runtime.sendMessage({msgID: "reload-perms-req-pg"});
-      }
-      else {
-        try {
-          await messenger.tabs.create({
-            url,
-            active: true,
-          });
-        }
-        catch (e) {
-          // Exception thrown if the main Thunderbird window isn't open.
-          let wnd = await messenger.windows.create();
-          await messenger.tabs.create({
-            url,
-            active: true,
-            windowId: wnd.id,
-          });
-        }
       }
     },
   };

@@ -80,5 +80,51 @@ let aeClippings = {
   {
     let rv = aText.search(/<[a-z1-6]+( [a-z\-]+(\="?.*"?)?)*>/i) != -1;
     return rv;
-  }
+  },
+
+
+  hasContactFirstNamePlaceholder(aText)
+  {
+    if (typeof aText != "string") {
+      throw new TypeError("aeClippings.hasContactFirstNamePlaceholder(): aText not a string");
+    }
+
+    return (aText.includes("$[TO_FIRST_NAME]") || aText.includes("$[CC_FIRST_NAME]"));
+  },
+
+
+  async openPermissionPg(aOpenerWndID, aNoAction=false)
+  {
+    let url = messenger.runtime.getURL(`pages/permission.html?openerWndID=${aOpenerWndID}`);
+    if (aNoAction) {
+      url += "&noAction=1";
+    }
+
+    let resp;
+    try {
+      resp = await messenger.runtime.sendMessage({msgID: "ping-perms-req-pg"});
+    }
+    catch {}
+
+    if (resp) {
+      messenger.runtime.sendMessage({msgID: "reload-perms-req-pg"});
+    }
+    else {
+      try {
+        await messenger.tabs.create({
+          url,
+          active: true,
+        });
+      }
+      catch (e) {
+        // Exception thrown if the main Thunderbird window isn't open.
+        let wnd = await messenger.windows.create();
+        await messenger.tabs.create({
+          url,
+          active: true,
+          windowId: wnd.id,
+        });
+      }
+    }
+  },
 };

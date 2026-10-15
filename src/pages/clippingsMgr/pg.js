@@ -26,32 +26,7 @@ let gErrorPushSyncItems = false;
 let gReorderedTreeNodeNextSibling = null;
 let gWndID;
 let gShowAddrBkPermPopup = true;
-
-let gPermissionReq = {
-  _extPerm: null,
-  _execActionID: null,
-
-  set(aExtPermission, aExecActionID)
-  {
-    this._extPerm = aExtPermission;
-    this._execActionID = aExecActionID;
-  },
-
-  get()
-  {
-    let rv = {
-      extPerm: this._extPerm,
-      execActionID: this._execActionID,
-    };
-    return rv;
-  },
-
-  clear()
-  {
-    this._extPerm = null;
-    this._execActionID = null;
-  },
-};
+let gPermissionReq = new aePermReqInfo();
 
 
 // Wrappers to database create/update/delete operations. These also call the
@@ -1278,7 +1253,7 @@ $(window).on("click", async (aEvent) => {
 
       if (gPrefs.newExtPermRequestFlow) {
         gPermissionReq.set("addressBooks", null);
-        await gCmd.openExtensionPermissionPg(true);
+        await aeClippings.openPermissionPg(gWndID, true);
       }
       else {
         gDlg.requestExtPerm.setPermission("addressBooks");
