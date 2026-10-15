@@ -1183,7 +1183,7 @@ async function buildContextMenu()
 {
   log("Clippings/mx: buildContextMenu()");
 
-  // Context menu for compose action button.
+  // Context menu for compose action button
   messenger.menus.create({
     id: "ae-clippings-reset-autoincr-plchldrs",
     title: messenger.i18n.getMessage("baMenuResetAutoIncrPlaceholders"),
@@ -1204,16 +1204,20 @@ async function buildContextMenu()
     contexts: ["compose_action"],
   });
 
-  // Context menu for composer.
+  // Context menu for composer. Hidden by default to prevent unwanted
+  // flickering when the Thunderbird context menu is opened outside the
+  // compose window.
   messenger.menus.create({
     id: "ae-clippings-new",
     title: messenger.i18n.getMessage("cxtMenuNew"),
     contexts: ["compose_body", "editable"],
+    visible: false,
   });
   messenger.menus.create({
     id: "ae-clippings-manager",
     title: messenger.i18n.getMessage("cxtMenuOpenClippingsMgr"),
     contexts: ["compose_body", "editable"],
+    visible: false,
   });
 
   let rootFldrID = aeConst.ROOT_FOLDER_ID;
@@ -1233,13 +1237,19 @@ async function buildContextMenu()
     console.log("buildContextMenu(): Menu data: ");
     console.log(menuData);
   }
+
+  gHiddenCxtMenuItemIDs.add("ae-clippings-new")
+      .add("ae-clippings-manager");
     
   if (menuData.length > 0) {
     messenger.menus.create({
+      id: "ae-clippings-menu-separator",
       type: "separator",
       contexts: ["compose_body", "editable"],
+      visible: false,
     });
 
+    gHiddenCxtMenuItemIDs.add("ae-clippings-menu-separator");
     buildContextMenuHelper(menuData);
   }
 }
@@ -1252,10 +1262,14 @@ function buildContextMenuHelper(aMenuData)
     let menuItem;
 
     if (menuData.separator) {
+      let sepID = `ae-clippings-menu-separator-${i}`;
       menuItem = {
+        id: sepID,
         type: "separator",
         contexts: ["compose_body", "editable"],
+        visible: false,
       };
+      gHiddenCxtMenuItemIDs.add(sepID);
     }
     else {
       menuItem = {
@@ -1263,7 +1277,9 @@ function buildContextMenuHelper(aMenuData)
         title: menuData.title,
         icons: menuData.icons,
         contexts: ["compose_body", "editable"],
+        visible: false,
       };
+      gHiddenCxtMenuItemIDs.add(menuData.id);
     }
 
     if ("parentId" in menuData && menuData.parentId != aeConst.ROOT_FOLDER_ID) {
@@ -1290,6 +1306,7 @@ async function rebuildContextMenu()
 
   gClippingMenuItemIDMap = {};
   gFolderMenuItemIDMap = {};
+  gHiddenCxtMenuItemIDs.clear();
   await initToolsMenuItem();
   await buildContextMenu();
 }
@@ -2394,16 +2411,15 @@ messenger.commands.onCommand.addListener(async (aCmdName, aTab) => {
 
 
 messenger.menus.onShown.addListener(async (aInfo, aTab) => {
-  async function hideClippingsMenu()
+  async function showClippingsMenu()
   {
     let updates = [];
-    for (let id of aInfo.menuIds) {
+    for (let id of gHiddenCxtMenuItemIDs) {
       if (id == "ae-tools-clippings-mgr") {
         continue;  // Skip the Tools menu item.
       }
 
-      gHiddenCxtMenuItemIDs.add(id);
-      let menuUpd = await messenger.menus.update(id, {visible: false});
+      let menuUpd = await messenger.menus.update(id, {visible: true});
       updates.push(menuUpd);
     }
     await Promise.all(updates);
@@ -2426,20 +2442,17 @@ messenger.menus.onShown.addListener(async (aInfo, aTab) => {
       });
     }
     else if (aInfo.contexts.includes("compose_body")) {
-      return;
+      await showClippingsMenu();
     }
     else if (aInfo.contexts.includes("editable")) {
       // Show Clippings submenu in the subject line.
       if (aInfo.fieldId == "composeSubject") {
+        await showClippingsMenu();
+      }
+      else {
         return;
       }
-      await hideClippingsMenu();
     }
-  }
-  else {
-    // Handle appearance of Clippings context menu in other textboxes, such as
-    // those in Clippings Manager and New Clipping dialog.
-    await hideClippingsMenu();
   }
 
   messenger.menus.refresh();
@@ -2450,9 +2463,8 @@ messenger.menus.onHidden.addListener(async () => {
   gLastMenuInstID = 0;
 
   for (let menuID of gHiddenCxtMenuItemIDs) {
-    await messenger.menus.update(menuID, {visible: true});
+    await messenger.menus.update(menuID, {visible: false});
   }
-  gHiddenCxtMenuItemIDs.clear();
 });
 
 
