@@ -1980,8 +1980,10 @@ function pasteClippingByID(aClippingID, aComposeTabID, aComposeFieldID=null)
 {
   let clippingsDB = aeClippings.getDB();
 
-  browser.windows.getCurrent().then(aWnd => {
-    if (aWnd.type != "messageCompose") {
+  // Get the most recent compose window, not the keyboard paste dialog if it
+  // was invoked.
+  getRecentComposeWnd().then(aWnd => {
+    if (!aWnd) {
       return;
     }
     gPermissionReq.wndID = aWnd.id;
@@ -2049,7 +2051,6 @@ function pasteClippingByShortcutKey(aShortcutKey, aComposeTabID, aComposeFieldID
 {
   let clippingsDB = aeClippings.getDB();
 
-  // Get the most recent compose window, not the keyboard paste dialog.
   getRecentComposeWnd().then(aWnd => {
     if (!aWnd) {
       return;
