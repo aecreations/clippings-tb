@@ -12,6 +12,7 @@ let gExtPermStrKeys = {
 };
 
 let gWndID, gTabID, gOpenerWndID, gExtPerm, gExecActionID;
+let gExecActionData = null;
 
 
 // Page initialization
@@ -58,6 +59,7 @@ async function populateRequestedPermission()
   });
   gExtPerm = resp.extPerm;
   gExecActionID = resp.execActionID;
+  gExecActionData = resp.data;
 
   let strKey = gExtPermStrKeys[gExtPerm];
   let strKeyDesc = `${strKey}Desc`;
@@ -92,7 +94,8 @@ async function focusOpenerWnd(aExecActionID)
   if (aExecActionID) {
     msg.execActionMsgID = aExecActionID;
   }
-  
+  gExecActionData && Object.assign(msg, gExecActionData);
+
   try {
     await messenger.runtime.sendMessage(msg);
   }
@@ -141,6 +144,7 @@ messenger.runtime.onMessage.addListener(aRequest => {
     };
   }
   else if (aRequest.msgID == "reload-perms-req-pg") {
+    gOpenerWndID = aRequest.openerWndID;
     populateRequestedPermission();
     messenger.windows.update(gWndID, {focused: true});
     messenger.tabs.update(gTabID, {active: true});

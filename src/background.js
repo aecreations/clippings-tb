@@ -24,6 +24,7 @@ let gForceShowFirstTimeBkupNotif = false;
 let gClippingsMgrCleanUpIntvID = null;
 let gIsSyncPushFailed = false;
 let gHiddenCxtMenuItemIDs = new Set();
+let gPermissionReq = new aePermReqInfo();
 
 let gClippingsListener = {
   _isImporting: false,
@@ -226,25 +227,6 @@ let gNewClipping = {
   reset: function () {
     this._name = null;
     this._content = null;
-  }
-};
-
-let gPastePrompt = {
-  _composeTabs: [],
-
-  add(aComposeTabID, aClippingContent)
-  {
-    this._composeTabs[aComposeTabID] = aClippingContent;
-  },
-
-  delete(aComposeTabID)
-  {
-    delete this._composeTabs[aComposeTabID];
-  },
-
-  get(aComposeTabID)
-  {
-    return this._composeTabs[aComposeTabID];
   }
 };
 
@@ -1955,6 +1937,15 @@ async function getWndGeometryFromComposeTab()
 }
 
 
+async function hasAddressBookPermission()
+{
+  let perms = await messenger.permissions.getAll();
+  let rv = perms.permissions.includes("addressBooks");
+
+  return rv;
+}
+
+
 async function togglePasteAsQuoted(aComposeTabID)
 {
   let pasteAsQuoted = await messenger.tabs.sendMessage(aComposeTabID, {
@@ -1971,42 +1962,68 @@ async function togglePasteAsQuoted(aComposeTabID)
 function pasteClippingByID(aClippingID, aComposeTabID, aComposeFieldID=null)
 {
   let clippingsDB = aeClippings.getDB();
-  
-  clippingsDB.transaction("r", clippingsDB.clippings, clippingsDB.folders, () => {
-    let clipping = null;
-    
-    clippingsDB.clippings.get(aClippingID).then(aClipping => {
-      if (! aClipping) {
-        throw new Error("Cannot find clipping with ID = " + aClippingID);
-      }
 
-      if (aClipping.parentFolderID == -1) {
-        throw new Error("Attempting to paste a deleted clipping!");
-      }
+  browser.windows.getCurrent().then(aWnd => {
+    if (aWnd.type != "messageCompose") {
+      return;
+    }
+    gPermissionReq.wndID = aWnd.id;
 
-      clipping = aClipping;
-      log(`Pasting clipping named "${clipping.name}"\nid = ${clipping.id}`);
-        
-      return clippingsDB.folders.get(aClipping.parentFolderID);
-    }).then(aFolder => {
-      let parentFldrName = "";
-      if (aFolder) {
-        parentFldrName = aFolder.name;
-      }
-      else {
-        parentFldrName = ROOT_FOLDER_NAME;
-      }
-      let clippingInfo = {
-        id: clipping.id,
-        name: clipping.name,
-        text: clipping.content,
-        parentFolderName: parentFldrName
-      };
+    clippingsDB.transaction("r", clippingsDB.clippings, clippingsDB.folders, () => {
+      let clipping = null;
 
-      pasteClipping(clippingInfo, aComposeTabID, aComposeFieldID);
+      clippingsDB.clippings.get(aClippingID).then(async (aClipping) => {
+        if (!aClipping) {
+          throw new Error("Cannot find clipping with ID = " + aClippingID);
+        }
+
+        if (aClipping.parentFolderID == -1) {
+          throw new Error("Attempting to paste a deleted clipping!");
+        }
+
+        if (aeClippings.hasContactFirstNamePlaceholder(aClipping.content)) {
+          if (!await hasAddressBookPermission()) {
+            gPermissionReq.set("addressBooks", "paste-clipping-by-id", {
+              clippingID: aClippingID,
+              compTabID: aComposeTabID,
+              compFieldID: aComposeFieldID,
+            });
+            await aeClippings.openPermissionPg(aWnd.id);
+
+            // Paste clipping will resume once user has granted the requested
+            // permission.
+            return null;
+          }
+        }
+
+        clipping = aClipping;
+        info(`Pasting clipping named "${clipping.name}"\nid = ${clipping.id}`);
+        return clippingsDB.folders.get(clipping.parentFolderID);
+
+      }).then(aFolder => {
+        if (aFolder === null) {
+          return;
+        }
+
+        let parentFldrName = "";
+        if (aFolder) {
+          parentFldrName = aFolder.name;
+        }
+        else {
+          parentFldrName = ROOT_FOLDER_NAME;
+        }
+        let clippingInfo = {
+          id: clipping.id,
+          name: clipping.name,
+          text: clipping.content,
+          parentFolderName: parentFldrName
+        };
+
+        pasteClipping(clippingInfo, aComposeTabID, aComposeFieldID);
+      });
+    }).catch(aErr => {
+      console.error("Clippings/wx: pasteClippingByID(): " + aErr);
     });
-  }).catch(aErr => {
-    console.error("Clippings/wx: pasteClippingByID(): " + aErr);
   });
 }
 
@@ -2015,48 +2032,71 @@ function pasteClippingByShortcutKey(aShortcutKey, aComposeTabID, aComposeFieldID
 {
   let clippingsDB = aeClippings.getDB();
 
-  clippingsDB.transaction("r", clippingsDB.clippings, clippingsDB.folders, () => {
-    let results = clippingsDB.clippings.where("shortcutKey").equals(aShortcutKey.toUpperCase());
-    let clipping = {};
-    
-    results.first().then(aClipping => {
-      if (! aClipping) {
-        log(`Cannot find clipping with shortcut key '${aShortcutKey}'`);
-        return null;
-      }
+  // Get the most recent compose window, not the keyboard paste dialog.
+  getRecentComposeWnd().then(aWnd => {
+    if (!aWnd) {
+      return;
+    }
+    gPermissionReq.wndID = aWnd.id;
 
-      if (aClipping.parentFolderID == -1) {
-        throw new Error(`Shortcut key '${aShortcutKey}' is assigned to a deleted clipping!`);
-      }
+    clippingsDB.transaction("r", clippingsDB.clippings, clippingsDB.folders, () => {
+      let results = clippingsDB.clippings.where("shortcutKey").equals(aShortcutKey.toUpperCase());
+      let clipping = null;
 
-      clipping = aClipping;
-      log(`Pasting clipping named "${clipping.name}"\nid = ${clipping.id}`);
+      results.first().then(async (aClipping) => {
+        if (!aClipping) {
+          log(`Cannot find clipping with shortcut key '${aShortcutKey}'`);
+          return null;
+        }
 
-      return clippingsDB.folders.get(aClipping.parentFolderID);
-    }).then(aFolder => {
-      if (aFolder === null) {
-        return;
-      }
+        if (aClipping.parentFolderID == -1) {
+          throw new Error(`Shortcut key '${aShortcutKey}' is assigned to a deleted clipping!`);
+        }
 
-      let parentFldrName = "";
+        if (aeClippings.hasContactFirstNamePlaceholder(aClipping.content)) {
+          if (!await hasAddressBookPermission()) {
+            gPermissionReq.set("addressBooks", "paste-clipping-by-shct-key", {
+              shortcutKey: aShortcutKey,
+              compTabID: aComposeTabID,
+              compFieldID: aComposeFieldID,
+            });
+            await aeClippings.openPermissionPg(aWnd.id);
 
-      if (aFolder) {
-        parentFldrName = aFolder.name;
-      }
-      else {
-        parentFldrName = ROOT_FOLDER_NAME;
-      }
-      let clippingInfo = {
-        id: clipping.id,
-        name: clipping.name,
-        text: clipping.content,
-        parentFolderName: parentFldrName
-      };
+            // Paste clipping will resume once user has granted the requested
+            // permission.
+            return null;
+          }
+        }
 
-      pasteClipping(clippingInfo, aComposeTabID, aComposeFieldID);
+        clipping = aClipping;
+        info(`Pasting clipping named "${clipping.name}", shortcut key "${aShortcutKey}"\nid = ${clipping.id}`);
+        return clippingsDB.folders.get(clipping.parentFolderID);
+
+      }).then(aFolder => {
+        if (aFolder === null) {
+          return;
+        }
+
+        let parentFldrName = "";
+
+        if (aFolder) {
+          parentFldrName = aFolder.name;
+        }
+        else {
+          parentFldrName = ROOT_FOLDER_NAME;
+        }
+        let clippingInfo = {
+          id: clipping.id,
+          name: clipping.name,
+          text: clipping.content,
+          parentFolderName: parentFldrName
+        };
+
+        pasteClipping(clippingInfo, aComposeTabID, aComposeFieldID);
+      });
+    }).catch(aErr => {
+      console.error("Clippings/mx: pasteClippingByShortcutKey(): " + aErr);
     });
-  }).catch(aErr => {
-    console.error("Clippings/mx: pasteClippingByShortcutKey(): " + aErr);
   });
 }
 
@@ -2306,6 +2346,23 @@ async function alertEx(aMessageName, aUsePopupWnd=false)
   if (wndGeom) {
     messenger.windows.update(wnd.id, {left, top});
   }
+}
+
+
+async function getRecentComposeWnd()
+{
+  let rv;
+  let msgrTabs = await messenger.tabs.query({});
+
+  for (let tab of msgrTabs) {
+    let wnd = await messenger.windows.get(tab.windowId);
+    if (wnd.type == "messageCompose" && wnd.focused) {
+      rv = wnd;
+      break;
+    }
+  }
+
+  return rv;
 }
 
 
@@ -2657,7 +2714,28 @@ messenger.runtime.onMessage.addListener(aRequest => {
   case "import-finished":
     gClippingsListener.importFinished(aRequest.isSuccess);
     break;
-    
+
+  case "get-perm-req-key":
+    if (aRequest.opener == gPermissionReq.wndID) {
+      let resp = gPermissionReq.get();
+      gPermissionReq.clear();
+      return Promise.resolve(resp);
+    }
+    break;
+
+  case "focus-ext-window":
+    if (aRequest.wndID == gPermissionReq.wndID) {
+      messenger.windows.update(gPermissionReq.wndID, {focused: true});
+
+      if (aRequest.execActionMsgID == "paste-clipping-by-id") {
+        pasteClippingByID(aRequest.clippingID, aRequest.compTabID, aRequest.compFieldID);
+      }
+      else if (aRequest.execActionMsgID == "paste-clipping-by-shct-key") {
+        pasteClippingByShortcutKey(aRequest.shortcutKey, aRequest.compTabID, aRequest.compFieldID);
+      }
+    }
+    break;
+
   default:
     break;
   }

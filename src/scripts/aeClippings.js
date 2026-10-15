@@ -107,7 +107,10 @@ let aeClippings = {
     catch {}
 
     if (resp) {
-      messenger.runtime.sendMessage({msgID: "reload-perms-req-pg"});
+      messenger.runtime.sendMessage({
+        msgID: "reload-perms-req-pg",
+        openerWndID: aOpenerWndID,
+      });
     }
     else {
       try {
