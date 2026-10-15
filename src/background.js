@@ -927,12 +927,13 @@ async function purgeFolderItems(aFolderID, aKeepFolder)
 }
 
 
-async function getShortcutKeyPrefixStr()
+async function getShortcutKeyPrefixStr(aCommandName)
 {
   let rv = "";
   let platform = await messenger.runtime.getPlatformInfo();
   let isMacOS = platform.os == "mac";
-  let [cmd] = await messenger.commands.getAll();
+  let cmds = await messenger.commands.getAll();
+  let [cmd] = cmds.filter(aCmd => aCmd.name == aCommandName);
   let shct = cmd.shortcut;
 
   if (! shct) {
@@ -2641,7 +2642,7 @@ messenger.runtime.onMessage.addListener(aRequest => {
     break;
     
   case "get-shct-key-prefix-ui-str":
-    return Promise.resolve(getShortcutKeyPrefixStr());
+    return Promise.resolve(getShortcutKeyPrefixStr(aRequest.cmdName));
 
   case "clear-backup-notifcn-intv":
     return clearBackupNotificationInterval();

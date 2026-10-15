@@ -140,7 +140,10 @@ $(async () => {
     aePrefs.setPrefs({ autoLineBreak: aEvent.target.checked });
   });
 
-  let keybPasteKeys = await messenger.runtime.sendMessage({msgID: "get-shct-key-prefix-ui-str"});
+  let keybPasteKeys = await messenger.runtime.sendMessage({
+    msgID: "get-shct-key-prefix-ui-str",
+    cmdName: "ae-clippings-paste-clipping",
+  });
   if (keybPasteKeys) {
     $("#shortcut-key").prop("checked", prefs.keybdPaste).on("click", aEvent => {
       aePrefs.setPrefs({keybdPaste: aEvent.target.checked});

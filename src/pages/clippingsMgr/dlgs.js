@@ -67,7 +67,10 @@ function clippingsMgrDlgs()
   let shortcutList = new aeDialog("#shortcut-list-dlg");
   shortcutList.onFirstInit = async function ()
   {
-    let keybPasteKeys = await messenger.runtime.sendMessage({msgID: "get-shct-key-prefix-ui-str"});
+    let keybPasteKeys = await messenger.runtime.sendMessage({
+      msgID: "get-shct-key-prefix-ui-str",
+      cmdName: "ae-clippings-paste-clipping",
+    });
     let shctPrefixKey = 0;
     $("#shortcut-instrxns").text(messenger.i18n.getMessage("clipMgrShortcutHelpInstrxnTB", keybPasteKeys));
     let extVer = messenger.runtime.getManifest().version;

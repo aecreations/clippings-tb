@@ -716,7 +716,10 @@ async function initShortcutKeyMenu()
     }
   });
 
-  let keybPasteKeys = await messenger.runtime.sendMessage({msgID: "get-shct-key-prefix-ui-str"});
+  let keybPasteKeys = await messenger.runtime.sendMessage({
+    msgID: "get-shct-key-prefix-ui-str",
+    cmdName: "ae-clippings-paste-clipping",
+  });
   let tooltip = messenger.i18n.getMessage("shctKeyHintTB", keybPasteKeys);
   $("#shct-key-tooltip-text").attr("title", tooltip);
 }
