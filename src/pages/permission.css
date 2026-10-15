@@ -13,7 +13,6 @@
     --color-main-bkgd: #fff;
     --color-ext-pg-body: #fefefe;
     --color-ext-pg-border: #ededf0;
-    --url-icon-help: url("../img/help.svg");
 }
 
 @media (prefers-color-scheme: dark) {
@@ -24,7 +23,6 @@
 	--color-main-bkgd: #242426;
 	--color-ext-pg-body: #2a2a2e;
 	--color-ext-pg-border: #4a4a4f;
-	--url-icon-help: url("../img/help-dk.svg");
     }
 }
 
@@ -99,19 +97,6 @@ h2 {
     font-size: 22px;
     font-weight: 200;
     letter-spacing: -0.2px;
-}
-
-#perm-hlp {
-    margin-top: 32px;
-    margin-bottom: 64px;
-    padding: 2px 0 2px 20px;
-
-    background-image: var(--url-icon-help);
-    background-size: 16px 16px;
-    background-position: left;
-    background-repeat: no-repeat;
-
-    font-size: 13px;
 }
 
 #dlg-btns {
