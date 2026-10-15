@@ -75,7 +75,7 @@ body {
 
 #addon-icon {
     vertical-align: -14px;
-    margin-right: 2px;
+    margin-right: 8px;
     width: 48px;
     height: 48px;
 }
@@ -226,7 +226,7 @@ description {
 }
 
 .tab > button {
-    margin: 0;
+    margin: 0 -4px 0 0;
     padding-top: 40px;
     padding-bottom: 22px;
     padding-left: 6px;
