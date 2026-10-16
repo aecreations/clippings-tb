@@ -929,14 +929,14 @@ async function purgeFolderItems(aFolderID, aKeepFolder)
 
 async function getShortcutKeyPrefixStr(aCommandName)
 {
-  let rv = "";
+  let rv = '';
   let platform = await messenger.runtime.getPlatformInfo();
   let isMacOS = platform.os == "mac";
   let cmds = await messenger.commands.getAll();
-  let [cmd] = cmds.filter(aCmd => aCmd.name == aCommandName);
+  let cmd = cmds.find(aCmd => aCmd.name == aCommandName);
   let shct = cmd.shortcut;
 
-  if (! shct) {
+  if (!shct) {
     // Keyboard shortcut may not be defined if user removed it but didn't set a
     // new shortcut in Manage Extension Shortcuts.
     return rv;
@@ -949,7 +949,7 @@ async function getShortcutKeyPrefixStr(aCommandName)
     "Home", "End", "PageUp", "PageDown", "Space", "Insert", "Delete",
     "Up", "Down", "Left", "Right"
   ];
-  let localizedKey = "";
+  let localizedKey = '';
 
   if (keys.includes(keybPasteKey)) {
     if (keybPasteKey == "Delete" && isMacOS) {
@@ -979,7 +979,7 @@ async function getShortcutKeyPrefixStr(aCommandName)
     modifiers.push(modPrimary);
   }
   
-  let localizedMods = "";
+  let localizedMods = '';
 
   for (let i = 0; i < modifiers.length; i++) {
     let modifier = modifiers[i];
