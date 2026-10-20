@@ -145,32 +145,38 @@ $(async () => {
     msgID: "get-shct-key-prefix-ui-str",
     cmdName: "ae-clippings-paste-clipping",
   });
-  if (keybPasteKeys) {
-    $("#shortcut-key").prop("checked", prefs.keybdPaste).on("click", aEvent => {
-      aePrefs.setPrefs({keybdPaste: aEvent.target.checked});
-    });
-  }
-  else {
-    // Keyboard shortcut may not be defined if user removed it but didn't set a
-    // new shortcut in Manage Extension Shortcuts.
-    $("#shortcut-key").prop("checked", false).prop("disabled", true);
-  }
   $("#shct-label").text(messenger.i18n.getMessage("prefsShctMode", keybPasteKeys));
+  $("#shortcut-key").prop("checked", prefs.keybdPaste).on("click", async (aEvent) => {
+    aePrefs.setPrefs({keybdPaste: aEvent.target.checked});
+    if (aEvent.target.checked) {
+      await messenger.commands.reset("ae-clippings-paste-clipping");
+    }
+    else {
+      await messenger.commands.update({
+        name: "ae-clippings-paste-clipping",
+        shortcut: '',
+      });
+    }
+  });
 
   // Keyboard shortcut for message subject keyboard paste.
   let keybPasteSubjKeys = await messenger.runtime.sendMessage({
     msgID: "get-shct-key-prefix-ui-str",
     cmdName: "ae-clippings-add-clipping-to-subject",
   });
-  if (keybPasteSubjKeys) {
-    $("#shortcut-key-msg-subj").prop("checked", prefs.keybdAddToSubject).on("click", aEvent => {
-      aePrefs.setPrefs({keybdAddToSubject: aEvent.target.checked});
-    });
-  }
-  else {
-    $("#shortcut-key-msg-subj").prop("checked", false).prop("disabled", true);
-  }
   $("#shct-subj-label").text(messenger.i18n.getMessage("prefsSubjShctMode", keybPasteSubjKeys));
+  $("#shortcut-key-msg-subj").prop("checked", prefs.keybdAddToSubject).on("click", async (aEvent) => {
+    aePrefs.setPrefs({keybdAddToSubject: aEvent.target.checked});
+    if (aEvent.target.checked) {
+      await messenger.commands.reset("ae-clippings-add-clipping-to-subject");
+    }
+    else {
+      await messenger.commands.update({
+        name: "ae-clippings-add-clipping-to-subject",
+        shortcut: '',
+      });
+    }
+  });
 
   $("#auto-inc-plchldrs-start-val").val(prefs.autoIncrPlchldrStartVal).on("click", aEvent => {
     aePrefs.setPrefs({ autoIncrPlchldrStartVal: aEvent.target.valueAsNumber });

@@ -937,9 +937,11 @@ async function getShortcutKeyPrefixStr(aCommandName)
   let shct = cmd.shortcut;
 
   if (!shct) {
-    // Keyboard shortcut may not be defined if user removed it but didn't set a
-    // new shortcut in Manage Extension Shortcuts.
-    return rv;
+    // Keyboard shortcut was unset from extension preferences or
+    // Manage Extension Shortcuts in Add-ons Manager.
+    let manifest = messenger.runtime.getManifest();
+    let defaultShcts = manifest.commands[aCommandName].suggested_key;
+    shct = isMacOS ? defaultShcts.mac : defaultShcts.default;
   }
   
   let keybPasteKey = shct.substring(shct.lastIndexOf("+") + 1);
@@ -2408,6 +2410,17 @@ messenger.commands.onCommand.addListener(async (aCmdName, aTab) => {
   }
   else if (aCmdName == "ae-clippings-add-clipping-to-subject") {
     gPrefs.keybdAddToSubject && openKeyboardPasteDlg(aTab.id, true);
+  }
+});
+
+messenger.commands.onChanged.addListener(aChangeInfo => {
+  // Handle changes to keyboard shortcut for activating keyboard paste mode
+  // when initiated in or outside of extension preferences page.
+  if (aChangeInfo.name == "ae-clippings-paste-clipping") {
+    aePrefs.setPrefs({keyboardPaste: aChangeInfo.newShortcut != ''});
+  }
+  else if (aChangeInfo.name == "ae-clippings-add-clipping-to-subject") {
+    aePrefs.setPrefs({keybdAddToSubject: aChangeInfo.newShortcut != ''});
   }
 });
 
