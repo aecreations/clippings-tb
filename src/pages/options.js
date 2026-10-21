@@ -13,34 +13,6 @@ let gDlg = {};
 let gIsActivatingSyncClippings = false;
 
 
-// DOM utility
-function sanitizeHTML(aHTMLStr)
-{
-  return DOMPurify.sanitize(aHTMLStr, {SAFE_FOR_JQUERY: true});
-}
-
-
-function capitalize(aString)
-{
-  let rv;
-
-  if (typeof aString != "string") {
-    throw new TypeError("Not a string");
-  }
-  else if (! aString) {
-    rv = "";
-  }
-  else if (aString.length == 1) {
-    rv = aString.toUpperCase();
-  }
-  else {
-    rv = aString[0].toUpperCase().concat(aString.substring(1));
-  }
-
-  return rv;
-}
-
-
 // Options page initialization
 $(async () => {
   messenger.windows.update(messenger.windows.WINDOW_ID_CURRENT, {focused: true});
@@ -952,6 +924,33 @@ messenger.runtime.onMessage.addListener(aRequest => {
 // Utilities
 //
 
+function sanitizeHTML(aHTMLStr)
+{
+  return DOMPurify.sanitize(aHTMLStr, {SAFE_FOR_JQUERY: true});
+}
+
+
+function capitalize(aString)
+{
+  let rv;
+
+  if (typeof aString != "string") {
+    throw new TypeError("Not a string");
+  }
+  else if (! aString) {
+    rv = "";
+  }
+  else if (aString.length == 1) {
+    rv = aString.toUpperCase();
+  }
+  else {
+    rv = aString[0].toUpperCase().concat(aString.substring(1));
+  }
+
+  return rv;
+}
+
+
 function gotoURL(aURL, aOpenInTbWnd)
 {
   if (aOpenInTbWnd) {
@@ -960,13 +959,6 @@ function gotoURL(aURL, aOpenInTbWnd)
   else {
     messenger.windows.openDefaultBrowser(aURL);
   }
-}
-
-
-async function closePage()
-{
-  let tab = await messenger.tabs.getCurrent();
-  messenger.tabs.remove(tab.id);
 }
 
 
