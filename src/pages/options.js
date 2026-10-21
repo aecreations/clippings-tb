@@ -11,6 +11,7 @@ const CHG_ACCENT_COLOR_DELAY_MS = 500;
 let gOS;
 let gDlg = {};
 let gIsActivatingSyncClippings = false;
+let gKeybPasteShct, gSubjectKeybPasteShct;
 
 
 // Options page initialization
@@ -119,16 +120,7 @@ $(async () => {
   });
   $("#shct-label").text(messenger.i18n.getMessage("prefsShctMode", keybPasteKeys));
   $("#shortcut-key").prop("checked", prefs.keybdPaste).on("click", async (aEvent) => {
-    aePrefs.setPrefs({keybdPaste: aEvent.target.checked});
-    if (aEvent.target.checked) {
-      await messenger.commands.reset("ae-clippings-paste-clipping");
-    }
-    else {
-      await messenger.commands.update({
-        name: "ae-clippings-paste-clipping",
-        shortcut: '',
-      });
-    }
+    await toggleKeyboardShortcutOpt(aEvent, "keybdPaste", "ae-clippings-paste-clipping");
   });
 
   // Keyboard shortcut for message subject keyboard paste.
@@ -138,16 +130,7 @@ $(async () => {
   });
   $("#shct-subj-label").text(messenger.i18n.getMessage("prefsSubjShctMode", keybPasteSubjKeys));
   $("#shortcut-key-msg-subj").prop("checked", prefs.keybdAddToSubject).on("click", async (aEvent) => {
-    aePrefs.setPrefs({keybdAddToSubject: aEvent.target.checked});
-    if (aEvent.target.checked) {
-      await messenger.commands.reset("ae-clippings-add-clipping-to-subject");
-    }
-    else {
-      await messenger.commands.update({
-        name: "ae-clippings-add-clipping-to-subject",
-        shortcut: '',
-      });
-    }
+    await toggleKeyboardShortcutOpt(aEvent, "keybdAddToSubject", "ae-clippings-add-clipping-to-subject");
   });
 
   $("#auto-inc-plchldrs-start-val").val(prefs.autoIncrPlchldrStartVal).on("click", aEvent => {
@@ -820,6 +803,58 @@ function initDialogs()
   };
   
   gDlg.syncClippingsHelp = new aeDialog("#sync-clippings-help-dlg");
+}
+
+
+async function toggleKeyboardShortcutOpt(aEvent, aPrefName, aCommandName)
+{
+  let pref = {};
+  pref[aPrefName] = aEvent.target.checked;
+  await aePrefs.setPrefs(pref);
+
+  if (aEvent.target.checked) {
+    // Restore the custom keyboard shortcut if the user toggles it back on
+    // immediately after turning it off.
+    if (aCommandName == "ae-clippings-paste-clipping") {
+      if (gKeybPasteShct) {
+        await messenger.commands.update({
+          name: aCommandName,
+          shortcut: gKeybPasteShct,
+        });
+      }
+      else {
+        await messenger.commands.reset(aCommandName);
+      }
+    }
+    else if (aCommandName == "ae-clippings-add-clipping-to-subject") {
+      if (gSubjectKeybPasteShct) {
+        await messenger.commands.update({
+          name: aCommandName,
+          shortcut: gSubjectKeybPasteShct,
+        })
+      }
+      else {
+        await messenger.commands.reset(aCommandName);
+      }
+    }
+  }
+  else {
+    // Save the current custom keyboard shortcut in case the user toggles it
+    // back on immediately afterward.
+    let cmds = await messenger.commands.getAll();
+    let cmd = cmds.find(aCmd => aCmd.name == aCommandName);
+    if (aCommandName == "ae-clippings-paste-clipping") {
+      gKeybPasteShct = cmd.shortcut;
+    }
+    else if (aCommandName == "ae-clippings-add-clipping-to-subject") {
+      gSubjectKeybPasteShct = cmd.shortcut;
+    }
+
+    await messenger.commands.update({
+      name: aCommandName,
+      shortcut: '',
+    });
+  }
 }
 
 
