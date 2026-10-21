@@ -14,8 +14,8 @@
     --accent-color-tbox-border: var(--accent-color);
     --accent-color-radio-border: var(--accent-color);
 
-    --color-cxtmenu-menuitem-hover-bkgd: hsl(from var(--accent-color) h s calc(l + 45));
-    --color-cxtmenu-menuitem-active-bkgd: hsl(from var(--accent-color) h s calc(l + 40));
+    --color-cxtmenu-menuitem-hover-bkgd: hsl(from var(--accent-color) h s calc(l + 35));
+    --color-cxtmenu-menuitem-active-bkgd: hsl(from var(--accent-color) h s calc(l + 30));
 }
 
 @media (prefers-color-scheme: dark) {
