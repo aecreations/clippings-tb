@@ -143,6 +143,8 @@ let gClippingsListener = {
 };
 
 let gSyncClippingsListener = {
+  reloadOrigin: null,
+
   onActivate(aSyncFolderID) {},
 
   onDeactivate(aOldSyncFolderID)
@@ -201,6 +203,17 @@ let gSyncClippingsListener = {
         showSyncDataSizeTooBigNotification();
       }
     }
+
+    let msg = {msgID: "sync-fldr-reload-finished"};
+    if (this.reloadOrigin) {
+      msg.origin = this.reloadOrigin;
+    }
+    try {
+      await browser.runtime.sendMessage(msg);
+    }
+    catch {}
+
+    this.reloadOrigin = null;
   },
 };
 
@@ -2681,6 +2694,9 @@ messenger.runtime.onMessage.addListener(aRequest => {
     return enableSyncClippings(aRequest.isEnabled);
 
   case "refresh-synced-clippings":
+    if (aRequest.origin) {
+      gSyncClippingsListener.reloadOrigin = aRequest.origin;
+    }
     refreshSyncedClippings(aRequest.rebuildClippingsMenu).catch(aErr => {});
     break;
 

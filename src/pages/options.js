@@ -636,6 +636,7 @@ function initDialogs()
     messenger.runtime.sendMessage({
       msgID: "refresh-synced-clippings",
       rebuildClippingsMenu,
+      origin: aeConst.ORIGIN_EXT_PREFS,
     });
     
     messenger.runtime.sendMessage({

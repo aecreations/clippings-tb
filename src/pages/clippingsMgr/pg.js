@@ -645,6 +645,68 @@ let gSyncClippingsListener = {
 };
 
 
+let gActiveTreeNodeHistory = {
+  _treeNodes: [],
+
+  async add(aNode)
+  {
+    if (!aNode || !aNode.key) {
+      throw new TypeError("gActiveTreeNodeHistory.add(): aNode not a FancytreeNode");
+    }
+
+    if (gSyncedItemsIDs.has(aNode.key)) {
+      if (aNode.isFolder()) {
+        let folderID = parseInt(aNode.key);
+        // The "Synced Clippings" folder does not have a static synced
+        // item ID (sid).
+        let syncFolderID = await aePrefs.getPref("syncFolderID");
+        if (folderID == syncFolderID) {
+          this._treeNodes.push(aNode.key);
+        }
+        else {
+          let folder = await gClippingsDB.folders.get(folderID);
+          if (!folder) {
+            throw new ReferenceError("gActiveTreeNodeHistory.add(): Cannot find folder " + folderID);
+          }
+          this._treeNodes.push(folder.sid);
+        }
+      }
+      else {
+        let clippingID = parseInt(aNode.key);
+        let clipping = await gClippingsDB.clippings.get(clippingID);
+        if (!clipping) {
+          throw new ReferenceError("gActiveTreeNodeHistory.add(): Cannot find clipping " + clippingID);
+        }
+        this._treeNodes.push(clipping.sid);
+      }
+    }
+    else {
+      this._treeNodes.push(aNode.key);
+    }
+  },
+
+  getPreviousNodeKey(aFromReloadBtn)
+  {
+    let rv = null;
+    if (this._treeNodes.length < 2) {
+      return rv;
+    }
+
+    // Workaround to previous tree node being changed to Synced Clippings
+    // folder at reload.
+    let idx = -2;
+    rv = this._treeNodes.at(idx);
+
+    return rv;
+  },
+
+  clear()
+  {
+    this._treeNodes = [];
+  },
+};
+
+
 // Search box
 let gSearchBox = {
   _isInitialized: false,
@@ -1335,6 +1397,12 @@ messenger.runtime.onMessage.addListener(aRequest => {
 
   case "new-folder-created":
     gClippingsListener.newFolderCreated(aRequest.newFolderID, aRequest.newFolder, aRequest.origin);
+    break;
+
+  case "sync-fldr-reload-finished":
+    if (aRequest.origin == aeConst.ORIGIN_EXT_PREFS) {
+      rebuildClippingsTree();
+    }
     break;
 
   case "clippings-mgr-save-backup":
@@ -2034,6 +2102,7 @@ async function buildClippingsTree()
 
     activate: function (aEvent, aData) {
       log("Clippings: clippingsMgr/pg.js: Activate event fired on clippings tree");
+      gActiveTreeNodeHistory.add(aData.node);
       updateDisplay(aEvent, aData);
     },
 
@@ -2575,9 +2644,10 @@ function buildClippingsTreeHelper(aFolderID)
 }
 
 
-async function rebuildClippingsTree()
+async function rebuildClippingsTree(aFromReloadBtn=false)
 {
   let tree = getClippingsTree();
+  let activeNodeKey = gActiveTreeNodeHistory.getPreviousNodeKey(aFromReloadBtn);
   let treeData = [];
 
   buildClippingsTreeHelper(aeConst.ROOT_FOLDER_ID).then(aTreeData => {
@@ -2600,14 +2670,14 @@ async function rebuildClippingsTree()
       return tree.reload(treeData);
     }
 
-  }).then(aTreeData => {
+  }).then(async (aTreeData) => {
     if (aTreeData) {
       gCmd.updateDisplayOrder(aeConst.ROOT_FOLDER_ID, null, null, true);
     }
 
     if (gPrefs.syncClippings) {
       gSyncedItemsIDs.clear();
-      initSyncItemsIDLookupList();
+      await initSyncItemsIDLookupList();
       initSyncedClippingsTree();
 
       if (gPrefs.cxtMenuSyncItemsOnly) {
@@ -2622,6 +2692,18 @@ async function rebuildClippingsTree()
       }
       else {
         $("#clippings-tree").removeClass("cxt-menu-show-sync-items-only");
+      }
+
+      if (activeNodeKey) {
+        if (gSyncedItemsIDMap.has(activeNodeKey)) {
+          activeNodeKey = gSyncedItemsIDMap.get(activeNodeKey);
+        }
+        let node = tree.getNodeByKey(activeNodeKey);
+        if (node) {
+          node.makeVisible({noAnimation: true}).done(() => {
+            node.setActive();
+          });
+        }
       }
     }
     
