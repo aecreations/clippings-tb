@@ -25,6 +25,7 @@ let gClippingsMgrCleanUpIntvID = null;
 let gIsSyncPushFailed = false;
 let gHiddenCxtMenuItemIDs = new Set();
 let gPermissionReq = new aePermReqInfo();
+let gRecentClippingID = null;
 
 let gClippingsListener = {
   _isImporting: false,
@@ -1773,7 +1774,7 @@ function openKeyboardPasteDlg(aComposeTabID, aAddToSubject)
   url += `&subj=${aAddToSubject ? 1 : 0}`;
 
   let width = 500;
-  let height = 164;
+  let height = 180;
   if (gOS == "linux") {
     width += WND_SIZE_ADJ_LINUX;
     height += WND_SIZE_ADJ_LINUX;
@@ -2041,6 +2042,7 @@ function pasteClippingByID(aClippingID, aComposeTabID, aComposeFieldID=null)
           parentFolderName: parentFldrName
         };
 
+        gRecentClippingID = clipping.id;
         pasteClipping(clippingInfo, aComposeTabID, aComposeFieldID);
       });
     }).catch(aErr => {
@@ -2113,6 +2115,7 @@ function pasteClippingByShortcutKey(aShortcutKey, aComposeTabID, aComposeFieldID
           parentFolderName: parentFldrName
         };
 
+        gRecentClippingID = clipping.id;
         pasteClipping(clippingInfo, aComposeTabID, aComposeFieldID);
       });
     }).catch(aErr => {
@@ -2653,6 +2656,9 @@ messenger.runtime.onMessage.addListener(aRequest => {
   case "close-paste-as-dlg":
     gWndIDs.pasteAs = null;
     break;
+
+  case "get-recent-clipping":
+    return Promise.resolve(gRecentClippingID);
     
   case "get-shct-key-prefix-ui-str":
     return Promise.resolve(getShortcutKeyPrefixStr(aRequest.cmdName));

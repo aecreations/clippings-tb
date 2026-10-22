@@ -6,7 +6,7 @@
 "use strict";
 
 
-const WNDH_SHORTCUT_KEY = 164;
+const WNDH_SHORTCUT_KEY = 180;
 const WNDH_SEARCH_CLIPPING = 250;
 const WNDH_SHORTCUT_LIST = 278;
 const WNDW_SHORTCUT_LIST = 436;
@@ -15,8 +15,9 @@ const DLG_HEIGHT_ADJ_LINUX = 60;
 const TOOLBAR_HEIGHT = 52;
 const SHORTCUT_LIST_HEIGHT_ADJ_MAC = 2;
 const COMP_FIELD_SUBJECT = "composeSubject";
+const MAX_RECENT_CLIPPING_NAME_LEN = 32;
 
-let gClippingsDB, gPasteMode, gOS;
+let gClippingsDB, gPasteMode, gOS, gRecentClippingID;
 let gComposeTabID = null;
 let gComposeFieldID = null;
 
@@ -269,7 +270,7 @@ let gAutocompleteMenu = {
 $(async () => {
   let params = new URLSearchParams(window.location.search);
   gComposeTabID = Number(params.get("compTabID"));
-  let addToMsgSubject = (Number(params.get("subj")) == 1);
+  let addToMsgSubject = Number(params.get("subj")) == 1;
   if (addToMsgSubject) {
     gComposeFieldID = COMP_FIELD_SUBJECT;
     document.title = messenger.i18n.getMessage("addSubjTitle");
@@ -327,6 +328,26 @@ $(async () => {
     srchBox.focus();
   }
 
+  let recentClippingID = await messenger.runtime.sendMessage({msgID: "get-recent-clipping"});
+  if (recentClippingID) {
+    let clipping = await gClippingsDB.clippings.get(recentClippingID);
+    if (clipping?.parentFolderID != aeConst.DELETED_ITEMS_FLDR_ID) {
+      gRecentClippingID = clipping.id;
+      log("Clippings::keyboardPaste.js: Recent clipping ID: " + gRecentClippingID);
+
+      let truncName = '';
+      if (clipping.name.length > MAX_RECENT_CLIPPING_NAME_LEN) {
+        truncName = clipping.name.substring(0, MAX_RECENT_CLIPPING_NAME_LEN);
+        truncName += "…";
+      }
+      else {
+        truncName = clipping.name;
+      }
+      truncName = "<b>" + truncName + "</b>";
+      $("#paste-recent").html(sanitizeHTML(browser.i18n.getMessage("keybPasteDlgEnter", truncName))).show();
+    }
+  }
+
   aeVisual.cacheIcons(
     "insClipping-hover.svg",
     "insClipping-active-dk.svg",
@@ -370,7 +391,12 @@ $(window).on("keydown", async (aEvent) => {
     }
   }
   else if (aEvent.key == "Enter" && gPasteMode == aeConst.PASTEACTION_SHORTCUT_KEY) {
-    cancel(aEvent);
+    if (gRecentClippingID) {
+      pasteRecentClipping();
+    }
+    else {
+      cancel(aEvent);
+    }
   }
   else if (aEvent.key == "F1") {
     if (isShortcutListDisplayed()) {
@@ -380,7 +406,6 @@ $(window).on("keydown", async (aEvent) => {
     if (gPasteMode == aeConst.PASTEACTION_SHORTCUT_KEY) {
       $(".deck > #paste-by-shortcut-key").hide();
       await initShortcutList();
-      return;
     }
   }
   else if (aEvent.key == "Tab") {
@@ -592,6 +617,20 @@ function execShortcut(aShortcutKey, aDestComposeFieldID=null)
     shortcutKey: aShortcutKey,
     composeTabID: gComposeTabID,
     composeFieldID: aDestComposeFieldID,
+  });
+
+  closeDlg();
+}
+
+
+function pasteRecentClipping()
+{
+  messenger.runtime.sendMessage({
+    msgID: "paste-clipping-by-name",
+    clippingID: gRecentClippingID,
+    composeTabID: gComposeTabID,
+    composeFieldID: gComposeFieldID,
+    fromClippingsMgr: false,
   });
 
   closeDlg();
