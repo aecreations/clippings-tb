@@ -14,10 +14,16 @@ $(async () => {
   let contribCTA = messenger.i18n.getMessage("contribCTA", [extInfo.name, aeConst.DONATE_URL, aeConst.CONTRIB_URL]);
   $("#contrib-cta").html(sanitizeHTML(contribCTA));
 
-  let hostAppName = messenger.i18n.getMessage("hostAppTb");
-  $("#hostapp-compat").text(messenger.i18n.getMessage("hostAppCompat", hostAppName));
-  $("#whats-new-sync").html(sanitizeHTML(messenger.i18n.getMessage("whatsNewSync", aeConst.SYNC_CLIPPINGS_DWNLD_URL)));
-  
+  let {os} = await messenger.runtime.getPlatformInfo();
+  let keybShct;
+  if (os == "mac") {
+    keybShct = `${messenger.i18n.getMessage("keyMacCtrl")}${messenger.i18n.getMessage("keyOption")}V`;
+  }
+  else {
+    keybShct = `${messenger.i18n.getMessage("keyAlt")}+${messenger.i18n.getMessage("keyShift")}+S`;
+  }
+  $("#whats-new-tb1").text(messenger.i18n.getMessage("whatsNewTb1", keybShct));
+
   $("#link-website > a").attr("href", extInfo.homepage_url);
   $("#link-atn > a").attr("href", aeConst.ATN_URL);
   $("#link-blog > a").attr("href", aeConst.BLOG_URL);
