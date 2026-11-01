@@ -985,6 +985,9 @@ messenger.runtime.onMessage.addListener(aRequest => {
     let resp = {isOpen: true};
     return Promise.resolve(resp);
   }
+  else if (aRequest.msgID == "toggle-accent-color") {
+    aeVisual.enableAccentColor(aRequest.isEnabled);
+  }
 });
 
 

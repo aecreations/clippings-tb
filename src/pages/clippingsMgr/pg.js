@@ -1416,6 +1416,10 @@ messenger.runtime.onMessage.addListener(aRequest => {
     }      
     break;
 
+  case "toggle-accent-color":
+    aeVisual.enableAccentColor(aRequest.isEnabled, true);
+    break;
+
   default:
     break;
   }

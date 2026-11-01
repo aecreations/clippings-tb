@@ -149,6 +149,9 @@ messenger.runtime.onMessage.addListener(aRequest => {
     messenger.windows.update(gWndID, {focused: true});
     messenger.tabs.update(gTabID, {active: true});
   }
+  else if (aRequest.msgID == "toggle-accent-color") {
+    aeVisual.enableAccentColor(aRequest.isEnabled);
+  }
 
   if (resp) {
     return Promise.resolve(resp);

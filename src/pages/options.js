@@ -223,9 +223,11 @@ $(async () => {
     aePrefs.setPrefs({useAccentColor});
     setTimeout(() => {
       aeVisual.enableAccentColor(useAccentColor);
+      messenger.runtime.sendMessage({
+        msgID: "toggle-accent-color",
+        isEnabled: useAccentColor,
+      });
     }, CHG_ACCENT_COLOR_DELAY_MS);
-
-    // TO DO: Update accent colors on all opened windows and dialogs.
   });
 
   $("#wnds-dlgs-settings").on("click", aEvent => {

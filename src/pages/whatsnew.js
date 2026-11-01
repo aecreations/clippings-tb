@@ -60,8 +60,19 @@ function sanitizeHTML(aHTMLStr)
 }
 
 
+//
+// Event handlers
+//
+
 $(window).on("contextmenu", aEvent => {
   if (aEvent.target.tagName != "INPUT" && aEvent.target.getAttribute("type") != "text") {
     aEvent.preventDefault();
+  }
+});
+
+
+messenger.runtime.onMessage.addListener(aRequest => {
+  if (aRequest.msgID == "toggle-accent-color") {
+    aeVisual.enableAccentColor(aRequest.isEnabled);
   }
 });
