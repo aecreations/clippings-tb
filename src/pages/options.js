@@ -18,11 +18,8 @@ let gKeybPasteShct, gSubjectKeybPasteShct;
 $(async () => {
   messenger.windows.update(messenger.windows.WINDOW_ID_CURRENT, {focused: true});
 
-  let platform = await messenger.runtime.getPlatformInfo();
-  document.body.dataset.os = gOS = platform.os;
-  aeInterxn.init(gOS);
-
   let tabGeneral = $("#preftab-general-btn");
+  setCheckedPrefTabStyle(tabGeneral[0]);
   tabGeneral.on("click", switchPrefsPanel);
   tabGeneral.ariaSelected = true;
 
@@ -34,8 +31,16 @@ $(async () => {
   tabSync.on("click", switchPrefsPanel);
   tabSync.ariaSelected = false;
 
-  let lang = messenger.i18n.getUILanguage();
-  document.body.dataset.locale = lang;
+  let platform = await messenger.runtime.getPlatformInfo();
+  document.body.dataset.os = gOS = platform.os;
+  aeInterxn.init(gOS);
+
+  let prefs = await aePrefs.getAllPrefs();
+  aeVisual.init(gOS);
+  aeVisual.preloadMsgBoxIcons(true);
+  toggleAccentColor(prefs.useAccentColor);
+
+  document.body.dataset.locale = messenger.i18n.getUILanguage();
 
   $("#sync-intro").html(sanitizeHTML(messenger.i18n.getMessage("syncIntroTB")));
   
@@ -47,7 +52,6 @@ $(async () => {
 
   initDialogs();
 
-  let prefs = await aePrefs.getAllPrefs();
   $("#show-tools-cmd").prop("checked", prefs.showToolsCmd).on("click", aEvent => {
     aePrefs.setPrefs({showToolsCmd: aEvent.target.checked});
   });
@@ -222,7 +226,7 @@ $(async () => {
     let useAccentColor = aEvent.target.checked;
     aePrefs.setPrefs({useAccentColor});
     setTimeout(() => {
-      aeVisual.enableAccentColor(useAccentColor);
+      toggleAccentColor(useAccentColor);
       messenger.runtime.sendMessage({
         msgID: "toggle-accent-color",
         isEnabled: useAccentColor,
@@ -285,7 +289,6 @@ $(async () => {
     aeInterxn.initDialogButtonFocusHandlers();
   }
 
-  aeVisual.init(gOS);
   aeVisual.cacheIcons(
     "pref-general-checked.svg",
     "pref-paste-checked.svg",
@@ -294,8 +297,6 @@ $(async () => {
     "pref-paste-checked-dk.svg",
     "pref-sync-clippings-checked-dk.svg"
   );
-  aeVisual.preloadMsgBoxIcons(true);
-  aeVisual.enableAccentColor(prefs.useAccentColor);
 });
 
 
@@ -323,6 +324,7 @@ function switchPrefsPanel(aEvent)
   }
   aEvent.target.classList.add("active-tab");
   aEvent.target.ariaSelected = true;
+  setCheckedPrefTabStyle(aEvent.target);
 }
 
 
@@ -858,6 +860,24 @@ async function toggleKeyboardShortcutOpt(aEvent, aPrefName, aCommandName)
       shortcut: '',
     });
   }
+}
+
+
+function toggleAccentColor(aIsEnabled)
+{
+  aeVisual.enableAccentColor(aIsEnabled);
+  document.body.dataset.sysAccent = aIsEnabled;
+}
+
+
+function setCheckedPrefTabStyle(aPrefTab)
+{
+  // Workaround to ignored CSS property `background-position-x` on background
+  // image set using the -moz-element() function.
+  let btnStyles = window.getComputedStyle(aPrefTab);
+  let btnWidth = parseInt(btnStyles.width);
+  let bkgdPosX = Math.ceil((btnWidth - 32) / 2);
+  aPrefTab.style.backgroundPositionX = `${bkgdPosX}px`;
 }
 
 

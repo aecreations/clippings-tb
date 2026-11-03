@@ -28,41 +28,38 @@
     --color-about-btn: black;
 
     --url-preftab-general: url("../img/pref-general.svg");
-    --url-preftab-general-checked: url("../img/pref-general-checked.svg");
     --url-preftab-paste: url("../img/pref-paste.svg");
-    --url-preftab-paste-checked: url("../img/pref-paste-checked.svg");
     --url-preftab-sync-clippings: url("../img/pref-sync-clippings.svg");
-    --url-preftab-sync-clippings-checked: url("../img/pref-sync-clippings-checked.svg");
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
-	--color-bkgd: #1a1a1e;
-	--color-main-border: #2a2a2e;
-	--color-main-border-shadow: #0c0c0d;
-	--color-main-bkgd: #2a2a2e;
-	--color-header-bkgd: #2a2a2e;
-	--color-tab-cntr-border: #5b5b66;
-	--color-tab-bkgd-hover: #52525e;
-	--color-tab-bkgd-active: #5b5b66;
-	--color-tab-bkgd-selected: #4a4a55;
-	--color-tab-text-active: #45a1ff;
-	--color-fieldset-border: #4a4a4f;
-	--color-dlg-fieldset-border: #585858;
-	--color-text-sync-status-on: #30e60b;
-	--color-about-btn-bkgd: #2a2a2e;
-	--color-about-btn-bkgd-hover: #38383d;
-	--color-about-btn-bkgd-active: #4a4a4f;
-	--color-about-btn-border: #4a4a4f;
-	--color-about-btn-border-hover: #b1b1b3;
-	--color-about-btn: #f9f9fa;
+        --color-bkgd: #1a1a1e;
+        --color-main-border: #2a2a2e;
+        --color-main-border-shadow: #0c0c0d;
+        --color-main-bkgd: #2a2a2e;
+        --color-header-bkgd: #2a2a2e;
+        --color-tab-cntr-border: #5b5b66;
+        --color-tab-bkgd-hover: #52525e;
+        --color-tab-bkgd-active: #5b5b66;
+        --color-tab-bkgd-selected: #4a4a55;
+        --color-tab-text-active: #45a1ff;
+        --color-fieldset-border: #4a4a4f;
+        --color-dlg-fieldset-border: #585858;
+        --color-text-sync-status-on: #30e60b;
+        --color-about-btn-bkgd: #2a2a2e;
+        --color-about-btn-bkgd-hover: #38383d;
+        --color-about-btn-bkgd-active: #4a4a4f;
+        --color-about-btn-border: #4a4a4f;
+        --color-about-btn-border-hover: #b1b1b3;
+        --color-about-btn: #f9f9fa;
 
-	--url-preftab-general: url("../img/pref-general-dk.svg");
-	--url-preftab-general-checked: url("../img/pref-general-checked-dk.svg");
-	--url-preftab-paste: url("../img/pref-paste-dk.svg");
-	--url-preftab-paste-checked: url("../img/pref-paste-checked-dk.svg");
-	--url-preftab-sync-clippings: url("../img/pref-sync-clippings-dk.svg");
-	--url-preftab-sync-clippings-checked: url("../img/pref-sync-clippings-checked-dk.svg");
+        --url-preftab-general: url("../img/pref-general-dk.svg");
+        --url-preftab-general-checked: url("../img/pref-general-checked-dk.svg");
+        --url-preftab-paste: url("../img/pref-paste-dk.svg");
+        --url-preftab-paste-checked: url("../img/pref-paste-checked-dk.svg");
+        --url-preftab-sync-clippings: url("../img/pref-sync-clippings-dk.svg");
+        --url-preftab-sync-clippings-checked: url("../img/pref-sync-clippings-checked-dk.svg");
     }
 }
 
@@ -199,17 +196,45 @@ progress {
     margin-left: 2.2em;
 }
 
-description {
-    margin-top: 6px;
-    margin-right: 18px;
-}
-
 .description {
     font-size: 13px;
 }
 
 .example {
     font-size: 11.5px;
+}
+
+#embedded-icons {
+    position: absolute;
+    top: -100px;
+    left: 0;
+}
+
+body[data-sys-accent="true"] #embedded-icons > svg .stroke {
+    stroke: var(--color-pref-pane-ico-stroke);
+}
+
+body[data-sys-accent="true"] #embedded-icons > svg .shape {
+    stroke: var(--color-pref-pane-ico-stroke);
+    fill: var(--color-pref-pane-ico-stroke);
+}
+
+body[data-sys-accent="true"] #embedded-icons > svg .shape-filled {
+    stroke: var(--color-pref-pane-ico-stroke);
+    fill: var(--color-pref-pane-ico-fill);
+}
+
+body[data-sys-accent="true"] #embedded-icons > svg .shape-filled-accent {
+    stroke: var(--color-pref-pane-ico-stroke);
+    fill: var(--color-pref-pane-ico-fill-accent);
+}
+
+body[data-sys-accent="true"] #embedded-icons > svg .fill-only {
+    fill: var(--color-pref-pane-ico-fill);
+}
+
+body[data-sys-accent="true"] #embedded-icons > svg .fill-as-stroke {
+    fill: var(--color-pref-pane-ico-stroke);
 }
 
 .tab-container {
@@ -272,6 +297,10 @@ description {
     background-color: var(--color-tab-bkgd-selected);
 }
 
+body[data-sys-accent="true"] .tab > button.active-tab {
+    color: var(--color-pref-pane-ico-stroke);
+}
+
 .tab > button:hover {
     background-color: var(--color-tab-bkgd-hover);
 }
@@ -304,14 +333,18 @@ description {
 }
 
 #preftab-general-btn.active-tab {
-    background-image: var(--url-preftab-general-checked);
+    background-image: -moz-element(#pref-general-checked-ico);
+
+    /* Hide brief element repositioning during page load. */
+    background-position-x: 20px;
 }
+
 #preftab-paste-btn {
     background-image: var(--url-preftab-paste);
 }
 
 #preftab-paste-btn.active-tab {
-    background-image: var(--url-preftab-paste-checked);
+    background-image: -moz-element(#pref-paste-checked-ico);
 }
 
 #preftab-sync-clippings-btn {
@@ -319,7 +352,33 @@ description {
 }
 
 #preftab-sync-clippings-btn.active-tab {
-    background-image: var(--url-preftab-sync-clippings-checked);
+    background-image: -moz-element(#pref-sync-clippings-checked-ico);
+}
+
+@media (prefers-color-scheme: dark) {
+    #preftab-general-btn.active-tab {
+        background-image: var(--url-preftab-general-checked);
+    }
+
+    #preftab-paste-btn.active-tab {
+        background-image: var(--url-preftab-paste-checked);
+    }
+
+    #preftab-sync-clippings-btn.active-tab {
+        background-image: var(--url-preftab-sync-clippings-checked);
+    }
+
+    body[data-sys-accent="true"] #preftab-general-btn.active-tab {
+        background-image: -moz-element(#pref-general-checked-ico);
+    }
+
+    body[data-sys-accent="true"] #preftab-paste-btn.active-tab {
+        background-image: -moz-element(#pref-paste-checked-ico);
+    }
+
+    body[data-sys-accent="true"] #preftab-sync-clippings-btn.active-tab {
+        background-image: -moz-element(#pref-sync-clippings-checked-ico);
+    }
 }
 
 #html-paste-options {
