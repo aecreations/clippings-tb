@@ -86,6 +86,7 @@
     --url-toolbar-btn-img-autoIncPlchldr-hover: url("../../img/numericPlchldr_hover.svg");
     --url-icon-synced-clippings-fldr: url("../../img/synced-clippings.svg");
     --url-icon-synced-clippings-readonly-fldr: url("../../img/synced-clippings-readonly.svg");
+    --url-icon-search-reset: url("../../img/search-reset.svg");
 }
 
 @media (prefers-color-scheme: dark) {
@@ -161,6 +162,7 @@
         --url-toolbar-btn-img-autoIncPlchldr-hover: url("../../img/numericPlchldr_dk.svg");
         --url-icon-synced-clippings-fldr: url("../../img/synced-clippings-dk.svg");
         --url-icon-synced-clippings-readonly-fldr: url("../../img/synced-clippings-readonly-dk.svg");
+        --url-icon-search-reset: url("../../img/search-reset-dk.svg");
 
         #options-bar > #clipping-label > #clipping-label-picker {
             color: black;
