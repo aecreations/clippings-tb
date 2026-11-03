@@ -721,10 +721,10 @@ let gSearchBox = {
     }
     
     $("#search-box").prop("placeholder", messenger.i18n.getMessage("clipMgrSrchBarHint"));
-    $("#search-box").focus(aEvent => {
+    $("#search-box").on("focus", aEvent => {
       gSearchBox.activate();
     });
-    $("#search-box").blur(aEvent => { gSearchBox.deactivate() });
+    $("#search-box").on("blur", aEvent => { gSearchBox.deactivate() });
 
     $("#search-box").keyup(aEvent => {
       this.updateSearch();
@@ -1894,7 +1894,7 @@ function initToolbar()
 function initInstantEditing()
 {
   $("#clipping-name").attr("placeholder", messenger.i18n.getMessage("clipMgrNameHint"))
-    .blur(aEvent => {
+    .on("blur", aEvent => {
       let tree = getClippingsTree();
       let selectedNode = tree.activeNode;
       let name = aEvent.target.value;
@@ -1925,16 +1925,16 @@ function initInstantEditing()
   
   $("#clipping-text").attr("placeholder", messenger.i18n.getMessage("clipMgrContentHint"))
     .attr("spellcheck", gPrefs.checkSpelling)
-    .focus(aEvent => {
+    .on("focus", aEvent => {
       let tree = getClippingsTree();
       let selectedNode = tree.activeNode;
       let id = parseInt(selectedNode.key);
 
-      contentAutoSave.onSave = aContent => {
+      contentAutoSave.onSave = function (aContent) {
         gCmd.editClippingContentIntrl(id, aContent, gCmd.UNDO_STACK, true);
       };
       contentAutoSave.start();
-    }).blur(aEvent => {
+    }).on("blur", aEvent => {
       let tree = getClippingsTree();
       let selectedNode = tree.activeNode;
       let id = parseInt(selectedNode.key);
