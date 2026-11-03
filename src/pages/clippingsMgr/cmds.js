@@ -1478,7 +1478,7 @@ function clippingsMgrCmds()
       });
     },
 
-    editClippingContentIntrl: function (aClippingID, aContent, aDestUndoStack)
+    editClippingContentIntrl: function (aClippingID, aContent, aDestUndoStack, aSuppressAddrBkPermCheck=false)
     {
       let that = this;
 
@@ -1501,7 +1501,7 @@ function clippingsMgrCmds()
           }
 
           clipping = aClipping;
-          if (aeClippings.hasContactFirstNamePlaceholder(aClipping.content)) {
+          if (aeClippings.hasContactFirstNamePlaceholder(aClipping.content) && !aSuppressAddrBkPermCheck) {
             return checkAddressBookPermission();
           }
           return null;

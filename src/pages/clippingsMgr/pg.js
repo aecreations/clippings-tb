@@ -1931,7 +1931,7 @@ function initInstantEditing()
       let id = parseInt(selectedNode.key);
 
       contentAutoSave.onSave = aContent => {
-        gCmd.editClippingContentIntrl(id, aContent, gCmd.UNDO_STACK);
+        gCmd.editClippingContentIntrl(id, aContent, gCmd.UNDO_STACK, true);
       };
       contentAutoSave.start();
     }).blur(aEvent => {
