@@ -13,9 +13,9 @@
     --color-main-bkgd: #f9f9fa;
     --color-header-bkgd: radial-gradient(#fff, #f0f0f4);
     --color-tab-cntr-border: #cfcfd8;
-    --color-tab-bkgd-hover: #e0e0e6;
+    --color-tab-bkgd-hover: #f0f0f4;
     --color-tab-bkgd-active: #cfcfd8;
-    --color-tab-bkgd-selected: #f0f0f4;
+    --color-tab-bkgd-selected: #e0e0e6;
     --color-tab-text-active: #0073E0;
     --color-fieldset-border: #d7d7db;
     --color-dlg-fieldset-border: #d7d7db;
@@ -272,12 +272,16 @@ description {
     background-color: var(--color-tab-bkgd-selected);
 }
 
+body[data-sys-accent="true"] .tab > button.active-tab {
+    color: var(--color-default-text);
+}
+
 .tab > button:hover {
     background-color: var(--color-tab-bkgd-hover);
 }
 
 .tab > button.active-tab:hover {
-    background-color: var(--color-tab-bkgd-hover);
+    background-color: var(--color-tab-bkgd-selected);
 }
 
 .tab > button:active {

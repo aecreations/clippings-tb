@@ -222,7 +222,7 @@ $(async () => {
     let useAccentColor = aEvent.target.checked;
     aePrefs.setPrefs({useAccentColor});
     setTimeout(() => {
-      aeVisual.enableAccentColor(useAccentColor);
+      toggleAccentColor(useAccentColor);
       messenger.runtime.sendMessage({
         msgID: "toggle-accent-color",
         isEnabled: useAccentColor,
@@ -295,7 +295,7 @@ $(async () => {
     "pref-sync-clippings-checked-dk.svg"
   );
   aeVisual.preloadMsgBoxIcons(true);
-  aeVisual.enableAccentColor(prefs.useAccentColor);
+  toggleAccentColor(prefs.useAccentColor);
 });
 
 
@@ -858,6 +858,13 @@ async function toggleKeyboardShortcutOpt(aEvent, aPrefName, aCommandName)
       shortcut: '',
     });
   }
+}
+
+
+function toggleAccentColor(aIsEnabled)
+{
+  aeVisual.enableAccentColor(aIsEnabled);
+  document.body.dataset.sysAccent = aIsEnabled;
 }
 
 
