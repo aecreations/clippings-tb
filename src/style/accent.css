@@ -16,18 +16,10 @@
 
     --color-cxtmenu-menuitem-hover-bkgd: hsl(from var(--accent-color) h s calc(l + 35));
     --color-cxtmenu-menuitem-active-bkgd: hsl(from var(--accent-color) h s calc(l + 30));
-
-    --color-pref-pane-ico-stroke: var(--accent-color);
-    --color-pref-pane-ico-fill: hsl(from var(--accent-color) h s calc(l + 40));
-    --color-pref-pane-ico-fill-accent: hsl(from var(--accent-color) h s calc(l + 30));
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --color-pref-pane-ico-stroke: hsl(from var(--accent-color) h s calc(l + 20));
-        --color-pref-pane-ico-fill: hsl(from var(--accent-color) h s calc(l - 25));
-        --color-pref-pane-ico-fill-accent: hsl(from var(--accent-color) h s calc(l - 10));
-
         --color-cxtmenu-menuitem-hover-bkgd: hsl(from var(--accent-color) h s calc(l - 30));
         --color-cxtmenu-menuitem-active-bkgd: hsl(from var(--accent-color) h s calc(l - 25));
     }
