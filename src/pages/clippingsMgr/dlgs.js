@@ -536,6 +536,8 @@ function clippingsMgrDlgs()
             gCmd.undoStack.clear();
             gCmd.redoStack.clear();
             gActiveTreeNodeHistory.clear();
+            messenger.runtime.sendMessage({msgID: "reset-recent-clipping"});
+
             importFile(false);
           });
         }).catch(aErr => {

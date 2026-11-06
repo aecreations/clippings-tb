@@ -2252,6 +2252,12 @@ async function pasteProcessedClipping(aClippingContent, aComposeTabID, aComposeF
 }
 
 
+function resetRecentClipping()
+{
+  gRecentClippingID = null;
+}
+
+
 function showSyncAppErrorNotification()
 {
   messenger.notifications.create("sync-app-error", {
@@ -2649,7 +2655,11 @@ messenger.runtime.onMessage.addListener(aRequest => {
 
   case "get-recent-clipping":
     return Promise.resolve(gRecentClippingID);
-    
+
+  case "reset-recent-clipping":
+    resetRecentClipping();
+    break;
+
   case "get-shct-key-prefix-ui-str":
     return Promise.resolve(getShortcutKeyPrefixStr(aRequest.cmdName));
 
