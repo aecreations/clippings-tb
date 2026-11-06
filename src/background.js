@@ -1997,13 +1997,9 @@ function pasteClippingByID(aClippingID, aComposeTabID, aComposeFieldID=null)
 {
   let clippingsDB = aeClippings.getDB();
 
-  // Get the most recent compose window, not the keyboard paste dialog if it
-  // was invoked.
-  getRecentComposeWnd().then(aWnd => {
-    if (!aWnd) {
-      return;
-    }
-    gPermissionReq.wndID = aWnd.id;
+  messenger.tabs.get(aComposeTabID).then(aTab => {
+    let wndID = aTab.windowId;
+    gPermissionReq.wndID = wndID;
 
     clippingsDB.transaction("r", clippingsDB.clippings, clippingsDB.folders, () => {
       let clipping = null;
@@ -2024,7 +2020,7 @@ function pasteClippingByID(aClippingID, aComposeTabID, aComposeFieldID=null)
               compTabID: aComposeTabID,
               compFieldID: aComposeFieldID,
             });
-            await aeClippings.openPermissionPg(aWnd.id);
+            await aeClippings.openPermissionPg(wndID);
 
             // Paste clipping will resume once user has granted the requested
             // permission.
@@ -2069,11 +2065,9 @@ function pasteClippingByShortcutKey(aShortcutKey, aComposeTabID, aComposeFieldID
 {
   let clippingsDB = aeClippings.getDB();
 
-  getRecentComposeWnd().then(aWnd => {
-    if (!aWnd) {
-      return;
-    }
-    gPermissionReq.wndID = aWnd.id;
+  messenger.tabs.get(aComposeTabID).then(aTab => {
+    let wndID = aTab.windowId;
+    gPermissionReq.wndID = wndID;
 
     clippingsDB.transaction("r", clippingsDB.clippings, clippingsDB.folders, () => {
       let results = clippingsDB.clippings.where("shortcutKey").equals(aShortcutKey.toUpperCase());
@@ -2096,7 +2090,7 @@ function pasteClippingByShortcutKey(aShortcutKey, aComposeTabID, aComposeFieldID
               compTabID: aComposeTabID,
               compFieldID: aComposeFieldID,
             });
-            await aeClippings.openPermissionPg(aWnd.id);
+            await aeClippings.openPermissionPg(wndID);
 
             // Paste clipping will resume once user has granted the requested
             // permission.
@@ -2383,23 +2377,6 @@ async function alertEx(aMessageName, aUsePopupWnd=false)
   if (wndGeom) {
     messenger.windows.update(wnd.id, {left, top});
   }
-}
-
-
-async function getRecentComposeWnd()
-{
-  let rv;
-  let msgrTabs = await messenger.tabs.query({});
-
-  for (let tab of msgrTabs) {
-    let wnd = await messenger.windows.get(tab.windowId);
-    if (wnd.type == "messageCompose" && wnd.focused) {
-      rv = wnd;
-      break;
-    }
-  }
-
-  return rv;
 }
 
 
