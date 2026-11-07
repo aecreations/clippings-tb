@@ -426,9 +426,12 @@ body[data-os="win"] #shct-key-in-menu-opt {
     vertical-align: -1px;
 }
 
-body[data-os="linux"]:not([data-laf="true"]) #backup-reminder-freq,
+body[data-os="linux"]:not([data-laf="true"]) #backup-reminder-freq {
+    vertical-align: -3px;
+}
+
 body[data-os="linux"]:not([data-laf="true"]) #shct-key-in-menu-opt {
-    vertical-align: 3px;
+    vertical-align: 0;
 }
 
 #backup-reminder-freq + label {
@@ -442,9 +445,9 @@ body[data-os="win"] #shct-key-in-menu-opt + label {
     vertical-align: -2px;
 }
 
-body[data-os="linux"]:not([data-laf="true"]) #backup-reminder-freq + label
+body[data-os="linux"]:not([data-laf="true"]) #backup-reminder-freq + label,
 body[data-os="linux"]:not([data-laf="true"]) #shct-key-in-menu-opt + label {
-    vertical-align: 3px;
+    vertical-align: -3px;
 }
 
 body[data-locale="de"] #skip-backup-label {
