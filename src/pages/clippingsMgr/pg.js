@@ -1469,6 +1469,11 @@ function initToolbar()
     trigger: "left",
     className: "placeholder-menu",
 
+    animation: {
+      hide: "fadeOut",
+      animateOnReopen: false
+    },
+
     events: {
       activated: function (aOptions) {
         $("#plchldr-presets").addClass("toolbar-button-menu-open");
@@ -1684,6 +1689,11 @@ function initToolbar()
     selector: "#clippings-mgr-options",
     trigger: "left",
     className: "tools-menu",
+
+    animation: {
+      hide: "fadeOut",
+      animateOnReopen: false
+    },
 
     events: {
       activated: function (aOptions) {
@@ -2336,6 +2346,11 @@ async function buildClippingsTree()
   $.contextMenu({
     selector: "#clippings-tree > ul.ui-fancytree > li",
     className: "clippings-tree-cxt-menu",
+
+    animation: {
+      hide: "fadeOut",
+      animateOnReopen: false
+    },
 
     events: {
       activated(aOpts) {
