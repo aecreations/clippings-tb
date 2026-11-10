@@ -470,6 +470,10 @@ body[data-locale="de"] #skip-backup-label {
     margin-top: 12px;
 }
 
+body[data-locale="de"] #shct-label {
+    letter-spacing: -0.1px;
+}
+
 #sync-options .description {
     margin-top: 0;
     margin-bottom: 6px;
@@ -738,6 +742,7 @@ body[data-locale|="pt"] #sync-clippings-dlg {
 #sync-clippings-dlg fieldset {
     margin-top: 14px;
     margin-left: 0;
+    padding-right: 0;
     border-bottom: 1px solid var(--color-fieldset-border);
 }
 
@@ -755,6 +760,10 @@ body[data-locale|="pt"] #sync-clippings-dlg {
     margin-top: 2px;
     margin-bottom: 4px;
     margin-left: 28px;
+}
+
+body[data-locale="de"] #sync-clippings-dlg #auto-sync-on-new-or-manage-lbl {
+    letter-spacing: -0.45px;
 }
 
 #request-native-app-conxn-perm-dlg .msgbox-icon,
