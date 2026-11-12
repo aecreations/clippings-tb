@@ -5,7 +5,7 @@
 
 
 const aeConst = Object.freeze({
-  DEBUG: true,
+  DEBUG: false,
   CURR_MAJOR_VER: "8.0",
   
   // Maximum number of chars of clipping names.
