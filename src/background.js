@@ -2635,7 +2635,7 @@ messenger.runtime.onMessage.addListener(aRequest => {
   case "paste-clipping-usr-fmt":
     return Promise.resolve(
       pasteProcessedClipping(
-        aRequest.processedContent, aRequest.composeTabID, aRequest.pasteFormat
+        aRequest.processedContent, aRequest.composeTabID, null, aRequest.pasteFormat
       )
     );
 
