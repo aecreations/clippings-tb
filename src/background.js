@@ -453,13 +453,13 @@ async function init()
 {
   info("Clippings/mx: Initializing integration of MailExtension with host app...");
 
-  let [msgr, platform] = await Promise.all([
+  let [hostApp, platform] = await Promise.all([
     messenger.runtime.getBrowserInfo(),
     messenger.runtime.getPlatformInfo(),
   ]);
     
-  gHostAppName = msgr.name;
-  gHostAppVer = msgr.version;
+  gHostAppName = hostApp.name;
+  gHostAppVer = hostApp.version;
   log(`Clippings/mx: Host app: ${gHostAppName} (version ${gHostAppVer})`);
 
   gOS = platform.os;

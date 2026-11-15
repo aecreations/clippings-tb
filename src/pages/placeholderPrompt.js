@@ -36,12 +36,9 @@ $(async () => {
   gComposeTabID = Number(params.get("compTabID"));
   gComposeFieldID = params.get("field");
 
-  let [msgClient, platform] = await Promise.all([
-    messenger.runtime.getBrowserInfo(),
-    messenger.runtime.getPlatformInfo(),
-  ]);
-  document.body.dataset.os = platform.os;
-  aeInterxn.init(platform.os);
+  let {os} = await messenger.runtime.getPlatformInfo();
+  document.body.dataset.os = os;
+  aeInterxn.init(os);
 
   let resp = await messenger.runtime.sendMessage({
     msgID: "init-placeholder-prmt-dlg"
@@ -114,10 +111,10 @@ $(async () => {
       break;
     }
 
-    if (platform.os == "win") {
+    if (os == "win") {
       height += DLG_HEIGHT_ADJ_WINDOWS;
     }
-    else if (platform.os == "linux") {
+    else if (os == "linux") {
       height += DLG_HEIGHT_ADJ_LINUX;
     }
     

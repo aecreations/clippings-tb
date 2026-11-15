@@ -276,16 +276,11 @@ $(async () => {
     document.title = messenger.i18n.getMessage("addSubjTitle");
   }
   
-  let [brws, platform] = await Promise.all([
+  let [hostApp, platform] = await Promise.all([
     messenger.runtime.getBrowserInfo(),
     messenger.runtime.getPlatformInfo(),
   ]);
-  let envInfo = {
-    os: platform.os,
-    hostAppName: brws.name,
-    hostAppVer:  brws.version,
-  };
-  document.body.dataset.os = gOS = envInfo.os;
+  document.body.dataset.os = gOS = platform.os;
   aeInterxn.init(gOS);
 
   aeClippings.init();
@@ -296,7 +291,7 @@ $(async () => {
   aeImportExport.setDatabase(gClippingsDB);
   aeImportExport.setL10nStrings({
     shctTitle: messenger.i18n.getMessage("expHTMLTitle"),
-    hostAppInfo: messenger.i18n.getMessage("expHTMLHostAppInfo", [extVer, envInfo.hostAppName]),
+    hostAppInfo: messenger.i18n.getMessage("expHTMLHostAppInfo", [extVer, hostApp.name]),
     shctKeyInstrxns: messenger.i18n.getMessage("expHTMLShctKeyInstrxnTB"),
     shctKeyCustNote: messenger.i18n.getMessage("expHTMLShctKeyCustNoteTB"),
     shctKeyColHdr: messenger.i18n.getMessage("expHTMLShctKeyCol"),
