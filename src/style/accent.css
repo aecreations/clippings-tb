@@ -16,12 +16,22 @@
 
     --color-cxtmenu-menuitem-hover-bkgd: hsl(from var(--accent-color) h s calc(l + 35));
     --color-cxtmenu-menuitem-active-bkgd: hsl(from var(--accent-color) h s calc(l + 30));
+
+    /* Fancytree */
+    --color-active-node: hsl(from var(--accent-color) h s calc(l + 45));
+    --color-active-border: var(--accent-color);
+    --color-focused-node: var(--color-cxtmenu-menuitem-hover-bkgd);
+    --color-focused-border: var(--accent-color-border);
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
         --color-cxtmenu-menuitem-hover-bkgd: hsl(from var(--accent-color) h s calc(l - 30));
         --color-cxtmenu-menuitem-active-bkgd: hsl(from var(--accent-color) h s calc(l - 25));
+
+        /* Fancytree */
+        --color-active-node: hsl(from var(--accent-color) h s calc(l - 30));
+        --color-focused-node: hsl(from var(--accent-color) h s calc(l - 15));
     }
 }
 
