@@ -527,7 +527,7 @@ async function initShortcutList()
 
   $("#shortcut-list-toolbar > #paste-clipping").on("click", aEvent => {
     let clippingKey = $("#shortcut-list-content > table > tbody > tr.selected-row td:first-child").text();
-    execShortcut(clippingKey);
+    execShortcut(clippingKey, gComposeFieldID);
   });
 
   $("#shortcut-list-toolbar > #export-shct-list").on("click", aEvent => {
@@ -566,7 +566,7 @@ async function initShortcutList()
       }
     }).on("dblclick", aEvent => {
       let clippingKey = $("#shortcut-list-content > table > tbody > tr.selected-row td:first-child").text();
-      execShortcut(clippingKey);
+      execShortcut(clippingKey, gComposeFieldID);
     });
 
     $(".deck > #shortcut-list").fadeIn("fast");
