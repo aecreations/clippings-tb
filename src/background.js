@@ -2457,6 +2457,10 @@ messenger.menus.onShown.addListener(async (aInfo, aTab) => {
     }
     else if (aInfo.contexts.includes("compose_body")) {
       await showClippingsMenu();
+
+      // Reset enabled status on the "New" command in case it was disabled
+      // when last shown from the subject field.
+      await messenger.menus.update("ae-clippings-new", {enabled: true});
     }
     else if (aInfo.contexts.includes("editable")) {
       // Show Clippings submenu in the subject line.
