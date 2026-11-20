@@ -266,6 +266,10 @@ description {
     box-shadow: none;
 }
 
+body[data-sys-accent="true"] .tab > button:-moz-focusring {
+    box-shadow: none;
+}
+
 .tab > button:-moz-focusring:active {
     margin-top: -2px;
     margin-bottom: -2px;
