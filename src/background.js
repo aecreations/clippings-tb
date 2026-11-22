@@ -1746,11 +1746,16 @@ function cleanUpClippingsMgr()
 }
 
 
-async function newClipping(aComposeTab, aComposeFieldID)
+async function newClipping(aComposeTab, aComposeFieldID, aSelectedText)
 {
   if (aComposeFieldID == "composeSubject") {
-    let {subject} = await messenger.compose.getComposeDetails(aComposeTab.id);
-    !!subject && openNewClippingDlg(subject);
+    if (aSelectedText) {
+      openNewClippingDlg(aSelectedText);
+    }
+    else {
+      let {subject} = await messenger.compose.getComposeDetails(aComposeTab.id);
+      !!subject && openNewClippingDlg(subject);
+    }
   }
   else {
     let injectOpts = {code: `getSelectedText()`};
@@ -2495,7 +2500,8 @@ messenger.menus.onHidden.addListener(async () => {
 messenger.menus.onClicked.addListener((aInfo, aTab) => {
   switch (aInfo.menuItemId) {
   case "ae-clippings-new":
-    newClipping(aTab, aInfo.fieldId);
+    let selectedText = aInfo.fieldId == "composeSubject" ? aInfo.selectionText : null;
+    newClipping(aTab, aInfo.fieldId, selectedText);
     break;
 
   case "ae-clippings-manager":
