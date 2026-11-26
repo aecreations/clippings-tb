@@ -229,10 +229,10 @@ aeClippingSubst.processStdPlaceholders = async function (aClippingInfo, aCompose
     for (let i = 0; i < dtPlaceholders.length; i++) {
       let suffix = "";
       if (plchldrType[i] == "D") {
-	suffix = "$[DATE(";
+        suffix = "$[DATE(";
       }
       else if (plchldrType[i] == "T"){
-	suffix = "$[TIME(";
+        suffix = "$[TIME(";
       }
       let dtPlchldr = suffix + dtPlaceholders[i] + ")]";
       rv = rv.replace(dtPlchldr, dtReplaced[i]);
@@ -353,9 +353,14 @@ aeClippingSubst._getContactFirstName = async function (aEmailAddress)
 {
   let rv = '';
 
-  // If the optional "addressBooks" permission wasn't granted, this API call
-  // will fail silently.
-  let srchResults = await messenger.contacts.quickSearch(aEmailAddress);
+  let srchResults;
+  try {
+    srchResults = await messenger.contacts.quickSearch(aEmailAddress);
+  }
+  catch {
+    // Exception thrown if the "addressBooks" permission wasn't granted.
+  }
+
   if (srchResults?.length > 0) {
     rv = srchResults[0].properties.FirstName || '';
   }
