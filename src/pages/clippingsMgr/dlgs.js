@@ -257,7 +257,7 @@ function clippingsMgrDlgs()
   {
     let dtFmtList = $("#date-time-format-list")[0];
 
-    if (! gEnvInfo.os == "macos") {
+    if (gEnvInfo.os != "mac") {
       dtFmtList.setAttribute("size", "11");
     }
 
